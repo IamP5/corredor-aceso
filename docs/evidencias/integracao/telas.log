@@ -1,0 +1,24 @@
+[02:04:02] print 01-entrada.png
+[02:04:06] print 02-dia-critico.png
+[02:04:09] print 03-radar.png
+[02:04:09] cards pendentes na tela: 9
+[02:04:09] primeiro card: Urgente. Zulmira Manacá. Viela da Corruíra, 26 - Vila Exemplo. Calor forte dentro de casa desde 05h02. Precisa de visita agora.
+[02:04:12] print 04-casa-e-linha-do-tempo.png
+[02:04:14] print 05-visita.png
+[02:04:19] print 06-casa-depois-da-visita.png
+[02:04:23] print 07-mensagem-bloqueada.png
+[02:04:23] casa do teste sem rede: Zulmira Manacá
+[02:04:23] parando a API
+API parada
+[02:04:35] print 08-fila-api-fora.png
+[02:04:35] tela com a API fora contém "Ainda não enviad": true
+[02:04:35] subindo a API de novo
+API pronta em http://localhost:5080 (log em .demo/api.log)
+[02:04:37] relógio de demo restaurado -> 200
+[02:04:46] a visita feita sem API chegou ao banco: 1 linha(s)
+[02:04:51] print 09-fila-enviada.png
+[02:04:51] a tela da casa ainda diz "não enviada": false
+[02:05:12] 20 s depois, linhas no banco para a mesma visita: 1
+[02:05:14] print 10-encerrar.png
+[02:05:16] print 11-turno-encerrado.png
+[02:05:16] tela final: ‹ Voltar Encerrar o turno Turno encerrado às 10h03 59% com sinal de vida até as 10h 24 de 41 casas. A meta é 100%. 1 casa atendida com alerta. ! 6 casas urgentes ficaram sem atendimento. ? 3 casas com aparelho sem sinal ficaram sem atendimento. Ainda tem casa sem resposta Avise a UBS. Fora do turno,

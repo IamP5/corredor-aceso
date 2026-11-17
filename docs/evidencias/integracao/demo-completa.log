@@ -1,0 +1,108 @@
+== Postgres e Mosquitto (npm run dev:deps)
+ Container gs-citizen-tech-postgres-1  Running
+ Container gs-citizen-tech-mosquitto-1  Running
+== banco corredor_demo do zero, com os papéis de infra/config/bd-modulo.sql
+papéis corredor_motor_migra e corredor_motor prontos
+papéis corredor_cadastro_migra e corredor_cadastro prontos
+papéis corredor_guarda_migra e corredor_guarda prontos
+== migrações: SQL do tools/migracoes.sh, aplicado duas vezes como corredor_<modulo>_migra
+rodada 1: motor.sql aplicado como corredor_motor_migra
+rodada 1: cadastro.sql aplicado como corredor_cadastro_migra
+rodada 1: guarda.sql aplicado como corredor_guarda_migra
+rodada 2: motor.sql aplicado como corredor_motor_migra
+rodada 2: cadastro.sql aplicado como corredor_cadastro_migra
+rodada 2: guarda.sql aplicado como corredor_guarda_migra
+== carga da demo, duas vezes (Corredor.Api --semear api/semente/casas.json)
+rodada 1:       semente: 40 idosos cadastrados, 0 já existiam, 26 vizinhos indicados, 40 tokens
+rodada 2:       semente: 0 idosos cadastrados, 40 já existiam, 0 vizinhos indicados, 40 tokens
+a segunda carga não mudou nada: mesmos 40 tokens e as 15 tabelas iguais, linha a linha
+== API em Development
+API pronta em http://localhost:5080 (log em .demo/api.log)
+[02:26:32] == Cena 1: dia crítico declarado pelo job de ML, as casas esperam, o movimento tira os cards
+[02:26:32] OK    PUT /api/demo/relogio 05:00 -> 200, deslocamento 9208 s
+[02:26:57] simulador: cenário demo --inicio 0 (log em .demo/simulador-demo.log)
+[02:27:05] antes do dia crítico: agora 05:00:33, turno fechado: 2 pendentes, 0 atendidas, 38 aguardando, 0 verdes
+[02:27:05] OK    sem turno não existe Verde
+[02:27:05] python3 ml/prever_hoje.py --dia-das-variaveis 2025-12-29
+[02:27:05]   ml: {"dia_das_variaveis": "2025-12-29", "critico": true, "probabilidade": 0.1098, "motivo": "demo com o clima de 29/12/2025; regra da noite quente: mínimas de 22,6 e 24,3 °C nas 2 últimas noites, acima de 19,9 °C", "origem": "REGRA_BASE"}
+[02:27:05]   ml: PUT <api>/api/dias-criticos/2026-11-17 -> 200 {"data":"2026-11-17","abertoEm":"2026-11-17T05:00:33.141198-03:00","probabilidade":0.110,"motivo":"demo com o clima de 29/12/2025; regra da noite quente: mínimas de 22,6 e 24,3 °C nas 2 últimas noites, acima de 19,9 °C","origem":"REGRA_BASE","encerradoEm":null}
+[02:27:05] OK    prever_hoje.py saiu com 0
+[02:27:05] logo depois: agora 05:00:33, turno aberto: 6 pendentes, 0 atendidas, 34 aguardando, 0 verdes
+[02:27:05] OK    o turno abriu
+[02:27:08] OK    o Motor publicou DIA_CRITICO e o simulador recebeu
+[02:27:09] simulador: cenário demo --inicio 0 (log em .demo/simulador-demo.log)
+[02:27:11] OK    os acamados entram vermelhos na abertura: [2, 11, 21, 31]
+[02:28:41] 90 s depois, com movimento chegando: agora 05:02:09, turno aberto: 6 pendentes, 0 atendidas, 10 aguardando, 24 verdes
+[02:28:41] OK    casas com movimento depois da abertura ficaram Verde
+[02:28:41] OK    PUT /api/demo/relogio 10:00 -> 200, deslocamento 27079 s
+[02:29:06] às 10h: agora 10:00:25, turno aberto: 11 pendentes, 0 atendidas, 26 aguardando, 3 verdes
+[02:29:06] vermelhas por SemMovimentoNaJanela, fora os acamados: [5, 6, 7, 9]
+[02:29:06] OK    C, D e E, em silêncio desde cedo, estão vermelhas
+[02:29:06] OK    a casa 4 (B) avisou a saída e fica fora da regra 4: aguardando, saidaAvisada True
+[02:29:06] radar: agora 10:00:25, turno aberto: 11 pendentes, 0 atendidas, 26 aguardando, 3 verdes
+[02:29:06] == Desfechos da visita: não abriu, estava fora, estava bem e a resposta do vizinho
+[02:29:06] POST /api/visitas casa 7 NaoAbriu -> 201
+[02:29:06] OK    a API aceitou a visita da casa 7
+[02:29:06] OK    casa 7 (E) depois de NaoAbriu: ('Vermelho', 'SemMovimentoNaJanela', False), continua pendente
+[02:29:06] POST /api/visitas casa 7 EstavaFora -> 201
+[02:29:06] OK    a API aceitou a visita da casa 7
+[02:29:06] OK    casa 7 depois de EstavaFora: ('Vermelho', 'SemMovimentoNaJanela', True), atendida e nunca Verde
+[02:29:06] OK    linha do tempo da casa 7: confirmações [('Acs', 'AusenciaConfirmada')]
+[02:29:06] POST /api/visitas casa 6 EstavaBem -> 201
+[02:29:06] OK    a API aceitou a visita da casa 6
+[02:29:06] OK    casa 6 (D) depois de EstavaBem: ('Verde', None, False)
+[02:29:06] OK    o VigiaDoRadar pediu contato e o Cadastro registrou o aviso ao vizinho da casa 5 (C)
+[02:29:06] OK    vizinho respondeu EstaBem -> 200; casa 5: ('Verde', None, False)
+[02:29:06] OK    resposta diferente depois -> 409 AVISO_JA_RESPONDIDO
+[02:29:06] radar: agora 10:00:25, turno aberto: 8 pendentes, 1 atendidas, 26 aguardando, 5 verdes
+[02:29:06] == O movimento chega e tira os cards: as casas vermelhas voltam a ter gente passando no corredor
+[02:29:06] vermelhas por SemMovimentoNaJanela, fora os acamados: [7, 9]. agora 10:00:25, turno aberto: 8 pendentes, 1 atendidas, 26 aguardando, 5 verdes
+[02:29:06] OK    há casa vermelha esperando movimento
+[02:29:07] simulador: cenário manha  (log em .demo/simulador-manha.log)
+[02:30:29] OK    casa 7: saiu dos pendentes e está Verde, com 1 MOVIMENTO nesta janela
+[02:30:29] OK    casa 9: saiu dos pendentes e está Verde, com 1 MOVIMENTO nesta janela
+[02:30:29] radar: agora 10:01:48, turno aberto: 5 pendentes, 0 atendidas, 9 aguardando, 26 verdes
+[02:30:29] == Cena 2: o aparelho mudo fica cinza e nunca vira verde
+[02:30:29] simulador: cenário manha  (log em .demo/simulador-manha.log)
+[02:30:31] OK    casa 15 (Sozinho, não eletrodependente) está Verde, com sinal de vida nesta janela
+[02:30:32] simulador: cenário mudo --casa 15 --inicio 20 (log em .demo/simulador-mudo.log)
+[02:31:54] OK    casa 15: ('Cinza', 'SemHeartbeat', False) depois de 20 s de pacotes e mais de 1 min sem nenhum
+[02:32:24] OK    30 s depois continua sem Verde: ['Cinza', 'Cinza', 'Cinza', 'Cinza', 'Cinza', 'Cinza']
+[02:32:24] POST /api/visitas casa 15 EstavaBem -> 201
+[02:32:24] OK    a API aceitou a visita da casa 15
+[02:32:24] OK    depois da visita EstavaBem: ('Cinza', 'SemHeartbeat', True). Atendida, ainda Cinza
+[02:32:34] OK    10 s depois, sem pacote novo: ('Cinza', 'SemHeartbeat', True)
+[02:32:34] OK    PUT /api/demo/relogio 15:00 -> 200, deslocamento 44846 s
+[02:32:59] OK    na janela seguinte (15h) a visita não vale mais: ('Cinza', 'SemHeartbeat', False)
+[02:33:00] simulador: cenário manha  (log em .demo/simulador-manha.log)
+[02:33:05] OK    com pacote novo a casa sai do Cinza: ('Aguardando', None, False)
+[02:33:05] radar: agora 15:00:30, turno aberto: 5 pendentes, 0 atendidas, 31 aguardando, 4 verdes
+[02:33:05] == Queda de energia na casa eletrodependente (casa 2, acamada, concentrador)
+[02:33:05] simulador: cenário queda-de-energia --casa 2 --inicio 15 --janela 45 (log em .demo/simulador-queda-de-energia.log)
+[02:33:22] OK    durante a queda: casa 2 ('Vermelho', 'EnergiaEletrodependente', False)
+[02:34:12] últimas tensões da casa 2 na linha do tempo: [127.0, 0.0, 127.0]
+[02:34:12] OK    a luz voltou (127.0 V) e a casa continua vermelha pela trava: ('Vermelho', 'EnergiaEletrodependente', False)
+[02:34:12] OK    o vizinho da casa 2 recebeu um aviso por EnergiaEletrodependente
+[02:34:12] POST /api/visitas casa 2 EstavaBem -> 201
+[02:34:12] OK    a API aceitou a visita da casa 2
+[02:34:12] OK    depois que a ACS viu a pessoa: ('Verde', None, False)
+[02:34:12] radar: agora 15:01:38, turno aberto: 4 pendentes, 0 atendidas, 12 aguardando, 24 verdes
+[02:34:12] == Reenvio do buffer: o Wi-Fi da casa 13 cai e os eventos voltam duas vezes
+[02:34:13] simulador: cenário reenvio --casa 13 --inicio 10 --janela 40 (log em .demo/simulador-reenvio.log)
+[02:35:25] o nó guardou 5 eventos e publicou 10 pacotes com bufferizado: true
+[02:35:25] OK    seq 2 MOVIMENTO: gravado 1 vez, bufferizado True
+[02:35:25] OK    seq 3 MOVIMENTO: gravado 1 vez, bufferizado True
+[02:35:25] OK    seq 4 MOVIMENTO: gravado 1 vez, bufferizado True
+[02:35:25] OK    seq 5 MOVIMENTO: gravado 1 vez, bufferizado True
+[02:35:25] OK    seq 6 MOVIMENTO: gravado 1 vez, bufferizado True
+[02:35:25] OK    cada evento guardado saiu duas vezes no fio
+[02:35:25] simulador: cenário manha  (log em .demo/simulador-manha.log)
+[02:35:27] == Cena 3: a mensagem com dado pessoal é bloqueada e explicada
+[02:35:27] painel antes: cor Verde, 0 pontos, 0 eventos
+[02:35:27] POST /api/mensagens/verificar -> 200 {"id": "8572db8d-7b75-47a6-8da2-9a42c79992b5", "veredito": "Bloqueada", "textoMascarado": "ele [MORA_SOZINHO] e toma [SAUDE]", "tiposDeDado": ["MoraSozinho", "Saude"], "explicacao": "Essa mensagem diz que a pessoa mora sozinha e fala da saúde dela. No grupo do bairro, qualquer um lê.", "versaoSegura": "Preciso de ajuda para uma visita agora. Quem puder, me chame no privado."}
+[02:35:27] OK    a Guarda bloqueou e mascarou
+[02:35:33] painel depois: cor Vermelho, 12 pontos, 1 eventos
+[02:35:33] evento: {"ocorridoEm": "2026-11-17T15:02:53.205623-03:00", "tipo": "BloqueioDeSaida", "canal": "GrupoDoBairro", "modulo": "Cadastro", "tiposDeDado": ["Saude", "MoraSozinho"], "severidade": 4, "mensagemAoCidadao": "O sistema da prefeitura impediu que informações pessoais sobre a sua saúde e a sua vida em casa fossem enviadas para o grupo de mensagens do bairro. Assim, esses dados continuam guardados em segurança e só as pessoas que cuidam do seu atendimento podem vê-los.", "origemDaMensagem": "Llm"}
+[02:35:33] OK    o farol do painel Risco Cidadão ficou vermelho
+[02:35:33] OK    a mensagem ao cidadão veio do LLM (origemDaMensagem = Llm), não da frase fixa
+[02:35:34] == todas as conferências passaram
