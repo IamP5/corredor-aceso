@@ -3,20 +3,26 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
+// O token é o código de acesso que a UBS entrega a cada ACS. A API o recebe em `Authorization: Bearer`
+// e descobre sozinha quem é a ACS e a microárea dela (api/README.md, "Autenticação"). É segredo: não aparece na tela.
 export interface Sessao {
-  acsId: string;
+  token: string;
   microarea: number;
 }
 
 const CHAVE = 'corredor.sessao';
 
-export const FORMATO_DO_ACS_ID = /^[a-z0-9-]{3,40}$/;
+/** O código como a ACS digitou, sem espaço nas pontas. Maiúsculas valem: o token é comparado byte a byte. */
+export function lerCodigoDeAcesso(texto: string): string | null {
+  const codigo = texto.trim();
+  return /^\S{3,200}$/.test(codigo) ? codigo : null;
+}
 
 export async function lerSessao(): Promise<Sessao | null> {
   const texto = Platform.OS === 'web' ? globalThis.localStorage?.getItem(CHAVE) : await SecureStore.getItemAsync(CHAVE);
   if (!texto) return null;
   const s = JSON.parse(texto) as Partial<Sessao>;
-  return typeof s.acsId === 'string' && typeof s.microarea === 'number' ? { acsId: s.acsId, microarea: s.microarea } : null;
+  return typeof s.token === 'string' && typeof s.microarea === 'number' ? { token: s.token, microarea: s.microarea } : null;
 }
 
 export async function gravarSessao(sessao: Sessao | null): Promise<void> {

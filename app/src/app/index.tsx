@@ -2,12 +2,12 @@ import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
 import { useCorredor } from '../estado/corredor';
-import { FORMATO_DO_ACS_ID } from '../estado/sessao';
+import { lerCodigoDeAcesso } from '../estado/sessao';
 import { Botao, estilo, Faixa, Paragrafo, Titulo } from '../ui/componentes';
 
 export default function Entrada() {
   const { sessao, carregando, entrar, modo } = useCorredor();
-  const [acsId, setAcsId] = useState(modo === 'mock' ? 'acs-demo' : '');
+  const [codigo, setCodigo] = useState(modo === 'mock' ? 'acs-demo' : '');
   const [microarea, setMicroarea] = useState('3');
   const [erro, setErro] = useState<string | null>(null);
   const [entrando, setEntrando] = useState(false);
@@ -16,13 +16,13 @@ export default function Entrada() {
   if (sessao) return <Redirect href="/dia" />;
 
   async function aoEntrar() {
-    const id = acsId.trim().toLowerCase();
+    const token = lerCodigoDeAcesso(codigo);
     const area = Number(microarea);
-    if (!FORMATO_DO_ACS_ID.test(id)) return setErro('O código da ACS usa letras minúsculas, números e hífen, de 3 a 40 letras.');
+    if (!token) return setErro('Digite o código de acesso que a UBS entregou, sem espaços.');
     if (!Number.isInteger(area) || area <= 0) return setErro('A microárea é um número, como 3.');
     setErro(null);
     setEntrando(true);
-    await entrar({ acsId: id, microarea: area });
+    await entrar({ token, microarea: area });
     setEntrando(false);
     router.replace('/dia');
   }
@@ -38,14 +38,15 @@ export default function Entrada() {
           </Faixa>
         ) : null}
         <View style={{ gap: 6 }}>
-          <Text nativeID="rotulo-acs" style={estilo.rotuloDoCampo}>Seu código de ACS</Text>
+          <Text nativeID="rotulo-acs" style={estilo.rotuloDoCampo}>Seu código de acesso</Text>
           <TextInput
             accessibilityLabelledBy="rotulo-acs"
-            accessibilityLabel="Seu código de ACS"
-            value={acsId}
-            onChangeText={setAcsId}
+            accessibilityLabel="Seu código de acesso"
+            value={codigo}
+            onChangeText={setCodigo}
             autoCapitalize="none"
             autoCorrect={false}
+            secureTextEntry
             style={estilo.campo}
           />
         </View>

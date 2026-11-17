@@ -80,7 +80,7 @@ export default function DiaCritico() {
       <Botao rotulo="Escrever para o grupo do bairro" tipo="secundario" aoTocar={() => router.push('/mensagem')} />
       {cab?.turnoAberto ? <Botao rotulo="Encerrar o turno" tipo="secundario" aoTocar={() => router.push('/encerrar')} /> : null}
       <Botao rotulo="Atualizar agora" tipo="secundario" ocupado={sincronizando} aoTocar={() => void sincronizar()} />
-      <Paragrafo secundario>{`ACS ${sessao.acsId}, microárea ${sessao.microarea}.`}</Paragrafo>
+      <Paragrafo secundario>{`Microárea ${sessao.microarea}.`}</Paragrafo>
       <Botao rotulo="Sair da conta" tipo="secundario" aoTocar={aoSair} />
     </ScrollView>
   );

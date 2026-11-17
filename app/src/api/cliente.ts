@@ -48,7 +48,8 @@ export class ErroDeRede extends Error {
 
 const TEMPO_MAXIMO_MS = 10_000;
 
-export function criarApiHttp(urlBase: string, acsId: () => string | null): ApiCorredor {
+/** `token` devolve o código de acesso da sessão, mandado como está em `Authorization: Bearer`. */
+export function criarApiHttp(urlBase: string, token: () => string | null): ApiCorredor {
   const base = urlBase.replace(/\/+$/, '');
 
   async function pedir<T>(
@@ -59,7 +60,7 @@ export function criarApiHttp(urlBase: string, acsId: () => string | null): ApiCo
   ): Promise<T> {
     const controle = new AbortController();
     const relogio = setTimeout(() => controle.abort(), TEMPO_MAXIMO_MS);
-    const id = acsId();
+    const codigo = token();
     let resposta: Response;
     try {
       resposta = await fetch(`${base}/api${caminho}`, {
@@ -67,7 +68,7 @@ export function criarApiHttp(urlBase: string, acsId: () => string | null): ApiCo
         headers: {
           Accept: 'application/json',
           ...(corpo === undefined ? {} : { 'Content-Type': 'application/json' }),
-          ...(id ? { Authorization: `Bearer ${id}` } : {}),
+          ...(codigo ? { Authorization: `Bearer ${codigo}` } : {}),
         },
         body: corpo === undefined ? undefined : JSON.stringify(corpo),
         signal: controle.signal,

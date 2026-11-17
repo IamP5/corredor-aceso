@@ -58,7 +58,7 @@ export function ProvedorDoCorredor({ children }: { children: ReactNode }) {
   const api = useMemo<ApiCorredor>(
     () =>
       URL_DA_API
-        ? criarApiHttp(URL_DA_API, () => sessaoRef.current?.acsId ?? null)
+        ? criarApiHttp(URL_DA_API, () => sessaoRef.current?.token ?? null)
         : criarApiMock({ conectado: () => conectadoRef.current, latenciaMs: 300 }),
     [],
   );
