@@ -59,12 +59,43 @@ public sealed class TradutorTestes
         return new Tradutor(new HttpClient(servidor), opcoes, saida, new MotorDeParsing(), logger);
     }
 
-    private static HttpResponseMessage Resposta(string conteudo) => new(HttpStatusCode.OK)
+    private static HttpResponseMessage Resposta(string conteudo, string fim = "stop") => new(HttpStatusCode.OK)
     {
         Content = new StringContent(
-            new JsonObject { ["choices"] = new JsonArray(new JsonObject { ["message"] = new JsonObject { ["role"] = "assistant", ["content"] = conteudo } }) }.ToJsonString(),
+            new JsonObject
+            {
+                ["choices"] = new JsonArray(new JsonObject
+                {
+                    ["message"] = new JsonObject { ["role"] = "assistant", ["content"] = conteudo },
+                    ["finish_reason"] = fim,
+                }),
+            }.ToJsonString(),
             Encoding.UTF8, "application/json"),
     };
+
+    // Visto na integração: openrouter/auto escolheu um modelo que pensa antes, o raciocínio gastou os
+    // 200 tokens e o painel mostrou "impediu que dados sobre a sua saúde e a sua", cortado.
+    [Fact]
+    public async Task Resposta_cortada_no_limite_de_tokens_vira_a_frase_fixa()
+    {
+        var servidor = new Servidor((_, _) => Task.FromResult(Resposta(
+            "O sistema da prefeitura impediu que dados sobre a sua saúde e a sua", fim: "length")));
+
+        var mensagem = await Novo(servidor).TraduzirAsync(Bloqueio, CancellationToken.None);
+
+        Assert.Equal(OrigemDaMensagem.FraseFixa, mensagem.Origem);
+        Assert.Equal(FrasesFixas.DoTipoDeEvento(TipoDeEventoDeSeguranca.BloqueioDeSaida), mensagem.Texto);
+    }
+
+    [Fact]
+    public async Task Pede_tokens_para_o_raciocinio_e_as_duas_frases()
+    {
+        var servidor = new Servidor((_, _) => Task.FromResult(Resposta("Uma frase. Outra frase.")));
+
+        await Novo(servidor).TraduzirAsync(Bloqueio, CancellationToken.None);
+
+        Assert.True((int)JsonNode.Parse(Assert.Single(servidor.Corpos))!["max_tokens"]! >= 1000);
+    }
 
     [Fact]
     public async Task Chama_chat_completions_com_prompt_sem_o_valor_e_devolve_a_traducao_do_llm()

@@ -35,6 +35,10 @@ public sealed class Tradutor(
 {
     public const int TamanhoMaximo = 400;
 
+    // Duas frases cabem em 120 tokens, mas o roteador openrouter/auto escolhe às vezes um modelo que pensa
+    // antes de responder, e esse raciocínio conta no mesmo limite. Com 200, a resposta saía cortada.
+    public const int LimiteDeTokens = 1000;
+
     public async Task<MensagemAoCidadao> TraduzirAsync(EventoDeSeguranca evento, CancellationToken ct)
     {
         var fixa = new MensagemAoCidadao(FrasesFixas.DoTipoDeEvento(evento.Tipo), OrigemDaMensagem.FraseFixa);
@@ -58,7 +62,7 @@ public sealed class Tradutor(
                 Content = JsonContent.Create(new PedidoDeChat(
                     op.Modelo,
                     [new("system", Sistema), new("user", prompt.Texto)],
-                    MaxTokens: 200,
+                    MaxTokens: LimiteDeTokens,
                     Temperature: 0.3)),
             };
             pedido.Headers.Authorization = new AuthenticationHeaderValue("Bearer", op.ApiKey);
@@ -72,7 +76,15 @@ public sealed class Tradutor(
             }
 
             var corpo = await resposta.Content.ReadFromJsonAsync<RespostaDeChat>(limite.Token);
-            var texto = corpo?.Choices?.FirstOrDefault()?.Message?.Content?.Trim();
+            var escolha = corpo?.Choices?.FirstOrDefault();
+            if (escolha?.FinishReason == "length")
+            {
+                // Resposta cortada no meio da frase. Com openrouter/auto, um modelo que pensa antes gasta o limite de tokens.
+                log.LogWarning("LLM parou no limite de tokens. Entra a frase fixa.");
+                return fixa;
+            }
+
+            var texto = escolha?.Message?.Content?.Trim();
             return Aceitavel(texto) ? new MensagemAoCidadao(texto!, OrigemDaMensagem.Llm) : fixa;
         }
         catch (Exception e) when (e is OperationCanceledException or HttpRequestException or JsonException)
@@ -148,5 +160,7 @@ public sealed class Tradutor(
 
     private sealed record RespostaDeChat(IReadOnlyList<Escolha>? Choices);
 
-    private sealed record Escolha(MensagemDeChat? Message);
+    private sealed record Escolha(
+        MensagemDeChat? Message,
+        [property: JsonPropertyName("finish_reason")] string? FinishReason);
 }
