@@ -1,0 +1,66 @@
+// Cores, tamanhos e espaçamentos do app. Os pares de texto e fundo ficam listados
+// em PARES_DE_CONTRASTE, e o teste de contraste mede cada um contra 4,5:1.
+import type { SituacaoNaTela } from '../dominio/textos';
+
+export const COR = {
+  fundo: '#FFFFFF',
+  fundoSuave: '#F2F4F7',
+  texto: '#1A1A1A',
+  textoSecundario: '#4A4A4A',
+  borda: '#6B7280',
+  primario: '#0B5CAD',
+  sobrePrimario: '#FFFFFF',
+  perigo: '#B3261E',
+  fundoPerigo: '#FDECEA',
+  fundoAviso: '#FFF4D6',
+  fundoOk: '#E6F4EA',
+  ok: '#1E6B34',
+} as const;
+
+/** Cor do selo de cada situação. O texto do selo é sempre branco. */
+export const COR_DA_SITUACAO: Record<SituacaoNaTela, string> = {
+  Vermelho: '#B3261E',
+  Cinza: '#4B5563',
+  Aguardando: '#7A4F00',
+  Verde: '#1E6B34',
+};
+
+export const TAMANHO = {
+  corpo: 20,
+  pequeno: 17,
+  titulo: 28,
+  subtitulo: 22,
+  toqueMinimo: 48,
+} as const;
+
+export const ESPACO = { p: 8, m: 16, g: 24 } as const;
+
+/** Todo par de cor de texto e cor de fundo que aparece na tela. */
+export const PARES_DE_CONTRASTE: { nome: string; texto: string; fundo: string }[] = [
+  { nome: 'texto no fundo', texto: COR.texto, fundo: COR.fundo },
+  { nome: 'texto secundário no fundo', texto: COR.textoSecundario, fundo: COR.fundo },
+  { nome: 'texto no fundo suave', texto: COR.texto, fundo: COR.fundoSuave },
+  { nome: 'texto secundário no fundo suave', texto: COR.textoSecundario, fundo: COR.fundoSuave },
+  { nome: 'botão principal', texto: COR.sobrePrimario, fundo: COR.primario },
+  { nome: 'link no fundo', texto: COR.primario, fundo: COR.fundo },
+  { nome: 'texto no fundo de perigo', texto: COR.texto, fundo: COR.fundoPerigo },
+  { nome: 'título de perigo no fundo de perigo', texto: COR.perigo, fundo: COR.fundoPerigo },
+  { nome: 'texto no fundo de aviso', texto: COR.texto, fundo: COR.fundoAviso },
+  { nome: 'texto no fundo ok', texto: COR.texto, fundo: COR.fundoOk },
+  { nome: 'título ok no fundo ok', texto: COR.ok, fundo: COR.fundoOk },
+  { nome: 'botão de perigo', texto: '#FFFFFF', fundo: COR.perigo },
+  ...Object.entries(COR_DA_SITUACAO).map(([s, fundo]) => ({ nome: `selo ${s}`, texto: '#FFFFFF', fundo })),
+];
+
+/** Razão de contraste da WCAG 2.1 entre duas cores #RRGGBB. */
+export function razaoDeContraste(a: string, b: string): number {
+  const luminancia = (hex: string) => {
+    const [r, g, bl] = [1, 3, 5].map((i) => {
+      const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * bl;
+  };
+  const [claro, escuro] = [luminancia(a), luminancia(b)].sort((x, y) => y - x);
+  return (claro + 0.05) / (escuro + 0.05);
+}
