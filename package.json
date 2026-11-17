@@ -10,6 +10,8 @@
     "check:migracoes": "bash tools/conferir-migracoes.sh",
     "check:pacote": "bash tools/empacotar.sh v0.0.0-ci linux-x64 && bash tools/conferir-pacote.sh dist/corredor-linux-x64.tar.gz v0.0.0-ci",
     "check:app": "npm --prefix app run typecheck && npm --prefix app run lint",
+    "test:app": "npm --prefix app test",
+    "demo": "bash tools/demo.sh",
     "check:infra": "bash tools/conferir-infra.sh",
     "check:terraform": "terraform -chdir=infra/nuvem fmt -check && terraform -chdir=infra/nuvem init -backend=false -input=false && terraform -chdir=infra/nuvem validate",
     "check:ml": "python3 tools/conferir-python.py ml",
