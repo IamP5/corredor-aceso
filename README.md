@@ -13,7 +13,7 @@ Global Solution FIAP 2026.2, CitizenTech. Engenharia de Software, 3º ano, turma
 | Como funciona | Um aparelho no corredor acende a luz quando a idosa passa, e esse movimento vale como "estou bem". Um modelo treinado com dados públicos decide se o dia é crítico. No dia crítico, o celular da ACS mostra só as casas que ficaram em silêncio. Aparelho mudo aparece em cinza e nunca vira verde. |
 | O que cada parte faz | Ver a tabela "Partes do repositório". |
 | Link do repositório | https://github.com/IamP5/corredor-aceso |
-| Indicador de impacto | Percentual de idosos sozinhos da microárea com contato confirmado até as 10h em dia crítico. Meta: 100%. Indicador de segurança: nenhuma casa em verde sem prova de vida. |
+| Indicador de impacto | Percentual de idosos sozinhos da microárea com contato confirmado até as 10h em dia crítico. Meta: 100%. Indicador de segurança: nenhuma casa em verde sem sinal de vida. |
 | ODS conectados | ODS 3 (metas 3.4 e 3.d), ODS 10 (meta 10.2), ODS 11 (meta 11.5) e ODS 13 (meta 13.1). |
 
 Os dados de pessoas neste repositório são simulados. Os dados de clima e de internações são públicos, do INMET e do SIH/DATASUS. As entrevistas e os testes da fase de descoberta foram simulados com personas, e isso está dito em cada documento.
@@ -35,7 +35,7 @@ Os dados de pessoas neste repositório são simulados. Os dados de clima e de in
 
 ## Documentação
 
-- [Visão geral da arquitetura](docs/arquitetura.md)
+- [Visão geral da arquitetura](docs/arquitetura/01-visao-geral.md)
 - [Event storming](docs/arquitetura/02-event-storming.md)
 - [Modelo de domínio](docs/arquitetura/03-modelo-de-dominio.md)
 - [Modelo de dados](docs/arquitetura/04-modelo-de-dados.md)

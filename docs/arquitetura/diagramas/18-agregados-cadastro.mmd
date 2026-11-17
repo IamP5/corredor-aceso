@@ -1,0 +1,71 @@
+%% Agregados do Cadastro. Fonte: 03-modelo-de-dominio.md, seção 4.3.
+classDiagram
+  direction LR
+  namespace Cadastro {
+    class Idoso {
+      <<raiz>>
+      IdosoId, MicroareaId, PerfilDaCasa
+      TextoRotulado Nome, Condicoes, Medicamentos
+      RegistrarConsentimento(acs, versaoDoTermo, autorizacoes, agora)
+      RevogarConsentimento(agora)
+      IndicarVizinho(nome, telefone, aceitouEm)
+      AlterarPerfil(perfil)
+    }
+    class Casa {
+      <<entidade>>
+      TextoRotulado Endereco
+      CasaToken, só com consentimento vigente
+    }
+    class Consentimento {
+      <<entidade>>
+      AcsId de quem colheu
+      data e versão do termo
+      Autorizacoes
+      data de revogação
+    }
+    class Autorizacoes {
+      <<objeto de valor>>
+      AvisarVizinho
+      AvisarFamilia
+    }
+    class VizinhoDeConfianca {
+      <<entidade>>
+      TextoRotulado nome e telefone
+      AceitouEm
+    }
+    class Visita {
+      <<raiz, imutável>>
+      Id gerado no celular
+      IdosoId, AcsId
+      OcorridaEm, RegistradaEm
+      Desfecho
+      TextoRotulado observação
+    }
+    class AvisoAoVizinho {
+      <<raiz>>
+      CasaToken, MicroareaId
+      MotivoDoAlerta, Desde
+      RespostaDoVizinho, RespondidoEm
+      RegistrarAviso(idoso, pedido, agora)
+      RegistrarResposta(resposta, agora)
+    }
+    class MensagemSaida {
+      <<raiz>>
+      Canal, AcsId
+      texto mascarado
+      Veredito
+      TipoDeDado achados
+      VerificarMensagem(texto, canal, saidaSegura, agora)
+    }
+    class Microarea {
+      <<referência>>
+      Id, Nome, AcsResponsavel
+    }
+  }
+  Idoso "1" *-- "1" Casa
+  Idoso "1" *-- "0..*" Consentimento
+  Idoso "1" *-- "0..1" VizinhoDeConfianca
+  Consentimento *-- Autorizacoes
+  Idoso ..> Microarea : por MicroareaId
+  Visita ..> Idoso : por IdosoId
+  AvisoAoVizinho ..> Idoso : por CasaToken

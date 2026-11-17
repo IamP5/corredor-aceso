@@ -1,25 +1,39 @@
 %% Modelo gantt. Vista: plano dos 3 dias. Regras: sempre todayMarker off (sem ele o SVG muda a cada render),
 %% crit no caminho crítico, uma seção por frente de trabalho, nome da tarefa até 36 caracteres.
+%% Corpo copiado de 26-plano.mmd.
 gantt
-  title Plano até a entrega
+  title Plano até a entrega de 19/11, 23h55
   dateFormat YYYY-MM-DD HH:mm
   axisFormat %d/%m %Hh
   todayMarker off
-  section Base
-    Contratos e solução .NET vazia     :crit, done, base, 2026-11-16 18:00, 5h
-  section Motor
-    Fatia simulador, Motor, radar      :crit, fatia, 2026-11-17 08:00, 12h
-    Estado cinza e teste de falha      :crit, 2026-11-18 08:00, 10h
-  section Cadastro e Guarda
-    Cadastro com migrações             :2026-11-17 08:00, 12h
-    MotorDeParsing e regras de PII     :2026-11-17 08:00, 12h
-    Mensagem bloqueada e painel        :2026-11-18 08:00, 10h
-  section App, ML, infra, IoT
-    Telas com dados falsos             :2026-11-17 08:00, 12h
-    Notebook de ML                     :2026-11-17 08:00, 12h
-    01-rede.sh e 02-app.sh             :2026-11-17 08:00, 12h
-    Nó Wokwi pela bridge, app na API   :crit, 2026-11-18 08:00, 12h
-    Azure Boards                       :2026-11-18 14:00, 6h
+  section Portões da infra e das releases
+    Repositório público e ci-ok verde      :crit, p1, 2026-11-16 18:00, 2026-11-16 23:59
+    Esqueleto de api/ e VM local de pé     :crit, p2, 2026-11-16 23:59, 2026-11-17 10:00
+    v0.1.0 na VM local, túnel testado      :crit, p3, 2026-11-17 10:00, 2026-11-17 22:00
+    v0.2.0 com app e nó ligados            :crit, p4, 2026-11-17 22:00, 2026-11-18 18:00
+    v1.0.0-rc.1 e infra/ congelada         :crit, p5, 2026-11-18 18:00, 2026-11-18 23:59
+  section Azure, opcional
+    preflight.sh e terraform apply         :az, 2026-11-17 14:00, 2026-11-17 16:00
+    Sem VM por SSH, o Azure sai do plano   :milestone, 2026-11-17 18:00, 0h
+  section Contratos e Motor
+    Passo 1, solução e contratos           :m1, 2026-11-16 18:00, 2026-11-16 23:59
+    Passo 2, pacote, janelas e radar       :crit, m2, 2026-11-17 00:00, 24h
+    Passo 3, energia, confirmação e calor  :crit, m3, 2026-11-18 00:00, 24h
+    Passo 4, se sobrar tempo               :m4, 2026-11-18 00:00, 24h
+  section Cadastro
+    Passo 1, Idoso vazio e Microarea       :c1, 2026-11-16 18:00, 2026-11-16 23:59
+    Passo 2, consentimento e lista         :c2, 2026-11-17 00:00, 24h
+    Passo 3, Visita e MensagemSaida        :c3, 2026-11-18 00:00, 24h
+    Passo 4, se sobrar tempo               :c4, 2026-11-18 00:00, 24h
+  section Guarda
+    Passo 1, TipoDeDado e TextoRotulado    :g1, 2026-11-16 18:00, 2026-11-16 23:59
+    Passo 2, parsing e SaidaSegura         :g2, 2026-11-17 00:00, 24h
+    Passo 3, evento, Tradutor e painel     :g3, 2026-11-18 00:00, 24h
   section Entrega
-    Vídeos                             :crit, 2026-11-19 08:00, 6h
-    Entrega até 23h55                  :milestone, 2026-11-19 23:55, 0h
+    Vídeos na VM local, com o túnel        :crit, e1, 2026-11-19 06:00, 2026-11-19 12:00
+    Só correções por PR                    :e2, 2026-11-19 06:00, 2026-11-19 18:00
+    v1.0.0 publicada e implantada          :milestone, crit, 2026-11-19 18:00, 0h
+    README fechado                         :crit, e3, 2026-11-19 18:00, 2026-11-19 20:00
+    Entrega no Teams                       :crit, e4, 2026-11-19 20:00, 2026-11-19 21:00
+    Folga                                  :e5, 2026-11-19 21:00, 2026-11-19 23:55
+    Prazo, 23h55                           :milestone, 2026-11-19 23:55, 0h

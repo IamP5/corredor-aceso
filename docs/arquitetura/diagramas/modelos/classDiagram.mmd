@@ -1,39 +1,58 @@
 %% Modelo classDiagram. Vistas: módulos e dependências permitidas, agregados (um namespace por módulo).
 %% Regras: estereótipo em português (<<raiz>>, <<entidade>>, <<interface>>), até 10 classes, até 6 membros por classe.
 %% Use ..> para "depende de", ..|> para "implementa" e *-- para composição dentro do agregado.
+%% Corpo copiado de 02-modulos.mmd.
 classDiagram
   direction LR
   class Api["Corredor.Api"] {
     <<host>>
-    Program.cs, rotas e DI
+    Program.cs, único
+    AddGuarda, AddMotor, AddCadastro
+    /healthz e /api/versao
+  }
+  class Cadastro["Corredor.Cadastro"] {
+    <<módulo, SOA>>
+    Idoso, Visita
+    MensagemSaida, AvisoAoVizinho
+    ReceptorDeContato
+  }
+  class Motor["Corredor.Motor"] {
+    <<módulo, C#>>
+    CasaMonitorada, EventoSensor, DiaCritico
+    AvaliadorDeCasas, RegraDeContato
+    MotorDeCasas, VigiaDoRadar
+  }
+  class Guarda["Corredor.Guarda"] {
+    <<módulo, Cyber>>
+    MotorDeParsing, TextoRotulado
+    SaidaSegura, PoliticaDeCanal
+    EventoDeSeguranca, Tradutor
   }
   class Contratos["Corredor.Contratos"] {
     <<núcleo compartilhado>>
-    CasaToken, PerfilDaCasa
+    CasaToken, MicroareaId
+    PerfilDaCasa, Confirmacao
+    PedidoDeContato, MotivoDoAlerta
   }
   class IMotorDeCasas {
     <<interface>>
+    AtivarCasaAsync(token, microarea, perfil, ct)
     DefinirPerfilAsync(token, perfil, ct)
-    ConfirmarAsync(token, origem, ct)
+    ConfirmarAsync(token, confirmacao, ct)
+    DesativarCasaAsync(token, ct)
   }
-  class Motor["Corredor.Motor"] {
-    <<módulo C#>>
-    RegraDeContato
-    AvaliadorDeCasas
+  class IReceptorDeContato {
+    <<interface>>
+    PedirContatoAsync(pedido, ct)
   }
-  class Cadastro["Corredor.Cadastro"] {
-    <<módulo SOA>>
-    Idoso, Visita, MensagemSaida
-  }
-  class Guarda["Corredor.Guarda"] {
-    <<módulo Cyber>>
-    MotorDeParsing
-    SaidaSegura
-  }
-  Api ..> Motor
   Api ..> Cadastro
+  Api ..> Motor
   Api ..> Guarda
+  Api ..> Contratos
+  Cadastro ..> Guarda : TextoRotulado e SaidaSegura
+  Cadastro ..> Contratos
+  Motor ..> Contratos
   Contratos *-- IMotorDeCasas
+  Contratos *-- IReceptorDeContato
   Motor ..|> IMotorDeCasas
-  Cadastro ..> IMotorDeCasas : token, nunca nome
-  Cadastro ..> Guarda : toda saída de texto
+  Cadastro ..|> IReceptorDeContato

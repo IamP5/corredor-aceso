@@ -1,0 +1,25 @@
+%% Event storming, fluxo 2: noite comum. Fonte: 02-event-storming.md, sessão 2.
+eventmodeling
+
+rf 01 pcr NoDoCorredor
+tf 02 evt NoDoCorredor.LuzDeCaminhoAcesa
+rf 03 pcr NoDoCorredor
+tf 04 cmd RegistrarPacote { tipo: MOVIMENTO }
+tf 05 evt Motor.MovimentoDetectado
+tf 06 rmo LinhaDoTempo ->> 05
+rf 07 pcr NoDoCorredor
+tf 08 cmd RegistrarPacote { tipo: HEARTBEAT }
+tf 09 evt Motor.HeartbeatRecebido
+rf 10 pcr NoDoCorredor
+tf 11 cmd RegistrarPacote { tipo: TELEMETRIA }
+tf 12 evt Motor.TelemetriaRecebida
+rf 13 pcr Relogio
+tf 14 evt Motor.CasaFicouCinza
+tf 15 rmo Radar ->> 14
+rf 16 pcr NoDoCorredor
+tf 17 cmd RegistrarPacote { bufferizado: true }
+tf 18 evt Motor.EventoReenviado
+rf 19 pcr Expurgo
+tf 20 evt Motor.EventosExpurgados
+rf 21 rmo Radar ->> 18
+tf 22 ui AppDaACS

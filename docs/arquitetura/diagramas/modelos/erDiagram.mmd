@@ -1,88 +1,116 @@
 %% Modelo erDiagram. Vista: modelo de dados, os três schemas num diagrama só, um subgraph por schema.
 %% Regras: tabela e coluna em snake_case como no banco, PK/FK/UK na coluna, "TextoRotulado" no comentário do campo pessoal.
 %% Nenhuma relação cruza schemas: entre schemas a ligação é só o casa_token, sem FK.
+%% Corpo copiado de 20-modelo-de-dados.mmd.
 erDiagram
   direction LR
   subgraph motor["schema motor"]
-    CASA_MONITORADA {
-      uuid casa_token PK
-      int microarea_id
-      text perfil
+    casa_monitorada {
+      text casa_token PK
+      integer microarea_id
+      text perfil_contato
+      boolean perfil_eletrodependente
       timestamptz ativada_em
       timestamptz desativada_em
       timestamptz ultimo_pacote_em
     }
-    CONFIRMACAO {
+    confirmacao {
       uuid id PK
-      uuid casa_token FK
+      text casa_token FK
       text origem
       text resultado
       timestamptz quando
     }
-    EVENTO_SENSOR {
-      uuid casa_token PK, FK
-      bigint seq PK
+    evento_sensor {
+      text casa_token PK, FK
       timestamptz ocorrido_em PK
+      bigint seq PK
       text tipo
       timestamptz recebido_em
       numeric temp_c
       numeric tensao_v
-      bool bufferizado
+      boolean bufferizado
     }
-    DIA_CRITICO {
+    dia_critico {
       date data PK
       numeric probabilidade
-      text motivo
       text origem
       timestamptz aberto_em
+      timestamptz toque_pedido_em
       timestamptz encerrado_em
-      jsonb resumo
+      integer resumo_casas_ativas
     }
   end
   subgraph cadastro["schema cadastro"]
-    MICROAREA {
-      int id PK
-      text nome
+    microarea {
+      integer id PK
+      varchar nome
+      varchar acs_responsavel
     }
-    IDOSO {
+    idoso {
       uuid id PK
-      int microarea_id FK
-      text nome "TextoRotulado"
-      text endereco "TextoRotulado"
-      uuid casa_token UK
-      text perfil
+      integer microarea_id FK
+      varchar nome
+      varchar casa_endereco
+      text casa_token UK
+      text perfil_contato
+      boolean perfil_eletrodependente
     }
-    CONSENTIMENTO {
+    consentimento {
       uuid id PK
       uuid idoso_id FK
-      text versao_do_termo
-      timestamptz registrado_em
+      varchar colhido_por
+      timestamptz colhido_em
+      boolean autorizacoes_avisar_vizinho
+      boolean autorizacoes_avisar_familia
       timestamptz revogado_em
     }
-    VISITA {
-      uuid id PK
-      uuid casa_token
-      text desfecho
-      timestamptz quando
+    vizinho_de_confianca {
+      uuid idoso_id PK, FK
+      varchar nome
+      varchar telefone
+      timestamptz aceitou_em
     }
-    MENSAGEM_SAIDA {
+    visita {
       uuid id PK
-      text texto_mascarado
+      uuid idoso_id FK
+      varchar acs_id
+      timestamptz ocorrida_em
+      text desfecho
+    }
+    aviso_ao_vizinho {
+      uuid id PK
+      text casa_token
+      integer microarea_id FK
+      text motivo
+      timestamptz desde
+      text resposta
+    }
+    mensagem_saida {
+      uuid id PK
+      text canal
+      varchar acs_id
       text veredito
     }
   end
   subgraph guarda["schema guarda"]
-    EVENTO_DE_SEGURANCA {
+    evento_de_seguranca {
       uuid id PK
       timestamptz ocorrido_em
       text tipo
+      text_array tipos_de_dado
       text canal
-      text tipos_de_dado
-      int severidade
-      text mensagem_ao_cidadao
+      varchar modulo
+      varchar rota
+      smallint severidade
+      varchar mensagem_texto
+      text mensagem_origem
     }
   end
-  CASA_MONITORADA ||--o{ CONFIRMACAO : recebe
-  CASA_MONITORADA ||--o{ EVENTO_SENSOR : recebe
-  MICROAREA ||--o{ IDOSO : agrupa
-  IDOSO ||--|{ CONSENTIMENTO : registra
+  casa_monitorada ||--o{ confirmacao : "recebe"
+  casa_monitorada ||--o{ evento_sensor : "origina"
+  microarea ||--o{ idoso : "tem"
+  microarea ||--o{ aviso_ao_vizinho : "tem"
+  idoso ||--o{ consentimento : "deu"
+  idoso ||--o| vizinho_de_confianca : "indicou"
+  idoso ||--o{ visita : "recebeu"

@@ -1,0 +1,33 @@
+%% Event storming, fluxo 8: pedido de contato e aviso ao vizinho. Fonte: 02-event-storming.md, sessão 2.
+eventmodeling
+
+rf 01 pcr VigiaDoRadar
+tf 02 cmd PedirContatoAsync { casaToken; motivo; desde }
+tf 03 evt Motor.PedidoDeContatoEnviado
+tf 04 pcr ReceptorDeContato
+tf 05 cmd RegistrarAviso { casaToken; motivo; desde }
+tf 06 evt Cadastro.AvisoAoVizinhoRegistrado
+tf 07 rmo AvisosDoDia ->> 06
+rf 08 pcr CanalDoVizinho
+tf 09 cmd RegistrarResposta { resposta: EstaBem }
+tf 10 evt Cadastro.VizinhoRespondeu
+tf 11 pcr P20
+tf 12 cmd Confirmar { origem: Vizinho; resultado: PessoaVista }
+tf 13 evt Motor.ConfirmacaoRegistrada
+rf 14 pcr CanalDoVizinho
+tf 15 cmd RegistrarResposta { resposta: PrecisaDeAjuda }
+tf 16 evt Cadastro.VizinhoRespondeu
+tf 17 rmo AvisosDoDia ->> 16
+tf 18 ui AppDaACS
+rf 19 pcr VigiaDoRadar
+tf 20 cmd PedirContatoAsync { casaToken; motivo; desde }
+tf 21 evt Motor.PedidoDeContatoEnviado
+tf 22 pcr ReceptorDeContato
+rf 23 pcr Relogio
+tf 24 evt Motor.JanelaEncerrada
+tf 25 pcr VigiaDoRadar
+tf 26 cmd PedirContatoAsync { desde: 15h00 }
+tf 27 evt Motor.PedidoDeContatoEnviado
+tf 28 pcr ReceptorDeContato
+tf 29 cmd RegistrarAviso { desde: 15h00 }
+tf 30 evt Cadastro.AvisoAoVizinhoRegistrado

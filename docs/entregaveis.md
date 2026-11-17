@@ -24,7 +24,7 @@ Nota: domínio 3,0, conexão com banco 3,0, migrações 1,5, documentação auto
 | Código completo do backend | `api/` | repositório |
 | Estruturação do domínio | `api/src/Corredor.Cadastro`, `docs/arquitetura/03-modelo-de-dominio.md` | repositório |
 | Conexão com banco de dados | Postgres, `CadastroDbContext` | repositório |
-| Migrações | `api/src/Corredor.Cadastro/Migrations` | repositório |
+| Migrações | `api/src/Corredor.Cadastro/Infra/Migrations` | repositório |
 | Documentação dos endpoints | Swagger em `/swagger` | repositório |
 | Testes automatizados | `api/tests/Corredor.Cadastro.Testes` | repositório |
 | README com instruções, descrição e nomes | `api/README.md` | repositório, nomes da equipe |

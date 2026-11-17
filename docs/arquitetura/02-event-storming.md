@@ -4,7 +4,7 @@ Este documento registra as três sessões de event storming do Corredor Aceso. A
 
 ## Como as sessões foram feitas
 
-Uma pessoa escreveu as três sessões a partir de [arquitetura.md](../arquitetura.md) e de [01-ideia-vencedora.md](../discovery/01-ideia-vencedora.md). As falas da ACS, da idosa e do vizinho vêm das personas simuladas da descoberta. Nenhuma ACS real participou. As perguntas do fim da sessão 1 só uma pessoa real responde.
+Uma pessoa escreveu as três sessões a partir da primeira versão da arquitetura, `docs/arquitetura.md`, hoje substituída por [01-visao-geral.md](01-visao-geral.md), e de [01-ideia-vencedora.md](../discovery/01-ideia-vencedora.md). As falas da ACS, da idosa e do vizinho vêm das personas simuladas da descoberta. Nenhuma ACS real participou. As perguntas do fim da sessão 1 só uma pessoa real responde.
 
 Os exemplos usam o dia crítico de 18/11/2026, com o turno aberto às 05h. Os horários são de São Paulo. As casas de A a G são fictícias. A casa A é a do nó do Wokwi.
 
@@ -214,7 +214,13 @@ Cada hotspot tem a decisão que vale para 19/11. A coluna "Confirmar com" diz qu
 
 Cada tabela lê da esquerda para a direita: um ator dá um comando, um agregado decide, um evento registra, uma política reage e alguém lê o resultado.
 
+Cada fluxo tem um desenho antes da tabela. A raia de cima traz a tela ou a automação que age. A do meio traz o comando e a leitura. As de baixo trazem os eventos de cada contexto. `NoDoCorredor` é o nó. `P1`, `P4` e `P20` são as políticas da sessão 1 que não têm classe com nome próprio.
+
 ### Fluxo 1: consentimento e instalação
+
+No desenho, veja que `CasaAtivada` só aparece na raia do Motor depois de `ConsentimentoRegistrado`, pela política P1. A leitura `ListaDeNomes` vem logo depois do vizinho para as setas ficarem curtas. Na tabela, ela é o passo 7.
+
+![Fluxo 1: consentimento e instalação](diagramas/08-event-storming-fluxo-1-consentimento.mmd)
 
 | # | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|
@@ -232,6 +238,10 @@ Regras que saíram daqui: sem consentimento vigente não existe token. O token �
 
 ### Fluxo 2: noite comum
 
+No desenho, veja que `LuzDeCaminhoAcesa` fica numa raia só do nó e que nenhuma tela lê o movimento da noite. O radar só mostra o aparelho sem sinal.
+
+![Fluxo 2: noite comum](diagramas/09-event-storming-fluxo-2-noite-comum.mmd)
+
 | # | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|
 | 1 | Idosa, às 03h12 | Passa no corredor | | `LuzDeCaminhoAcesa`, só no nó | P5 | |
@@ -245,6 +255,14 @@ Regras que saíram daqui: sem consentimento vigente não existe token. O token �
 Regras que saíram daqui: fora do turno só valem as regras de energia e de heartbeat. Fora do turno nenhuma casa é `Verde`. O movimento da noite não aparece para ninguém e some em 24 horas.
 
 ### Fluxo 3: dia crítico, das 05h ao fim do turno
+
+O fluxo 3 tem dois desenhos. No primeiro, das 05h00 às 10h12, veja a janela das 10h. O relógio produz `JanelaEncerrada` e `CasaFicouVermelha` sem nenhum comando.
+
+![Fluxo 3, manhã: do dia crítico declarado à primeira visita](diagramas/10-event-storming-fluxo-3-dia-critico-manha.mmd)
+
+No segundo, das 13h00 às 17h30, veja que `TurnoEncerrado` leva o resumo, a única leitura que sobrevive ao expurgo. A resposta do vizinho da casa C e a visita `NaoAbriu` estão nos desenhos dos fluxos 8 e 7.
+
+![Fluxo 3, tarde: calor, pedido de toque, janela das 15h e encerramento](diagramas/11-event-storming-fluxo-3-dia-critico-tarde.mmd)
 
 | # | Hora | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|---|
@@ -275,6 +293,10 @@ Regras que saíram daqui:
 
 ### Fluxo 4: apagão com eletrodependente
 
+No desenho, veja as duas confirmações. A do vizinho não muda o radar. Só a da ACS, depois da volta da energia, solta a trava. O ramo 2b, sem pacote por 60 segundos, não está no desenho.
+
+![Fluxo 4: apagão com eletrodependente](diagramas/12-event-storming-fluxo-4-apagao.mmd)
+
 | # | Hora | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|---|
 | 1 | 02h40 | Rede elétrica cai | | | | No nó, a bateria mantém o sensor ligado. | |
@@ -291,6 +313,10 @@ Regras que saíram daqui: a regra de energia vale em qualquer dia e a qualquer h
 
 ### Fluxo 5: aparelho mudo
 
+No desenho, veja que `CasaFicouCinza` vem do relógio, não de um pacote, e que só o `EventoReenviado` tira a casa do cinza.
+
+![Fluxo 5: aparelho mudo](diagramas/13-event-storming-fluxo-5-aparelho-mudo.mmd)
+
 | # | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|
 | 1 | Idosa, às 08h10 | Passa no corredor | `EventoSensor` | `MovimentoDetectado` [g] | | A casa está verde. |
@@ -302,6 +328,10 @@ Regras que saíram daqui: a regra de energia vale em qualquer dia e a qualquer h
 Regra que saiu daqui: o silêncio do nó nunca vira verde. Uma casa cinza só sai das pendentes por dois caminhos: uma confirmação aceita na janela atual ou a volta do nó.
 
 ### Fluxo 6: mensagem bloqueada para o grupo do bairro
+
+No desenho, veja a ordem das raias. `SaidaBloqueada` nasce na Guarda antes de `MensagemBloqueada` nascer no Cadastro, e o `Tradutor` só age depois. A `SaidaSegura` não tem quadro próprio. Ela decide entre o comando e o evento.
+
+![Fluxo 6: mensagem bloqueada para o grupo do bairro](diagramas/14-event-storming-fluxo-6-mensagem-bloqueada.mmd)
 
 | # | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|
@@ -317,6 +347,10 @@ Regra que saiu daqui: o silêncio do nó nunca vira verde. Uma casa cinza só sa
 Regras que saíram daqui: a mensagem bloqueada é um resultado normal do negócio, então a rota responde 200 com o veredito. O texto original nunca é gravado. O sistema não envia nada ao grupo. A ACS copia a versão segura. Só uma saída bloqueada deixa o farol vermelho.
 
 ### Fluxo 7: desfecho da visita
+
+No desenho, veja que a visita toca os três contextos. A Guarda mascara, o Cadastro grava e o Motor confirma. O `Expurgo` não alcança a raia do Cadastro.
+
+![Fluxo 7: desfecho da visita](diagramas/15-event-storming-fluxo-7-desfecho-da-visita.mmd)
 
 | # | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|
@@ -336,6 +370,10 @@ Regras que saíram daqui: a mensagem bloqueada é um resultado normal do negóci
 Regras que saíram daqui: a visita é a proteção da ACS, então ela é imutável e sobrevive ao expurgo. A hora que vale é a da visita, não a do envio. O Cadastro grava a visita primeiro e chama o Motor depois. Se a chamada falhar, o app reenvia o mesmo `id`, e as duas pontas chegam ao mesmo resultado.
 
 ### Fluxo 8: pedido de contato e aviso ao vizinho
+
+No desenho, veja a quarta fatia. O `VigiaDoRadar` repete o pedido, e o `ReceptorDeContato` não gera comando, porque o episódio já existe. Só o `Desde` novo das 15h cria outro aviso.
+
+![Fluxo 8: pedido de contato e aviso ao vizinho](diagramas/16-event-storming-fluxo-8-pedido-de-contato.mmd)
 
 | # | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|

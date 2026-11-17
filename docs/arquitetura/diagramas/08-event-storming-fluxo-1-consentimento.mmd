@@ -1,0 +1,30 @@
+%% Event storming, fluxo 1: consentimento e instalação. Fonte: 02-event-storming.md, sessão 2.
+%% A leitura ListaDeNomes vem logo depois do vizinho para as setas ficarem curtas. Na sessão ela é o passo 7.
+eventmodeling
+
+rf 01 ui Swagger
+tf 02 cmd CadastrarIdoso { nome; endereco; perfil }
+tf 03 evt Cadastro.IdosoCadastrado
+rf 04 ui Swagger
+tf 05 cmd RegistrarConsentimento { versaoDoTermo; autorizacoes }
+tf 06 evt Cadastro.ConsentimentoRegistrado { casaToken }
+tf 07 pcr P1
+tf 08 cmd AtivarCasa { casaToken; microarea; perfil }
+tf 09 evt Motor.CasaAtivada
+tf 10 rmo Radar ->> 09
+rf 11 ui Swagger
+tf 12 cmd IndicarVizinho { nome; telefone; aceitouEm }
+tf 13 evt Cadastro.VizinhoDeConfiancaIndicado
+tf 14 rmo ListaDeNomes ->> 13
+tf 15 ui AppDaACS
+rf 16 pcr NoDoCorredor
+tf 17 cmd RegistrarPacote { tipo: HEARTBEAT }
+tf 18 evt Motor.PrimeiroPacoteRecebido
+tf 19 rmo Radar ->> 18
+rf 20 ui Swagger
+tf 21 cmd RevogarConsentimento
+tf 22 evt Cadastro.ConsentimentoRevogado
+tf 23 pcr P4
+tf 24 cmd DesativarCasa
+tf 25 evt Motor.CasaDesativada
+tf 26 evt Motor.EventosDaCasaApagados

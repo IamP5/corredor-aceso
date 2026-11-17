@@ -13,7 +13,7 @@ A ferramenta foi o Claude Code. O que a IA produziu foi conferido por execução
 
 | Pedido | Resultado |
 |---|---|
-| Idealizar a solução técnica e o diagrama de arquitetura a partir dos entregáveis de cada disciplina | `docs/arquitetura.md` |
+| Idealizar a solução técnica e o diagrama de arquitetura a partir dos entregáveis de cada disciplina | `docs/arquitetura.md`, hoje substituído por `docs/arquitetura/01-visao-geral.md` |
 | Conferir a aderência aos requisitos de Cybersecurity depois da explicação do professor | seção do módulo Guarda |
 | Definir o modelo de domínio com Domain-Driven Design e event storming, com três propostas independentes e um juiz | `docs/arquitetura/02-event-storming.md`, `docs/arquitetura/03-modelo-de-dominio.md` |
 | Definir a modelagem de dados, com três propostas independentes executadas em Postgres | `docs/arquitetura/04-modelo-de-dados.md` |

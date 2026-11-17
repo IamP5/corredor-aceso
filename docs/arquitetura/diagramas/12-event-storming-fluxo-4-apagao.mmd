@@ -1,0 +1,32 @@
+%% Event storming, fluxo 4: apagão com eletrodependente. Fonte: 02-event-storming.md, sessão 2. O ramo 2b, sem pacote por 60 segundos, não aparece.
+%% Cada leitura liga só o evento mais próximo. A seta até um evento distante cruzava os outros quadros.
+eventmodeling
+
+rf 01 pcr NoDoCorredor
+tf 02 cmd RegistrarPacote { tipo: TELEMETRIA; tensaoV: 0 }
+tf 03 evt Motor.TelemetriaRecebida
+tf 04 evt Motor.EnergiaCaiu
+tf 05 evt Motor.CasaFicouVermelha
+tf 06 pcr VigiaDoRadar
+tf 07 cmd PedirContatoAsync { motivo: EnergiaEletrodependente }
+tf 08 evt Motor.PedidoDeContatoEnviado
+tf 09 pcr ReceptorDeContato
+tf 10 cmd RegistrarAviso
+tf 11 evt Cadastro.AvisoAoVizinhoRegistrado
+rf 12 pcr CanalDoVizinho
+tf 13 cmd RegistrarResposta { resposta: EstaBem }
+tf 14 evt Cadastro.VizinhoRespondeu
+tf 15 pcr P20
+tf 16 cmd Confirmar { origem: Vizinho; resultado: PessoaVista }
+tf 17 evt Motor.ConfirmacaoRegistrada
+tf 18 rmo Radar ->> 17
+rf 19 pcr NoDoCorredor
+tf 20 cmd RegistrarPacote { bufferizado: true; tensaoV: 127 }
+tf 21 evt Motor.EventoReenviado
+rf 22 ui AppDaACS
+tf 23 cmd RegistrarVisita { desfecho: EstavaBem }
+tf 24 evt Cadastro.VisitaRegistrada
+tf 25 pcr TradutorDeDesfecho
+tf 26 cmd Confirmar { origem: Acs; resultado: PessoaVista }
+tf 27 evt Motor.ConfirmacaoRegistrada
+tf 28 rmo Radar ->> 27

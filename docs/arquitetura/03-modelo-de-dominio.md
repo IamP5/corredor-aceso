@@ -2,7 +2,7 @@
 
 Este documento define o modelo de domínio que a equipe constrói até 19/11/2026, 23h55. Ele parte das sessões de [02-event-storming.md](02-event-storming.md) e chega aos contextos, aos projetos .NET, aos nomes de código, às regras da situação da casa, aos contratos e aos casos de teste.
 
-O modelo mantém as decisões fixas de [arquitetura.md](../arquitetura.md): um monólito modular .NET 8 com os módulos Motor, Cadastro e Guarda, a situação da casa calculada por função pura e o contrato MQTT. A seção 9 lista cada ponto em que este modelo muda a arquitetura.
+O modelo mantém as decisões fixas da primeira versão da arquitetura, `docs/arquitetura.md`, hoje substituída por [01-visao-geral.md](01-visao-geral.md): um monólito modular .NET 10 com os módulos Motor, Cadastro e Guarda, a situação da casa calculada por função pura e o contrato MQTT. A seção 9 lista cada ponto em que este modelo muda a arquitetura.
 
 Quem programa o Motor lê as seções 3, 4.2, 5 e 6. Quem programa o Cadastro lê 3, 4.3 e 6. Quem programa a Guarda lê 3, 4.4 e 6.3. Quem programa o nó lê 6.2. Quem programa o app lê 3, 5.6 e 6.3. Todos leem a seção 8 antes de abrir o editor.
 
@@ -26,21 +26,9 @@ A mesma casa aparece em dois contextos com dois modelos. No Cadastro ela é `Cas
 
 ### 1.2 Mapa de contexto
 
-```mermaid
-flowchart LR
-  NO["Nó"] -- "linguagem publicada: MQTT v1" --> MOTOR["Motor"]
-  ML["Job de previsão"] -- "conformista" --> MOTOR
-  CT["Corredor.Contratos<br/>núcleo compartilhado"]
-  CT --- MOTOR
-  CT --- CAD["Cadastro"]
-  MOTOR -- "fornecedor: IMotorDeCasas e IReceptorDeContato" --> CAD
-  GUARDA["Guarda"] -- "Cadastro conformista" --> CAD
-  MOTOR -. "caminhos separados" .- GUARDA
-  MOTOR -- "serviço aberto" --> APP["App da ACS"]
-  CAD -- "serviço aberto" --> APP
-  GUARDA -- "camada anticorrupção" --> LLM["LLM"]
-  CAD -- "camada anticorrupção" --> VIZ["Canal do vizinho"]
-```
+No desenho, a borda tracejada marca os cinco contextos de fora do processo .NET. Veja que nenhuma seta liga o Motor à Guarda.
+
+![Mapa de contexto do Corredor Aceso](diagramas/07-mapa-de-contextos.mmd)
 
 | Par | Relação | Quem manda no contrato | Como aparece no código |
 |---|---|---|---|
@@ -78,6 +66,10 @@ api/
 | `Corredor.Guarda` | nada | qualquer projeto |
 | `Corredor.Cadastro` | `Corredor.Contratos`, `Corredor.Guarda` | `Corredor.Motor` |
 | `Corredor.Api` | os quatro | |
+
+No desenho, a seta tracejada é referência de projeto e a seta de ponta vazada é implementação. Veja que nenhuma seta liga `Corredor.Motor` a `Corredor.Cadastro`.
+
+![Projetos .NET e referências permitidas](diagramas/02-modulos.mmd)
 
 O compilador garante a regra de privacidade. O Motor não tem como ler um nome, porque não referencia o Cadastro e não conhece `TextoRotulado`. O Cadastro não tem como abrir o `MotorDbContext`, porque não referencia o Motor.
 
@@ -198,6 +190,10 @@ Palavras que colidem, e como a equipe usa cada uma:
 
 ### 4.2 Motor
 
+No desenho, veja que a situação da casa não é campo de nenhum agregado. O `AvaliadorDeCasas` lê os três agregados e devolve a `Avaliacao`.
+
+![Agregados do Motor](diagramas/17-agregados-motor.mmd)
+
 #### Agregado `CasaMonitorada`
 
 | Item | Conteúdo |
@@ -311,6 +307,10 @@ O `Radar` é calculado a cada `GET /api/radar`. O caso de uso carrega as casas a
 O Motor não grava alerta, aviso nem pedido de contato.
 
 ### 4.3 Cadastro
+
+No desenho, veja que `Casa`, `Consentimento` e `VizinhoDeConfianca` vivem dentro do `Idoso`, e que `Visita` e `AvisoAoVizinho` apontam para ele só por identificador.
+
+![Agregados do Cadastro](diagramas/18-agregados-cadastro.mmd)
 
 #### Agregado `Idoso`
 
@@ -445,7 +445,11 @@ Invariantes:
 
 ### 4.4 Guarda
 
-A Guarda segue a tabela de arquivos de [arquitetura.md](../arquitetura.md). Esta seção dá os nomes de domínio e as invariantes.
+A Guarda segue a tabela de arquivos de [01-visao-geral.md](01-visao-geral.md#arquivos-da-guarda). Esta seção dá os nomes de domínio e as invariantes.
+
+No desenho, veja que o `TextoRotulado` é o ponto em que o `MotorDeParsing` e a `SaidaSegura` se encontram, e que o `EventoDeSeguranca` é o único agregado.
+
+![Agregado, objetos de valor e serviços da Guarda](diagramas/19-agregados-guarda.mmd)
 
 #### Agregado `EventoDeSeguranca`
 
@@ -510,6 +514,10 @@ Severidades em `pii.json`: CPF 5 com dígito válido e 4 só no formato, CNS 5, 
 | `TratadorDeErros` | Middleware. | Troca a mensagem de exceção com dado pessoal por texto neutro e converte `RegraDeDominioViolada` em 422 ou 409. |
 | `Tradutor` | Monta o prompt com tipo de dado, canal e módulo e chama o LLM. | O prompt passa pela `SaidaSegura` com o canal `PromptDoLlm`. Roda depois da resposta HTTP, numa fila em memória lida por um `BackgroundService`. Com falha, anexa a frase fixa. |
 | `Farol` | Calcula a `CorDoFarol` sobre os eventos das últimas 24 horas. | Função pura. |
+
+O desenho mostra os serviços numa saída bloqueada. Veja que a resposta 200 sai no passo 9, antes de o `Tradutor` chamar o LLM.
+
+![Fluxo da Guarda numa saída bloqueada](diagramas/28-fluxo-da-guarda.mmd)
 
 Regra do farol: `Vermelho` se existe uma `SaidaBloqueada` de severidade 4 ou 5 nas últimas 24 horas. `Amarelo` se existe qualquer outro evento. `Verde` se não existe evento. Só uma saída bloqueada deixa o farol vermelho. Um mascaramento na entrada vai até amarelo, porque mostra o sistema funcionando, não uma tentativa de saída.
 
@@ -585,6 +593,10 @@ O evento do sensor conta pelo `OcorridoEm`. A confirmação conta pelo `Quando`.
 | 3 | `CalorInterno` | Sim | As leituras de temperatura estão em `TemperaturaDeCalor` ou mais, sem interrupção, há `DuracaoDoCalor` ou mais. | `Vermelho` | O início da sequência quente mais `DuracaoDoCalor` | `Acs` ou `Vizinho`, com `PessoaVista` |
 | 4 | `SemMovimentoNaJanela` | Sim | O perfil é `Sozinho` ou `Acamado`, não houve saída avisada no turno, e não existe sinal de vida desde o início da última janela vencida. | `Vermelho` | O prazo da janela vencida, ou o início dela para o `Acamado` | `Acs` com `AusenciaConfirmada`. A `PessoaVista` é sinal de vida e desfaz o alerta. |
 | 5 | `IdaNoturnaSemVolta` | | Fora da entrega. | | | |
+
+O desenho mostra a mesma ordem como uma escada. Leia da esquerda para a direita. A primeira pergunta com resposta sim decide a situação, e cada alerta traz a confirmação que o atende. A regra 4 só vale para o perfil `Sozinho` ou `Acamado`, sem saída avisada.
+
+![Regras da situação da casa, em ordem](diagramas/06-situacao-da-casa.mmd)
 
 Detalhes que evitam erro:
 

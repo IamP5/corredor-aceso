@@ -1,0 +1,24 @@
+%% Event storming, fluxo 5: aparelho mudo. Fonte: 02-event-storming.md, sessão 2.
+%% Cada leitura liga só o evento mais próximo. A seta até um evento distante cruzava os outros quadros.
+eventmodeling
+
+rf 01 pcr NoDoCorredor
+tf 02 cmd RegistrarPacote { tipo: MOVIMENTO }
+tf 03 evt Motor.MovimentoDetectado
+rf 04 pcr Relogio
+tf 05 evt Motor.CasaFicouCinza
+tf 06 rmo Radar ->> 05
+tf 07 pcr VigiaDoRadar
+tf 08 cmd PedirContatoAsync { motivo: SemHeartbeat }
+tf 09 evt Motor.PedidoDeContatoEnviado
+rf 10 ui AppDaACS
+tf 11 cmd RegistrarVisita { desfecho: EstavaBem }
+tf 12 evt Cadastro.VisitaRegistrada
+tf 13 pcr TradutorDeDesfecho
+tf 14 cmd Confirmar { origem: Acs; resultado: PessoaVista }
+tf 15 evt Motor.ConfirmacaoRegistrada
+tf 16 rmo Radar ->> 15
+rf 17 pcr NoDoCorredor
+tf 18 cmd RegistrarPacote { bufferizado: true }
+tf 19 evt Motor.EventoReenviado
+tf 20 evt Motor.CasaFicouVerde

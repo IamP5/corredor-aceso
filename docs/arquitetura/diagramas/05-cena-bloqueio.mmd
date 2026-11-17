@@ -1,0 +1,27 @@
+%% Cena 3 da demo: a mensagem para o grupo do bairro é bloqueada. Fonte: 02-event-storming.md (fluxo 6) e 03-modelo-de-dominio.md (4.3, 4.4, 6.3, caso 39).
+sequenceDiagram
+  autonumber
+  actor acs as ACS
+  participant app as App da ACS
+  participant cad as Cadastro
+  participant guarda as Guarda
+  participant pg as Postgres
+  participant llm as LLM
+  participant painel as Painel Risco Cidadão
+  acs->>app: escreve "ele mora sozinho e toma diurético" e toca em verificar
+  app->>cad: POST /api/mensagens/verificar {canal: GrupoDoBairro, texto}
+  cad->>guarda: SaidaSegura recebe o TextoRotulado e o Canal GrupoDoBairro
+  guarda->>pg: guarda.evento_de_seguranca, SaidaBloqueada de severidade 4, sem o texto
+  guarda-->>cad: Veredito Bloqueada, com MoraSozinho e Saude
+  cad->>pg: cadastro.mensagem_saida, só com o texto mascarado
+  cad-->>app: 200 {veredito: Bloqueada, textoMascarado, explicacao, versaoSegura}
+  Note over app: tela de mensagem bloqueada, com a frase fixa e a versão segura
+  guarda->>llm: depois da resposta, o Tradutor manda tipo de dado, canal e módulo
+  llm-->>guarda: duas frases. Sem resposta em 5 segundos, entra a frase fixa
+  guarda->>pg: BloqueioTraduzido, a mensagem ao cidadão anexada ao evento
+  painel->>guarda: GET /api/painel
+  guarda-->>painel: 200 {cor: Vermelho, eventos com a mensagem ao cidadão}
+  acs->>app: troca o texto pela versão segura e toca em verificar
+  app->>cad: POST /api/mensagens/verificar {canal: GrupoDoBairro, texto}
+  cad-->>app: 200 {veredito: Liberada}
+  Note over acs,app: a ACS copia o texto. O sistema não envia nada ao grupo

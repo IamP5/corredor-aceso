@@ -1,18 +1,23 @@
 %% Modelo treeView-beta. Vista: árvore do repositório.
 %% Regras: até 3 níveis, até 20 linhas, descrição depois de ## com até 30 caracteres.
+%% Corpo copiado de 25-repositorio.mmd.
 treeView-beta
-  gs-citizen-tech/
-    api/ ## .NET 8, um processo
-      src/
-        Corredor.Contratos/ ## tipos e interfaces
-        Corredor.Api/ ## host, rotas, DI
-        Corredor.Motor/ ## tokens e regras
-        Corredor.Cadastro/ ## único dono de dado pessoal
-        Corredor.Guarda/ ## PII, taint, LLM
-      tests/ ## xUnit, um por módulo
-    app/ ## Expo + SQLite
-    iot/ ## ESP32 no Wokwi
+  corredor-aceso/
+    README.md ## ficha e seção por disciplina
+    prompts.md ## prompts de IA usados
+    integrantes.txt ## nomes e RMs
+    package.json ## só nomes de comando
+    .github/workflows/ ## ci, release, operacao
+    api/ ## solução .NET 10
+      src/Corredor.Contratos/ ## tipos e interfaces
+      src/Corredor.Motor/ ## schema motor
+      src/Corredor.Cadastro/ ## schema cadastro
+      src/Corredor.Guarda/ ## schema guarda e painel
+      src/Corredor.Api/ ## host, único Program.cs
+      tests/ ## um projeto xUnit por módulo
+    app/ ## Expo, radar e SQLite
     ml/ ## notebook e prever_hoje.py
-    infra/ ## Bash e systemd
-    docs/arquitetura/diagramas/ ## estes diagramas
-    prompts.md
+    iot/ ## sketch do Wokwi e simulador
+    infra/ ## Bash, systemd e Terraform
+    tools/ ## conferências que o CI chama
+    docs/arquitetura/ ## documentos e diagramas

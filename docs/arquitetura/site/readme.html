@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquitetura do Corredor Aceso · Corredor Aceso</title>
+<script>(function(){var t;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='claro'&&t!=='escuro')t=matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro';document.documentElement.setAttribute('data-tema',t)})()</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="topo">
+<a class="marca" href="index.html">Corredor Aceso · Arquitetura</a>
+<nav class="paginas" aria-label="Páginas"><a href="01-visao-geral.html">Visão geral</a><a href="02-event-storming.html">Event storming</a><a href="03-modelo-de-dominio.html">Modelo de domínio</a><a href="04-modelo-de-dados.html">Modelo de dados</a><a href="05-infra-e-entrega.html">Infraestrutura, CI/CD, releases e repositório</a><a href="readme.html" aria-current="page">Arquitetura</a><a href="guia.html">Guia de diagramas</a></nav>
+<button type="button" class="tema-botao">Tema</button>
+</header>
+<main>
+<h1>Arquitetura do Corredor Aceso</h1>
+<nav class="sumario" aria-label="Sumário"><details open><summary>Sumário</summary><ol><li><a href="#documentos-em-ordem-de-leitura">Documentos, em ordem de leitura</a></li><li><a href="#desenhos">Desenhos</a></li><li><a href="#outras-pastas">Outras pastas</a></li><li><a href="#como-gerar-os-desenhos-e-o-site">Como gerar os desenhos e o site</a></li></ol></details></nav><p>Esta pasta guarda todos os documentos e todos os desenhos da arquitetura do Corredor Aceso, a solução da equipe para a Global Solution FIAP 2026.2. Quem lê os cinco documentos na ordem abaixo entende o produto, o domínio, os dados e a entrega.</p>
+<p>Para ler com os desenhos em tamanho natural, abra <code>site/index.html</code> com dois cliques. O site não precisa de servidor nem de rede. O GitHub não desenha a referência a um arquivo <code>.mmd</code>. Lá, use a tabela de desenhos abaixo, que liga o SVG já renderizado.</p>
+<h2 id="documentos-em-ordem-de-leitura">Documentos, em ordem de leitura <a class="ancora" href="#documentos-em-ordem-de-leitura" aria-label="Link para esta seção">#</a></h2>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Documento</th>
+<th>O que responde</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><a href="01-visao-geral.html">01-visao-geral.md</a></td>
+<td>O que o produto faz, quais são as partes, quem é dono de cada dado, as decisões e os motivos, as três cenas da demo e onde cada disciplina pontua.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><a href="02-event-storming.html">02-event-storming.md</a></td>
+<td>Quais fatos acontecem no domínio, quem os causa, quais políticas reagem e quais dúvidas foram fechadas. Tem os oito fluxos, passo a passo.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><a href="03-modelo-de-dominio.html">03-modelo-de-dominio.md</a></td>
+<td>Contextos, projetos .NET, glossário, agregados, regras da situação da casa, contratos MQTT e HTTP, casos de teste e ordem de corte.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><a href="04-modelo-de-dados.html">04-modelo-de-dados.md</a></td>
+<td>Tabelas do Postgres, mapeamento do EF Core, consultas, retenção, classificação dos dados, SQLite do app e carga da demo.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><a href="05-infra-e-entrega.html">05-infra-e-entrega.md</a></td>
+<td>VM, provisionamento por Bash, CI, releases, deploy com rollback, operação, roteiro do vídeo de Operating Systems e plano até 19/11.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><a href="guia.html">diagramas/GUIA.md</a></td>
+<td>Qual tipo de diagrama cada vista usa, como escrever o <code>.mmd</code>, o tema e como renderizar.</td>
+</tr>
+</tbody></table>
+</div>
+<p>O glossário da seção 3 do <a href="03-modelo-de-dominio.html#3-linguagem-ub%C3%ADqua">modelo de domínio</a> vale para todos os documentos, para os desenhos e para o código.</p>
+<h2 id="desenhos">Desenhos <a class="ancora" href="#desenhos" aria-label="Link para esta seção">#</a></h2>
+<p>Cada desenho é um arquivo <code>.mmd</code> em <code>diagramas/</code>, com o SVG claro e o SVG escuro ao lado. A coluna &quot;Documento&quot; diz onde ele aparece.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Desenho</th>
+<th>Tipo</th>
+<th>Documento</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>01</td>
+<td><a href="../diagramas/01-visao-geral.svg">Visão geral do sistema</a></td>
+<td><code>flowchart LR</code></td>
+<td>01, &quot;O sistema em um desenho&quot;</td>
+</tr>
+<tr>
+<td>02</td>
+<td><a href="../diagramas/02-modulos.svg">Projetos .NET e referências permitidas</a></td>
+<td><code>classDiagram</code></td>
+<td>03, seção 2</td>
+</tr>
+<tr>
+<td>03</td>
+<td><a href="../diagramas/03-cena-movimento.svg">Cena 1: o movimento tira o card da tela</a></td>
+<td><code>sequenceDiagram</code></td>
+<td>01, &quot;As três cenas da demo&quot;</td>
+</tr>
+<tr>
+<td>04</td>
+<td><a href="../diagramas/04-cena-silencio.svg">Cena 2: o aparelho mudo fica cinza</a></td>
+<td><code>sequenceDiagram</code></td>
+<td>01, &quot;As três cenas da demo&quot;</td>
+</tr>
+<tr>
+<td>05</td>
+<td><a href="../diagramas/05-cena-bloqueio.svg">Cena 3: a mensagem é bloqueada</a></td>
+<td><code>sequenceDiagram</code></td>
+<td>01, &quot;As três cenas da demo&quot;</td>
+</tr>
+<tr>
+<td>06</td>
+<td><a href="../diagramas/06-situacao-da-casa.svg">Regras da situação da casa</a></td>
+<td><code>flowchart LR</code></td>
+<td>03, seção 5.4</td>
+</tr>
+<tr>
+<td>07</td>
+<td><a href="../diagramas/07-mapa-de-contextos.svg">Mapa de contexto</a></td>
+<td><code>flowchart LR</code></td>
+<td>03, seção 1.2</td>
+</tr>
+<tr>
+<td>08</td>
+<td><a href="../diagramas/08-event-storming-fluxo-1-consentimento.svg">Event storming, fluxo 1: consentimento e instalação</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>09</td>
+<td><a href="../diagramas/09-event-storming-fluxo-2-noite-comum.svg">Event storming, fluxo 2: noite comum</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>10</td>
+<td><a href="../diagramas/10-event-storming-fluxo-3-dia-critico-manha.svg">Event storming, fluxo 3: dia crítico, manhã</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>11</td>
+<td><a href="../diagramas/11-event-storming-fluxo-3-dia-critico-tarde.svg">Event storming, fluxo 3: dia crítico, tarde</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>12</td>
+<td><a href="../diagramas/12-event-storming-fluxo-4-apagao.svg">Event storming, fluxo 4: apagão com eletrodependente</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>13</td>
+<td><a href="../diagramas/13-event-storming-fluxo-5-aparelho-mudo.svg">Event storming, fluxo 5: aparelho mudo</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>14</td>
+<td><a href="../diagramas/14-event-storming-fluxo-6-mensagem-bloqueada.svg">Event storming, fluxo 6: mensagem bloqueada</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>15</td>
+<td><a href="../diagramas/15-event-storming-fluxo-7-desfecho-da-visita.svg">Event storming, fluxo 7: desfecho da visita</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>16</td>
+<td><a href="../diagramas/16-event-storming-fluxo-8-pedido-de-contato.svg">Event storming, fluxo 8: pedido de contato</a></td>
+<td><code>eventmodeling</code></td>
+<td>02, sessão 2</td>
+</tr>
+<tr>
+<td>17</td>
+<td><a href="../diagramas/17-agregados-motor.svg">Agregados do Motor</a></td>
+<td><code>classDiagram</code></td>
+<td>03, seção 4.2</td>
+</tr>
+<tr>
+<td>18</td>
+<td><a href="../diagramas/18-agregados-cadastro.svg">Agregados do Cadastro</a></td>
+<td><code>classDiagram</code></td>
+<td>03, seção 4.3</td>
+</tr>
+<tr>
+<td>19</td>
+<td><a href="../diagramas/19-agregados-guarda.svg">Agregado e serviços da Guarda</a></td>
+<td><code>classDiagram</code></td>
+<td>03, seção 4.4</td>
+</tr>
+<tr>
+<td>20</td>
+<td><a href="../diagramas/20-modelo-de-dados.svg">Modelo de dados: os três schemas</a></td>
+<td><code>erDiagram</code></td>
+<td>04, seção 9</td>
+</tr>
+<tr>
+<td>21</td>
+<td><a href="../diagramas/21-vm-e-servicos.svg">VM e seus serviços</a></td>
+<td><code>flowchart LR</code></td>
+<td>05, &quot;Visão geral&quot;</td>
+</tr>
+<tr>
+<td>22</td>
+<td><a href="../diagramas/22-provisionamento.svg">Ordem de provisionamento</a></td>
+<td><code>flowchart LR</code></td>
+<td>05, seção 6.1</td>
+</tr>
+<tr>
+<td>23</td>
+<td><a href="../diagramas/23-ci.svg">Pipeline de CI</a></td>
+<td><code>flowchart LR</code></td>
+<td>05, seção 1.12</td>
+</tr>
+<tr>
+<td>24</td>
+<td><a href="../diagramas/24-release-e-rollback.svg">Release e rollback</a></td>
+<td><code>swimlane-beta LR</code></td>
+<td>05, seção 1.6</td>
+</tr>
+<tr>
+<td>25</td>
+<td><a href="../diagramas/25-repositorio.svg">Árvore do repositório</a></td>
+<td><code>treeView-beta</code></td>
+<td>05, seção 2</td>
+</tr>
+<tr>
+<td>26</td>
+<td><a href="../diagramas/26-plano.svg">Plano até 19/11</a></td>
+<td><code>gantt</code></td>
+<td>05, seção 8.1</td>
+</tr>
+<tr>
+<td>27</td>
+<td><a href="../diagramas/27-telas-do-app.svg">Telas do app da ACS</a></td>
+<td><code>flowchart LR</code></td>
+<td>01, &quot;App da ACS&quot;</td>
+</tr>
+<tr>
+<td>28</td>
+<td><a href="../diagramas/28-fluxo-da-guarda.svg">Fluxo da Guarda numa saída bloqueada</a></td>
+<td><code>sequenceDiagram</code></td>
+<td>03, seção 4.4</td>
+</tr>
+</tbody></table>
+</div>
+<p>O SVG escuro de cada desenho tem o mesmo nome, com <code>.escuro.svg</code> no fim. O fluxo 3 do event storming tem dois desenhos, porque inteiro ele passa de 30 quadros.</p>
+<h2 id="outras-pastas">Outras pastas <a class="ancora" href="#outras-pastas" aria-label="Link para esta seção">#</a></h2>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Pasta</th>
+<th>O que tem</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>diagramas/</code></td>
+<td>Os 28 arquivos <code>.mmd</code>, os SVG, o <code>render.mjs</code>, o <code>site.mjs</code>, o tema em <code>tema/</code>, um modelo por tipo de diagrama em <code>modelos/</code> e a galeria de exemplos em <code>galeria/</code>.</td>
+</tr>
+<tr>
+<td><code>referencia/repo/</code></td>
+<td>Os arquivos de infra, de CI e de configuração, nos caminhos que têm no repositório. O documento 05 aponta para eles.</td>
+</tr>
+<tr>
+<td><code>referencia/dados/</code></td>
+<td>O SQL, o projeto do EF Core e os scripts que conferem o documento 04. O <code>montar.py</code> de lá gera o documento 04, então edite <code>modelo-de-dados.fonte.md</code>, não o documento.</td>
+</tr>
+<tr>
+<td><code>site/</code></td>
+<td>A versão em HTML dos documentos. É só saída. Apague e gere de novo.</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="como-gerar-os-desenhos-e-o-site">Como gerar os desenhos e o site <a class="ancora" href="#como-gerar-os-desenhos-e-o-site" aria-label="Link para esta seção">#</a></h2>
+<pre><code class="language-bash">cd docs/arquitetura/diagramas
+npm install
+npm run render    # cada .mmd vira nome.svg e nome.escuro.svg
+npm run site      # apaga e gera docs/arquitetura/site/
+</code></pre>
+<p>Os dois comandos saem com código 1 se algum desenho não renderizar. Depois de mudar um <code>.mmd</code>, rode os dois e abra o desenho no tema claro e no escuro.</p>
+
+</main>
+<script src="js/site.js"></script>
+</body>
+</html>

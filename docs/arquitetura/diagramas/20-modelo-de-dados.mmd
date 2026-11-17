@@ -1,0 +1,114 @@
+%% Modelo de dados: os três schemas do banco corredor. Fonte: 04-modelo-de-dados.md, seção 9. As colunas são as que explicam cada relação.
+%% Nenhuma relação cruza schema. Entre schemas a ligação é o valor de casa_token, de microarea_id e do id da confirmação, sem FK.
+erDiagram
+  direction LR
+  subgraph motor["schema motor"]
+    casa_monitorada {
+      text casa_token PK
+      integer microarea_id
+      text perfil_contato
+      boolean perfil_eletrodependente
+      timestamptz ativada_em
+      timestamptz desativada_em
+      timestamptz ultimo_pacote_em
+    }
+    confirmacao {
+      uuid id PK
+      text casa_token FK
+      text origem
+      text resultado
+      timestamptz quando
+    }
+    evento_sensor {
+      text casa_token PK, FK
+      timestamptz ocorrido_em PK
+      bigint seq PK
+      text tipo
+      timestamptz recebido_em
+      numeric temp_c
+      numeric tensao_v
+      boolean bufferizado
+    }
+    dia_critico {
+      date data PK
+      numeric probabilidade
+      text origem
+      timestamptz aberto_em
+      timestamptz toque_pedido_em
+      timestamptz encerrado_em
+      integer resumo_casas_ativas
+    }
+  end
+  subgraph cadastro["schema cadastro"]
+    microarea {
+      integer id PK
+      varchar nome
+      varchar acs_responsavel
+    }
+    idoso {
+      uuid id PK
+      integer microarea_id FK
+      varchar nome
+      varchar casa_endereco
+      text casa_token UK
+      text perfil_contato
+      boolean perfil_eletrodependente
+    }
+    consentimento {
+      uuid id PK
+      uuid idoso_id FK
+      varchar colhido_por
+      timestamptz colhido_em
+      boolean autorizacoes_avisar_vizinho
+      boolean autorizacoes_avisar_familia
+      timestamptz revogado_em
+    }
+    vizinho_de_confianca {
+      uuid idoso_id PK, FK
+      varchar nome
+      varchar telefone
+      timestamptz aceitou_em
+    }
+    visita {
+      uuid id PK
+      uuid idoso_id FK
+      varchar acs_id
+      timestamptz ocorrida_em
+      text desfecho
+    }
+    aviso_ao_vizinho {
+      uuid id PK
+      text casa_token
+      integer microarea_id FK
+      text motivo
+      timestamptz desde
+      text resposta
+    }
+    mensagem_saida {
+      uuid id PK
+      text canal
+      varchar acs_id
+      text veredito
+    }
+  end
+  subgraph guarda["schema guarda"]
+    evento_de_seguranca {
+      uuid id PK
+      timestamptz ocorrido_em
+      text tipo
+      text_array tipos_de_dado
+      text canal
+      varchar modulo
+      varchar rota
+      smallint severidade
+      varchar mensagem_texto
+      text mensagem_origem
+    }
+  end
+  casa_monitorada ||--o{ confirmacao : "recebe"
+  casa_monitorada ||--o{ evento_sensor : "origina"
+  microarea ||--o{ idoso : "tem"
+  microarea ||--o{ aviso_ao_vizinho : "tem"
+  idoso ||--o{ consentimento : "deu"
+  idoso ||--o| vizinho_de_confianca : "indicou"
+  idoso ||--o{ visita : "recebeu"

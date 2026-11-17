@@ -1,0 +1,66 @@
+%% Agregado, objetos de valor e serviços da Guarda. Fonte: 03-modelo-de-dominio.md, seção 4.4.
+classDiagram
+  direction LR
+  namespace Guarda {
+    class EventoDeSeguranca {
+      <<raiz>>
+      TipoDeEventoDeSeguranca
+      TipoDeDado achados, Canal
+      módulo, rota, severidade
+      Registrar(tipo, canal, achados, modulo, rota, agora)
+      AnexarMensagem(texto, origem)
+    }
+    class MensagemAoCidadao {
+      <<objeto de valor>>
+      Texto
+      Origem: Llm ou FraseFixa
+    }
+    class MotorDeParsing {
+      <<serviço, puro>>
+      aplica as RegraDePii a um texto ou JSON
+    }
+    class RegraDePii {
+      <<configuração, pii.json>>
+      tipo, padrão, validador
+      máscara, severidade de 1 a 5
+    }
+    class Achado {
+      <<objeto de valor>>
+      tipo, campo, severidade
+      valor mascarado
+    }
+    class TextoRotulado {
+      <<objeto de valor>>
+      texto, internal
+      conjunto de TipoDeDado
+      ToString() devolve a máscara
+    }
+    class SaidaSegura {
+      <<serviço>>
+      recebe TextoRotulado e Canal
+      devolve o Veredito
+    }
+    class PoliticaDeCanal {
+      <<configuração>>
+      tipos de dado aceitos por Canal
+      exposição de 1 a 3
+    }
+    class Veredito {
+      <<objeto de valor>>
+      Liberada, com o texto
+      Bloqueada, com os achados
+    }
+    class Farol {
+      <<serviço, puro>>
+      CorDoFarol das últimas 24 horas
+    }
+  }
+  EventoDeSeguranca *-- MensagemAoCidadao
+  MotorDeParsing ..> RegraDePii : aplica
+  MotorDeParsing ..> Achado : devolve
+  MotorDeParsing ..> TextoRotulado : devolve
+  SaidaSegura ..> TextoRotulado : recebe
+  SaidaSegura ..> PoliticaDeCanal : consulta
+  SaidaSegura ..> Veredito : devolve
+  SaidaSegura ..> EventoDeSeguranca : todo bloqueio registra
+  Farol ..> EventoDeSeguranca : lê

@@ -1,27 +1,39 @@
 %% Modelo flowchart LR. Vistas: visão geral, estado da casa (escada de decisões), mapa de contextos, VM e serviços,
 %% provisionamento, CI, telas do app. Regras: LR; TB só quando a cadeia principal é uma escada vertical curta.
 %% Rótulo de nó até 3 linhas com <br/>, rótulo de aresta até 4 palavras, um único :::luz, fora do sistema com :::externo.
+%% Corpo copiado de 21-vm-e-servicos.mmd.
 flowchart LR
-  app["App da ACS"]:::externo
-  pub["Broker MQTT público"]:::externo
+  app["App da ACS<br/>no celular"]:::externo
+  cf["trycloudflare.com<br/>URL HTTPS temporária"]:::externo
+  pub["broker.hivemq.com:1883<br/>broker MQTT público"]:::externo
   llm["LLM"]:::externo
-  subgraph vm["VM corredor-ubs"]
-    nginx["nginx :443<br/>api.corredor.local<br/>painel.corredor.local"]
-    api["corredor-api.service<br/>.NET 8 :5000"]:::luz
-    painel["painel estático"]
-    mq["mosquitto :1883<br/>bridge"]
-    pg[("postgresql :5432<br/>motor, cadastro, guarda")]
-    job["corredor-previsao.timer<br/>05h"]
-    mon["corredor-monitor.service<br/>Restart=always"]
-    log[("/var/log/corredor<br/>auditoria.log")]
+  subgraph vm["VM corredor-ubs, Ubuntu 24.04. IP de serviço 10.77.0.1 em corredor0"]
+    tunel["corredor-tunel.service<br/>cloudflared, ligado à mão"]
+    nginx["nginx :80<br/>api.corredor.internal<br/>painel.corredor.internal"]
+    api["corredor-api.service<br/>.NET 10, 127.0.0.1:5000<br/>Restart=on-failure"]:::luz
+    painel["/opt/corredor/current/painel<br/>página estática"]
+    mq["mosquitto 127.0.0.1:1883<br/>broker local e ponte de saída"]
+    sim["corredor-simulador.service<br/>39 casas, ligado à mão"]
+    pg[("postgresql em 127.0.0.1<br/>banco corredor: schemas<br/>motor, cadastro e guarda")]
+    ml["corredor-ml.timer, 05h<br/>corredor-ml.service<br/>prever_hoje.py"]
+    mon["corredor-monitor.service<br/>Restart=always<br/>WatchdogSec=60"]
+    alerta["corredor-alerta@.service<br/>falha definitiva"]
+    log[("/var/log/corredor<br/>monitor/alertas.log<br/>auditoria.log")]
   end
-  app -- HTTPS --> nginx
+  app -- "HTTPS" --> cf
+  cf -- "túnel" --> tunel
+  tunel -- "http, porta 80" --> nginx
   nginx -- "/api" --> api
-  nginx -- "/painel" --> painel
-  pub -- bridge --> mq -- eventos --> api
-  api -- "EF Core" --> pg
-  job -- "PUT /api/dias-criticos" --> nginx
-  api -- "achado sem dado pessoal" --> llm
-  mon -- alertas --> log
+  nginx -- "/painel/" --> painel
+  pub <-- "ponte de saída" --> mq
+  sim -- "MQTT" --> mq
+  mq <-- "eventos e comandos" --> api
+  api -- "um papel por módulo" --> pg
+  ml -- "PUT /api/dias-criticos/{data}" --> api
+  api -- "prompt sem dado pessoal" --> llm
+  mon -- "/healthz/ready" --> api
+  mon -- "alertas" --> log
+  api -. "OnFailure" .-> alerta
+  alerta --> log
   classDef luz stroke-width:2px
   classDef externo stroke-width:1px

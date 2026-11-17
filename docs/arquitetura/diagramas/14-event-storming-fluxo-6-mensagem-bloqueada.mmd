@@ -1,0 +1,16 @@
+%% Event storming, fluxo 6: mensagem bloqueada para o grupo do bairro. Fonte: 02-event-storming.md, sessão 2.
+%% Quem decide o bloqueio é a SaidaSegura, pela política P16. Ela não tem quadro próprio para a seta do comando não voltar.
+eventmodeling
+
+rf 01 ui AppDaACS
+tf 02 cmd VerificarMensagem { canal: GrupoDoBairro }
+tf 03 evt Guarda.SaidaBloqueada { severidade: 4 }
+tf 04 evt Cadastro.MensagemBloqueada { textoMascarado }
+rf 05 pcr Tradutor
+tf 06 cmd AnexarMensagem { origem: Llm }
+tf 07 evt Guarda.BloqueioTraduzido
+tf 08 rmo Farol ->> 03 ->> 07
+tf 09 ui PainelRiscoCidadao
+rf 10 ui AppDaACS
+tf 11 cmd VerificarMensagem { texto: versaoSegura }
+tf 12 evt Cadastro.MensagemLiberada

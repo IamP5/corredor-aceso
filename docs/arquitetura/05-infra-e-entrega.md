@@ -1,6 +1,6 @@
 # Infraestrutura, CI/CD, releases e repositório do Corredor Aceso
 
-Este documento fecha onde a VM roda, como ela nasce e é provisionada, como o código vira release, como a release chega à VM e como a equipe opera o que está no ar até a entrega de 19/11/2026 às 23h55. Ele vale junto com [arquitetura.md](../arquitetura.md) e com o [modelo de domínio](03-modelo-de-dominio.md). A seção 10 lista cada ponto em que este documento muda um dos dois.
+Este documento fecha onde a VM roda, como ela nasce e é provisionada, como o código vira release, como a release chega à VM e como a equipe opera o que está no ar até a entrega de 19/11/2026 às 23h55. Ele vale junto com a [visão geral](01-visao-geral.md), que substituiu `docs/arquitetura.md`, e com o [modelo de domínio](03-modelo-de-dominio.md). A seção 10 lista cada ponto em que este documento muda o modelo de domínio ou `docs/arquitetura.md`.
 
 Os 60 arquivos estão em [referencia/repo/](referencia/repo/), nos caminhos que terão no repositório. O [LEIA-ME](referencia/repo/LEIA-ME.md) de lá diz como copiar e quais checagens rodar. Este texto mostra só trechos curtos e aponta para o arquivo.
 
@@ -9,6 +9,10 @@ A regra que organiza tudo vem da rubrica de Operating Systems. Quem trabalha den
 Cada afirmação traz a origem. "Medido" quer dizer que rodou no ensaio descrito na seção 9. "Só lint" quer dizer que passou em `shellcheck`, `actionlint` ou `terraform validate`, mas não rodou. "Nunca rodou" quer dizer o que diz.
 
 ## Visão geral
+
+O desenho mostra o que roda dentro da VM e o que vem de fora. Veja que só o Nginx recebe conexão de fora. A API, o Postgres e o Mosquitto escutam em `127.0.0.1`.
+
+![VM corredor-ubs e seus serviços](diagramas/21-vm-e-servicos.mmd)
 
 ```text
 notebook                          GitHub                                   VM corredor-ubs (Multipass; Azure opcional)
@@ -93,6 +97,10 @@ Quem dispara:
 
 - Na VM local, a pessoa no terminal.
 - Na VM do Azure, o job `implantar` do `release.yml`, por SSH, como o usuário `deploy`, só depois que uma pessoa aprova o ambiente `producao` no GitHub. Uma tag sozinha nunca implanta. Sem a variável `VM_HOST`, o job nem roda.
+
+O desenho mostra a release inteira. Veja a pergunta de saúde no fim do deploy. Com a resposta não, o `deploy.sh` volta o link sozinho.
+
+![Release e rollback: do que roda no GitHub ao que roda na VM](diagramas/24-release-e-rollback.mmd)
 
 **O usuário `deploy`.** O [sudoers-deploy](referencia/repo/infra/config/sudoers-deploy) deixa esse usuário rodar quatro comandos como root, e o deploy só com uma tag. A regra:
 
@@ -194,11 +202,19 @@ As senhas são geradas dentro da VM na primeira execução e ficam em `/etc/corr
 | `app` | `app/` | `typecheck` e `lint` |
 | `ml`, `iot` | `ml/`, `iot/` | compila os `.py` e exige o notebook executado |
 
+No desenho, veja que o `ci-ok` é o único portão da `main` e que cada job só roda quando a pasta dele muda.
+
+![Pipeline de CI: ci.yml](diagramas/23-ci.mmd)
+
 Ficam fora do check obrigatório: lock de NuGet, `dotnet format`, compilação do ESP32 e o job de ponta a ponta do candidato B, que provisiona um runner do GitHub. Cada um é um motivo a mais para a `main` travar na véspera. O job do B também pediria um ramo `ci` nos scripts que nunca rodou, e o ensaio em contêiner da seção 9 cobre a mesma afirmação.
 
 ## 2. Árvore do repositório
 
 As pastas `api/`, `app/`, `ml/` e `iot/` aparecem até o nível que a infra e o CI usam. O resto delas é do modelo de domínio. Os arquivos marcados com `*` estão em [referencia/repo/](referencia/repo/).
+
+O desenho resume a árvore em uma linha por parte. A lista completa vem logo abaixo.
+
+![Árvore do repositório, resumida](diagramas/25-repositorio.mmd)
 
 ```text
 corredor-aceso/
@@ -446,6 +462,10 @@ Há dois papéis. O dono da infra responde por `infra/`, `tools/` e `.github/`. 
 
 ### 6.1 Primeiro provisionamento, do zero
 
+O desenho mostra a ordem. Veja que a VM local e a do Azure chegam ao mesmo `provisionar.sh`, e que o `lib/auditoria.sh` registra cada etapa.
+
+![Ordem de provisionamento da VM](diagramas/22-provisionamento.mmd)
+
 Repositório, uma vez:
 
 1. Copie os arquivos seguindo o [LEIA-ME](referencia/repo/LEIA-ME.md) e troque os três valores que ele lista.
@@ -574,6 +594,10 @@ As migrações do banco não pontuam em Operating Systems, mas o professor de SO
 Hoje é 16/11, noite. Os arquivos de infra estão prontos para copiar. O trabalho é rodar, conferir e corrigir o que o ambiente real mostrar. Cada portão tem hora. Quem não passar no portão aplica a ordem de corte.
 
 ### 8.1 Portões
+
+No desenho, cada barra da primeira seção termina na hora de um portão, e as barras vermelhas são o caminho crítico. Os passos dos módulos vêm da seção 8.1 do [modelo de domínio](03-modelo-de-dominio.md#81-ordem-de-construção). Eles ocupam o dia inteiro, porque lá não têm hora.
+
+![Plano até a entrega de 19/11, 23h55](diagramas/26-plano.mmd)
 
 **16/11, até 23h59.** Repositório público com os arquivos de [referencia/repo/](referencia/repo/), `main` protegida, primeiro PR com `ci-ok` verde.
 
