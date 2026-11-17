@@ -75,6 +75,8 @@ internal sealed class HostDeTeste : IAsyncDisposable
         builder.Logging.ClearProviders();
         var log = new LogCapturado();
         builder.Logging.AddProvider(log);
+        // Um segundo provedor, como o console e o debug do host: o evento não pode dobrar.
+        builder.Logging.AddProvider(new LogCapturado());
         builder.Configuration["ConnectionStrings:Guarda"] = "Host=127.0.0.1;Database=sem_conexao";
         builder.Configuration["Llm:ApiKey"] = "";
         builder.Services.AddProblemDetails();

@@ -63,7 +63,7 @@
   table { width: 100%; border-collapse: collapse; background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; }
   th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--borda); }
   th { font-size: .95rem; color: var(--suave); font-weight: 600; }
-  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
   ol.eventos { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
   .evento { background: var(--cartao); border: 1px solid var(--borda); border-left: 8px solid var(--amarelo); border-radius: 12px; padding: 14px 16px; }
   .evento.bloqueio.grave { border-left-color: var(--vermelho); }
@@ -167,8 +167,8 @@
       }
       canais.append(el("table", {},
         el("thead", {}, el("tr", {},
-          el("th", { scope: "col" }, "Canal"), el("th", { scope: "col" }, "Eventos"),
-          el("th", { scope: "col" }, "Barrados"), el("th", { scope: "col" }, "Pontos"))),
+          el("th", { scope: "col" }, "Canal"), el("th", { scope: "col", class: "num" }, "Eventos"),
+          el("th", { scope: "col", class: "num" }, "Barrados"), el("th", { scope: "col", class: "num" }, "Pontos"))),
         corpo));
     }
 

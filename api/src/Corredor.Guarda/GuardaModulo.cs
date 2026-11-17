@@ -13,7 +13,7 @@ namespace Corredor.Guarda;
 
 public static class GuardaModulo
 {
-    // O host chama antes de AddMotor e AddCadastro, para o ProvedorDeLogSeguro envolver o log de todos.
+    // O host chama antes de AddMotor e AddCadastro. O ProvedorDeLogSeguro envolve a fábrica de log de todos.
     // Um IExceptionHandler registrado aqui roda depois do tratador de RegraDeDominioViolada do host.
     public static IHostApplicationBuilder AddGuarda(this IHostApplicationBuilder builder)
     {
@@ -67,25 +67,20 @@ public static class GuardaModulo
         return rotas;
     }
 
-    // Troca cada ILoggerProvider já registrado pelo ProvedorDeLogSeguro em volta dele. Os provedores
-    // do host, como o do console, entram em CreateBuilder, antes de AddGuarda.
+    // Troca a ILoggerFactory do host pelo ProvedorDeLogSeguro em volta dela. Vale para todo
+    // provedor, inclusive os registrados depois de AddGuarda, e verifica cada linha uma vez só.
     private static void EnvolverOLog(IServiceCollection servicos)
     {
-        foreach (var original in servicos.Where(d => d.ServiceType == typeof(ILoggerProvider) && !d.IsKeyedService).ToList())
-        {
-            servicos.Remove(original);
-            servicos.Add(ServiceDescriptor.Describe(
-                typeof(ILoggerProvider),
-                sp => new ProvedorDeLogSeguro(
-                    Criar(sp, original),
-                    sp.GetRequiredService<SaidaSegura>,
-                    sp.GetRequiredService<MotorDeParsing>),
-                original.Lifetime));
-        }
-
-        static ILoggerProvider Criar(IServiceProvider sp, ServiceDescriptor d) => (ILoggerProvider)(
-            d.ImplementationInstance
-            ?? d.ImplementationFactory?.Invoke(sp)
-            ?? ActivatorUtilities.CreateInstance(sp, d.ImplementationType!));
+        var original = servicos.Last(d => d.ServiceType == typeof(ILoggerFactory) && !d.IsKeyedService);
+        servicos.Remove(original);
+        servicos.Add(ServiceDescriptor.Describe(
+            typeof(ILoggerFactory),
+            sp => new ProvedorDeLogSeguro(
+                (ILoggerFactory)(original.ImplementationInstance
+                    ?? original.ImplementationFactory?.Invoke(sp)
+                    ?? ActivatorUtilities.CreateInstance(sp, original.ImplementationType!)),
+                sp.GetRequiredService<SaidaSegura>,
+                sp.GetRequiredService<MotorDeParsing>),
+            original.Lifetime));
     }
 }

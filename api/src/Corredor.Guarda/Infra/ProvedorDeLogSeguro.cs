@@ -3,16 +3,22 @@ using Microsoft.Extensions.Logging;
 namespace Corredor.Guarda.Infra;
 
 /// <summary>
-/// Decorador de ILoggerProvider. Um argumento TextoRotulado com rótulo vai ao log como máscara
-/// e registra SaidaBloqueada no canal Log. Uma exceção cuja mensagem tem dado pessoal vai ao
-/// log mascarada, com o mesmo registro. Texto sem rótulo passa inteiro.
+/// Decorador da fábrica de log. Um argumento TextoRotulado com rótulo vai ao log como máscara e
+/// registra SaidaBloqueada no canal Log. Uma exceção cuja mensagem tem dado pessoal vai ao log
+/// mascarada, com o mesmo registro. Texto sem rótulo passa inteiro.
 /// </summary>
-/// <param name="saida">Resolvida na primeira linha de log, porque o provedor nasce antes do contêiner.</param>
-public sealed class ProvedorDeLogSeguro(ILoggerProvider interno, Func<SaidaSegura> saida, Func<MotorDeParsing> motor) : ILoggerProvider
+/// <remarks>
+/// Decora a ILoggerFactory, não cada ILoggerProvider: o host tem vários provedores (console,
+/// debug), e um decorador por provedor registraria um evento por provedor para a mesma linha.
+/// Aqui a verificação roda uma vez por linha, antes de a fábrica repartir a linha entre eles.
+/// </remarks>
+public sealed class ProvedorDeLogSeguro(ILoggerFactory interna, Func<SaidaSegura> saida, Func<MotorDeParsing> motor) : ILoggerFactory
 {
-    public ILogger CreateLogger(string categoria) => new LoggerSeguro(interno.CreateLogger(categoria), ModuloDaCategoria(categoria), saida, motor);
+    public ILogger CreateLogger(string categoria) => new LoggerSeguro(interna.CreateLogger(categoria), ModuloDaCategoria(categoria), saida, motor);
 
-    public void Dispose() => interno.Dispose();
+    public void AddProvider(ILoggerProvider provedor) => interna.AddProvider(provedor);
+
+    public void Dispose() => interna.Dispose();
 
     internal static string ModuloDaCategoria(string categoria)
     {

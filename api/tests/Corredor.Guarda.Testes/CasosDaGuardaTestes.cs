@@ -90,6 +90,7 @@ public sealed class CasosDaGuardaTestes : IAsyncLifetime
 
         var painel = await _host.PainelAsync();
         var evento = Assert.Single(painel["eventos"]!.AsArray())!;
+        Assert.Single(_host.Armazem.Todos);
         Assert.Equal("BloqueioDeSaida", (string?)evento["tipo"]);
         Assert.Equal("Log", (string?)evento["canal"]);
         Assert.Equal("Cadastro", (string?)evento["modulo"]);
