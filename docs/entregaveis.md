@@ -17,7 +17,7 @@ A coluna "Quem faz" separa o que sai do repositório do que só uma pessoa da eq
 | ODS identificados e explicados | `README.md` e `docs/discovery/01-ideia-vencedora.md` | repositório | pronto |
 | Registro dos prompts de IA | `prompts.md` | repositório | pronto |
 | Nenhum dado pessoal real, fonte dos dados públicos declarada | `ml/dados/README.md`, verificador em `docs/arquitetura/referencia/dados/semente/verificar_dados_pessoais.py` | repositório | pronto |
-| Uma pasta por parte, README claro | raiz | repositório | parcial: `infra/` ainda não tem `README.md` |
+| Uma pasta por parte, README claro | raiz | repositório | pronto |
 | Nomes dos integrantes | `integrantes.txt` | equipe | equipe: o arquivo existe com uma linha a preencher |
 | Todo integrante sabe explicar o projeto inteiro | | equipe | equipe |
 
@@ -34,7 +34,7 @@ Nota: domínio 3,0, conexão com banco 3,0, migrações 1,5, documentação auto
 | Documentação dos endpoints | Swagger em `/swagger` | repositório | pronto |
 | Testes automatizados | `api/tests/Corredor.Cadastro.Testes` | repositório | pronto |
 | README com instruções, descrição e nomes | `api/README.md` | repositório, nomes da equipe | parcial: faltam os nomes, que vêm de `integrantes.txt` |
-| Evidências da aplicação | `docs/evidencias/integracao/`, `docs/evidencias/cyber/evidencia-integrada-cadastro.txt` | repositório e prints da equipe | parcial: há o log das rotas e o relatório; faltam prints do Swagger |
+| Evidências da aplicação | `docs/evidencias/integracao/`, `docs/evidencias/api/`, `docs/evidencias/cyber/evidencia-integrada-cadastro.txt` | repositório | pronto: o log das rotas, o relatório e os prints do Swagger |
 
 ## Cybersecurity
 
@@ -60,7 +60,7 @@ Nota: POO 3,0, Web API 2,5, EF Core e LINQ 1,5, async e await 1,0, qualidade do 
 | Programação assíncrona | consumidor MQTT e casos de uso | repositório | pronto: o consumidor MQTT recebeu os pacotes do simulador |
 | Testes unitários | `api/tests/Corredor.Motor.Testes` | repositório | pronto |
 | Documentação dos endpoints | Swagger em `/swagger` | repositório | pronto |
-| README e evidências | `api/README.md`, `docs/evidencias/integracao/` | repositório e prints da equipe | parcial: faltam prints do Swagger |
+| README e evidências | `api/README.md`, `docs/evidencias/integracao/`, `docs/evidencias/api/` | repositório | pronto: prints do Swagger em `docs/evidencias/api/` |
 
 ## IA e Machine Learning
 
@@ -95,13 +95,13 @@ Nota: script de infra (rede, DNS, IP) 2, script da aplicação 2, script de moni
 
 | Item pedido | Onde | Quem faz | Situação |
 |---|---|---|---|
-| Provisionamento de rede, DNS, IP e hostname | `infra/01-rede.sh` | repositório | pronto, não rodado na integração |
-| Provisionamento da aplicação | `infra/02-app.sh` | repositório | pronto, não rodado na integração |
-| Monitor de CPU, disco e memória com alertas | `infra/monitor.sh`, `infra/03-monitor.sh` | repositório | pronto, não rodado na integração |
-| Monitor como serviço tolerante a falhas | `infra/systemd/corredor-monitor.service` | repositório | pronto, não rodado na integração |
-| Logs de auditoria e de execução | `infra/lib/auditoria.sh` | repositório | pronto, não rodado na integração |
-| Teste de falha | `infra/teste-de-falha.sh` | repositório | pronto, não rodado na integração |
-| README e evidências técnicas | `infra/README.md`, `docs/evidencias/os/` | repositório | falta: nenhum dos dois existe |
+| Provisionamento de rede, DNS, IP e hostname | `infra/01-rede.sh` | repositório | pronto: rodou num contêiner com systemd, não numa VM ([05-rede.txt](evidencias/os/05-rede.txt)) |
+| Provisionamento da aplicação | `infra/02-app.sh` | repositório | pronto: rodou no contêiner, do zero e de novo sem mudança ([01](evidencias/os/01-provisionamento.txt), [03](evidencias/os/03-reprovisionamento.txt)) |
+| Monitor de CPU, disco e memória com alertas | `infra/monitor.sh`, `infra/03-monitor.sh` | repositório | pronto: alertas de CPU, memória e disco vistos no contêiner, com limites de memória e disco baixados ([07](evidencias/os/07-monitor-e-alertas.txt)) |
+| Monitor como serviço tolerante a falhas | `infra/systemd/corredor-monitor.service` | repositório | pronto: religado pelo systemd depois de `kill -9` e pelo watchdog ([08](evidencias/os/08-monitor-religado.txt)) |
+| Logs de auditoria e de execução | `infra/lib/auditoria.sh` | repositório | pronto ([09](evidencias/os/09-auditoria.txt)) |
+| Teste de falha | `infra/teste-de-falha.sh` | repositório | pronto: os seis cenários e o `travado` passaram no contêiner ([06](evidencias/os/06-teste-de-falha.txt)) |
+| README e evidências técnicas | `infra/README.md`, `docs/evidencias/os/` | repositório | pronto. A VM, o Azure e o túnel nunca rodaram, como dizem os dois READMEs |
 | Vídeo de até 7 minutos com o provisionamento automático na VM | roteiro em `docs/arquitetura/05-infra-e-entrega.md` | equipe | equipe |
 
 ## Physical Computing: IoT e IoB

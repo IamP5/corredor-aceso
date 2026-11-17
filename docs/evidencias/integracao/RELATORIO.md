@@ -19,7 +19,7 @@ Os dados de pessoas são simulados. Os tokens das casas aparecem nos logs só pe
 | Fila do app com a API parada, entregue uma vez | verificada | `08-fila-api-fora.png`, `09-fila-enviada.png`, `telas.log` |
 | Invariante do falso verde no sistema integrado | verificada: 3 sementes, 4578 casas verdes conferidas, 0 violação | `invariante.log` |
 | Nó do Wokwi falando com esta API | não rodada | o nó só roda no wokwi.com, contra o broker público |
-| Provisionamento da VM e `infra/teste-de-falha.sh` | não rodados | a integração rodou no notebook, sem VM |
+| Provisionamento da VM e `infra/teste-de-falha.sh` | verificados num contêiner com systemd, não numa VM | [docs/evidencias/os/](../os/README.md) |
 | App no celular contra a API real | não rodado | só o alvo web |
 
 ## Como repetir
@@ -182,11 +182,11 @@ Conferidos na junção e sem defeito:
 
 ## 9. O que ainda não funciona ou não foi visto
 
-- O resumo do encerramento conta todas as casas ativas do Motor, de todas as microáreas. Com a casa do teste de falha ativa, o app mostra "24 de 41 casas" em vez de 40. Corrigir pede uma decisão de domínio: o turno é do dia, e o resumo não tem microárea.
+- Corrigido depois desta rodada: o resumo do encerramento contava todas as casas ativas do Motor, e o app mostrava "24 de 41 casas" por causa da casa do teste de falha, na microárea 999. Agora `POST /api/dias-criticos/{data}/encerramento?microarea=3` conta só as casas da microárea da ACS, como o radar, e o app manda a microárea da sessão. O resumo gravado continua o do dia. Contra a API da demo, a resposta com `?microarea=3` deu 40 casas, a sem o parâmetro deu 41, a com `?microarea=4` deu 403, e o radar da microárea 3 tem 40 casas. O print `11-turno-encerrado.png` é de antes da correção.
 - No app, com o relógio de demo deslocado, a hora da visita aparece na hora do celular ("Estava fora às 02h04") e o resto da tela na hora do Motor ("10h02"). Em produção o deslocamento é zero e as horas batem.
-- `openrouter/auto` escolhe o modelo a cada chamada. Numa rodada de teste, um modelo respondeu cortado mesmo com o raciocínio desligado. A Guarda agora troca resposta cortada pela frase fixa, mas a tradução do LLM pode não aparecer em toda rodada. Fixar um modelo no `.env` deixa a demo previsível.
+- Corrigido depois desta rodada: `openrouter/auto` escolhia o modelo a cada chamada, e um deles respondeu cortado. O padrão agora é `openai/gpt-4o-mini`, no código, no `.env.example` e no `.env`. Ele deu as duas frases inteiras em 5 de 5 chamadas pelo `Tradutor`, com a chave real. A tabela da escolha está em [api/README.md](../../../api/README.md#configuração). A cena 3 desta rodada ainda rodou com `openrouter/auto`.
 - O nó do Wokwi não falou com esta API: ele publica no broker público, e a ponte do Mosquitto só existe na VM.
-- A VM, o provisionamento e o `infra/teste-de-falha.sh` não rodaram nesta integração.
+- O provisionamento e o `infra/teste-de-falha.sh` rodaram depois desta rodada, num contêiner Ubuntu 24.04 com systemd, com o pacote do `tools/empacotar.sh`. Os seis cenários e o `travado` passaram. As evidências estão em [docs/evidencias/os/](../os/README.md). Uma VM de verdade, o Azure e o túnel nunca rodaram.
 - O app não rodou no celular contra a API real, só no alvo web.
 
 ## 10. Arquivos desta pasta
