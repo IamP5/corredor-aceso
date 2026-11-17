@@ -11,6 +11,7 @@ Uso: sudo corredor <comando>
   deploy vX.Y.Z | --ultima   implanta uma release (volta sozinho se falhar)
   deploy --arquivo PACOTE    implanta um pacote local
   voltar                     rollback manual para a versão anterior
+  semear                     carrega as 40 casas da demo e ativa a casa do teste de falha (só Development)
   reiniciar api              reinicia a API
   logs api|monitor|alertas|deploy|auditoria
   infra [ref]                atualiza infra/ para a ref do Git e provisiona de novo
@@ -27,6 +28,14 @@ case "$comando" in
   voltar) exec bash "$INFRA_DIR/deploy.sh" --voltar ;;
   teste-de-falha) exec bash "$INFRA_DIR/teste-de-falha.sh" "$@" ;;
   tunel) exec bash "$INFRA_DIR/tunel.sh" "$@" ;;
+  semear)
+    # O teste de falha precisa da casa CASA_TESTE_TOKEN ativa no Motor. Roda a API da release no ar
+    # com o mesmo api.env da unit. O api.env tem ';' nas strings de conexão, então não dá para usar `source`.
+    logger -t corredor-auditoria -- "script=corredor usuario=${SUDO_USER:-$(id -un)} evento=semear"
+    exec systemd-run --quiet --wait --pipe --collect -p EnvironmentFile=/etc/corredor/api.env \
+      -p WorkingDirectory=/opt/corredor/current/api /opt/corredor/current/api/Corredor.Api \
+      --semear "$INFRA_DIR/../api/semente/casas.json"
+    ;;
   reiniciar)
     [[ ${1:-} == api ]] || { ajuda; exit 2; }
     systemctl restart corredor-api
