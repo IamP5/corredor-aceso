@@ -376,6 +376,7 @@ sudo corredor status                      versão no ar, rede, serviços, saúde
 sudo corredor deploy vX.Y.Z | --ultima    implanta uma release
 sudo corredor deploy --arquivo PACOTE     implanta um pacote feito no notebook
 sudo corredor voltar                      rollback manual
+sudo corredor semear                      carrega a demo e ativa a casa do teste de falha (só Development)
 sudo corredor reiniciar api
 sudo corredor logs api|monitor|alertas|deploy|auditoria
 sudo corredor infra [ref]                 atualiza infra/ para uma ref do Git e provisiona de novo
@@ -478,7 +479,7 @@ VM local, no notebook que vai gravar:
 2. Rode `multipass shell corredor-ubs`.
 3. Rode `sudo git clone --depth 1 https://github.com/<org>/corredor-aceso.git /opt/corredor/repo`.
 4. Rode `sudo bash /opt/corredor/repo/infra/provisionar.sh`. O fim mostra `== tudo certo ==`, com a API em `[PENDENTE]` antes da primeira release.
-5. Depois da primeira release, rode `sudo corredor deploy v0.1.0`.
+5. Depois da primeira release, rode `sudo corredor deploy v0.1.0` e `sudo corredor semear`, que ativa a casa do teste de falha.
 6. Rode `sudoedit /etc/corredor/segredos.env`, preencha `Llm__ApiKey=` e rode `sudo corredor reiniciar api`.
 
 VM do Azure, pelo dono da infra, só em 17/11 e dentro do prazo de duas horas:
@@ -552,7 +553,7 @@ Sequência gravada:
 
 1. `multipass launch 24.04 --name corredor-ubs --cpus 2 --memory 4G --disk 20G`, depois `multipass shell corredor-ubs`. Mostre `hostname` e `systemctl status nginx`, que ainda não existe.
 2. `sudo git clone --depth 1 https://github.com/<org>/corredor-aceso.git /opt/corredor/repo && sudo bash /opt/corredor/repo/infra/provisionar.sh`. Pare a câmera em `01-rede` e em `02-app`.
-3. `sudo corredor deploy v1.0.0-rc.1`, depois `sudo corredor status`.
+3. `sudo corredor deploy v1.0.0-rc.1`, `sudo corredor semear` e `sudo corredor status`.
 4. `curl http://api.corredor.internal/api/versao`, `ip addr show corredor0` e `getent hosts api.corredor.internal`.
 5. No navegador do notebook, `http://<IP da VM>/painel/`.
 6. `sudo bash /opt/corredor/repo/infra/provisionar.sh` de novo. O fim mostra `0 mudança(s)` em cada etapa e as linhas `corredor-api: não reiniciou` e `corredor-monitor: não reiniciou`, com o mesmo `InvocationID` antes e depois.

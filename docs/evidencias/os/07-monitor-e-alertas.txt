@@ -1,0 +1,39 @@
+# Métricas e alertas de CPU, memória e disco gravados pelo monitor
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:57:03-03:00
+
+$ corredor logs alertas
+2026-11-17T02:53:41-03:00 ALERTA serviço mosquitto parado
+2026-11-17T02:53:41-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-17T02:53:57-03:00 NORMALIZADO servico:mosquitto voltou ao normal
+2026-11-17T02:53:57-03:00 NORMALIZADO api voltou ao normal
+2026-11-17T02:54:38-03:00 ALERTA CPU em 100% (limite 85%)
+2026-11-17T02:54:54-03:00 NORMALIZADO cpu voltou ao normal
+2026-11-17T02:55:10-03:00 ALERTA memória em 25% (limite 20%)
+2026-11-17T02:55:26-03:00 NORMALIZADO memoria voltou ao normal
+2026-11-17T02:55:42-03:00 ALERTA disco / em 15% (limite 13%)
+2026-11-17T02:55:58-03:00 NORMALIZADO disco:/ voltou ao normal
+
+$ tail -n 8 /var/log/corredor/monitor/monitor.log
+2026-11-17T02:54:22-03:00 cpu=100% mem=16% disco:/=11% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-17T02:54:38-03:00 cpu=100% mem=16% disco:/=11% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-17T02:54:54-03:00 cpu=1% mem=16% disco:/=11% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-17T02:55:10-03:00 cpu=18% mem=25% disco:/=12% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-17T02:55:26-03:00 cpu=1% mem=16% disco:/=12% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-17T02:55:42-03:00 cpu=1% mem=16% disco:/=15% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-17T02:55:58-03:00 cpu=1% mem=16% disco:/=12% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-17T02:57:03-03:00 cpu=1% mem=16% disco:/=12% mosquitto=ok nginx=ok postgres=ok api=ok
+
+$ journalctl -u corredor-monitor -p warning -o short-iso --no-pager | tail -n 15
+2026-11-17T02:53:41-03:00 corredor-ubs corredor-monitor[6130]: ALERTA serviço mosquitto parado
+2026-11-17T02:53:41-03:00 corredor-ubs corredor-monitor[6130]: ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-17T02:54:01-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=killed, status=9/KILL
+2026-11-17T02:54:01-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Failed with result 'signal'.
+2026-11-17T02:54:38-03:00 corredor-ubs corredor-monitor[6427]: ALERTA CPU em 100% (limite 85%)
+2026-11-17T02:55:10-03:00 corredor-ubs corredor-monitor[6427]: ALERTA memória em 25% (limite 20%)
+2026-11-17T02:55:42-03:00 corredor-ubs corredor-monitor[6427]: ALERTA disco / em 15% (limite 13%)
+2026-11-17T02:56:58-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Watchdog timeout (limit 1min)!
+2026-11-17T02:56:58-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=killed, status=6/ABRT
+2026-11-17T02:56:58-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Failed with result 'watchdog'.
+
+$ bash /usr/local/lib/corredor/monitor.sh --uma-vez
+METRICAS cpu=1% mem=16% disco:/=12% mosquitto=ok nginx=ok postgres=ok api=ok

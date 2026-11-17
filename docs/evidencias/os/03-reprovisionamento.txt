@@ -1,0 +1,95 @@
+# Segundo provisionamento: nada muda e nada reinicia
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:53:31-03:00
+
+$ bash /opt/corredor/repo/infra/provisionar.sh
+== 01-rede: ambiente local ==
+  [ok] hostname corredor-ubs
+  [ok] pacotes presentes: tzdata
+  [ok] fuso America/Sao_Paulo
+  [ok] /etc/systemd/network/10-corredor0.netdev
+  [ok] /etc/systemd/network/10-corredor0.network
+  [ok] IP fixo 10.77.0.1/24 em corredor0
+  [ok] bloco gerenciado em /etc/hosts
+  [..] systemd-resolved inativo: DNS de reserva não aplicado
+  [..] zona DNS do dnsmasq desligada: os nomes vêm do /etc/hosts
+  [ok] pacotes presentes: ufw
+  [ok] firewall: entrada negada por padrão
+  [ok] firewall: porta 22/tcp liberada
+  [ok] firewall: porta 80/tcp liberada
+  [ok] firewall: porta 443/tcp liberada
+  [ok] firewall ativo
+  [ok] bloco gerenciado em /home/ubuntu/.ssh/authorized_keys
+== 01-rede: 0 mudança(s) ==
+== 02-app: ambiente local ==
+  [ok] memória ou swap suficientes
+  [ok] pacotes presentes: ca-certificates curl jq gettext-base logrotate libicu74 postgresql mosquitto mosquitto-clients nginx
+  [ok] usuário corredor
+  [..] sem infra/chaves/deploy.pub: deploy pelo GitHub Actions desligado
+  [ok] serviço postgresql ativo
+  [ok] banco corredor: papéis, schemas e permissões de motor, cadastro, guarda
+  [ok] /etc/corredor/api.env
+  [ok] /etc/mosquitto/conf.d/corredor.conf
+  [ok] serviço mosquitto ativo
+  [ok] /etc/nginx/snippets/corredor-rotas.conf
+  [ok] /etc/nginx/conf.d/corredor.conf
+  [ok] serviço nginx ativo
+  [..] ambiente sem nome público: TLS não configurado
+  [ok] pacotes presentes: python3-venv
+  [ok] ambiente Python em /opt/corredor/venv
+  [ok] /etc/systemd/system/corredor-api.service
+  [ok] /etc/systemd/system/corredor-ml.service
+  [ok] /etc/systemd/system/corredor-ml.timer
+  [ok] /etc/systemd/system/corredor-simulador.service
+  [ok] serviço corredor-ml.timer ativo
+  [ok] /usr/local/sbin/corredor
+  [ok] serviço corredor-api ativo
+== 02-app: 0 mudança(s) ==
+== 03-monitor: ambiente local ==
+  [ok] pacotes presentes: curl logrotate
+  [ok] usuário corredor-mon
+  [ok] /usr/local/lib/corredor/monitor.sh
+  [ok] /etc/systemd/system/corredor-monitor.service
+  [ok] /etc/systemd/system/corredor-alerta@.service
+  [ok] serviço corredor-monitor ativo
+  [ok] /etc/logrotate.d/corredor
+== 03-monitor: 0 mudança(s) ==
+== Corredor Aceso em corredor-ubs, ambiente local, 2026-11-17T02:53:31-03:00 ==
+Versão
+  no ar:     v0.0.1 (commit 706275d)
+  anterior:  nenhuma
+  último registro: 2026-11-17T02:53:29-03:00 usuario=root evento=deploy_ok versao=v0.0.1
+Rede
+  [OK]       hostname corredor-ubs
+  [OK]       fuso America/Sao_Paulo
+  [OK]       IP fixo 10.77.0.1 em corredor0
+  [OK]       api.corredor.internal resolve para 10.77.0.1
+  [OK]       painel.corredor.internal resolve para 10.77.0.1
+  [OK]       firewall ativo
+  [OK]       firewall libera 22/tcp
+  [OK]       firewall libera 80/tcp
+  [OK]       firewall libera 443/tcp
+Serviços
+  [OK]       Postgres aceita conexão
+  [OK]       banco corredor tem o schema motor
+  [OK]       banco corredor tem o schema cadastro
+  [OK]       banco corredor tem o schema guarda
+  [OK]       Mosquitto ativo
+  [OK]       Mosquitto entrega mensagem local
+  [OK]       ponte MQTT conectada a broker.hivemq.com:1883
+  [OK]       Nginx ativo
+  [OK]       monitor ativo
+  [OK]       monitor mediu nos últimos 90 s
+Aplicação
+  [OK]       API pronta em /healthz/ready
+  [OK]       corredor-api ativa
+  [OK]       Nginx entrega /api/versao em api.corredor.internal
+  [OK]       Nginx esconde /healthz
+  [OK]       Nginx entrega /painel/ em painel.corredor.internal
+Auditoria
+  [OK]       auditoria.log tem registros
+  últimos alertas:
+== tudo certo ==
+== processos antes e depois ==
+  corredor-api: não reiniciou (InvocationID cdbe11d254a1402991bc49952c34d70e antes e depois)
+  corredor-monitor: não reiniciou (InvocationID 36750b0d19264ef99eba84c212ca1e23 antes e depois)
+== provisionamento concluído em 1 s, 0 mudança(s) ==

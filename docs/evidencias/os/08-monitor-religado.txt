@@ -1,0 +1,35 @@
+# corredor-monitor morto com kill -9 e congelado com kill -STOP: o systemd religa
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:57:04-03:00
+
+$ systemctl show corredor-monitor -p Restart -p RestartUSec -p WatchdogUSec -p NRestarts
+Restart=always
+RestartUSec=3s
+WatchdogUSec=1min
+NRestarts=2
+
+$ journalctl -u corredor-monitor -o short-iso --no-pager | grep -E "Main process exited|Watchdog timeout|Scheduled restart|Started|monitor iniciado" | tail -n 12
+2026-11-17T02:53:25-03:00 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+2026-11-17T02:53:40-03:00 corredor-ubs corredor-monitor[6130]: monitor iniciado: a cada 15s, limites cpu=85% mem=20% disco=13%
+2026-11-17T02:53:40-03:00 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+2026-11-17T02:54:01-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=killed, status=9/KILL
+2026-11-17T02:54:04-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Scheduled restart job, restart counter is at 1.
+2026-11-17T02:54:04-03:00 corredor-ubs corredor-monitor[6427]: monitor iniciado: a cada 15s, limites cpu=85% mem=20% disco=13%
+2026-11-17T02:54:04-03:00 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+2026-11-17T02:56:58-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Watchdog timeout (limit 1min)!
+2026-11-17T02:56:58-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=killed, status=6/ABRT
+2026-11-17T02:57:02-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Scheduled restart job, restart counter is at 2.
+2026-11-17T02:57:02-03:00 corredor-ubs corredor-monitor[7767]: monitor iniciado: a cada 15s, limites cpu=85% mem=20% disco=13%
+2026-11-17T02:57:02-03:00 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+
+$ antes=$(systemctl show -p MainPID --value corredor-monitor); kill -9 $antes; sleep 6; echo "PID antes $antes, depois $(systemctl show -p MainPID --value corredor-monitor)"; systemctl status corredor-monitor --no-pager --lines=0
+PID antes 7767, depois 7881
+● corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços
+     Loaded: loaded (/etc/systemd/system/corredor-monitor.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-11-17 02:57:07 -03; 2s ago
+   Main PID: 7881 (bash)
+      Tasks: 2 (limit: 9291)
+     Memory: 716.0K ()
+        CPU: 98ms
+     CGroup: /system.slice/corredor-monitor.service
+             ├─7881 /bin/bash /usr/local/lib/corredor/monitor.sh
+             └─7905 sleep 15

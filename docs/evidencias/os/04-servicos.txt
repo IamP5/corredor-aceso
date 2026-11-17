@@ -1,0 +1,149 @@
+# sudo corredor status e systemctl status dos serviços
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:53:32-03:00
+
+$ corredor status
+== Corredor Aceso em corredor-ubs, ambiente local, 2026-11-17T02:53:32-03:00 ==
+Versão
+  no ar:     v0.0.1 (commit 706275d)
+  anterior:  nenhuma
+  último registro: 2026-11-17T02:53:29-03:00 usuario=root evento=deploy_ok versao=v0.0.1
+Rede
+  [OK]       hostname corredor-ubs
+  [OK]       fuso America/Sao_Paulo
+  [OK]       IP fixo 10.77.0.1 em corredor0
+  [OK]       api.corredor.internal resolve para 10.77.0.1
+  [OK]       painel.corredor.internal resolve para 10.77.0.1
+  [OK]       firewall ativo
+  [OK]       firewall libera 22/tcp
+  [OK]       firewall libera 80/tcp
+  [OK]       firewall libera 443/tcp
+Serviços
+  [OK]       Postgres aceita conexão
+  [OK]       banco corredor tem o schema motor
+  [OK]       banco corredor tem o schema cadastro
+  [OK]       banco corredor tem o schema guarda
+  [OK]       Mosquitto ativo
+  [OK]       Mosquitto entrega mensagem local
+  [OK]       ponte MQTT conectada a broker.hivemq.com:1883
+  [OK]       Nginx ativo
+  [OK]       monitor ativo
+  [OK]       monitor mediu nos últimos 90 s
+Aplicação
+  [OK]       API pronta em /healthz/ready
+  [OK]       corredor-api ativa
+  [OK]       Nginx entrega /api/versao em api.corredor.internal
+  [OK]       Nginx esconde /healthz
+  [OK]       Nginx entrega /painel/ em painel.corredor.internal
+Auditoria
+  [OK]       auditoria.log tem registros
+  últimos alertas:
+== tudo certo ==
+
+$ systemctl status corredor-api corredor-monitor mosquitto nginx postgresql@16-main corredor-ml.timer --no-pager --lines=3
+● corredor-api.service - Corredor Aceso - API .NET (Motor, Cadastro e Guarda)
+     Loaded: loaded (/etc/systemd/system/corredor-api.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-11-17 02:53:28 -03; 4s ago
+   Main PID: 4710 (Corredor.Api)
+      Tasks: 27 (limit: 9291)
+     Memory: 80.7M ()
+        CPU: 1.583s
+     CGroup: /system.slice/corredor-api.service
+             └─4710 /opt/corredor/current/api/Corredor.Api
+
+Nov 17 02:53:28 corredor-ubs corredor-api[4710]: {"Timestamp":"2026-11-17T05:53:28.884Z","EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Hosting environment: Development","State":{"EnvName":"Development","{OriginalFormat}":"Hosting environment: {EnvName}"}}
+Nov 17 02:53:28 corredor-ubs corredor-api[4710]: {"Timestamp":"2026-11-17T05:53:28.884Z","EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Content root path: /opt/corredor/releases/v0.0.1/api","State":{"ContentRoot":"/opt/corredor/releases/v0.0.1/api","{OriginalFormat}":"Content root path: {ContentRoot}"}}
+Nov 17 02:53:29 corredor-ubs corredor-api[4710]: {"Timestamp":"2026-11-17T05:53:29.273Z","EventId":0,"LogLevel":"Information","Category":"Corredor.Cadastro.Aplicacao.ReconciliacaoComMotor","Message":"reconcilia\u00E7\u00E3o com o Motor: 0 casas ativas reenviadas","State":{"Casas":0,"{OriginalFormat}":"reconcilia\u00E7\u00E3o com o Motor: {Casas} casas ativas reenviadas"}}
+
+● corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços
+     Loaded: loaded (/etc/systemd/system/corredor-monitor.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-11-17 02:53:25 -03; 7s ago
+   Main PID: 4490 (bash)
+      Tasks: 2 (limit: 9291)
+     Memory: 732.0K ()
+        CPU: 67ms
+     CGroup: /system.slice/corredor-monitor.service
+             ├─4490 /bin/bash /usr/local/lib/corredor/monitor.sh
+             └─4583 sleep 15
+
+Nov 17 02:53:25 corredor-ubs systemd[1]: Starting corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços...
+Nov 17 02:53:25 corredor-ubs corredor-monitor[4490]: monitor iniciado: a cada 15s, limites cpu=85% mem=85% disco=80%
+Nov 17 02:53:25 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+
+● mosquitto.service - Mosquitto MQTT Broker
+     Loaded: loaded (/usr/lib/systemd/system/mosquitto.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-11-17 02:53:11 -03; 22s ago
+       Docs: man:mosquitto.conf(5)
+             man:mosquitto(8)
+   Main PID: 4184 (mosquitto)
+      Tasks: 1 (limit: 9291)
+     Memory: 1.2M ()
+        CPU: 32ms
+     CGroup: /system.slice/mosquitto.service
+             └─4184 /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf
+
+Nov 17 02:53:11 corredor-ubs systemd[1]: Starting mosquitto.service - Mosquitto MQTT Broker...
+Nov 17 02:53:11 corredor-ubs mosquitto[4184]: 1794894791: Loading config file /etc/mosquitto/conf.d/corredor.conf
+Nov 17 02:53:11 corredor-ubs systemd[1]: Started mosquitto.service - Mosquitto MQTT Broker.
+
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-11-17 02:53:04 -03; 29s ago
+       Docs: man:nginx(8)
+   Main PID: 2194 (nginx)
+      Tasks: 7 (limit: 9291)
+     Memory: 4.7M ()
+        CPU: 62ms
+     CGroup: /system.slice/nginx.service
+             ├─2194 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"
+             ├─4207 "nginx: worker process"
+             ├─4208 "nginx: worker process"
+             ├─4209 "nginx: worker process"
+             ├─4211 "nginx: worker process"
+             ├─4212 "nginx: worker process"
+             └─4213 "nginx: worker process"
+
+Nov 17 02:53:11 corredor-ubs systemd[1]: Reloading nginx.service - A high performance web server and a reverse proxy server...
+Nov 17 02:53:11 corredor-ubs nginx[4206]: 2026/11/17 02:53:11 [notice] 4206#4206: signal process started
+Nov 17 02:53:11 corredor-ubs systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.
+
+● postgresql@16-main.service - PostgreSQL Cluster 16-main
+     Loaded: loaded (/usr/lib/systemd/system/postgresql@.service; enabled-runtime; preset: enabled)
+     Active: active (running) since Tue 2026-11-17 02:53:10 -03; 22s ago
+   Main PID: 4043 (postgres)
+      Tasks: 10 (limit: 9291)
+     Memory: 47.7M ()
+        CPU: 614ms
+     CGroup: /system.slice/system-postgresql.slice/postgresql@16-main.service
+             ├─4043 /usr/lib/postgresql/16/bin/postgres -D /var/lib/postgresql/16/main -c config_file=/etc/postgresql/16/main/postgresql.conf
+             ├─4044 "postgres: 16/main: checkpointer "
+             ├─4045 "postgres: 16/main: background writer "
+             ├─4047 "postgres: 16/main: walwriter "
+             ├─4048 "postgres: 16/main: autovacuum launcher "
+             ├─4049 "postgres: 16/main: logical replication launcher "
+             ├─4746 "postgres: 16/main: corredor_motor corredor 127.0.0.1(49476) idle"
+             ├─4747 "postgres: 16/main: corredor_motor corredor 127.0.0.1(49478) idle"
+             ├─4748 "postgres: 16/main: corredor_guarda corredor 127.0.0.1(49494) idle"
+             └─4749 "postgres: 16/main: corredor_cadastro corredor 127.0.0.1(49500) idle"
+
+Nov 17 02:53:08 corredor-ubs systemd[1]: Starting postgresql@16-main.service - PostgreSQL Cluster 16-main...
+Nov 17 02:53:10 corredor-ubs systemd[1]: Started postgresql@16-main.service - PostgreSQL Cluster 16-main.
+
+● corredor-ml.timer - Corredor Aceso - roda a previsão de dia crítico às 05h
+     Loaded: loaded (/etc/systemd/system/corredor-ml.timer; enabled; preset: enabled)
+     Active: active (waiting) since Tue 2026-11-17 02:53:24 -03; 8s ago
+    Trigger: Tue 2026-11-17 05:00:00 -03; 2h 6min left
+   Triggers: ● corredor-ml.service
+
+Nov 17 02:53:24 corredor-ubs systemd[1]: Started corredor-ml.timer - Corredor Aceso - roda a previsão de dia crítico às 05h.
+
+$ cat /etc/corredor/api.env
+# Gerado por infra/02-app.sh. Não edite: mude infra/config/ ou segredos.env.
+ASPNETCORE_ENVIRONMENT=Development
+ASPNETCORE_URLS=http://127.0.0.1:5000
+Corredor__Ambiente=local
+Mqtt__Host=127.0.0.1
+Mqtt__Porta=1883
+Mqtt__ClienteId=corredor-motor
+ConnectionStrings__Motor=Host=127.0.0.1;Port=5432;Database=corredor;Username=corredor_motor;Password=***
+ConnectionStrings__Cadastro=Host=127.0.0.1;Port=5432;Database=corredor;Username=corredor_cadastro;Password=***
+ConnectionStrings__Guarda=Host=127.0.0.1;Port=5432;Database=corredor;Username=corredor_guarda;Password=***

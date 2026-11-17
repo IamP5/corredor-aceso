@@ -1,0 +1,16 @@
+# Deploy do pacote do tools/empacotar.sh e carga da demo
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:53:27-03:00
+
+$ corredor deploy --arquivo /root/corredor-linux-arm64.tar.gz
+2026-11-17T02:53:28-03:00 usuario=root evento=inicio versao=v0.0.1 de=nenhuma
+  [ok] migração cadastro.sql aplicada como corredor_cadastro_migra
+  [ok] migração guarda.sql aplicada como corredor_guarda_migra
+  [ok] migração motor.sql aplicada como corredor_motor_migra
+2026-11-17T02:53:29-03:00 usuario=root evento=deploy_ok versao=v0.0.1
+
+$ corredor semear 2>&1 | grep -B1 "semente:"
+2026-11-17T05:53:31.004Zinfo: Corredor.Cadastro.Aplicacao.Semeadura[0]
+      semente: 40 idosos cadastrados, 0 já existiam, 26 vizinhos indicados, 40 tokens
+
+$ curl -s http://api.corredor.internal/api/versao; echo
+{"versao":"0.0.1","commit":"706275d191347a7825266646d29e2f017b88d239","ambiente":"local"}

@@ -1,0 +1,82 @@
+# sudo corredor teste-de-falha (seis cenários) e o cenário travado (watchdog)
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:53:40-03:00
+
+$ cat /etc/corredor/monitor.env; bash /opt/corredor/repo/infra/03-monitor.sh | grep -E "monitor|mudança"
+MONITOR_LIMITE_MEM=20
+MONITOR_LIMITE_DISCO=13
+== 03-monitor: ambiente local ==
+  [ok] /usr/local/lib/corredor/monitor.sh
+  [ok] /etc/systemd/system/corredor-monitor.service
+  [++] monitor reiniciado, porque o script, a unit ou os limites mudaram
+  [ok] serviço corredor-monitor ativo
+== 03-monitor: 1 mudança(s) ==
+
+$ time corredor teste-de-falha; echo "código de saída: $?"
+
+== Mosquitto parado: o monitor alerta, o publicador local guarda e reenvia, o Motor não duplica ==
+  mosquitto parado
+  evento 1794894821 das 2026-11-17T05:53:40Z guardado no buffer
+  evento 1794894822 das 2026-11-17T05:53:41Z guardado no buffer
+  evento 1794894823 das 2026-11-17T05:53:42Z guardado no buffer
+  [PASSOU] monitor gerou o alerta: 2026-11-17T02:53:41-03:00 ALERTA serviço mosquitto parado
+  mosquitto religado
+  Motor reconectado ao broker
+  rodada 1 do reenvio feita
+  rodada 2 do reenvio feita
+  [PASSOU] 3 eventos do buffer reenviados duas vezes com a hora original e bufferizado: true
+  [PASSOU] o Motor gravou cada um dos 3 eventos uma vez só (linha do tempo de fa11fa11fa11fa11fa11fa11fa11fa11)
+  [PASSOU] monitor registrou a volta do mosquitto
+
+== API morta com kill -9: o systemd religa ==
+  processo 4710 morto
+  [PASSOU] API religada e pronta em 3 s, novo processo 6364
+
+== Monitor morto com kill -9: o systemd religa (Restart=always) ==
+  processo 6130 morto
+  [PASSOU] monitor religado em 4 s, novo processo 6427
+
+== Carga de CPU: o monitor alerta e depois normaliza ==
+  6 processo(s) ocupando a CPU
+  [PASSOU] monitor gerou o alerta: 2026-11-17T02:54:38-03:00 ALERTA CPU em 100% (limite 85%)
+  [PASSOU] monitor registrou a CPU de volta ao normal
+
+== Memória acima de 20%: o monitor alerta e depois normaliza ==
+debconf: delaying package configuration, since apt-utils is not installed
+  [++] pacotes instalados: stress-ng
+  stress-ng ocupando 667 MB
+  [PASSOU] monitor gerou o alerta: 2026-11-17T02:55:10-03:00 ALERTA memória em 25% (limite 20%)
+  [PASSOU] monitor registrou a memória de volta ao normal
+
+== Disco / acima de 13%: o monitor alerta e depois normaliza ==
+  arquivo de 1627 MB em /var/tmp/corredor-teste-disco.img
+  [PASSOU] monitor gerou o alerta: 2026-11-17T02:55:42-03:00 ALERTA disco / em 15% (limite 13%)
+  [PASSOU] monitor registrou o disco de volta ao normal
+
+== Resumo do teste de falha ==
+  PASSOU  monitor gerou o alerta: 2026-11-17T02:53:41-03:00 ALERTA serviço mosquitto parado
+  PASSOU  3 eventos do buffer reenviados duas vezes com a hora original e bufferizado: true
+  PASSOU  o Motor gravou cada um dos 3 eventos uma vez só (linha do tempo de fa11fa11fa11fa11fa11fa11fa11fa11)
+  PASSOU  monitor registrou a volta do mosquitto
+  PASSOU  API religada e pronta em 3 s, novo processo 6364
+  PASSOU  monitor religado em 4 s, novo processo 6427
+  PASSOU  monitor gerou o alerta: 2026-11-17T02:54:38-03:00 ALERTA CPU em 100% (limite 85%)
+  PASSOU  monitor registrou a CPU de volta ao normal
+  PASSOU  monitor gerou o alerta: 2026-11-17T02:55:10-03:00 ALERTA memória em 25% (limite 20%)
+  PASSOU  monitor registrou a memória de volta ao normal
+  PASSOU  monitor gerou o alerta: 2026-11-17T02:55:42-03:00 ALERTA disco / em 15% (limite 13%)
+  PASSOU  monitor registrou o disco de volta ao normal
+código de saída: 0
+
+real	2m18.491s
+user	3m27.064s
+sys	0m2.998s
+
+$ corredor teste-de-falha travado; echo "código de saída: $?"
+
+== Monitor travado com kill -STOP: o watchdog do systemd mata e religa ==
+  processo 6427 congelado. Aguardando o WatchdogSec de 60 s.
+  [PASSOU] watchdog religou o monitor, novo processo 7767
+
+== Resumo do teste de falha ==
+  PASSOU  watchdog religou o monitor, novo processo 7767
+código de saída: 0

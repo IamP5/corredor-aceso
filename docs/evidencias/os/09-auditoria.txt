@@ -1,0 +1,72 @@
+# Log de auditoria, logs de execução de cada script e registro de deploy
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:57:10-03:00
+
+$ corredor logs auditoria | tail -n 25
+2026-11-17T02:53:25-03:00 id=20261117T025324-4357 script=deploy.sh usuario=root ambiente=local evento=fim codigo=3 duracao_s=1 mudancas=0
+2026-11-17T02:53:25-03:00 id=20261117T025254-891 script=02-app.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=31 mudancas=21
+2026-11-17T02:53:25-03:00 id=20261117T025325-4388 script=03-monitor.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:25-03:00 id=20261117T025325-4388 script=03-monitor.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=7
+2026-11-17T02:53:27-03:00 id=20261117T055245-137 script=provisionar.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=42 mudancas=41
+2026-11-17T02:53:27-03:00 id=20261117T025327-4603 script=deploy.sh usuario=root ambiente=local evento=inicio args="--arquivo /root/corredor-linux-arm64.tar.gz"
+2026-11-17T02:53:29-03:00 id=20261117T025327-4603 script=deploy.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=2 mudancas=0
+2026-11-17T02:53:31-03:00 id=20261117T025331-4820 script=provisionar.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:31-03:00 id=20261117T025331-4847 script=01-rede.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:31-03:00 id=20261117T025331-4847 script=01-rede.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=0
+2026-11-17T02:53:31-03:00 id=20261117T025331-4932 script=02-app.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:31-03:00 id=20261117T025331-4932 script=02-app.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=0
+2026-11-17T02:53:31-03:00 id=20261117T025331-5095 script=03-monitor.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:31-03:00 id=20261117T025331-5095 script=03-monitor.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=0
+2026-11-17T02:53:32-03:00 id=20261117T025331-4820 script=provisionar.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=1 mudancas=0
+2026-11-17T02:53:34-03:00 id=20261117T025334-5407 script=01-rede.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:40-03:00 id=20261117T025334-5407 script=01-rede.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=6 mudancas=5
+2026-11-17T02:53:40-03:00 id=20261117T025340-5955 script=01-rede.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:40-03:00 id=20261117T025340-5955 script=01-rede.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=0
+2026-11-17T02:53:40-03:00 id=20261117T025340-6092 script=03-monitor.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:53:40-03:00 id=20261117T025340-6092 script=03-monitor.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=1
+2026-11-17T02:53:40-03:00 id=20261117T025340-6153 script=teste-de-falha.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:55:59-03:00 id=20261117T025340-6153 script=teste-de-falha.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=139 mudancas=1
+2026-11-17T02:55:59-03:00 id=20261117T025559-7493 script=teste-de-falha.sh usuario=root ambiente=local evento=inicio args="travado"
+2026-11-17T02:57:03-03:00 id=20261117T025559-7493 script=teste-de-falha.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=64 mudancas=0
+
+$ ls -l /var/log/corredor/execucao
+total 64
+-rw-r--r-- 1 root root 1725 Nov 17 02:53 20261117T025254-891-02-app.log
+-rw-r--r-- 1 root root   76 Nov 17 02:53 20261117T025324-4357-deploy.log
+-rw-r--r-- 1 root root  464 Nov 17 02:53 20261117T025325-4388-03-monitor.log
+-rw-r--r-- 1 root root  345 Nov 17 02:53 20261117T025327-4603-deploy.log
+-rw-r--r-- 1 root root 3826 Nov 17 02:53 20261117T025331-4820-provisionar.log
+-rw-r--r-- 1 root root  730 Nov 17 02:53 20261117T025331-4847-01-rede.log
+-rw-r--r-- 1 root root 1091 Nov 17 02:53 20261117T025331-4932-02-app.log
+-rw-r--r-- 1 root root  353 Nov 17 02:53 20261117T025331-5095-03-monitor.log
+-rw-r--r-- 1 root root  883 Nov 17 02:53 20261117T025334-5407-01-rede.log
+-rw-r--r-- 1 root root  808 Nov 17 02:53 20261117T025340-5955-01-rede.log
+-rw-r--r-- 1 root root  426 Nov 17 02:53 20261117T025340-6092-03-monitor.log
+-rw-r--r-- 1 root root 2854 Nov 17 02:55 20261117T025340-6153-teste-de-falha.log
+-rw-r--r-- 1 root root  283 Nov 17 02:57 20261117T025559-7493-teste-de-falha.log
+-rw-r--r-- 1 root root 4387 Nov 17 02:53 20261117T055245-137-provisionar.log
+-rw-r--r-- 1 root root  892 Nov 17 02:52 20261117T055245-159-01-rede.log
+
+$ head -n 12 "$(ls -tr /var/log/corredor/execucao/*-01-rede.log | head -n 1)"
+== 01-rede: ambiente local ==
+  [++] hostname definido como corredor-ubs
+  [ok] pacotes presentes: tzdata
+  [++] fuso definido como America/Sao_Paulo
+  [++] /etc/systemd/network/10-corredor0.netdev
+  [++] /etc/systemd/network/10-corredor0.network
+  [++] IP fixo 10.77.0.1/24 em corredor0
+  [++] bloco gerenciado em /etc/hosts
+  [..] systemd-resolved inativo: DNS de reserva não aplicado
+  [..] zona DNS do dnsmasq desligada: os nomes vêm do /etc/hosts
+debconf: delaying package configuration, since apt-utils is not installed
+  [++] pacotes instalados: ufw
+
+$ journalctl -t corredor-auditoria -o short-iso --no-pager | tail -n 5
+2026-11-17T02:53:40-03:00 corredor-ubs corredor-auditoria[6146]: 2026-11-17T02:53:40-03:00 id=20261117T025340-6092 script=03-monitor.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=1
+2026-11-17T02:53:40-03:00 corredor-ubs corredor-auditoria[6169]: 2026-11-17T02:53:40-03:00 id=20261117T025340-6153 script=teste-de-falha.sh usuario=root ambiente=local evento=inicio args=""
+2026-11-17T02:55:59-03:00 corredor-ubs corredor-auditoria[7486]: 2026-11-17T02:55:59-03:00 id=20261117T025340-6153 script=teste-de-falha.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=139 mudancas=1
+2026-11-17T02:55:59-03:00 corredor-ubs corredor-auditoria[7509]: 2026-11-17T02:55:59-03:00 id=20261117T025559-7493 script=teste-de-falha.sh usuario=root ambiente=local evento=inicio args="travado"
+2026-11-17T02:57:03-03:00 corredor-ubs corredor-auditoria[7798]: 2026-11-17T02:57:03-03:00 id=20261117T025559-7493 script=teste-de-falha.sh usuario=root ambiente=local evento=fim codigo=0 duracao_s=64 mudancas=0
+
+$ corredor logs deploy
+2026-11-17T02:53:28-03:00 usuario=root evento=inicio versao=v0.0.1 de=nenhuma
+2026-11-17T02:53:29-03:00 usuario=root evento=deploy_ok versao=v0.0.1

@@ -1,0 +1,95 @@
+# Hostname, IP fixo, nomes, firewall e zona DNS
+# Ensaio em contêiner corredor-ensaio:24.04 com systemd, commit 706275d, 2026-11-17T02:53:33-03:00
+
+$ hostnamectl --static; timedatectl show -p Timezone --value
+corredor-ubs
+America/Sao_Paulo
+
+$ ip -4 addr show dev corredor0; cat /etc/systemd/network/10-corredor0.netdev /etc/systemd/network/10-corredor0.network
+4: corredor0: <BROADCAST,NOARP,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN group default qlen 1000
+    inet 10.77.0.1/24 brd 10.77.0.255 scope global corredor0
+       valid_lft forever preferred_lft forever
+[NetDev]
+Name=corredor0
+Kind=dummy
+[Match]
+Name=corredor0
+
+[Network]
+Address=10.77.0.1/24
+
+$ sed -n "/corredor-aceso/,/corredor-aceso/p" /etc/hosts
+# >>> corredor-aceso (gerenciado por infra/, não edite)
+127.0.1.1 corredor-ubs
+10.77.0.1 api.corredor.internal painel.corredor.internal
+# <<< corredor-aceso
+
+$ ip -br -4 addr; ip -4 route
+lo               UNKNOWN        127.0.0.1/8 
+corredor0        UNKNOWN        10.77.0.1/24 
+eth0@if435       UP             172.17.0.2/16 
+default via 172.17.0.1 dev eth0 
+10.77.0.0/24 dev corredor0 proto kernel scope link src 10.77.0.1 
+172.17.0.0/16 dev eth0 proto kernel scope link src 172.17.0.2 
+
+$ getent hosts api.corredor.internal; getent hosts painel.corredor.internal
+10.77.0.1       api.corredor.internal painel.corredor.internal
+10.77.0.1       api.corredor.internal painel.corredor.internal
+
+$ getent hosts github.com; getent hosts broker.hivemq.com
+4.228.31.150    github.com
+2a01:578:13::239c:12ae broker.hivemq.com
+2a01:578:13::365d:29f9 broker.hivemq.com
+2a01:578:13::239f:360b broker.hivemq.com
+
+$ ufw status verbose
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), deny (routed)
+New profiles: skip
+
+To                         Action      From
+--                         ------      ----
+22/tcp                     ALLOW IN    Anywhere                  
+80/tcp                     ALLOW IN    Anywhere                  
+443/tcp                    ALLOW IN    Anywhere                  
+22/tcp (v6)                ALLOW IN    Anywhere (v6)             
+80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+443/tcp (v6)               ALLOW IN    Anywhere (v6)             
+
+
+$ curl -s http://api.corredor.internal/api/versao; echo; curl -s -o /dev/null -w "painel %{http_code}\n" http://painel.corredor.internal/painel/; curl -s -o /dev/null -w "healthz pelo Nginx %{http_code}\n" http://api.corredor.internal/healthz/ready
+{"versao":"0.0.1","commit":"706275d191347a7825266646d29e2f017b88d239","ambiente":"local"}
+painel 200
+healthz pelo Nginx 404
+
+$ echo CORREDOR_DNS_ZONA=sim > /etc/corredor/corredor.conf; bash /opt/corredor/repo/infra/01-rede.sh
+== 01-rede: ambiente local ==
+  [ok] hostname corredor-ubs
+  [ok] pacotes presentes: tzdata
+  [ok] fuso America/Sao_Paulo
+  [ok] /etc/systemd/network/10-corredor0.netdev
+  [++] /etc/systemd/network/10-corredor0.network
+  [++] IP fixo 10.77.0.1/24 em corredor0
+  [ok] bloco gerenciado em /etc/hosts
+  [..] systemd-resolved inativo: DNS de reserva não aplicado
+  [++] /etc/dnsmasq.d/corredor.conf
+debconf: delaying package configuration, since apt-utils is not installed
+  [++] pacotes instalados: dnsmasq bind9-dnsutils
+  [++] dnsmasq responde por corredor.internal em 10.77.0.1
+  [ok] pacotes presentes: ufw
+  [ok] firewall: entrada negada por padrão
+  [ok] firewall: porta 22/tcp liberada
+  [ok] firewall: porta 80/tcp liberada
+  [ok] firewall: porta 443/tcp liberada
+  [ok] firewall ativo
+  [ok] bloco gerenciado em /home/ubuntu/.ssh/authorized_keys
+== 01-rede: 5 mudança(s) ==
+
+$ bash /opt/corredor/repo/infra/01-rede.sh | tail -n 1
+== 01-rede: 0 mudança(s) ==
+
+$ dig +short @10.77.0.1 api.corredor.internal; dig +short @10.77.0.1 painel.corredor.internal; dig +short @10.77.0.1 exemplo.com.br; echo "(a última consulta, fora do domínio interno, não tem resposta)"
+10.77.0.1
+10.77.0.1
+(a última consulta, fora do domínio interno, não tem resposta)
