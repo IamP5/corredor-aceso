@@ -248,7 +248,7 @@ def _html_criterios(f) -> str:
 def csv_features(features, caminho: Path, agile: bool) -> None:
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("w", encoding="utf-8", newline="") as arq:
-        w = csv.writer(arq, quoting=csv.QUOTE_ALL, lineterminator="\r\n")
+        w = csv.writer(arq, quoting=csv.QUOTE_ALL, lineterminator="\n")
         if agile:
             w.writerow(["Work Item Type", "Title 1", "Title 2", "Description", "Tags"])
             w.writerow(["Epic", EPICO, "", "<p>Features do Corredor Aceso, GS CitizenTech FIAP 2026.</p>", "Corredor Aceso"])
@@ -284,7 +284,7 @@ def titulo_azure(c) -> str:
 def csv_casos(casos, caminho: Path, area: str, responsavel: str) -> None:
     caminho.parent.mkdir(parents=True, exist_ok=True)
     with caminho.open("w", encoding="utf-8", newline="") as arq:
-        w = csv.writer(arq, quoting=csv.QUOTE_ALL, lineterminator="\r\n")
+        w = csv.writer(arq, quoting=csv.QUOTE_ALL, lineterminator="\n")
         w.writerow(CABECALHO_TP)
         for c in casos:
             desc = _html_caso(c)
