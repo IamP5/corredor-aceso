@@ -33,6 +33,33 @@ public sealed class MotorDeParsingTestes
         Assert.Equal(mascara, analise.TextoDeEntrada);
     }
 
+    // Visto na demo integrada: o token desta casa tem 11 dígitos seguidos que passam no dígito do CPF
+    // (e11543844512a). O interceptador mascarava o casaToken de POST /api/visitas, e a visita voltava 422.
+    [Fact]
+    public void Token_da_casa_com_onze_digitos_seguidos_nao_vira_cpf()
+    {
+        const string token = "75abf1b1e11543844512a28f04151ae5";
+
+        var analise = _motor.Analisar(token, "casaToken");
+
+        Assert.Empty(analise.Achados);
+        Assert.Equal(token, analise.TextoDeEntrada);
+    }
+
+    [Fact]
+    public void Nenhum_token_de_casa_sorteado_vira_documento()
+    {
+        var documentos = new[] { TipoDeDado.Cpf, TipoDeDado.Cns, TipoDeDado.Rg };
+        for (var i = 0; i < 20_000; i++)
+        {
+            var token = Convert.ToHexStringLower(System.Security.Cryptography.RandomNumberGenerator.GetBytes(16));
+
+            var achados = _motor.Analisar(token, "casaToken").Achados.Where(a => documentos.Contains(a.Tipo));
+
+            Assert.True(!achados.Any(), $"o token {token} virou {string.Join(", ", achados.Select(a => a.Tipo))}");
+        }
+    }
+
     [Theory]
     [InlineData("rg 12.345.678-9", "rg **.***.***-9", TipoDeDado.Rg, 4)]
     [InlineData("cns 898 0010 0000 0001", "cns *** **** **** 0001", TipoDeDado.Cns, 5)]
