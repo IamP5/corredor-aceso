@@ -17,12 +17,16 @@ public sealed class MotorDeParsingTestes
     }
 
     [Theory]
-    [InlineData("529.982.247-25", "***.982.***-25")]
-    [InlineData("52998224725", "***.982.***-25")]
-    [InlineData("meu CPF é 529.982.247-25.", "meu CPF é ***.982.***-25.")]
-    [InlineData("(cpf:52998224725)", "(cpf:***.982.***-25)")]
-    public void Cpf_com_digito_valido_sobe_a_severidade_para_5(string cpf, string mascara)
+    [InlineData("{formatado}", "{mascara}")]
+    [InlineData("{digitos}", "{mascara}")]
+    [InlineData("meu CPF é {formatado}.", "meu CPF é {mascara}.")]
+    [InlineData("(cpf:{digitos})", "(cpf:{mascara})")]
+    public void Cpf_com_digito_valido_sobe_a_severidade_para_5(string modelo, string modeloDaMascara)
     {
+        static string Preencher(string m) => m
+            .Replace("{formatado}", CpfDeTeste.Formatado).Replace("{digitos}", CpfDeTeste.Digitos).Replace("{mascara}", CpfDeTeste.Mascara);
+        var (cpf, mascara) = (Preencher(modelo), Preencher(modeloDaMascara));
+
         var analise = _motor.Analisar(cpf);
 
         Assert.Equal(5, Assert.Single(analise.Achados).Severidade);
@@ -123,10 +127,10 @@ public sealed class MotorDeParsingTestes
     [Fact]
     public void Achado_nunca_carrega_o_valor_em_claro()
     {
-        var analise = _motor.AnalisarJson("""{"x":"529.982.247-25 Dona Aparecida toma furosemida","senha":"segredo-123"}""");
+        var analise = _motor.AnalisarJson($$"""{"x":"{{CpfDeTeste.Formatado}} Dona Aparecida toma furosemida","senha":"segredo-123"}""");
 
         var tudo = string.Join('|', analise.Achados.Select(a => a.ToString()));
-        Assert.DoesNotContain("529.982.247-25", tudo);
+        Assert.DoesNotContain(CpfDeTeste.Formatado, tudo);
         Assert.DoesNotContain("Aparecida", tudo);
         Assert.DoesNotContain("furosemida", tudo);
         Assert.DoesNotContain("segredo-123", tudo);

@@ -34,3 +34,23 @@ internal static class Fabrica
         return eventos;
     }
 }
+
+// Um CPF com dígito verificador válido, montado na hora a partir de uma base sintética. Nenhum
+// CPF válido fica escrito no repositório, que é público.
+internal static class CpfDeTeste
+{
+    public const string Base = "000000001";
+
+    public static string Digitos { get; } = Base + Digito(Base) + Digito(Base + Digito(Base));
+
+    public static string Formatado => $"{Digitos[..3]}.{Digitos[3..6]}.{Digitos[6..9]}-{Digitos[9..]}";
+
+    public static string Mascara => $"***.{Digitos[3..6]}.***-{Digitos[9..]}";
+
+    private static char Digito(string d)
+    {
+        var soma = d.Select((c, i) => (c - '0') * (d.Length + 1 - i)).Sum();
+        var resto = soma * 10 % 11;
+        return (char)('0' + (resto == 10 ? 0 : resto));
+    }
+}

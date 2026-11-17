@@ -1,0 +1,23 @@
+# Evidência 3: rota sem autenticação que tentaria devolver condições de saúde
+
+## Sem token: a resposta é bloqueada
+
+$ curl -X GET /api/guarda/demo/condicoes
+{"codigo":"RESPOSTA_BLOQUEADA","mensagem":"Esta resposta tinha dado pessoal e foi bloqueada para quem não entrou no sistema."}
+HTTP 403
+
+## Com token: a rota responde, e o TextoRotulado sai sem o valor
+
+$ curl -X GET /api/guarda/demo/condicoes (com token da ACS)
+{"casa":"demo","condicoes":{"rotulos":["Saude"]}}
+HTTP 200
+
+## guarda.evento_de_seguranca
+
+          ocorrido_em          |         tipo          | tipos_de_dado |          canal          |  modulo  |            rota            | severidade | mensagem_origem |                                                                                     mensagem_texto                                                                                     
+-------------------------------+-----------------------+---------------+-------------------------+----------+----------------------------+------------+-----------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 2026-11-17 04:03:57.82577+00  | MascaramentoNaEntrada | {Cpf}         | Banco                   | Guarda   | /api/guarda/demo/documento |          4 | Llm             | O sistema escondeu o número do documento antes de guardá-lo. Assim, outras pessoas não conseguem vê-lo, protegendo sua privacidade.
+ 2026-11-17 04:04:06.524095+00 | BloqueioDeSaida       | {Nome}        | Log                     | Cadastro | /api/guarda/demo/log-nome  |          3 | Llm             | O sistema impediu que seu nome saísse do cadastro para outra parte. Isso ajuda a manter suas informações pessoais protegidas.
+ 2026-11-17 04:04:14.69744+00  | BloqueioDeSaida       | {Saude}       | RespostaSemAutenticacao | Guarda   | /api/guarda/demo/condicoes |          4 | Llm             | O sistema impediu que uma informação de saúde fosse exibida em uma página aberta ao público. Assim, essa informação ficou protegida e não foi vista por pessoas sem acesso autorizado.
+(3 rows)
+

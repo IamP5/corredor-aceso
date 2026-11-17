@@ -138,7 +138,7 @@ public sealed class TradutorTestes
 
     [Theory]
     [InlineData("A senhora mora sozinha e toma diurético. Cuidado.")]
-    [InlineData("Bloqueamos o CPF 529.982.247-25. Fique tranquila.")]
+    [InlineData("Bloqueamos o CPF 123.456.789-00. Fique tranquila.")]
     [InlineData("")]
     public async Task Resposta_com_dado_pessoal_ou_vazia_entra_a_frase_fixa(string resposta)
     {
