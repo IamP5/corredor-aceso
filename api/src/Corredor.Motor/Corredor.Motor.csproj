@@ -6,8 +6,13 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="MQTTnet" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Corredor.Contratos/Corredor.Contratos.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- A migracao Gatilhos e o Expurgo leem o SQL conferido em docs/arquitetura/referencia/dados. -->
+    <EmbeddedResource Include="Infra/Sql/*.sql" LogicalName="%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>
