@@ -38,6 +38,30 @@ public class HostTestes(WebApplicationFactory<Program> fabrica) : IClassFixture<
         Assert.Equal(HttpStatusCode.OK, resposta.StatusCode);
     }
 
+    // O Swagger UI não valida "integer ou string" e não envia o pedido: o "Try it out" do radar falhava.
+    [Fact]
+    public async Task Parametro_numerico_aparece_so_como_numero_para_o_swagger_enviar()
+    {
+        var documento = await fabrica.CreateClient()
+            .GetFromJsonAsync<JsonElement>("/openapi/v1.json", TestContext.Current.CancellationToken);
+        var parametros = documento.GetProperty("paths").EnumerateObject()
+            .SelectMany(caminho => caminho.Value.EnumerateObject())
+            .Where(operacao => operacao.Value.ValueKind == JsonValueKind.Object && operacao.Value.TryGetProperty("parameters", out _))
+            .SelectMany(operacao => operacao.Value.GetProperty("parameters").EnumerateArray())
+            .ToList();
+
+        var microarea = parametros.First(p => p.GetProperty("name").GetString() == "microarea").GetProperty("schema");
+        Assert.Equal("integer", microarea.GetProperty("type").GetString());
+        Assert.False(microarea.TryGetProperty("pattern", out _));
+        Assert.DoesNotContain(parametros, p => TiposDoEsquema(p.GetProperty("schema")) is var tipos
+            && tipos.Contains("string") && (tipos.Contains("integer") || tipos.Contains("number")));
+    }
+
+    private static string[] TiposDoEsquema(JsonElement esquema) =>
+        !esquema.TryGetProperty("type", out var tipo) ? []
+        : tipo.ValueKind == JsonValueKind.Array ? tipo.EnumerateArray().Select(t => t.GetString()!).ToArray()
+        : [tipo.GetString()!];
+
     [Fact]
     public void Em_producao_vale_o_relogio_do_sistema_sem_deslocamento()
     {

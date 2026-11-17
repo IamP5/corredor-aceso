@@ -11,7 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 ConfiguracaoDoLlm.Aplicar(builder.Configuration, builder.Environment);
 
-builder.Services.AddOpenApi(openapi => openapi.AddDocumentTransformer<EsquemaBearerNoSwagger>());
+builder.Services.AddOpenApi(openapi => openapi
+    .AddDocumentTransformer<EsquemaBearerNoSwagger>()
+    .AddSchemaTransformer<ParametroNumericoSemTexto>());
 builder.Services.AddProblemDetails();
 builder.Services.ConfigureHttpJsonOptions(json => json.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 // Antes da Guarda: os IExceptionHandler rodam na ordem em que foram registrados.
