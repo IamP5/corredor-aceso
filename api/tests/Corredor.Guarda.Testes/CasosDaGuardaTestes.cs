@@ -128,6 +128,15 @@ public sealed class CasosDaGuardaTestes : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Identidade_sem_a_claim_acs_conta_como_sem_autenticacao()
+    {
+        var resposta = await _host.EnviarAsync(HttpMethod.Get, "/api/idosos/6c1f0b7e-2d4a-4e8b-9f3c-1a5d7e9b0c2f/condicoes",
+            autenticado: false, cabecalho: ("Authorization", "Bearer sem-acs"));
+
+        Assert.Equal(HttpStatusCode.Forbidden, resposta.StatusCode);
+    }
+
+    [Fact]
     public async Task Rota_autenticada_com_nome_nao_e_bloqueada_pelo_filtro()
     {
         var resposta = await _host.EnviarAsync(HttpMethod.Get, "/api/lista-de-nomes");

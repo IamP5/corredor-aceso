@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Corredor.Guarda.Rotas;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -93,7 +94,13 @@ internal sealed class HostDeTeste : IAsyncDisposable
         {
             if (http.Request.Headers.Authorization == $"Bearer {Token}")
             {
-                http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("acs", "acs-demo-01")], "teste"));
+                http.User = new ClaimsPrincipal(new ClaimsIdentity(
+                    [new Claim(FiltroDeResposta.ClaimDaAcs, "acs-demo-01"), new Claim("microarea", "3")], "teste"));
+            }
+            else if (http.Request.Headers.Authorization == "Bearer sem-acs")
+            {
+                // Autenticado por outro esquema, mas sem ser ACS.
+                http.User = new ClaimsPrincipal(new ClaimsIdentity([new Claim("sub", "outro")], "outro"));
             }
 
             return proximo(http);
@@ -130,8 +137,17 @@ internal sealed class HostDeTeste : IAsyncDisposable
 
     private static CancellationToken Ct => TestContext.Current.CancellationToken;
 
-    public Task<HttpResponseMessage> EnviarAsync(HttpMethod metodo, string rota, object? corpo = null, bool autenticado = true) =>
-        Cliente.SendAsync(Pedido(metodo, rota, corpo, autenticado), Ct);
+    public Task<HttpResponseMessage> EnviarAsync(
+        HttpMethod metodo, string rota, object? corpo = null, bool autenticado = true, (string Nome, string Valor)? cabecalho = null)
+    {
+        var pedido = Pedido(metodo, rota, corpo, autenticado);
+        if (cabecalho is { } c)
+        {
+            pedido.Headers.TryAddWithoutValidation(c.Nome, c.Valor);
+        }
+
+        return Cliente.SendAsync(pedido, Ct);
+    }
 
     public static Task<string> TextoAsync(HttpResponseMessage resposta) => resposta.Content.ReadAsStringAsync(Ct);
 

@@ -8,15 +8,19 @@ namespace Corredor.Guarda.Rotas;
 /// <summary>
 /// Filtro de endpoint. Numa requisição sem autenticação, um TextoRotulado com rótulo dentro do
 /// resultado bloqueia a resposta inteira pela SaidaSegura com o canal RespostaSemAutenticacao.
+/// A requisição é autenticada quando traz a claim acs, que a autenticação do host emite.
 /// </summary>
 public sealed class FiltroDeResposta(SaidaSegura saida) : IEndpointFilter
 {
     private const int ProfundidadeMaxima = 6;
 
+    /// <summary>A claim que a autenticação do host põe em toda ACS. O mesmo nome de AutenticacaoDaAcs.ClaimAcs.</summary>
+    public const string ClaimDaAcs = "acs";
+
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext contexto, EndpointFilterDelegate proximo)
     {
         var resultado = await proximo(contexto);
-        if (contexto.HttpContext.User.Identity?.IsAuthenticated == true)
+        if (contexto.HttpContext.User.Identity?.IsAuthenticated == true && contexto.HttpContext.User.HasClaim(c => c.Type == ClaimDaAcs))
         {
             return resultado;
         }
