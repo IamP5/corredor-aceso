@@ -36,3 +36,4 @@ kit/
 # Saída bruta e script da ferramenta de descoberta: uso interno, com caminhos da máquina local.
 docs/discovery/raw.json
 docs/discovery/workflow-discovery.js
+.demo/
