@@ -1,0 +1,32 @@
+name: operacao
+
+# Controle de runtime pelo GitHub, com aprovação do ambiente `producao` e
+# registro de quem pediu: ver o estado, voltar a versão ou reiniciar a API.
+on:
+  workflow_dispatch:
+    inputs:
+      acao:
+        description: O que fazer na VM
+        required: true
+        type: choice
+        options: [status, voltar, reiniciar api]
+
+permissions:
+  contents: read
+
+jobs:
+  operar:
+    if: vars.VM_HOST != ''
+    runs-on: ubuntu-24.04
+    environment: producao
+    concurrency:
+      group: producao
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/ssh-vm
+        with:
+          host: ${{ vars.VM_HOST }}
+          hosts-conhecidos: ${{ vars.VM_HOSTS_CONHECIDOS }}
+          chave: ${{ secrets.VM_CHAVE_DEPLOY }}
+          comando: ${{ inputs.acao }}

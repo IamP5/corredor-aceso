@@ -1,0 +1,32 @@
+classDiagram
+  direction TB
+  class Api["Corredor.Api"] {
+    <<host>>
+    Program.cs
+    rotas e DI
+  }
+  class Cadastro["Corredor.Cadastro"] {
+    <<módulo SOA>>
+    Idoso, Casa, Visita
+  }
+  class Guarda["Corredor.Guarda"] {
+    <<módulo Cyber>>
+    MotorDeParsing
+    SaidaSegura
+  }
+  class IMotorDeCasas {
+    <<interface>>
+    DefinirPerfilAsync(token, perfil)
+    ConfirmarAsync(token, origem)
+  }
+  class Motor["Corredor.Motor"] {
+    <<módulo C#>>
+    RegraDeContato
+    Avaliar()
+  }
+  Api ..> Cadastro
+  Api ..> Guarda
+  Api ..> Motor
+  Cadastro ..> Guarda : toda saída de texto
+  Cadastro ..> IMotorDeCasas : token, nunca nome
+  Motor ..|> IMotorDeCasas

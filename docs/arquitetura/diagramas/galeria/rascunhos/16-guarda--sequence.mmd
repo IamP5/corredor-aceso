@@ -1,0 +1,19 @@
+sequenceDiagram
+  actor acs as App da ACS
+  participant int as InterceptadorDeEntrada
+  participant cad as Cadastro
+  participant saida as SaidaSegura
+  participant trad as Tradutor
+  participant llm as LLM
+  participant painel as Painel
+  acs->>int: POST /api/mensagens/verificar
+  int->>int: MotorDeParsing rotula Saude e MoraSozinho
+  int->>cad: TextoRotulado
+  cad->>saida: canal GrupoDoBairro
+  saida->>painel: SaidaBloqueada, severidade 4
+  saida-->>cad: Veredito Bloqueada
+  cad-->>acs: 200 com o veredito
+  saida->>trad: tipo de dado e canal
+  trad->>llm: prompt sem o texto
+  llm-->>trad: 2 frases
+  trad->>painel: BloqueioTraduzido

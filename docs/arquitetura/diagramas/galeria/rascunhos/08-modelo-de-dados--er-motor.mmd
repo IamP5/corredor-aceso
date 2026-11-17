@@ -1,0 +1,40 @@
+erDiagram
+
+  subgraph motor["schema motor"]
+    CASA_MONITORADA {
+      uuid casa_token PK
+      int microarea_id
+      text perfil
+      timestamptz ativada_em
+      timestamptz desativada_em
+      timestamptz ultimo_pacote_em
+    }
+    CONFIRMACAO {
+      uuid id PK
+      uuid casa_token FK
+      text origem
+      text resultado
+      timestamptz quando
+    }
+    EVENTO_SENSOR {
+      uuid casa_token PK, FK
+      bigint seq PK
+      timestamptz ocorrido_em PK
+      text tipo
+      timestamptz recebido_em
+      numeric temp_c
+      numeric tensao_v
+      bool bufferizado
+    }
+    DIA_CRITICO {
+      date data PK
+      numeric probabilidade
+      text motivo
+      text origem
+      timestamptz aberto_em
+      timestamptz encerrado_em
+      jsonb resumo
+    }
+  end
+  CASA_MONITORADA ||--o{ CONFIRMACAO : recebe
+  CASA_MONITORADA ||--o{ EVENTO_SENSOR : recebe

@@ -1,0 +1,16 @@
+sequenceDiagram
+  actor acs as App da ACS
+  participant cad as Cadastro
+  participant guarda as Guarda
+  participant llm as LLM
+  participant painel as Painel
+  acs->>cad: POST /api/mensagens/verificar
+  cad->>guarda: TextoRotulado "mora sozinho e toma diurético"
+  guarda->>guarda: MotorDeParsing acha saúde e moradia
+  guarda->>guarda: SaidaSegura: grupo do bairro não aceita rótulo
+  guarda->>painel: evento de segurança, severidade 4
+  guarda->>llm: "dado de saúde bloqueado no grupo do bairro"
+  llm-->>guarda: explicação em 2 frases
+  guarda-->>cad: bloqueado + explicação
+  cad-->>acs: 422 mensagem bloqueada
+  Note over painel: farol vai para vermelho

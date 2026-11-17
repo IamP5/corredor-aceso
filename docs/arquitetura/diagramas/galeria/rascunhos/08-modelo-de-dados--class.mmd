@@ -1,0 +1,9 @@
+classDiagram
+  class CasaMonitorada { uuid casaToken; text perfil }
+  class EventoSensor { uuid casaToken; bigint seq; timestamptz ts; text tipo }
+  class Casa { uuid id; uuid casaToken; text endereco }
+  class Idoso { uuid id; text nome }
+  class Visita { uuid id; text desfecho }
+  CasaMonitorada "1" -- "*" EventoSensor
+  Casa "1" -- "*" Idoso
+  Casa "1" -- "*" Visita

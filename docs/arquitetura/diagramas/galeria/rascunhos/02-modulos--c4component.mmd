@@ -1,0 +1,15 @@
+C4Component
+  title corredor-api: módulos e referências permitidas
+  Container_Boundary(api, "corredor-api.service, um processo .NET 8") {
+    Component(host, "Corredor.Api", "ASP.NET Core", "rotas, DI, único Program.cs")
+    Component(contratos, "Corredor.Contratos", "tipos e interfaces", "IMotorDeCasas, IReceptorDeContato")
+    Component(motor, "Corredor.Motor", "EF Core, MQTTnet", "regras de contato, radar, só tokens")
+    Component(cad, "Corredor.Cadastro", "EF Core", "único dono de dado pessoal")
+    Component(guarda, "Corredor.Guarda", "regras em JSON", "PII, taint, LLM")
+  }
+  Rel(host, motor, "registra")
+  Rel(host, cad, "registra")
+  Rel(host, guarda, "registra")
+  Rel(motor, contratos, "implementa IMotorDeCasas")
+  Rel(cad, contratos, "chama IMotorDeCasas")
+  Rel(cad, guarda, "toda saída de texto")

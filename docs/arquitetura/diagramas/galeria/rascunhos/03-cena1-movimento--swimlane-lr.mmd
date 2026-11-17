@@ -1,0 +1,16 @@
+swimlane-beta LR
+  subgraph Casa
+    pir[PIR detecta movimento]
+    pub[publica MOVIMENTO]
+  end
+  subgraph VM
+    bridge[Mosquitto recebe pela bridge]
+    grava[Motor grava casaToken + seq]
+    avalia{houve movimento na janela?}
+  end
+  subgraph App
+    radar[GET /api/radar]
+    some[card sai da tela]
+  end
+  pir --> pub --> bridge --> grava --> avalia
+  avalia -->|sim| radar --> some

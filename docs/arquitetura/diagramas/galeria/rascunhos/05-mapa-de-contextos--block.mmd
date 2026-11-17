@@ -1,0 +1,10 @@
+block
+  columns 3
+  clima["Previsão de dia crítico<br/>INMET, SIH, XGBoost"] space campo["Campo da ACS<br/>app, SQLite"]
+  space:3
+  motor["Motor de contato<br/>tokens, regras, radar"] cadastro["Cadastro<br/>único dono de dado pessoal"] guarda["Guarda<br/>PII, taint, painel"]
+  clima --> motor
+  cadastro --> motor
+  cadastro --> guarda
+  motor --> campo
+  cadastro --> campo

@@ -1,0 +1,144 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Decide quais partes rodam: a pasta mudou e a pasta já existe.
+  mudancas:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      api: ${{ steps.filtro.outputs.api == 'true' && steps.existe.outputs.api == 'true' }}
+      app: ${{ steps.filtro.outputs.app == 'true' && steps.existe.outputs.app == 'true' }}
+      infra: ${{ steps.filtro.outputs.infra == 'true' && steps.existe.outputs.infra == 'true' }}
+      ml: ${{ steps.filtro.outputs.ml == 'true' && steps.existe.outputs.ml == 'true' }}
+      iot: ${{ steps.filtro.outputs.iot == 'true' && steps.existe.outputs.iot == 'true' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dorny/paths-filter@v4
+        id: filtro
+        with:
+          filters: |
+            comum: &comum
+              - '.github/**'
+              - 'package.json'
+            api:
+              - *comum
+              - 'api/**'
+              - 'tools/**'
+              - 'global.json'
+              - 'dotnet-tools.json'
+              - 'infra/config/corredor.conf.padrao'
+            app:
+              - *comum
+              - 'app/**'
+            infra:
+              - *comum
+              - 'infra/**'
+              - 'tools/**'
+              - '.shellcheckrc'
+            ml:
+              - *comum
+              - 'ml/**'
+            iot:
+              - *comum
+              - 'iot/**'
+      - id: existe
+        run: |
+          for parte in api:api/Corredor.slnx app:app/package.json infra:infra/provisionar.sh ml:ml iot:iot/simulador; do
+            if [[ -e ${parte#*:} ]]; then echo "${parte%%:*}=true"; else echo "${parte%%:*}=false"; fi
+          done >> "$GITHUB_OUTPUT"
+
+  api:
+    needs: mudancas
+    if: needs.mudancas.outputs.api == 'true'
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: corredor_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CORREDOR_BD_TESTE: postgresql://postgres:postgres@localhost:5432/corredor_ci
+      ConnectionStrings__Motor: Host=localhost;Port=5432;Database=corredor_ci;Username=postgres;Password=postgres
+      ConnectionStrings__Cadastro: Host=localhost;Port=5432;Database=corredor_ci;Username=postgres;Password=postgres
+      ConnectionStrings__Guarda: Host=localhost;Port=5432;Database=corredor_ci;Username=postgres;Password=postgres
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: npm run check:migracoes
+      - run: npm run check:api
+      - run: npm run check:pacote
+
+  app:
+    needs: mudancas
+    if: needs.mudancas.outputs.app == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm run setup:app
+      - run: npm run check:app
+
+  infra:
+    needs: mudancas
+    if: needs.mudancas.outputs.infra == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm run check:infra
+      - uses: hashicorp/setup-terraform@v3
+      - run: npm run check:terraform
+
+  ml:
+    needs: mudancas
+    if: needs.mudancas.outputs.ml == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm run check:ml
+
+  iot:
+    needs: mudancas
+    if: needs.mudancas.outputs.iot == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: npm run check:iot
+
+  # Único check obrigatório na proteção da main. Job pulado conta como sucesso.
+  ci-ok:
+    needs: [mudancas, api, app, infra, ml, iot]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - env:
+          RESULTADOS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTADOS"
+          if grep -Eq '"(failure|cancelled)"' <<<"$RESULTADOS"; then exit 1; fi

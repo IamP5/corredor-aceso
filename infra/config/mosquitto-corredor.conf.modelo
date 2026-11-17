@@ -1,0 +1,18 @@
+# Gerado por infra/02-app.sh a partir de infra/config/. Não edite na VM.
+
+# Broker local: só aceita conexão de dentro da VM.
+listener 1883 127.0.0.1
+allow_anonymous true
+
+# Ponte de saída até o broker público onde o nó do Wokwi publica.
+# A VM não abre porta MQTT para a internet.
+connection corredor-ponte
+address ${MQTT_PUBLICO_HOST}:${MQTT_PUBLICO_PORTA}
+remote_clientid ${MQTT_CLIENTE_PONTE}
+cleansession false
+bridge_protocol_version mqttv311
+try_private false
+notifications false
+restart_timeout 5 30
+topic +/evento in 1 corredor/v1/ ${MQTT_PREFIXO_PUBLICO}/corredor/v1/
+topic +/comando out 1 corredor/v1/ ${MQTT_PREFIXO_PUBLICO}/corredor/v1/

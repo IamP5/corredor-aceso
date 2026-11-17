@@ -1,0 +1,456 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Pele: c4 (7)</title>
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:400;src:url(../../tema/fontes/atkinson-hyperlegible-latin-400-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:700;src:url(../../tema/fontes/atkinson-hyperlegible-latin-700-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible Mono";src:url(../../tema/fontes/atkinson-hyperlegible-mono-latin-400-normal.woff2)}
+@font-face{font-family:Fraunces;font-weight:600;src:url(../../tema/fontes/fraunces-latin-600-normal.woff2)}
+body{margin:0;font:15px "Atkinson Hyperlegible",sans-serif;background:#efe9de;color:#0b1220}
+header{position:sticky;top:0;z-index:2;background:#0b1220;color:#f3ecdf;padding:10px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font:600 20px Fraunces,serif;margin:0}header a{color:#ffb13b}
+main{padding:16px 20px;display:grid;gap:16px}
+.cartao{background:#fff;border:1px solid #d8cfbf;border-radius:8px;padding:10px 14px}
+.cartao h2{font-size:15px;margin:0 0 8px}.cartao small{font-weight:400;color:#545d6e}
+.lado{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,2.2fr);gap:14px;align-items:start}
+pre{margin:0;font:12px/1.45 "Atkinson Hyperlegible Mono",monospace;background:#f6f2ea;padding:8px;border-radius:6px;overflow:auto;max-height:520px}
+.desenho{overflow:auto;padding:12px;border-radius:6px}
+.tema-claro .desenho{background:#fbf7ef}.tema-escuro .desenho{background:#0b1220}
+.desenho .erro{color:#b3262d;white-space:pre-wrap;font:12px monospace}.medida{font-size:12px;color:#545d6e}
+/* Tema claro do Corredor Aceso para diagramas Pele: documentos, README e GitHub no modo claro.
+   Papel quente, tinta da noite, uma única luz âmbar para o que importa.
+   O render.mjs injeta este arquivo dentro de cada SVG. Contraste medido por tema/contraste.mjs. */
+.tema-claro .pele {
+  --pele-bg: #fbf7ef;
+  --pele-fg: #0b1220;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #fbf7ef;
+  --pele-muted: #545d6e;
+  --pele-line: #3a4255;
+  --pele-surface: #f3ecdf;
+  --pele-surface-alt: #e9dfcc;
+  --pele-border: #968767;
+  --pele-accent: #9a5800;
+  --pele-critical: #b3262d;
+  --pele-error: #b3262d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #4a566e;
+  --pele-series-2: #9a5800;
+  --pele-series-3: #1d7350;
+  --pele-series-4: #b3262d;
+  --pele-series-5: #2d5f8b;
+  --pele-series-6: #6a4c93;
+  --pele-series-7: #2b7176;
+  --pele-series-8: #7a5c2e;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #b86e00;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #fbe3e3;
+  --ca-alerta-borda: #b3262d;
+  --ca-cinza: #ecebe8;
+  --ca-cinza-borda: #6b7385;
+  --ca-cinza-texto: #464e5e;
+  --ca-verde: #dff1e8;
+  --ca-verde-borda: #1d7350;
+}
+/* Tema escuro do Corredor Aceso para diagramas Pele: pitch, vídeo e GitHub no modo escuro.
+   A casa às 3 da manhã: fundo noite, texto papel, a lâmpada âmbar como única luz quente.
+   Cores de pitch/corredor-aceso/video/src/theme.ts. Contraste medido por tema/contraste.mjs. */
+.tema-escuro .pele {
+  --pele-bg: #0b1220;
+  --pele-fg: #f3ecdf;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #f3ecdf;
+  --pele-muted: #a3acbd;
+  --pele-line: #b8b0a2;
+  --pele-surface: #17223a;
+  --pele-surface-alt: #111a2d;
+  --pele-border: #56688c;
+  --pele-accent: #ffb13b;
+  --pele-critical: #e5484d;
+  --pele-error: #e5484d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #8b95a7;
+  --pele-series-2: #ffb13b;
+  --pele-series-3: #3dbe8b;
+  --pele-series-4: #e5484d;
+  --pele-series-5: #7fa7d9;
+  --pele-series-6: #c4a6e6;
+  --pele-series-7: #5cc8c8;
+  --pele-series-8: #d9c3a0;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #ffd08a;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #3a161c;
+  --ca-alerta-borda: #e5484d;
+  --ca-cinza: #1a2233;
+  --ca-cinza-borda: #8b95a7;
+  --ca-cinza-texto: #a3acbd;
+  --ca-verde: #0f2a22;
+  --ca-verde-borda: #3dbe8b;
+  /* Brilho da lâmpada no topo do fundo (só no tema escuro). */
+  --ca-brilho: #ffb13b;
+  --ca-brilho-opacidade: 0.09;
+}
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-claro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-claro .pele .luz text, .tema-claro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-claro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-claro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-claro .pele .cinza text, .tema-claro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-claro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-claro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-claro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-claro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-claro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-claro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-claro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-claro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-escuro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-escuro .pele .luz text, .tema-escuro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-escuro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-escuro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-escuro .pele .cinza text, .tema-escuro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-escuro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-escuro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-escuro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-escuro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-escuro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-escuro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-escuro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-escuro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+
+</style>
+<body class="tema-claro">
+<header><h1>Pele: c4 (7)</h1><a href="../../galeria/index.html">índice</a>
+<label>tema <select id="tema"><option value="tema-claro">claro do projeto</option><option value="tema-escuro">escuro do projeto</option><option value="padrao">padrão do Pele</option></select></label>
+<label><input type="checkbox" id="largura" checked> largura do README (820 px)</label>
+<span>exemplos de pele.run/examples</span></header>
+<main><section class="cartao" id="d0">
+<h2>01-nested-boundaries.mmd</h2>
+<div class="lado"><pre>    C4Context
+      title System Context diagram for Internet Banking System
+      Enterprise_Boundary(b0, "BankBoundary0") {
+        Person(customerA, "Banking Customer A", "A customer of the bank, with personal bank accounts.")
+        Person(customerB, "Banking Customer B")
+        Person_Ext(customerC, "Banking Customer C", "desc")
+
+        Person(customerD, "Banking Customer D", "A customer of the bank, &lt;br/&gt; with personal bank accounts.")
+
+        System(SystemAA, "Internet Banking System", "Allows customers to view information about their bank accounts, and make payments.")
+
+        Enterprise_Boundary(b1, "BankBoundary") {
+
+          SystemDb_Ext(SystemE, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+          System_Boundary(b2, "BankBoundary2") {
+            System(SystemA, "Banking System A")
+            System(SystemB, "Banking System B", "A system of the bank, with personal bank accounts. next line.")
+          }
+
+          System_Ext(SystemC, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+          SystemDb(SystemD, "Banking System D Database", "A system of the bank, with personal bank accounts.")
+
+          Boundary(b3, "BankBoundary3", "boundary") {
+            SystemQueue(SystemF, "Banking System F Queue", "A system of the bank.")
+            SystemQueue_Ext(SystemG, "Banking System G Queue", "A system of the bank, with personal bank accounts.")
+          }
+        }
+      }
+
+      BiRel(customerA, SystemAA, "Uses")
+      BiRel(SystemAA, SystemE, "Uses")
+      Rel(SystemAA, SystemC, "Sends e-mails", "SMTP")
+      Rel(SystemC, customerA, "Sends e-mails to")
+
+      UpdateElementStyle(customerA, $fontColor="red", $bgColor="grey", $borderColor="red")
+      UpdateRelStyle(customerA, SystemAA, $textColor="blue", $lineColor="blue", $offsetX="5")
+      UpdateRelStyle(SystemAA, SystemE, $textColor="blue", $lineColor="blue", $offsetY="-10")
+      UpdateRelStyle(SystemAA, SystemC, $textColor="blue", $lineColor="blue", $offsetY="-40", $offsetX="-50")
+      UpdateRelStyle(SystemC, customerA, $textColor="red", $lineColor="red", $offsetX="-50", $offsetY="20")
+
+      UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+</pre><div class="desenho" data-i="0"></div></div></section>
+<section class="cartao" id="d1">
+<h2>02-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>    C4Context
+      title System Context diagram for Internet Banking System
+      Enterprise_Boundary(b0, "BankBoundary0") {
+        Person(customerA, "Banking Customer A", "A customer of the bank, with personal bank accounts.")
+        Person(customerB, "Banking Customer B")
+        Person_Ext(customerC, "Banking Customer C", "desc")
+
+        Person(customerD, "Banking Customer D", "A customer of the bank, &lt;br/&gt; with personal bank accounts.")
+
+        System(SystemAA, "Internet Banking System", "Allows customers to view information about their bank accounts, and make payments.")
+
+        Enterprise_Boundary(b1, "BankBoundary") {
+
+          SystemDb_Ext(SystemE, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+          System_Boundary(b2, "BankBoundary2") {
+            System(SystemA, "Banking System A")
+            System(SystemB, "Banking System B", "A system of the bank, with personal bank accounts. next line.")
+          }
+
+          System_Ext(SystemC, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+          SystemDb(SystemD, "Banking System D Database", "A system of the bank, with personal bank accounts.")
+
+          Boundary(b3, "BankBoundary3", "boundary") {
+            SystemQueue(SystemF, "Banking System F Queue", "A system of the bank.")
+            SystemQueue_Ext(SystemG, "Banking System G Queue", "A system of the bank, with personal bank accounts.")
+          }
+        }
+      }
+
+      BiRel(customerA, SystemAA, "Uses")
+      BiRel(SystemAA, SystemE, "Uses")
+      Rel(SystemAA, SystemC, "Sends e-mails", "SMTP")
+      Rel(SystemC, customerA, "Sends e-mails to")
+
+      UpdateElementStyle(customerA, $fontColor="red", $bgColor="gray", $borderColor="red")
+      UpdateRelStyle(customerA, SystemAA, $textColor="blue", $lineColor="blue", $offsetX="5")
+      UpdateRelStyle(SystemAA, SystemE, $textColor="blue", $lineColor="blue", $offsetY="-10")
+      UpdateRelStyle(SystemAA, SystemC, $textColor="blue", $lineColor="blue", $offsetY="-40", $offsetX="-50")
+      UpdateRelStyle(SystemC, customerA, $textColor="red", $lineColor="red", $offsetX="-50", $offsetY="20")
+
+      UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+</pre><div class="desenho" data-i="1"></div></div></section>
+<section class="cartao" id="d2">
+<h2>03-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>    C4Context
+      title System Context diagram for Internet Banking System
+      Enterprise_Boundary(b0, "BankBoundary0") {
+        Person(customerA, "Banking Customer A", "A customer of the bank, with personal bank accounts.")
+        Person(customerB, "Banking Customer B")
+        Person_Ext(customerC, "Banking Customer C", "desc")
+
+        Person(customerD, "Banking Customer D", "A customer of the bank, &lt;br/&gt; with personal bank accounts.")
+
+        System(SystemAA, "Internet Banking System", "Allows customers to view information about their bank accounts, and make payments.")
+
+        Enterprise_Boundary(b1, "BankBoundary") {
+
+          SystemDb_Ext(SystemE, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+          System_Boundary(b2, "BankBoundary2") {
+            System(SystemA, "Banking System A")
+            System(SystemB, "Banking System B", "A system of the bank, with personal bank accounts. next line.")
+          }
+
+          System_Ext(SystemC, "E-mail system", "The internal Microsoft Exchange e-mail system.")
+          SystemDb(SystemD, "Banking System D Database", "A system of the bank, with personal bank accounts.")
+
+          Boundary(b3, "BankBoundary3", "boundary") {
+            SystemQueue(SystemF, "Banking System F Queue", "A system of the bank.")
+            SystemQueue_Ext(SystemG, "Banking System G Queue", "A system of the bank, with personal bank accounts.")
+          }
+        }
+      }
+
+      BiRel(customerA, SystemAA, "Uses")
+      BiRel(SystemAA, SystemE, "Uses")
+      Rel(SystemAA, SystemC, "Sends e-mails", "SMTP")
+      Rel(SystemC, customerA, "Sends e-mails to")
+
+      UpdateElementStyle(customerA, $fontColor="red", $bgColor="gray", $borderColor="red")
+      UpdateRelStyle(customerA, SystemAA, $textColor="blue", $lineColor="blue", $offsetX="5")
+      UpdateRelStyle(SystemAA, SystemE, $textColor="blue", $lineColor="blue", $offsetY="-10")
+      UpdateRelStyle(SystemAA, SystemC, $textColor="blue", $lineColor="blue", $offsetY="-40", $offsetX="-50")
+      UpdateRelStyle(SystemC, customerA, $textColor="red", $lineColor="red", $offsetX="-50", $offsetY="20")
+
+      UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
+</pre><div class="desenho" data-i="2"></div></div></section>
+<section class="cartao" id="d3">
+<h2>04-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>    C4Container
+    title Container diagram for Internet Banking System
+
+    System_Ext(email_system, "E-Mail System", "The internal Microsoft Exchange system", $tags="v1.0")
+    Person(customer, Customer, "A customer of the bank, with personal bank accounts", $tags="v1.0")
+
+    Container_Boundary(c1, "Internet Banking") {
+        Container(spa, "Single-Page App", "JavaScript, Angular", "Provides all the Internet banking functionality to customers via their web browser")
+        Container_Ext(mobile_app, "Mobile App", "C#, Xamarin", "Provides a limited subset of the Internet banking functionality to customers via their mobile device")
+        Container(web_app, "Web Application", "Java, Spring MVC", "Delivers the static content and the Internet banking SPA")
+        ContainerDb(database, "Database", "SQL Database", "Stores user registration information, hashed auth credentials, access logs, etc.")
+        ContainerDb_Ext(backend_api, "API Application", "Java, Docker Container", "Provides Internet banking functionality via API")
+
+    }
+
+    System_Ext(banking_system, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+    Rel(customer, web_app, "Uses", "HTTPS")
+    UpdateRelStyle(customer, web_app, $offsetY="60", $offsetX="90")
+    Rel(customer, spa, "Uses", "HTTPS")
+    UpdateRelStyle(customer, spa, $offsetY="-40")
+    Rel(customer, mobile_app, "Uses")
+    UpdateRelStyle(customer, mobile_app, $offsetY="-30")
+
+    Rel(web_app, spa, "Delivers")
+    UpdateRelStyle(web_app, spa, $offsetX="130")
+    Rel(spa, backend_api, "Uses", "async, JSON/HTTPS")
+    Rel(mobile_app, backend_api, "Uses", "async, JSON/HTTPS")
+    Rel_Back(database, backend_api, "Reads from and writes to", "sync, JDBC")
+
+    Rel(email_system, customer, "Sends e-mails to")
+    UpdateRelStyle(email_system, customer, $offsetX="-45")
+    Rel(backend_api, email_system, "Sends e-mails using", "sync, SMTP")
+    UpdateRelStyle(backend_api, email_system, $offsetY="-60")
+    Rel(backend_api, banking_system, "Uses", "sync/async, XML/HTTPS")
+    UpdateRelStyle(backend_api, banking_system, $offsetY="-50", $offsetX="-140")
+</pre><div class="desenho" data-i="3"></div></div></section>
+<section class="cartao" id="d4">
+<h2>05-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>    C4Component
+    title Component diagram for Internet Banking System - API Application
+
+    Container(spa, "Single Page Application", "javascript and angular", "Provides all the internet banking functionality to customers via their web browser.")
+    Container(ma, "Mobile App", "Xamarin", "Provides a limited subset to the internet banking functionality to customers via their mobile device.")
+    ContainerDb(db, "Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+    System_Ext(mbs, "Mainframe Banking System", "Stores all of the core banking information about customers, accounts, transactions, etc.")
+
+    Container_Boundary(api, "API Application") {
+        Component(sign, "Sign In Controller", "MVC Rest Controller", "Allows users to sign in to the internet banking system")
+        Component(accounts, "Accounts Summary Controller", "MVC Rest Controller", "Provides customers with a summary of their bank accounts")
+        Component(security, "Security Component", "Spring Bean", "Provides functionality related to singing in, changing passwords, etc.")
+        Component(mbsfacade, "Mainframe Banking System Facade", "Spring Bean", "A facade onto the mainframe banking system.")
+
+        Rel(sign, security, "Uses")
+        Rel(accounts, mbsfacade, "Uses")
+        Rel(security, db, "Read &amp; write to", "JDBC")
+        Rel(mbsfacade, mbs, "Uses", "XML/HTTPS")
+    }
+
+    Rel_Back(spa, sign, "Uses", "JSON/HTTPS")
+    Rel(spa, accounts, "Uses", "JSON/HTTPS")
+
+    Rel(ma, sign, "Uses", "JSON/HTTPS")
+    Rel(ma, accounts, "Uses", "JSON/HTTPS")
+
+    UpdateRelStyle(spa, sign, $offsetY="-40")
+    UpdateRelStyle(spa, accounts, $offsetX="40", $offsetY="40")
+
+    UpdateRelStyle(ma, sign, $offsetX="-90", $offsetY="40")
+    UpdateRelStyle(ma, accounts, $offsetY="-40")
+
+        UpdateRelStyle(sign, security, $offsetX="-160", $offsetY="10")
+        UpdateRelStyle(accounts, mbsfacade, $offsetX="140", $offsetY="10")
+        UpdateRelStyle(security, db, $offsetY="-40")
+        UpdateRelStyle(mbsfacade, mbs, $offsetY="-40")
+</pre><div class="desenho" data-i="4"></div></div></section>
+<section class="cartao" id="d5">
+<h2>06-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>    C4Dynamic
+    title Dynamic diagram for Internet Banking System - API Application
+
+    ContainerDb(c4, "Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+    Container(c1, "Single-Page Application", "JavaScript and Angular", "Provides all of the Internet banking functionality to customers via their web browser.")
+    Container_Boundary(b, "API Application") {
+      Component(c3, "Security Component", "Spring Bean", "Provides functionality Related to signing in, changing passwords, etc.")
+      Component(c2, "Sign In Controller", "Spring MVC Rest Controller", "Allows users to sign in to the Internet Banking System.")
+    }
+    Rel(c1, c2, "Submits credentials to", "JSON/HTTPS")
+    Rel(c2, c3, "Calls isAuthenticated() on")
+    Rel(c3, c4, "select * from users where username = ?", "JDBC")
+
+    UpdateRelStyle(c1, c2, $textColor="red", $offsetY="-40")
+    UpdateRelStyle(c2, c3, $textColor="red", $offsetX="-40", $offsetY="60")
+    UpdateRelStyle(c3, c4, $textColor="red", $offsetY="-40", $offsetX="10")
+</pre><div class="desenho" data-i="5"></div></div></section>
+<section class="cartao" id="d6">
+<h2>07-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>    C4Deployment
+    title Deployment Diagram for Internet Banking System - Live
+
+    Deployment_Node(mob, "Customer's mobile device", "Apple IOS or Android"){
+        Container(mobile, "Mobile App", "Xamarin", "Provides a limited subset of the Internet Banking functionality to customers via their mobile device.")
+    }
+
+    Deployment_Node(comp, "Customer's computer", "Microsoft Windows or Apple macOS"){
+        Deployment_Node(browser, "Web Browser", "Google Chrome, Mozilla Firefox,&lt;br/&gt; Apple Safari or Microsoft Edge"){
+            Container(spa, "Single Page Application", "JavaScript and Angular", "Provides all of the Internet Banking functionality to customers via their web browser.")
+        }
+    }
+
+    Deployment_Node(plc, "Big Bank plc", "Big Bank plc data center"){
+        Deployment_Node(dn, "bigbank-api*** x8", "Ubuntu 16.04 LTS"){
+            Deployment_Node(apache, "Apache Tomcat", "Apache Tomcat 8.x"){
+                Container(api, "API Application", "Java and Spring MVC", "Provides Internet Banking functionality via a JSON/HTTPS API.")
+            }
+        }
+        Deployment_Node(bb2, "bigbank-web*** x4", "Ubuntu 16.04 LTS"){
+            Deployment_Node(apache2, "Apache Tomcat", "Apache Tomcat 8.x"){
+                Container(web, "Web Application", "Java and Spring MVC", "Delivers the static content and the Internet Banking single page application.")
+            }
+        }
+        Deployment_Node(bigbankdb01, "bigbank-db01", "Ubuntu 16.04 LTS"){
+            Deployment_Node(oracle, "Oracle - Primary", "Oracle 12c"){
+                ContainerDb(db, "Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+            }
+        }
+        Deployment_Node(bigbankdb02, "bigbank-db02", "Ubuntu 16.04 LTS") {
+            Deployment_Node(oracle2, "Oracle - Secondary", "Oracle 12c") {
+                ContainerDb(db2, "Database", "Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+            }
+        }
+    }
+
+    Rel(mobile, api, "Makes API calls to", "json/HTTPS")
+    Rel(spa, api, "Makes API calls to", "json/HTTPS")
+    Rel_U(web, spa, "Delivers to the customer's web browser")
+    Rel(api, db, "Reads from and writes to", "JDBC")
+    Rel(api, db2, "Reads from and writes to", "JDBC")
+    Rel_R(db, db2, "Replicates data to")
+
+    UpdateRelStyle(spa, api, $offsetY="-40")
+    UpdateRelStyle(web, spa, $offsetY="-40")
+    UpdateRelStyle(api, db, $offsetY="-20", $offsetX="5")
+    UpdateRelStyle(api, db2, $offsetX="-40", $offsetY="-20")
+    UpdateRelStyle(db, db2, $offsetY="-10")
+</pre><div class="desenho" data-i="6"></div></div></section></main>
+<script src="../../node_modules/pele/dist/pele.global.js"></script>
+<script>
+const fontes = ["    C4Context\n      title System Context diagram for Internet Banking System\n      Enterprise_Boundary(b0, \"BankBoundary0\") {\n        Person(customerA, \"Banking Customer A\", \"A customer of the bank, with personal bank accounts.\")\n        Person(customerB, \"Banking Customer B\")\n        Person_Ext(customerC, \"Banking Customer C\", \"desc\")\n\n        Person(customerD, \"Banking Customer D\", \"A customer of the bank, <br/> with personal bank accounts.\")\n\n        System(SystemAA, \"Internet Banking System\", \"Allows customers to view information about their bank accounts, and make payments.\")\n\n        Enterprise_Boundary(b1, \"BankBoundary\") {\n\n          SystemDb_Ext(SystemE, \"Mainframe Banking System\", \"Stores all of the core banking information about customers, accounts, transactions, etc.\")\n\n          System_Boundary(b2, \"BankBoundary2\") {\n            System(SystemA, \"Banking System A\")\n            System(SystemB, \"Banking System B\", \"A system of the bank, with personal bank accounts. next line.\")\n          }\n\n          System_Ext(SystemC, \"E-mail system\", \"The internal Microsoft Exchange e-mail system.\")\n          SystemDb(SystemD, \"Banking System D Database\", \"A system of the bank, with personal bank accounts.\")\n\n          Boundary(b3, \"BankBoundary3\", \"boundary\") {\n            SystemQueue(SystemF, \"Banking System F Queue\", \"A system of the bank.\")\n            SystemQueue_Ext(SystemG, \"Banking System G Queue\", \"A system of the bank, with personal bank accounts.\")\n          }\n        }\n      }\n\n      BiRel(customerA, SystemAA, \"Uses\")\n      BiRel(SystemAA, SystemE, \"Uses\")\n      Rel(SystemAA, SystemC, \"Sends e-mails\", \"SMTP\")\n      Rel(SystemC, customerA, \"Sends e-mails to\")\n\n      UpdateElementStyle(customerA, $fontColor=\"red\", $bgColor=\"grey\", $borderColor=\"red\")\n      UpdateRelStyle(customerA, SystemAA, $textColor=\"blue\", $lineColor=\"blue\", $offsetX=\"5\")\n      UpdateRelStyle(SystemAA, SystemE, $textColor=\"blue\", $lineColor=\"blue\", $offsetY=\"-10\")\n      UpdateRelStyle(SystemAA, SystemC, $textColor=\"blue\", $lineColor=\"blue\", $offsetY=\"-40\", $offsetX=\"-50\")\n      UpdateRelStyle(SystemC, customerA, $textColor=\"red\", $lineColor=\"red\", $offsetX=\"-50\", $offsetY=\"20\")\n\n      UpdateLayoutConfig($c4ShapeInRow=\"3\", $c4BoundaryInRow=\"1\")\n","    C4Context\n      title System Context diagram for Internet Banking System\n      Enterprise_Boundary(b0, \"BankBoundary0\") {\n        Person(customerA, \"Banking Customer A\", \"A customer of the bank, with personal bank accounts.\")\n        Person(customerB, \"Banking Customer B\")\n        Person_Ext(customerC, \"Banking Customer C\", \"desc\")\n\n        Person(customerD, \"Banking Customer D\", \"A customer of the bank, <br/> with personal bank accounts.\")\n\n        System(SystemAA, \"Internet Banking System\", \"Allows customers to view information about their bank accounts, and make payments.\")\n\n        Enterprise_Boundary(b1, \"BankBoundary\") {\n\n          SystemDb_Ext(SystemE, \"Mainframe Banking System\", \"Stores all of the core banking information about customers, accounts, transactions, etc.\")\n\n          System_Boundary(b2, \"BankBoundary2\") {\n            System(SystemA, \"Banking System A\")\n            System(SystemB, \"Banking System B\", \"A system of the bank, with personal bank accounts. next line.\")\n          }\n\n          System_Ext(SystemC, \"E-mail system\", \"The internal Microsoft Exchange e-mail system.\")\n          SystemDb(SystemD, \"Banking System D Database\", \"A system of the bank, with personal bank accounts.\")\n\n          Boundary(b3, \"BankBoundary3\", \"boundary\") {\n            SystemQueue(SystemF, \"Banking System F Queue\", \"A system of the bank.\")\n            SystemQueue_Ext(SystemG, \"Banking System G Queue\", \"A system of the bank, with personal bank accounts.\")\n          }\n        }\n      }\n\n      BiRel(customerA, SystemAA, \"Uses\")\n      BiRel(SystemAA, SystemE, \"Uses\")\n      Rel(SystemAA, SystemC, \"Sends e-mails\", \"SMTP\")\n      Rel(SystemC, customerA, \"Sends e-mails to\")\n\n      UpdateElementStyle(customerA, $fontColor=\"red\", $bgColor=\"gray\", $borderColor=\"red\")\n      UpdateRelStyle(customerA, SystemAA, $textColor=\"blue\", $lineColor=\"blue\", $offsetX=\"5\")\n      UpdateRelStyle(SystemAA, SystemE, $textColor=\"blue\", $lineColor=\"blue\", $offsetY=\"-10\")\n      UpdateRelStyle(SystemAA, SystemC, $textColor=\"blue\", $lineColor=\"blue\", $offsetY=\"-40\", $offsetX=\"-50\")\n      UpdateRelStyle(SystemC, customerA, $textColor=\"red\", $lineColor=\"red\", $offsetX=\"-50\", $offsetY=\"20\")\n\n      UpdateLayoutConfig($c4ShapeInRow=\"3\", $c4BoundaryInRow=\"1\")\n","    C4Context\n      title System Context diagram for Internet Banking System\n      Enterprise_Boundary(b0, \"BankBoundary0\") {\n        Person(customerA, \"Banking Customer A\", \"A customer of the bank, with personal bank accounts.\")\n        Person(customerB, \"Banking Customer B\")\n        Person_Ext(customerC, \"Banking Customer C\", \"desc\")\n\n        Person(customerD, \"Banking Customer D\", \"A customer of the bank, <br/> with personal bank accounts.\")\n\n        System(SystemAA, \"Internet Banking System\", \"Allows customers to view information about their bank accounts, and make payments.\")\n\n        Enterprise_Boundary(b1, \"BankBoundary\") {\n\n          SystemDb_Ext(SystemE, \"Mainframe Banking System\", \"Stores all of the core banking information about customers, accounts, transactions, etc.\")\n\n          System_Boundary(b2, \"BankBoundary2\") {\n            System(SystemA, \"Banking System A\")\n            System(SystemB, \"Banking System B\", \"A system of the bank, with personal bank accounts. next line.\")\n          }\n\n          System_Ext(SystemC, \"E-mail system\", \"The internal Microsoft Exchange e-mail system.\")\n          SystemDb(SystemD, \"Banking System D Database\", \"A system of the bank, with personal bank accounts.\")\n\n          Boundary(b3, \"BankBoundary3\", \"boundary\") {\n            SystemQueue(SystemF, \"Banking System F Queue\", \"A system of the bank.\")\n            SystemQueue_Ext(SystemG, \"Banking System G Queue\", \"A system of the bank, with personal bank accounts.\")\n          }\n        }\n      }\n\n      BiRel(customerA, SystemAA, \"Uses\")\n      BiRel(SystemAA, SystemE, \"Uses\")\n      Rel(SystemAA, SystemC, \"Sends e-mails\", \"SMTP\")\n      Rel(SystemC, customerA, \"Sends e-mails to\")\n\n      UpdateElementStyle(customerA, $fontColor=\"red\", $bgColor=\"gray\", $borderColor=\"red\")\n      UpdateRelStyle(customerA, SystemAA, $textColor=\"blue\", $lineColor=\"blue\", $offsetX=\"5\")\n      UpdateRelStyle(SystemAA, SystemE, $textColor=\"blue\", $lineColor=\"blue\", $offsetY=\"-10\")\n      UpdateRelStyle(SystemAA, SystemC, $textColor=\"blue\", $lineColor=\"blue\", $offsetY=\"-40\", $offsetX=\"-50\")\n      UpdateRelStyle(SystemC, customerA, $textColor=\"red\", $lineColor=\"red\", $offsetX=\"-50\", $offsetY=\"20\")\n\n      UpdateLayoutConfig($c4ShapeInRow=\"3\", $c4BoundaryInRow=\"1\")\n","    C4Container\n    title Container diagram for Internet Banking System\n\n    System_Ext(email_system, \"E-Mail System\", \"The internal Microsoft Exchange system\", $tags=\"v1.0\")\n    Person(customer, Customer, \"A customer of the bank, with personal bank accounts\", $tags=\"v1.0\")\n\n    Container_Boundary(c1, \"Internet Banking\") {\n        Container(spa, \"Single-Page App\", \"JavaScript, Angular\", \"Provides all the Internet banking functionality to customers via their web browser\")\n        Container_Ext(mobile_app, \"Mobile App\", \"C#, Xamarin\", \"Provides a limited subset of the Internet banking functionality to customers via their mobile device\")\n        Container(web_app, \"Web Application\", \"Java, Spring MVC\", \"Delivers the static content and the Internet banking SPA\")\n        ContainerDb(database, \"Database\", \"SQL Database\", \"Stores user registration information, hashed auth credentials, access logs, etc.\")\n        ContainerDb_Ext(backend_api, \"API Application\", \"Java, Docker Container\", \"Provides Internet banking functionality via API\")\n\n    }\n\n    System_Ext(banking_system, \"Mainframe Banking System\", \"Stores all of the core banking information about customers, accounts, transactions, etc.\")\n\n    Rel(customer, web_app, \"Uses\", \"HTTPS\")\n    UpdateRelStyle(customer, web_app, $offsetY=\"60\", $offsetX=\"90\")\n    Rel(customer, spa, \"Uses\", \"HTTPS\")\n    UpdateRelStyle(customer, spa, $offsetY=\"-40\")\n    Rel(customer, mobile_app, \"Uses\")\n    UpdateRelStyle(customer, mobile_app, $offsetY=\"-30\")\n\n    Rel(web_app, spa, \"Delivers\")\n    UpdateRelStyle(web_app, spa, $offsetX=\"130\")\n    Rel(spa, backend_api, \"Uses\", \"async, JSON/HTTPS\")\n    Rel(mobile_app, backend_api, \"Uses\", \"async, JSON/HTTPS\")\n    Rel_Back(database, backend_api, \"Reads from and writes to\", \"sync, JDBC\")\n\n    Rel(email_system, customer, \"Sends e-mails to\")\n    UpdateRelStyle(email_system, customer, $offsetX=\"-45\")\n    Rel(backend_api, email_system, \"Sends e-mails using\", \"sync, SMTP\")\n    UpdateRelStyle(backend_api, email_system, $offsetY=\"-60\")\n    Rel(backend_api, banking_system, \"Uses\", \"sync/async, XML/HTTPS\")\n    UpdateRelStyle(backend_api, banking_system, $offsetY=\"-50\", $offsetX=\"-140\")\n","    C4Component\n    title Component diagram for Internet Banking System - API Application\n\n    Container(spa, \"Single Page Application\", \"javascript and angular\", \"Provides all the internet banking functionality to customers via their web browser.\")\n    Container(ma, \"Mobile App\", \"Xamarin\", \"Provides a limited subset to the internet banking functionality to customers via their mobile device.\")\n    ContainerDb(db, \"Database\", \"Relational Database Schema\", \"Stores user registration information, hashed authentication credentials, access logs, etc.\")\n    System_Ext(mbs, \"Mainframe Banking System\", \"Stores all of the core banking information about customers, accounts, transactions, etc.\")\n\n    Container_Boundary(api, \"API Application\") {\n        Component(sign, \"Sign In Controller\", \"MVC Rest Controller\", \"Allows users to sign in to the internet banking system\")\n        Component(accounts, \"Accounts Summary Controller\", \"MVC Rest Controller\", \"Provides customers with a summary of their bank accounts\")\n        Component(security, \"Security Component\", \"Spring Bean\", \"Provides functionality related to singing in, changing passwords, etc.\")\n        Component(mbsfacade, \"Mainframe Banking System Facade\", \"Spring Bean\", \"A facade onto the mainframe banking system.\")\n\n        Rel(sign, security, \"Uses\")\n        Rel(accounts, mbsfacade, \"Uses\")\n        Rel(security, db, \"Read & write to\", \"JDBC\")\n        Rel(mbsfacade, mbs, \"Uses\", \"XML/HTTPS\")\n    }\n\n    Rel_Back(spa, sign, \"Uses\", \"JSON/HTTPS\")\n    Rel(spa, accounts, \"Uses\", \"JSON/HTTPS\")\n\n    Rel(ma, sign, \"Uses\", \"JSON/HTTPS\")\n    Rel(ma, accounts, \"Uses\", \"JSON/HTTPS\")\n\n    UpdateRelStyle(spa, sign, $offsetY=\"-40\")\n    UpdateRelStyle(spa, accounts, $offsetX=\"40\", $offsetY=\"40\")\n\n    UpdateRelStyle(ma, sign, $offsetX=\"-90\", $offsetY=\"40\")\n    UpdateRelStyle(ma, accounts, $offsetY=\"-40\")\n\n        UpdateRelStyle(sign, security, $offsetX=\"-160\", $offsetY=\"10\")\n        UpdateRelStyle(accounts, mbsfacade, $offsetX=\"140\", $offsetY=\"10\")\n        UpdateRelStyle(security, db, $offsetY=\"-40\")\n        UpdateRelStyle(mbsfacade, mbs, $offsetY=\"-40\")\n","    C4Dynamic\n    title Dynamic diagram for Internet Banking System - API Application\n\n    ContainerDb(c4, \"Database\", \"Relational Database Schema\", \"Stores user registration information, hashed authentication credentials, access logs, etc.\")\n    Container(c1, \"Single-Page Application\", \"JavaScript and Angular\", \"Provides all of the Internet banking functionality to customers via their web browser.\")\n    Container_Boundary(b, \"API Application\") {\n      Component(c3, \"Security Component\", \"Spring Bean\", \"Provides functionality Related to signing in, changing passwords, etc.\")\n      Component(c2, \"Sign In Controller\", \"Spring MVC Rest Controller\", \"Allows users to sign in to the Internet Banking System.\")\n    }\n    Rel(c1, c2, \"Submits credentials to\", \"JSON/HTTPS\")\n    Rel(c2, c3, \"Calls isAuthenticated() on\")\n    Rel(c3, c4, \"select * from users where username = ?\", \"JDBC\")\n\n    UpdateRelStyle(c1, c2, $textColor=\"red\", $offsetY=\"-40\")\n    UpdateRelStyle(c2, c3, $textColor=\"red\", $offsetX=\"-40\", $offsetY=\"60\")\n    UpdateRelStyle(c3, c4, $textColor=\"red\", $offsetY=\"-40\", $offsetX=\"10\")\n","    C4Deployment\n    title Deployment Diagram for Internet Banking System - Live\n\n    Deployment_Node(mob, \"Customer's mobile device\", \"Apple IOS or Android\"){\n        Container(mobile, \"Mobile App\", \"Xamarin\", \"Provides a limited subset of the Internet Banking functionality to customers via their mobile device.\")\n    }\n\n    Deployment_Node(comp, \"Customer's computer\", \"Microsoft Windows or Apple macOS\"){\n        Deployment_Node(browser, \"Web Browser\", \"Google Chrome, Mozilla Firefox,<br/> Apple Safari or Microsoft Edge\"){\n            Container(spa, \"Single Page Application\", \"JavaScript and Angular\", \"Provides all of the Internet Banking functionality to customers via their web browser.\")\n        }\n    }\n\n    Deployment_Node(plc, \"Big Bank plc\", \"Big Bank plc data center\"){\n        Deployment_Node(dn, \"bigbank-api*** x8\", \"Ubuntu 16.04 LTS\"){\n            Deployment_Node(apache, \"Apache Tomcat\", \"Apache Tomcat 8.x\"){\n                Container(api, \"API Application\", \"Java and Spring MVC\", \"Provides Internet Banking functionality via a JSON/HTTPS API.\")\n            }\n        }\n        Deployment_Node(bb2, \"bigbank-web*** x4\", \"Ubuntu 16.04 LTS\"){\n            Deployment_Node(apache2, \"Apache Tomcat\", \"Apache Tomcat 8.x\"){\n                Container(web, \"Web Application\", \"Java and Spring MVC\", \"Delivers the static content and the Internet Banking single page application.\")\n            }\n        }\n        Deployment_Node(bigbankdb01, \"bigbank-db01\", \"Ubuntu 16.04 LTS\"){\n            Deployment_Node(oracle, \"Oracle - Primary\", \"Oracle 12c\"){\n                ContainerDb(db, \"Database\", \"Relational Database Schema\", \"Stores user registration information, hashed authentication credentials, access logs, etc.\")\n            }\n        }\n        Deployment_Node(bigbankdb02, \"bigbank-db02\", \"Ubuntu 16.04 LTS\") {\n            Deployment_Node(oracle2, \"Oracle - Secondary\", \"Oracle 12c\") {\n                ContainerDb(db2, \"Database\", \"Relational Database Schema\", \"Stores user registration information, hashed authentication credentials, access logs, etc.\")\n            }\n        }\n    }\n\n    Rel(mobile, api, \"Makes API calls to\", \"json/HTTPS\")\n    Rel(spa, api, \"Makes API calls to\", \"json/HTTPS\")\n    Rel_U(web, spa, \"Delivers to the customer's web browser\")\n    Rel(api, db, \"Reads from and writes to\", \"JDBC\")\n    Rel(api, db2, \"Reads from and writes to\", \"JDBC\")\n    Rel_R(db, db2, \"Replicates data to\")\n\n    UpdateRelStyle(spa, api, $offsetY=\"-40\")\n    UpdateRelStyle(web, spa, $offsetY=\"-40\")\n    UpdateRelStyle(api, db, $offsetY=\"-20\", $offsetX=\"5\")\n    UpdateRelStyle(api, db2, $offsetX=\"-40\", $offsetY=\"-20\")\n    UpdateRelStyle(db, db2, $offsetY=\"-10\")\n"];
+const medidas = ["Node, tema padrão: 1016x1382","Node, tema padrão: 1016x1382","Node, tema padrão: 1016x1382","Node, tema padrão: 1392x748","Node, tema padrão: 1296x558","Node, tema padrão: 624x531","Node, tema padrão: 776x1399"];
+function desenhar() {
+  const t = document.getElementById('tema').value, larg = document.getElementById('largura').checked;
+  document.body.className = t === 'padrao' ? '' : t;
+  document.querySelectorAll('.desenho').forEach((el) => {
+    const i = +el.dataset.i;
+    const op = { idPrefix: 'g' + i };
+    if (t !== 'padrao') Object.assign(op, { fontFamily: '"Atkinson Hyperlegible", sans-serif', fontFamilyMono: '"Atkinson Hyperlegible Mono", monospace' });
+    if (larg) Object.assign(op, { maxWidth: 820, directionBreakpoint: 821 });
+    try {
+      const r = pele.render(fontes[i], op);
+      el.innerHTML = r.svg + '<div class="medida">navegador: ' + Math.round(r.width) + 'x' + Math.round(r.height) + (medidas[i] ? ' · ' + medidas[i] : '') + '</div>';
+    } catch (e) { el.innerHTML = '<div class="erro"></div>'; el.firstChild.textContent = e.message; }
+  });
+}
+document.getElementById('tema').onchange = desenhar;
+document.getElementById('largura').onchange = desenhar;
+Promise.all(['400 16px "Atkinson Hyperlegible"', '700 16px "Atkinson Hyperlegible"', '16px "Atkinson Hyperlegible Mono"', '600 16px Fraunces'].map((f) => document.fonts.load(f))).then(desenhar, desenhar);
+</script></html>

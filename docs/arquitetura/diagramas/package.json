@@ -1,0 +1,13 @@
+{
+  "name": "corredor-aceso-diagramas",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render.mjs",
+    "site": "node site.mjs"
+  },
+  "dependencies": {
+    "marked": "18.2.1",
+    "pele": "1.13.0"
+  }
+}

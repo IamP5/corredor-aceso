@@ -1,0 +1,250 @@
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:400;font-display:swap;src:url(fontes/atkinson-hyperlegible-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:700;font-display:swap;src:url(fontes/atkinson-hyperlegible-latin-700-normal.woff2) format("woff2")}
+@font-face{font-family:"Atkinson Hyperlegible Mono";font-weight:400;font-display:swap;src:url(fontes/atkinson-hyperlegible-mono-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:Fraunces;font-weight:600;font-display:swap;src:url(fontes/fraunces-latin-600-normal.woff2) format("woff2")}
+
+/* Página: papel quente e tinta da noite no claro; noite e papel no escuro, com o âmbar como única luz. */
+[data-tema=claro]{--fundo:#fbf7ef;--texto:#0b1220;--suave:#545d6e;--borda:#ddd2bd;--superficie:#f3ecdf;--zebra:#f6f0e4;--link:#9a5800;--marca:#9a5800;color-scheme:light}
+[data-tema=escuro]{--fundo:#0b1220;--texto:#f3ecdf;--suave:#a3acbd;--borda:#2a3652;--superficie:#131c30;--zebra:#0f182a;--link:#ffb13b;--marca:#ffb13b;color-scheme:dark}
+
+/* Diagramas: o mesmo SVG segue o tema da página, sem desenhar de novo. */
+/* Tema claro do Corredor Aceso para diagramas Pele: documentos, README e GitHub no modo claro.
+   Papel quente, tinta da noite, uma única luz âmbar para o que importa.
+   O render.mjs injeta este arquivo dentro de cada SVG. Contraste medido por tema/contraste.mjs. */
+[data-tema=claro] .pele {
+  --pele-bg: #fbf7ef;
+  --pele-fg: #0b1220;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #fbf7ef;
+  --pele-muted: #545d6e;
+  --pele-line: #3a4255;
+  --pele-surface: #f3ecdf;
+  --pele-surface-alt: #e9dfcc;
+  --pele-border: #968767;
+  --pele-accent: #9a5800;
+  --pele-critical: #b3262d;
+  --pele-error: #b3262d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #4a566e;
+  --pele-series-2: #9a5800;
+  --pele-series-3: #1d7350;
+  --pele-series-4: #b3262d;
+  --pele-series-5: #2d5f8b;
+  --pele-series-6: #6a4c93;
+  --pele-series-7: #2b7176;
+  --pele-series-8: #7a5c2e;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #b86e00;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #fbe3e3;
+  --ca-alerta-borda: #b3262d;
+  --ca-cinza: #ecebe8;
+  --ca-cinza-borda: #6b7385;
+  --ca-cinza-texto: #464e5e;
+  --ca-verde: #dff1e8;
+  --ca-verde-borda: #1d7350;
+}
+
+/* Tema escuro do Corredor Aceso para diagramas Pele: pitch, vídeo e GitHub no modo escuro.
+   A casa às 3 da manhã: fundo noite, texto papel, a lâmpada âmbar como única luz quente.
+   Cores de pitch/corredor-aceso/video/src/theme.ts. Contraste medido por tema/contraste.mjs. */
+[data-tema=escuro] .pele {
+  --pele-bg: #0b1220;
+  --pele-fg: #f3ecdf;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #f3ecdf;
+  --pele-muted: #a3acbd;
+  --pele-line: #b8b0a2;
+  --pele-surface: #17223a;
+  --pele-surface-alt: #111a2d;
+  --pele-border: #56688c;
+  --pele-accent: #ffb13b;
+  --pele-critical: #e5484d;
+  --pele-error: #e5484d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #8b95a7;
+  --pele-series-2: #ffb13b;
+  --pele-series-3: #3dbe8b;
+  --pele-series-4: #e5484d;
+  --pele-series-5: #7fa7d9;
+  --pele-series-6: #c4a6e6;
+  --pele-series-7: #5cc8c8;
+  --pele-series-8: #d9c3a0;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #ffd08a;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #3a161c;
+  --ca-alerta-borda: #e5484d;
+  --ca-cinza: #1a2233;
+  --ca-cinza-borda: #8b95a7;
+  --ca-cinza-texto: #a3acbd;
+  --ca-verde: #0f2a22;
+  --ca-verde-borda: #3dbe8b;
+  /* Brilho da lâmpada no topo do fundo (só no tema escuro). */
+  --ca-brilho: #ffb13b;
+  --ca-brilho-opacidade: 0.09;
+}
+
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.pele .luz text, .pele .luz tspan { fill: var(--ca-luz-texto); }
+.pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.pele .cinza text, .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+/* Gantt: o Pele pinta toda tarefa com o acento. Aqui a tarefa comum fica na série 1 (cinza-azulada),
+   e o âmbar e o vermelho ficam para o marco e para o caminho crítico (crit). */
+.pele.pele-gantt .pele-task:not(.pele-crit):not(.pele-milestone) rect { fill: var(--pele-series-1); stroke: var(--pele-series-1); }
+
+
+*,*::before,*::after{box-sizing:border-box}
+html{--vw:100vw;--margem:1.25rem;background:var(--fundo);color:var(--texto);font:400 1.0625rem/1.65 "Atkinson Hyperlegible",system-ui,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;overflow-x:clip}
+main{max-width:48rem;margin:0 auto;padding:1.5rem var(--margem) 5rem}
+h1,h2,h3,h4{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.2;scroll-margin-top:4.5rem}
+h1{font-size:2.3rem;margin:1rem 0 1.25rem}
+h2{font-size:1.65rem;margin:3rem 0 1rem;padding-top:.5rem;border-top:1px solid var(--borda)}
+h3{font-size:1.3rem;margin:2.25rem 0 .75rem}
+h4{font-size:1.1rem;margin:1.75rem 0 .5rem}
+.ancora{color:var(--suave);text-decoration:none;font-size:.8em;opacity:0}
+:is(h2,h3,h4):hover .ancora,.ancora:focus{opacity:1}
+a{color:var(--link);text-underline-offset:.15em}
+strong{font-weight:700}
+code,pre,kbd{font-family:"Atkinson Hyperlegible Mono",ui-monospace,monospace;font-size:.92em}
+:not(pre)>code{background:var(--superficie);border:1px solid var(--borda);border-radius:4px;padding:.05em .3em;overflow-wrap:break-word}
+pre{background:var(--superficie);border:1px solid var(--borda);border-radius:6px;padding:.9rem 1rem;overflow-x:auto;line-height:1.5;tab-size:2}
+blockquote{margin:1.25rem 0;padding:.25rem 1rem;border-left:3px solid var(--marca);color:var(--suave)}
+hr{border:0;border-top:1px solid var(--borda);margin:2.5rem 0}
+img{max-width:100%}
+li+li{margin-top:.25rem}
+
+.topo{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:1rem;padding:.6rem var(--margem);background:var(--fundo);border-bottom:1px solid var(--borda)}
+.marca{font-family:Fraunces,Georgia,serif;font-weight:600;color:var(--texto);text-decoration:none;white-space:nowrap}
+.paginas{display:flex;gap:1rem;overflow-x:auto;flex:1;font-size:.95rem;scrollbar-width:none}
+.paginas a{color:var(--suave);text-decoration:none;white-space:nowrap}
+.paginas a[aria-current]{color:var(--texto);box-shadow:inset 0 -2px var(--marca)}
+.tema-botao{font:inherit;font-size:.9rem;color:var(--texto);background:var(--superficie);border:1px solid var(--borda);border-radius:999px;padding:.25rem .8rem;cursor:pointer;white-space:nowrap}
+.tema-botao:hover{border-color:var(--marca)}
+:focus-visible{outline:2px solid var(--marca);outline-offset:2px}
+
+.sumario{margin:1.5rem 0 2.5rem;padding:.75rem 1.25rem;background:var(--superficie);border:1px solid var(--borda);border-radius:8px;font-size:.95rem}
+.sumario summary{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:1.1rem;cursor:pointer}
+.sumario ol{margin:.5rem 0;padding-left:1.25rem}
+.sumario ol ol{margin:.25rem 0;list-style:none;padding-left:1rem;font-size:.92em}
+.sumario a{color:var(--texto);text-decoration:none}
+.sumario a:hover{color:var(--link);text-decoration:underline}
+
+.tabela{overflow-x:auto;margin:1.25rem 0;border:1px solid var(--borda);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:.95rem;line-height:1.45}
+th,td{padding:.5rem .75rem;text-align:left;vertical-align:top;border-bottom:1px solid var(--borda)}
+th{background:var(--superficie);font-weight:700;border-bottom:2px solid var(--marca);white-space:nowrap}
+tbody tr:nth-child(even){background:var(--zebra)}
+tbody tr:last-child td{border-bottom:0}
+
+/* Diagrama: largura natural; sai da coluna até a largura da janela; mais largo que isso, encolhe e ganha zoom. */
+.diagrama{--caixa:min(var(--w),calc(var(--vw) - 2 * var(--margem)));width:var(--caixa);max-width:none;margin:2rem 0 2rem calc(50% - var(--caixa) / 2)}
+/* Contorno com outline, não border: a borda roubaria 2 px e encolheria o diagrama que cabe na largura natural. */
+.diagrama-quadro{position:relative;display:grid;place-items:center;min-height:min(var(--h),70vh,max(var(--caixa) * var(--r) * 1.5,6.5rem));overflow:hidden;background:var(--pele-bg);outline:1px solid var(--borda);border-radius:8px}
+.diagrama-quadro>svg{display:block}
+.diagrama figcaption{display:flex;flex-wrap:wrap;gap:.25rem 1rem;justify-content:space-between;margin-top:.4rem;font-size:.85rem;color:var(--suave)}
+.diagrama figcaption>span:first-child{color:var(--texto)}
+.diagrama-dica{display:none;flex-basis:100%}
+.diagrama.com-zoom .diagrama-dica{display:block}
+/* Com zoom, o quadro tem a altura natural do desenho (até 70% da janela): no tamanho natural o desenho
+   cabe inteiro na altura e só se move para os lados. Nunca fica menor que os três botões. */
+.diagrama.com-zoom .diagrama-quadro{min-height:max(min(var(--h),70vh),6.5rem)}
+.diagrama-erro{margin:2rem 0;padding:1rem;border:2px solid #b3262d;border-radius:8px;background:color-mix(in srgb,#b3262d 10%,var(--fundo))}
+.diagrama-erro figcaption{font-weight:700;margin-bottom:.5rem;white-space:pre-wrap}
+
+.indice{list-style:none;padding:0;display:grid;gap:1rem}
+.indice li{margin:0;padding:1rem 1.25rem;background:var(--superficie);border:1px solid var(--borda);border-radius:8px}
+.indice a{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:1.25rem}
+.indice p{margin:.4rem 0 0;color:var(--suave)}
+
+@media (max-width:40rem){.marca{display:none}h1{font-size:1.9rem}}
+
+@media print{
+  /* Tema claro do Corredor Aceso para diagramas Pele: documentos, README e GitHub no modo claro.
+   Papel quente, tinta da noite, uma única luz âmbar para o que importa.
+   O render.mjs injeta este arquivo dentro de cada SVG. Contraste medido por tema/contraste.mjs. */
+:root[data-tema] .pele {
+  --pele-bg: #fbf7ef;
+  --pele-fg: #0b1220;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #fbf7ef;
+  --pele-muted: #545d6e;
+  --pele-line: #3a4255;
+  --pele-surface: #f3ecdf;
+  --pele-surface-alt: #e9dfcc;
+  --pele-border: #968767;
+  --pele-accent: #9a5800;
+  --pele-critical: #b3262d;
+  --pele-error: #b3262d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #4a566e;
+  --pele-series-2: #9a5800;
+  --pele-series-3: #1d7350;
+  --pele-series-4: #b3262d;
+  --pele-series-5: #2d5f8b;
+  --pele-series-6: #6a4c93;
+  --pele-series-7: #2b7176;
+  --pele-series-8: #7a5c2e;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #b86e00;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #fbe3e3;
+  --ca-alerta-borda: #b3262d;
+  --ca-cinza: #ecebe8;
+  --ca-cinza-borda: #6b7385;
+  --ca-cinza-texto: #464e5e;
+  --ca-verde: #dff1e8;
+  --ca-verde-borda: #1d7350;
+}
+
+  :root[data-tema]{--fundo:#fff;--texto:#0b1220;--suave:#545d6e;--borda:#ccc;--superficie:#f6f6f6;--zebra:#f6f6f6;--link:#0b1220;--marca:#9a5800;color-scheme:light}
+  html{font-size:10.5pt}
+  .topo,.sumario,.ancora,.pele-zoom,.diagrama-dica,.diagrama-links{display:none!important}
+  main{max-width:none;padding:0}
+  h2{break-before:auto;break-after:avoid}
+  h3,h4{break-after:avoid}
+  .diagrama{width:100%;margin:1rem 0;break-inside:avoid}
+  .diagrama-quadro{min-height:0;outline:0;background:none}
+  .diagrama-quadro>svg{width:100%!important;max-width:min(100%,var(--w))!important;height:auto!important}
+  .tabela{overflow:visible;border:0}
+  table{font-size:9pt}
+  th{white-space:normal}
+  tr{break-inside:avoid}
+  pre{white-space:pre-wrap;overflow-wrap:anywhere;overflow:visible}
+  a{text-decoration:none}
+}

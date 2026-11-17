@@ -1,0 +1,12 @@
+[Unit]
+Description=Corredor Aceso - previsão de dia crítico (modelo de ML)
+After=corredor-api.service
+OnFailure=corredor-alerta@%n.service
+
+[Service]
+Type=oneshot
+User=corredor
+Environment=CORREDOR_API_URL=http://127.0.0.1:5000
+WorkingDirectory=/opt/corredor/repo/ml
+ExecStart=/opt/corredor/venv/bin/python prever_hoje.py
+SyslogIdentifier=corredor-ml

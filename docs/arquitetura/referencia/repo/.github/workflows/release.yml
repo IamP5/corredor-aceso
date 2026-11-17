@@ -1,0 +1,108 @@
+name: release
+
+# Tag vX.Y.Z na main: testa, empacota, publica a GitHub Release e implanta na VM
+# do Azure só depois que uma pessoa aprova o ambiente `producao`. Sem aprovação, ou
+# sem a variável VM_HOST, a tag publica a release e não implanta nada.
+# Execução manual com uma tag já publicada: reimplanta essa versão (rollback pelo GitHub).
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag já publicada para reimplantar, por exemplo v0.2.0'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  publicar:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: corredor_ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CORREDOR_BD_TESTE: postgresql://postgres:postgres@localhost:5432/corredor_ci
+      ConnectionStrings__Motor: Host=localhost;Port=5432;Database=corredor_ci;Username=postgres;Password=postgres
+      ConnectionStrings__Cadastro: Host=localhost;Port=5432;Database=corredor_ci;Username=postgres;Password=postgres
+      ConnectionStrings__Guarda: Host=localhost;Port=5432;Database=corredor_ci;Username=postgres;Password=postgres
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: A tag tem o formato certo e aponta para um commit da main
+        run: |
+          [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]] || { echo "tag inválida: $TAG"; exit 1; }
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "a tag $TAG não está na main"; exit 1; }
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+      - run: npm run check:migracoes
+      - run: npm run check:api
+      - name: Gera as migrações do EF Core em SQL idempotente e monta os pacotes x64 e arm64
+        run: bash tools/empacotar.sh "$TAG" linux-x64 linux-arm64
+      - name: Confere o conteúdo dos dois pacotes
+        run: |
+          bash tools/conferir-pacote.sh dist/corredor-linux-x64.tar.gz "$TAG"
+          bash tools/conferir-pacote.sh dist/corredor-linux-arm64.tar.gz "$TAG"
+      - name: Publica a GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          opcoes=(--title "$TAG" --generate-notes --verify-tag)
+          if [[ $TAG == *-* ]]; then opcoes+=(--prerelease); fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/corredor-linux-*.tar.gz dist/SHA256SUMS --clobber
+          else
+            gh release create "$TAG" dist/corredor-linux-*.tar.gz dist/SHA256SUMS "${opcoes[@]}"
+          fi
+
+  implantar:
+    needs: publicar
+    # Só roda se a VM da nuvem existe (variável VM_HOST) e a publicação não falhou.
+    if: ${{ !cancelled() && vars.VM_HOST != '' && (needs.publicar.result == 'success' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-24.04
+    environment:
+      name: producao
+      url: http://${{ vars.VM_HOST }}/api/versao
+    concurrency:
+      group: producao
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - name: A release existe
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release view "$TAG" --json tagName,publishedAt
+      - name: Implanta na VM (o deploy.sh volta sozinho se a versão não ficar saudável)
+        uses: ./.github/actions/ssh-vm
+        with:
+          host: ${{ vars.VM_HOST }}
+          hosts-conhecidos: ${{ vars.VM_HOSTS_CONHECIDOS }}
+          chave: ${{ secrets.VM_CHAVE_DEPLOY }}
+          comando: deploy ${{ env.TAG }}
+      - name: Confere de fora a versão no ar
+        env:
+          VM_HOST: ${{ vars.VM_HOST }}
+        run: |
+          resposta="$(curl -fsS --max-time 10 "https://$VM_HOST/api/versao" || curl -fsS --max-time 10 "http://$VM_HOST/api/versao")"
+          echo "$resposta"
+          grep -q "\"versao\":\"${TAG#v}\"" <<<"$resposta"
+          echo "Versão ${TAG} no ar em ${VM_HOST}: \`${resposta}\`" >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,374 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Pele: timeline (14)</title>
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:400;src:url(../../tema/fontes/atkinson-hyperlegible-latin-400-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:700;src:url(../../tema/fontes/atkinson-hyperlegible-latin-700-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible Mono";src:url(../../tema/fontes/atkinson-hyperlegible-mono-latin-400-normal.woff2)}
+@font-face{font-family:Fraunces;font-weight:600;src:url(../../tema/fontes/fraunces-latin-600-normal.woff2)}
+body{margin:0;font:15px "Atkinson Hyperlegible",sans-serif;background:#efe9de;color:#0b1220}
+header{position:sticky;top:0;z-index:2;background:#0b1220;color:#f3ecdf;padding:10px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font:600 20px Fraunces,serif;margin:0}header a{color:#ffb13b}
+main{padding:16px 20px;display:grid;gap:16px}
+.cartao{background:#fff;border:1px solid #d8cfbf;border-radius:8px;padding:10px 14px}
+.cartao h2{font-size:15px;margin:0 0 8px}.cartao small{font-weight:400;color:#545d6e}
+.lado{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,2.2fr);gap:14px;align-items:start}
+pre{margin:0;font:12px/1.45 "Atkinson Hyperlegible Mono",monospace;background:#f6f2ea;padding:8px;border-radius:6px;overflow:auto;max-height:520px}
+.desenho{overflow:auto;padding:12px;border-radius:6px}
+.tema-claro .desenho{background:#fbf7ef}.tema-escuro .desenho{background:#0b1220}
+.desenho .erro{color:#b3262d;white-space:pre-wrap;font:12px monospace}.medida{font-size:12px;color:#545d6e}
+/* Tema claro do Corredor Aceso para diagramas Pele: documentos, README e GitHub no modo claro.
+   Papel quente, tinta da noite, uma única luz âmbar para o que importa.
+   O render.mjs injeta este arquivo dentro de cada SVG. Contraste medido por tema/contraste.mjs. */
+.tema-claro .pele {
+  --pele-bg: #fbf7ef;
+  --pele-fg: #0b1220;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #fbf7ef;
+  --pele-muted: #545d6e;
+  --pele-line: #3a4255;
+  --pele-surface: #f3ecdf;
+  --pele-surface-alt: #e9dfcc;
+  --pele-border: #968767;
+  --pele-accent: #9a5800;
+  --pele-critical: #b3262d;
+  --pele-error: #b3262d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #4a566e;
+  --pele-series-2: #9a5800;
+  --pele-series-3: #1d7350;
+  --pele-series-4: #b3262d;
+  --pele-series-5: #2d5f8b;
+  --pele-series-6: #6a4c93;
+  --pele-series-7: #2b7176;
+  --pele-series-8: #7a5c2e;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #b86e00;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #fbe3e3;
+  --ca-alerta-borda: #b3262d;
+  --ca-cinza: #ecebe8;
+  --ca-cinza-borda: #6b7385;
+  --ca-cinza-texto: #464e5e;
+  --ca-verde: #dff1e8;
+  --ca-verde-borda: #1d7350;
+}
+/* Tema escuro do Corredor Aceso para diagramas Pele: pitch, vídeo e GitHub no modo escuro.
+   A casa às 3 da manhã: fundo noite, texto papel, a lâmpada âmbar como única luz quente.
+   Cores de pitch/corredor-aceso/video/src/theme.ts. Contraste medido por tema/contraste.mjs. */
+.tema-escuro .pele {
+  --pele-bg: #0b1220;
+  --pele-fg: #f3ecdf;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #f3ecdf;
+  --pele-muted: #a3acbd;
+  --pele-line: #b8b0a2;
+  --pele-surface: #17223a;
+  --pele-surface-alt: #111a2d;
+  --pele-border: #56688c;
+  --pele-accent: #ffb13b;
+  --pele-critical: #e5484d;
+  --pele-error: #e5484d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #8b95a7;
+  --pele-series-2: #ffb13b;
+  --pele-series-3: #3dbe8b;
+  --pele-series-4: #e5484d;
+  --pele-series-5: #7fa7d9;
+  --pele-series-6: #c4a6e6;
+  --pele-series-7: #5cc8c8;
+  --pele-series-8: #d9c3a0;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #ffd08a;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #3a161c;
+  --ca-alerta-borda: #e5484d;
+  --ca-cinza: #1a2233;
+  --ca-cinza-borda: #8b95a7;
+  --ca-cinza-texto: #a3acbd;
+  --ca-verde: #0f2a22;
+  --ca-verde-borda: #3dbe8b;
+  /* Brilho da lâmpada no topo do fundo (só no tema escuro). */
+  --ca-brilho: #ffb13b;
+  --ca-brilho-opacidade: 0.09;
+}
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-claro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-claro .pele .luz text, .tema-claro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-claro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-claro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-claro .pele .cinza text, .tema-claro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-claro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-claro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-claro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-claro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-claro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-claro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-claro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-claro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-escuro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-escuro .pele .luz text, .tema-escuro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-escuro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-escuro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-escuro .pele .cinza text, .tema-escuro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-escuro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-escuro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-escuro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-escuro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-escuro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-escuro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-escuro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-escuro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+
+</style>
+<body class="tema-claro">
+<header><h1>Pele: timeline (14)</h1><a href="../../galeria/index.html">índice</a>
+<label>tema <select id="tema"><option value="tema-claro">claro do projeto</option><option value="tema-escuro">escuro do projeto</option><option value="padrao">padrão do Pele</option></select></label>
+<label><input type="checkbox" id="largura" checked> largura do README (820 px)</label>
+<span>exemplos de pele.run/examples</span></header>
+<main><section class="cartao" id="d0">
+<h2>01-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>timeline
+    title History of Social Media Platform
+    2002 : LinkedIn
+    2004 : Facebook
+         : Google
+    2005 : YouTube
+    2006 : Twitter
+</pre><div class="desenho" data-i="0"></div></div></section>
+<section class="cartao" id="d1">
+<h2>02-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>timeline
+    title History of Social Media Platform
+    2002 : LinkedIn
+    2004 : Facebook : Google
+    2005 : YouTube
+    2006 : Twitter
+</pre><div class="desenho" data-i="1"></div></div></section>
+<section class="cartao" id="d2">
+<h2>03-timeline-of-industrial-revolution.mmd</h2>
+<div class="lado"><pre>timeline
+    title Timeline of Industrial Revolution
+    section 17th-20th century
+        Industry 1.0 : Machinery, Water power, Steam &lt;br&gt;power
+        Industry 2.0 : Electricity, Internal combustion engine, Mass production
+        Industry 3.0 : Electronics, Computers, Automation
+    section 21st century
+        Industry 4.0 : Internet, Robotics, Internet of Things
+        Industry 5.0 : Artificial intelligence, Big data, 3D printing
+</pre><div class="desenho" data-i="2"></div></div></section>
+<section class="cartao" id="d3">
+<h2>04-england-s-history-timeline.mmd</h2>
+<div class="lado"><pre>timeline
+        title England's History Timeline
+        section Stone Age
+          7600 BC : Britain's oldest known house was built in Orkney, Scotland
+          6000 BC : Sea levels rise and Britain becomes an island.&lt;br&gt; The people who live here are hunter-gatherers.
+        section Bronze Age
+          2300 BC : People arrive from Europe and settle in Britain. &lt;br&gt;They bring farming and metalworking.
+                  : New styles of pottery and ways of burying the dead appear.
+          2200 BC : The last major building works are completed at Stonehenge.&lt;br&gt; People now bury their dead in stone circles.
+                  : The first metal objects are made in Britain.Some other nice things happen. it is a good time to be alive.
+</pre><div class="desenho" data-i="3"></div></div></section>
+<section class="cartao" id="d4">
+<h2>05-mermaidchart-2023-timeline.mmd</h2>
+<div class="lado"><pre>timeline
+        title MermaidChart 2023 Timeline
+        section 2023 Q1 &lt;br&gt; Release Personal Tier
+          Bullet 1 : sub-point 1a : sub-point 1b
+               : sub-point 1c
+          Bullet 2 : sub-point 2a : sub-point 2b
+        section 2023 Q2 &lt;br&gt; Release XYZ Tier
+          Bullet 3 : sub-point &lt;br&gt; 3a : sub-point 3b
+               : sub-point 3c
+          Bullet 4 : sub-point 4a : sub-point 4b
+</pre><div class="desenho" data-i="4"></div></div></section>
+<section class="cartao" id="d5">
+<h2>06-mermaidchart-2023-timeline.mmd</h2>
+<div class="lado"><pre>timeline TD
+  title MermaidChart 2023 Timeline
+    section 2023 Q1 &lt;br&gt; Release Personal Tier
+      Bullet 1 : sub-point 1a : sub-point 1b
+      Bullet 2 : sub-point 2a : sub-point 2b
+    section 2023 Q2 &lt;br&gt; Release XYZ Tier
+      Bullet 3 : sub-point &lt;br&gt; 3a : sub-point 3b
+      Bullet 4 : sub-point 4a : sub-point 4b
+</pre><div class="desenho" data-i="5"></div></div></section>
+<section class="cartao" id="d6">
+<h2>07-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>    timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+</pre><div class="desenho" data-i="6"></div></div></section>
+<section class="cartao" id="d7">
+<h2>08-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>---
+config:
+  logLevel: 'debug'
+  theme: 'base'
+  timeline:
+    disableMulticolor: true
+---
+    timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+</pre><div class="desenho" data-i="7"></div></div></section>
+<section class="cartao" id="d8">
+<h2>09-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>---
+config:
+  logLevel: 'debug'
+  theme: 'default'
+  themeVariables:
+    cScale0: '#ff0000'
+    cScaleLabel0: '#ffffff'
+    cScale1: '#00ff00'
+    cScale2: '#0000ff'
+    cScaleLabel2: '#ffffff'
+---
+       timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+          2007 : Tumblr
+          2008 : Instagram
+          2010 : Pinterest
+</pre><div class="desenho" data-i="8"></div></div></section>
+<section class="cartao" id="d9">
+<h2>10-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>---
+config:
+  logLevel: 'debug'
+  theme: 'base'
+---
+    timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+          2007 : Tumblr
+          2008 : Instagram
+          2010 : Pinterest
+</pre><div class="desenho" data-i="9"></div></div></section>
+<section class="cartao" id="d10">
+<h2>11-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>---
+config:
+  logLevel: 'debug'
+  theme: 'forest'
+---
+    timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+          2007 : Tumblr
+          2008 : Instagram
+          2010 : Pinterest
+</pre><div class="desenho" data-i="10"></div></div></section>
+<section class="cartao" id="d11">
+<h2>12-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>---
+config:
+  logLevel: 'debug'
+  theme: 'dark'
+---
+    timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+          2007 : Tumblr
+          2008 : Instagram
+          2010 : Pinterest
+</pre><div class="desenho" data-i="11"></div></div></section>
+<section class="cartao" id="d12">
+<h2>13-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>---
+config:
+  logLevel: 'debug'
+  theme: 'default'
+---
+    timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+          2007 : Tumblr
+          2008 : Instagram
+          2010 : Pinterest
+</pre><div class="desenho" data-i="12"></div></div></section>
+<section class="cartao" id="d13">
+<h2>14-history-of-social-media-platform.mmd</h2>
+<div class="lado"><pre>---
+config:
+  logLevel: 'debug'
+  theme: 'neutral'
+---
+    timeline
+        title History of Social Media Platform
+          2002 : LinkedIn
+          2004 : Facebook : Google
+          2005 : YouTube
+          2006 : Twitter
+          2007 : Tumblr
+          2008 : Instagram
+          2010 : Pinterest
+</pre><div class="desenho" data-i="13"></div></div></section></main>
+<script src="../../node_modules/pele/dist/pele.global.js"></script>
+<script>
+const fontes = ["timeline\n    title History of Social Media Platform\n    2002 : LinkedIn\n    2004 : Facebook\n         : Google\n    2005 : YouTube\n    2006 : Twitter\n","timeline\n    title History of Social Media Platform\n    2002 : LinkedIn\n    2004 : Facebook : Google\n    2005 : YouTube\n    2006 : Twitter\n","timeline\n    title Timeline of Industrial Revolution\n    section 17th-20th century\n        Industry 1.0 : Machinery, Water power, Steam <br>power\n        Industry 2.0 : Electricity, Internal combustion engine, Mass production\n        Industry 3.0 : Electronics, Computers, Automation\n    section 21st century\n        Industry 4.0 : Internet, Robotics, Internet of Things\n        Industry 5.0 : Artificial intelligence, Big data, 3D printing\n","timeline\n        title England's History Timeline\n        section Stone Age\n          7600 BC : Britain's oldest known house was built in Orkney, Scotland\n          6000 BC : Sea levels rise and Britain becomes an island.<br> The people who live here are hunter-gatherers.\n        section Bronze Age\n          2300 BC : People arrive from Europe and settle in Britain. <br>They bring farming and metalworking.\n                  : New styles of pottery and ways of burying the dead appear.\n          2200 BC : The last major building works are completed at Stonehenge.<br> People now bury their dead in stone circles.\n                  : The first metal objects are made in Britain.Some other nice things happen. it is a good time to be alive.\n","timeline\n        title MermaidChart 2023 Timeline\n        section 2023 Q1 <br> Release Personal Tier\n          Bullet 1 : sub-point 1a : sub-point 1b\n               : sub-point 1c\n          Bullet 2 : sub-point 2a : sub-point 2b\n        section 2023 Q2 <br> Release XYZ Tier\n          Bullet 3 : sub-point <br> 3a : sub-point 3b\n               : sub-point 3c\n          Bullet 4 : sub-point 4a : sub-point 4b\n","timeline TD\n  title MermaidChart 2023 Timeline\n    section 2023 Q1 <br> Release Personal Tier\n      Bullet 1 : sub-point 1a : sub-point 1b\n      Bullet 2 : sub-point 2a : sub-point 2b\n    section 2023 Q2 <br> Release XYZ Tier\n      Bullet 3 : sub-point <br> 3a : sub-point 3b\n      Bullet 4 : sub-point 4a : sub-point 4b\n","    timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n","---\nconfig:\n  logLevel: 'debug'\n  theme: 'base'\n  timeline:\n    disableMulticolor: true\n---\n    timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n","---\nconfig:\n  logLevel: 'debug'\n  theme: 'default'\n  themeVariables:\n    cScale0: '#ff0000'\n    cScaleLabel0: '#ffffff'\n    cScale1: '#00ff00'\n    cScale2: '#0000ff'\n    cScaleLabel2: '#ffffff'\n---\n       timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n          2007 : Tumblr\n          2008 : Instagram\n          2010 : Pinterest\n","---\nconfig:\n  logLevel: 'debug'\n  theme: 'base'\n---\n    timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n          2007 : Tumblr\n          2008 : Instagram\n          2010 : Pinterest\n","---\nconfig:\n  logLevel: 'debug'\n  theme: 'forest'\n---\n    timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n          2007 : Tumblr\n          2008 : Instagram\n          2010 : Pinterest\n","---\nconfig:\n  logLevel: 'debug'\n  theme: 'dark'\n---\n    timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n          2007 : Tumblr\n          2008 : Instagram\n          2010 : Pinterest\n","---\nconfig:\n  logLevel: 'debug'\n  theme: 'default'\n---\n    timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n          2007 : Tumblr\n          2008 : Instagram\n          2010 : Pinterest\n","---\nconfig:\n  logLevel: 'debug'\n  theme: 'neutral'\n---\n    timeline\n        title History of Social Media Platform\n          2002 : LinkedIn\n          2004 : Facebook : Google\n          2005 : YouTube\n          2006 : Twitter\n          2007 : Tumblr\n          2008 : Instagram\n          2010 : Pinterest\n"];
+const medidas = ["Node, tema padrão: 800x218","Node, tema padrão: 800x218","Node, tema padrão: 996x254","Node, tema padrão: 800x404","Node, tema padrão: 800x344","Node, tema padrão: 528x624","Node, tema padrão: 800x218","Node, tema padrão: 800x218","Node, tema padrão: 1388x218","Node, tema padrão: 1388x218","Node, tema padrão: 1388x218","Node, tema padrão: 1388x218","Node, tema padrão: 1388x218","Node, tema padrão: 1388x218"];
+function desenhar() {
+  const t = document.getElementById('tema').value, larg = document.getElementById('largura').checked;
+  document.body.className = t === 'padrao' ? '' : t;
+  document.querySelectorAll('.desenho').forEach((el) => {
+    const i = +el.dataset.i;
+    const op = { idPrefix: 'g' + i };
+    if (t !== 'padrao') Object.assign(op, { fontFamily: '"Atkinson Hyperlegible", sans-serif', fontFamilyMono: '"Atkinson Hyperlegible Mono", monospace' });
+    if (larg) Object.assign(op, { maxWidth: 820, directionBreakpoint: 821 });
+    try {
+      const r = pele.render(fontes[i], op);
+      el.innerHTML = r.svg + '<div class="medida">navegador: ' + Math.round(r.width) + 'x' + Math.round(r.height) + (medidas[i] ? ' · ' + medidas[i] : '') + '</div>';
+    } catch (e) { el.innerHTML = '<div class="erro"></div>'; el.firstChild.textContent = e.message; }
+  });
+}
+document.getElementById('tema').onchange = desenhar;
+document.getElementById('largura').onchange = desenhar;
+Promise.all(['400 16px "Atkinson Hyperlegible"', '700 16px "Atkinson Hyperlegible"', '16px "Atkinson Hyperlegible Mono"', '600 16px Fraunces'].map((f) => document.fonts.load(f))).then(desenhar, desenhar);
+</script></html>

@@ -1,0 +1,13 @@
+gitGraph
+  commit id: "contratos"
+  branch motor
+  commit id: "regras"
+  checkout main
+  branch app
+  commit id: "telas"
+  checkout main
+  merge motor
+  merge app tag: "v0.1-fatia"
+  commit id: "bridge Wokwi" tag: "v1.0-demo"
+  commit id: "bug no radar" type: REVERSE
+  commit id: "revert" tag: "v1.0.1"

@@ -1,0 +1,23 @@
+gantt
+  title Plano até a entrega
+  dateFormat YYYY-MM-DD HH:mm
+  axisFormat %d/%m %Hh
+  todayMarker off
+  section Base
+    Contratos e solução .NET vazia     :crit, done, base, 2026-11-16 18:00, 5h
+  section Motor
+    Fatia simulador, Motor, radar      :crit, fatia, 2026-11-17 08:00, 12h
+    Estado cinza e teste de falha      :crit, 2026-11-18 08:00, 10h
+  section Cadastro e Guarda
+    Cadastro com migrações             :2026-11-17 08:00, 12h
+    MotorDeParsing e regras de PII     :2026-11-17 08:00, 12h
+    Mensagem bloqueada e painel        :2026-11-18 08:00, 10h
+  section App, ML, infra, IoT
+    Telas com dados falsos             :2026-11-17 08:00, 12h
+    Notebook de ML                     :2026-11-17 08:00, 12h
+    01-rede.sh e 02-app.sh             :2026-11-17 08:00, 12h
+    Nó Wokwi pela bridge, app na API   :crit, 2026-11-18 08:00, 12h
+    Azure Boards                       :2026-11-18 14:00, 6h
+  section Entrega
+    Vídeos                             :crit, 2026-11-19 08:00, 6h
+    Entrega até 23h55                  :milestone, 2026-11-19 23:55, 0h

@@ -1,0 +1,15 @@
+block
+  columns 5
+  push(["push ou PR"]):5
+  api["api"] app["app"] ml["ml"] infra["infra"] diag["diagramas"]
+  ok{"todos verdes?"}:5
+  push --> api
+  push --> app
+  push --> ml
+  push --> infra
+  push --> diag
+  api --> ok
+  app --> ok
+  ml --> ok
+  infra --> ok
+  diag --> ok

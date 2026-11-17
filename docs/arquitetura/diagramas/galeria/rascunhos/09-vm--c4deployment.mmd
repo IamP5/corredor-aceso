@@ -1,0 +1,20 @@
+C4Deployment
+  title VM da UBS
+  Deployment_Node(fora, "Fora da VM", "internet") {
+    Container(app, "App da ACS", "Expo", "celular da ACS")
+    Container(pub, "Broker público", "MQTT", "só casaToken")
+  }
+  Deployment_Node(vm, "corredor-ubs", "Ubuntu 24.04, systemd") {
+    Container(nginx, "nginx", "443", "api.corredor.local e painel.corredor.local")
+    Container(api, "corredor-api.service", ".NET 8, porta 5000", "Motor, Cadastro, Guarda")
+    Container(mq, "mosquitto", "1883", "bridge do broker público")
+    ContainerDb(pg, "postgresql", "5432", "schemas motor, cadastro, guarda")
+    Container(mon, "corredor-monitor.service", "Bash, Restart=always", "CPU, disco, memória")
+    Container(job, "corredor-previsao.timer", "Python, 05h", "PUT /api/dias-criticos")
+  }
+  Rel(app, nginx, "HTTPS")
+  Rel(pub, mq, "bridge")
+  Rel(nginx, api, "/api")
+  Rel(mq, api, "eventos")
+  Rel(api, pg, "EF Core")
+  Rel(job, nginx, "PUT")

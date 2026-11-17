@@ -1,0 +1,5 @@
+motor.casa_monitorada|800
+motor.evento_sensor|261600
+cadastro.idoso|800
+cadastro.aviso_ao_vizinho|3000
+guarda.evento_de_seguranca|3000

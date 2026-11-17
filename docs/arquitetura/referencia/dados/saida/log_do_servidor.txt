@@ -1,0 +1,6 @@
+--- log_error_verbosity padrao:
+2026-11-17 03:17:39.350 UTC [548] ERROR:  new row for relation "idoso" violates check constraint "ck_idoso_sem_cpf_em_claro"
+2026-11-17 03:17:39.350 UTC [548] DETAIL:  Failing row contains (da179a6a-469f-442d-93e3-d08395773a23, 3, Dirce Aroeira, doc 123.456.789-00, null, Sozinho, f, Rua do Sabia, 30 - Vila Exemplo, null).
+2026-11-17 03:17:39.350 UTC [548] STATEMENT:  INSERT INTO cadastro.idoso (id, microarea_id, nome, perfil_contato, perfil_eletrodependente, casa_endereco, condicoes) VALUES (gen_random_uuid(), 3, 'Dirce Aroeira', 'Sozinho', false, 'Rua do Sabia, 30 - Vila Exemplo', 'doc 123.456.789-00')
+--- log_error_verbosity = terse e log_min_error_statement = panic:
+2026-11-17 03:17:41.656 UTC [562] ERROR:  new row for relation "idoso" violates check constraint "ck_idoso_sem_cpf_em_claro"

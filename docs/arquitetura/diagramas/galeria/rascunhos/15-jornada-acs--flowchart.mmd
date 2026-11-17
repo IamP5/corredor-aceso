@@ -1,0 +1,9 @@
+flowchart LR
+  entrada["Entrada"] --> dia["Dia crítico"] --> radar["Radar"]:::luz
+  radar --> detalhe["Detalhe da casa"]
+  detalhe -- registra visita --> radar
+  detalhe -- mensagem ao grupo --> bloqueada["Mensagem bloqueada"]:::alerta
+  bloqueada --> detalhe
+  radar -- fim do turno --> fim["Encerramento"]
+  classDef luz stroke-width:2px
+  classDef alerta stroke-width:2px

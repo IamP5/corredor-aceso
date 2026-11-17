@@ -1,0 +1,27 @@
+flowchart LR
+  inicio(["Avaliar(casa, historico, turno, agora)"])
+  r1{"R1 eletrodependente<br/>sem energia?"}
+  r2{"R2 sem pacote<br/>em 30 min?"}
+  r3{"R3 calor, com<br/>turno aberto?"}
+  r4{"R4 sem sinal na<br/>janela vencida?"}
+  vida{"sinal de vida na<br/>janela atual?"}
+  verm1["Vermelho<br/>EnergiaEletrodependente"]:::alerta
+  cinza["Cinza<br/>SemHeartbeat"]:::cinza
+  verm2["Vermelho<br/>CalorInterno"]:::alerta
+  verm3["Vermelho<br/>SemMovimentoNaJanela"]:::alerta
+  verde["Verde"]:::verde
+  aguarda["Aguardando"]
+  inicio --> r1
+  r1 -- sim --> verm1
+  r1 -- não --> r2
+  r2 -- sim --> cinza
+  r2 -- não --> r3
+  r3 -- sim --> verm2
+  r3 -- não --> r4
+  r4 -- sim --> verm3
+  r4 -- não --> vida
+  vida -- "sim, turno aberto" --> verde
+  vida -- não --> aguarda
+  classDef alerta stroke-width:2px
+  classDef cinza stroke-width:1px
+  classDef verde stroke-width:2px

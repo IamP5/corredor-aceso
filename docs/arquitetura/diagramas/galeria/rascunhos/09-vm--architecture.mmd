@@ -1,0 +1,22 @@
+architecture-beta
+  service app(cloud)[App da ACS]
+  service pub(internet)[Broker público]
+  service llm(cloud)[LLM]
+  group vm(server)[VM corredor-ubs]
+    service nginx(internet)[nginx 443] in vm
+    service api(server)[corredor-api.service 5000] in vm
+    service painel(disk)[painel estático] in vm
+    service mq(server)[mosquitto 1883] in vm
+    service pg(database)[postgresql 5432] in vm
+    service mon(disk)[corredor-monitor.service] in vm
+    service job(disk)[corredor-previsao.timer 05h] in vm
+    service log(disk)[/var/log/corredor] in vm
+  app:B --> T:nginx
+  nginx:B --> T:api
+  nginx:R --> L:painel
+  pub:B --> T:mq
+  mq:R --> L:api
+  api:B --> T:pg
+  job:L --> R:nginx
+  api:R --> L:llm
+  mon:B --> T:log

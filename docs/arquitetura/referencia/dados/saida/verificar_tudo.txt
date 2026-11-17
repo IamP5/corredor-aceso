@@ -1,0 +1,15 @@
+catalogos iguais: 279 linhas, 88 comentarios de classificacao
+migracoes: modelo e migracoes conferem nos 3 contextos; SQL idempotente em saida/migracoes/
+migracoes: 2 rodadas como corredor_<modulo>_migra, depois de pg_dump; catalogo igual ao DDL (279 linhas); historico em cadastro.__EFMigrationsHistory, guarda.__EFMigrationsHistory, motor.__EFMigrationsHistory
+migracoes: script com erro no fim nao deixou nenhuma tabela em motor
+migracoes: sem --no-transactions, o mesmo erro deixou 5 tabelas em motor, porque o COMMIT do script fecha a transacao do psql
+migracoes: conferencia aditiva aceita os 3 scripts gerados e recusa DROP COLUMN
+86 conferencias de SQL passaram
+13 conferencias de papeis passaram
+32 conferencias do EF Core passaram, conectadas como corredor_motor, corredor_cadastro e corredor_guarda
+15 conferencias do SQLite passaram
+casas.json confere com o gerador
+40 casas: {'Sozinho': 30, 'Acamado': 4, 'Coabitado': 6}, 3 eletrodependentes, 26 com vizinho, 30 com AvisarVizinho, 8 com AvisarFamilia
+57 arquivos lidos, 0 achado(s) fora da lista de permitidos
+varredura: falha com CPF valido sem pontuacao, telefone com DDD 11 e e-mail real plantados
+04-modelo-de-dados.md confere com a fonte e com os arquivos conferidos (2093 linhas)

@@ -1,0 +1,8 @@
+# Gerado por infra/02-app.sh. Não edite na VM.
+server {
+  listen 80 default_server;
+  server_name api.${CORREDOR_DOMINIO_INTERNO} painel.${CORREDOR_DOMINIO_INTERNO} _;
+  server_tokens off;
+  location /.well-known/acme-challenge/ { root /var/www/certbot; }
+  include snippets/corredor-rotas.conf;
+}

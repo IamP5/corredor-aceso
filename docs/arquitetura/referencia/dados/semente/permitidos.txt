@@ -1,0 +1,5 @@
+# Literais de exemplo que podem aparecer no repositorio. Cada linha tem um motivo no README de dados.
+# CPF do exemplo do professor de Cyber. Os digitos verificadores nao fecham, entao nao e CPF de ninguem.
+123.456.789-00
+# O mesmo exemplo com os digitos verificadores certos, para o teste do validador. E o exemplo de livro.
+123.456.789-09

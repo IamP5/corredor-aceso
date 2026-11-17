@@ -1,0 +1,11 @@
+eventmodeling
+
+tf 01 ui TelaDeMensagem
+tf 02 cmd VerificarMensagem { canal: GrupoDoBairro }
+tf 03 evt Guarda.SaidaBloqueada { tipos: Saude, MoraSozinho; severidade: 4 }
+tf 04 evt Cadastro.MensagemBloqueada { texto mascarado }
+tf 05 pcr Tradutor
+tf 06 cmd AnexarMensagem
+tf 07 evt Guarda.BloqueioTraduzido
+tf 08 rmo Farol ->> 03 ->> 07
+tf 09 ui PainelRiscoCidadao

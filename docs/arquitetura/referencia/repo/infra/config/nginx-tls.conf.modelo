@@ -1,0 +1,12 @@
+# Gerado por infra/02-app.sh só depois que o certificado existe.
+# Sem redirecionamento de HTTP para HTTPS e sem HSTS: o HTTP no mesmo nome é o
+# caminho estável, e um app configurado com http:// continua funcionando.
+server {
+  listen 443 ssl;
+  server_name ${CORREDOR_DOMINIO_PUBLICO};
+  server_tokens off;
+  ssl_certificate /etc/letsencrypt/live/${CORREDOR_DOMINIO_PUBLICO}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${CORREDOR_DOMINIO_PUBLICO}/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  include snippets/corredor-rotas.conf;
+}

@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquitetura técnica do Corredor Aceso · Corredor Aceso</title>
+<script>(function(){var t;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='claro'&&t!=='escuro')t=matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro';document.documentElement.setAttribute('data-tema',t)})()</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="topo">
+<a class="marca" href="index.html">Corredor Aceso · Arquitetura</a>
+<nav class="paginas" aria-label="Páginas"><a href="arquitetura.html" aria-current="page">Arquitetura técnica</a><a href="02-event-storming.html">Event storming</a><a href="03-modelo-de-dominio.html">Modelo de domínio</a><a href="04-modelo-de-dados.html">Modelo de dados</a><a href="05-infra-e-entrega.html">Infraestrutura, CI/CD, releases e repositório</a><a href="guia.html">Guia de diagramas</a></nav>
+<button type="button" class="tema-botao">Tema</button>
+</header>
+<main>
+<h1>Arquitetura técnica do Corredor Aceso</h1>
+<nav class="sumario" aria-label="Sumário"><details open><summary>Sumário</summary><ol><li><a href="#diagrama">Diagrama</a></li><li><a href="#quatro-decisões-que-mudam-o-desenho-da-descoberta">Quatro decisões que mudam o desenho da descoberta</a></li><li><a href="#partes-e-donos">Partes e donos</a></li><li><a href="#contratos">Contratos</a><ol><li><a href="#mqtt">MQTT</a></li><li><a href="#rotas-http">Rotas HTTP</a></li><li><a href="#interface-entre-cadastro-e-motor">Interface entre Cadastro e Motor</a></li><li><a href="#estado-da-casa">Estado da casa</a></li></ol></li><li><a href="#módulo-guarda-cyber">Módulo Guarda (Cyber)</a><ol><li><a href="#evidências-para-a-auditoria">Evidências para a auditoria</a></li><li><a href="#entrega">Entrega</a></li></ol></li><li><a href="#infra-linux">Infra Linux</a></li><li><a href="#modelo-de-dia-crítico-ml">Modelo de dia crítico (ML)</a></li><li><a href="#app-da-acs-mobile">App da ACS (Mobile)</a></li><li><a href="#onde-cada-disciplina-pontua">Onde cada disciplina pontua</a></li><li><a href="#ordem-de-construção-até-1911">Ordem de construção até 19/11</a></li><li><a href="#o-que-a-equipe-precisa-confirmar">O que a equipe precisa confirmar</a></li></ol></details></nav><p>Este documento define as partes da solução, o dono de cada dado e os contratos entre as partes. Ele também mostra onde cada disciplina pontua. A ficha, as seis perguntas e a pergunta de ML continuam em <a href="../../discovery/01-ideia-vencedora.md">01-ideia-vencedora.md</a>.</p>
+<p>Objetivo do protótipo: em dia crítico, o celular da ACS mostra só as casas que ficaram em silêncio. Um movimento no corredor do Wokwi tira o card da tela. Um aparelho mudo deixa o card cinza, nunca verde.</p>
+<h2 id="diagrama">Diagrama <a class="ancora" href="#diagrama" aria-label="Link para esta seção">#</a></h2>
+<figure class="diagrama" id="diagrama-1" style="--w:2983px;--h:607px;--r:0.2035"><div class="diagrama-quadro"><svg xmlns="http://www.w3.org/2000/svg" class="pele pele-flowchart" viewBox="0 0 2983 607" width="2983" height="607" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_r:var(--pele-radius,4px);--_fm:var(--pele-font-mono,&quot;Atkinson Hyperlegible Mono&quot;, monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,&quot;Atkinson Hyperlegible&quot;, sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="flowchart"><g class="pele-clusters"><g class="pele-cluster" data-id="DADOS"><rect x="426.66" y="258.5" width="199.07" height="233.61" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="494.85" y="284.1" text-anchor="middle">Dados públicos</text></g><g class="pele-cluster" data-id="VM"><rect x="818.97" y="136.65" width="1751.76" height="461.5" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="1134.93" y="162.25" text-anchor="middle">VM Linux da UBS, provisionada por Shell Script, vigiada pelo corredor-monitor.service</text></g><g class="pele-cluster" data-id="API"><rect x="1520.4" y="176.65" width="708.08" height="302" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="1679.24" y="202.25" text-anchor="middle">corredor-api.service: um processo .NET 8</text></g><g class="pele-cluster" data-id="CASA"><rect x="8" y="8" width="259.7" height="295" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="71.76" y="33.6" text-anchor="middle">Casa da idosa</text></g></g><g class="pele-edges" fill="none" stroke="var(--_l)" stroke-linecap="round"><g class="pele-edge" data-id="L_ESP_PUB_0"><path d="M227.7,112.5L382.94,112.5C390.62,112.5 390.62,144.5 398.31,144.5L403.44,144.5"/><path class="pele-marker" d="M410.44,144.5L402.44,147.86L402.44,141.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_PUB_MQ_0"><path d="M641.96,144.5L791.47,144.5C805.22,144.5 805.22,260.53 818.97,260.53L851.97,260.53"/><path class="pele-marker" d="M858.97,260.53L850.97,263.89L850.97,257.17Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_SIM_MQ_0"><path d="M227.7,250L267.7,250C339.07,250 339.07,218 410.44,218L641.96,218C730.46,218 730.46,276.53 818.97,276.53L851.97,276.53"/><path class="pele-marker" d="M858.97,276.53L850.97,279.89L850.97,273.17Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_MQ_MOTOR_0"><path d="M1048.72,272.53L1435.94,272.53C1478.17,272.53 1478.17,245.9 1520.4,245.9L1971.75,245.9"/><path class="pele-marker" d="M1041.72,272.53L1049.72,269.17L1049.72,275.89Z" fill="var(--_l)" stroke="none"/><path class="pele-marker" d="M1978.75,245.9L1970.75,249.26L1970.75,242.54Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_APP_NGINX_0"><path d="M605.89,565.11C634.17,565.11 634.17,513.65 662.46,513.65L1041.72,513.65C1153.83,513.65 1153.83,491.15 1265.93,491.15L1271.93,491.15"/><path class="pele-marker" d="M1278.93,491.15L1270.93,494.51L1270.93,487.79Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_NGINX_API_0"><path d="M1435.94,475.15C1446.19,475.15 1446.19,327.65 1456.44,327.65L1513.4,327.65"/><path class="pele-marker" d="M1520.4,327.65L1512.4,331.01L1512.4,324.29Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_NGINX_PAINEL_0"><path d="M1435.94,491.15C1478.17,491.15 1478.17,557.15 1520.4,557.15L2289.47,557.15"/><path class="pele-marker" d="M2296.47,557.15L2288.47,560.51L2288.47,553.79Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_CAD_GUARDA_0"><path d="M1795.1,387.15L1966.74,387.15"/><path class="pele-marker" d="M1973.74,387.15L1965.74,390.51L1965.74,383.79Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_CAD_MOTOR_0"><path d="M1795.1,371.15C1805.35,371.15 1805.35,268.15 1815.6,268.15L1971.75,268.15"/><path class="pele-marker" d="M1978.75,268.15L1970.75,271.51L1970.75,264.79Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_MOTOR_VIZ_0"><path d="M2183.46,248.15L2256.47,248.15C2276.47,248.15 2276.47,301.15 2296.47,301.15L2763.88,301.15C2771.57,301.15 2771.57,236.21 2779.26,236.21L2784.38,236.21" stroke-dasharray="3 4"/><path class="pele-marker" d="M2791.38,236.21L2783.38,239.57L2783.38,232.85Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_INMET_JOB_0"><path d="M585.73,331.37L625.73,331.37C722.35,331.37 722.35,370.53 818.97,370.53L866,370.53"/><path class="pele-marker" d="M873,370.53L865,373.89L865,367.17Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_SIH_JOB_0"><path d="M585.73,438.18L791.47,438.18C805.22,438.18 805.22,386.53 818.97,386.53L866,386.53" stroke-dasharray="3 4"/><path class="pele-marker" d="M873,386.53L865,389.89L865,383.17Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_JOB_NGINX_0"><path d="M1027.69,378.53L1251.43,378.53C1259.12,378.53 1259.12,475.15 1266.81,475.15L1271.93,475.15"/><path class="pele-marker" d="M1278.93,475.15L1270.93,478.51L1270.93,471.79Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_MOTOR_PG_0"><path d="M2183.46,264.15L2228.47,264.15C2245.83,264.15 2256.47,291.61 2256.47,336.4C2256.47,381.2 2266.73,408.65 2283.47,408.65L2289.47,408.65"/><path class="pele-marker" d="M2296.47,408.65L2288.47,412.01L2288.47,405.29Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_CAD_PG_0"><path d="M1795.1,403.15C1821.68,403.15 1821.68,458.65 1848.26,458.65L2228.47,458.65C2255.97,458.65 2255.97,424.65 2283.47,424.65L2289.47,424.65"/><path class="pele-marker" d="M2296.47,424.65L2288.47,428.01L2288.47,421.29Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_GUARDA_PAINEL_0"><path d="M2188.47,418.65L2228.47,418.65C2255.97,418.65 2255.97,541.15 2283.47,541.15L2289.47,541.15"/><path class="pele-marker" d="M2296.47,541.15L2288.47,544.51L2288.47,537.79Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_GUARDA_LLM_0"><path d="M2188.47,387.15L2256.47,387.15C2276.47,387.15 2276.47,333.15 2296.47,333.15L2570.73,333.15C2580.98,333.15 2580.98,352.71 2591.23,352.71L2784.38,352.71"/><path class="pele-marker" d="M2791.38,352.71L2783.38,356.07L2783.38,349.35Z" fill="var(--_l)" stroke="none"/></g></g><g class="pele-edge-labels" font-size="14"><g class="pele-edge-label" data-id="L_ESP_PUB_0"><rect x="290.2" y="102" width="90.74" height="21" rx="3" fill="var(--_bg)"/><text x="335.57" y="117.4" text-anchor="middle">MQTT evento</text></g><g class="pele-edge-label" data-id="L_PUB_MQ_0"><rect x="703.03" y="134" width="47.86" height="21" rx="3" fill="var(--_bg)"/><text x="726.96" y="149.4" text-anchor="middle">bridge</text></g><g class="pele-edge-label" data-id="L_SIM_MQ_0"><rect x="503.37" y="207.5" width="45.65" height="21" rx="3" fill="var(--_bg)"/><text x="526.2" y="222.9" text-anchor="middle">MQTT</text></g><g class="pele-edge-label" data-id="L_MQ_MOTOR_0"><rect x="1290" y="262.03" width="134.88" height="21" rx="3" fill="var(--_bg)"/><text x="1357.44" y="277.43" text-anchor="middle">eventos e comandos</text></g><g class="pele-edge-label" data-id="L_APP_NGINX_0"><rect x="701.94" y="503.15" width="50.04" height="21" rx="3" fill="var(--_bg)"/><text x="726.96" y="518.55" text-anchor="middle">HTTPS</text></g><g class="pele-edge-label" data-id="L_NGINX_API_0"><rect x="1458.44" y="317.15" width="32.46" height="21" rx="3" fill="var(--_bg)"/><text x="1474.67" y="332.55" text-anchor="middle">/api</text></g><g class="pele-edge-label" data-id="L_NGINX_PAINEL_0"><rect x="1848.94" y="546.65" width="50.99" height="21" rx="3" fill="var(--_bg)"/><text x="1874.44" y="562.05" text-anchor="middle">/painel</text></g><g class="pele-edge-label" data-id="L_CAD_GUARDA_0"><rect x="1817.6" y="376.65" width="126.64" height="21" rx="3" fill="var(--_bg)"/><text x="1880.92" y="392.05" text-anchor="middle">toda saída de texto</text></g><g class="pele-edge-label" data-id="L_CAD_MOTOR_0"><rect x="1828.87" y="257.65" width="104.1" height="21" rx="3" fill="var(--_bg)"/><text x="1880.92" y="273.05" text-anchor="middle">IMotorDeCasas</text></g><g class="pele-edge-label" data-id="L_MOTOR_VIZ_0"><rect x="2635.86" y="290.65" width="83.39" height="21" rx="3" fill="var(--_bg)"/><text x="2677.56" y="306.05" text-anchor="middle">aviso neutro</text></g><g class="pele-edge-label" data-id="L_SIH_JOB_0"><rect x="664.46" y="427.68" width="125.01" height="21" rx="3" fill="var(--_bg)"/><text x="726.96" y="443.08" text-anchor="middle">treino no notebook</text></g><g class="pele-edge-label" data-id="L_JOB_NGINX_0"><rect x="1064.22" y="368.03" width="185.21" height="21" rx="3" fill="var(--_bg)"/><text x="1156.83" y="383.43" text-anchor="middle">PUT /api/dias-criticos/{data}</text></g><g class="pele-edge-label" data-id="L_GUARDA_LLM_0"><rect x="2593.23" y="342.21" width="168.65" height="21" rx="3" fill="var(--_bg)"/><text x="2677.56" y="357.61" text-anchor="middle">achado sem dado pessoal</text></g></g><g class="pele-nodes"><g class="pele-node pele-shape-rect" data-id="ESP" transform="translate(127.85,112.5)"><rect x="-99.85" y="-64.5" width="199.7" height="129" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-36.4">Nó ESP32 no Wokwi</tspan><tspan x="0" y="-15.4">PIR + LED de caminho,</tspan><tspan x="0" y="5.6">DHT22,</tspan><tspan x="0" y="26.6">tensão, botão, buzzer,</tspan><tspan x="0" y="47.6">buffer + heartbeat</tspan></text></g><g class="pele-node pele-shape-rect" data-id="SIM" transform="translate(129.05,250)"><rect x="-98.65" y="-33" width="197.3" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Simulador de 39 casas</tspan><tspan x="0" y="16.1">script Python</tspan></text></g><g class="pele-node pele-shape-rect" data-id="PUB" transform="translate(526.2,144.5)"><rect x="-115.76" y="-33" width="231.52" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Broker MQTT público</tspan><tspan x="0" y="16.1">só token, sem dado pessoal</tspan></text></g><g class="pele-node pele-shape-rect" data-id="APP" transform="translate(526.2,565.11)"><rect x="-79.7" y="-33" width="159.39" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">App Expo da ACS</tspan><tspan x="0" y="16.1">radar + SQLite</tspan></text></g><g class="pele-node pele-shape-rect" data-id="MQ" transform="translate(950.34,272.53)"><rect x="-91.38" y="-33" width="182.75" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Mosquitto</tspan><tspan x="0" y="16.1">bridge + broker local</tspan></text></g><g class="pele-node pele-shape-rect" data-id="NGINX" transform="translate(1357.44,483.15)"><rect x="-78.5" y="-33" width="157.01" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Nginx</tspan><tspan x="0" y="16.1">api.corredor.local</tspan></text></g><g class="pele-node pele-shape-rect" data-id="JOB" transform="translate(950.34,378.53)"><rect x="-77.34" y="-33" width="154.69" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Job das 05h</tspan><tspan x="0" y="16.1">modelo XGBoost</tspan></text></g><g class="pele-node pele-shape-rect" data-id="MOTOR" transform="translate(2081.11,260.15)"><rect x="-102.35" y="-43.5" width="204.7" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Módulo Motor</tspan><tspan x="0" y="5.6">regras de contato, radar</tspan><tspan x="0" y="26.6">só tokens e perfis</tspan></text></g><g class="pele-node pele-shape-rect" data-id="CAD" transform="translate(1677.75,387.15)"><rect x="-117.35" y="-43.5" width="234.7" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Módulo Cadastro</tspan><tspan x="0" y="5.6">idoso, consentimento, visita</tspan><tspan x="0" y="26.6">único dono de dado pessoal</tspan></text></g><g class="pele-node pele-shape-rect" data-id="GUARDA" transform="translate(2081.11,387.15)"><rect x="-107.37" y="-43.5" width="214.74" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Módulo Guarda</tspan><tspan x="0" y="5.6">interceptador de entrada,</tspan><tspan x="0" y="26.6">taint nas saídas, LLM</tspan></text></g><g class="pele-node pele-shape-rect" data-id="PAINEL" transform="translate(2413.6,545.15)"><rect x="-117.13" y="-33" width="234.26" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Painel Risco Cidadão</tspan><tspan x="0" y="16.1">farol + mensagem traduzida</tspan></text></g><g class="pele-node pele-shape-cyl" data-id="PG" transform="translate(2401.15,416.65)"><path d="M-104.67,-43.5A104.67,12 0 0 1 104.67,-43.5V43.5A104.67,12 0 0 1 -104.67,43.5Z" fill="var(--_s)" stroke="var(--_b)"/><path d="M-104.67,-43.5A104.67,12 0 0 0 104.67,-43.5" fill="none" stroke="var(--_b)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-9.4">Postgres</tspan><tspan x="0" y="11.6">schema motor e schema</tspan><tspan x="0" y="32.6">cadastro</tspan></text></g><g class="pele-node pele-shape-cyl" data-id="INMET" transform="translate(523.62,331.37)"><path d="M-62.11,-24A62.11,8.87 0 0 1 62.11,-24V24A62.11,8.87 0 0 1 -62.11,24Z" fill="var(--_s)" stroke="var(--_b)"/><path d="M-62.11,-24A62.11,8.87 0 0 0 62.11,-24" fill="none" stroke="var(--_b)"/><text class="pele-label" x="0" y="10.04" text-anchor="middle">INMET A701</text></g><g class="pele-node pele-shape-cyl" data-id="SIH" transform="translate(516.2,438.18)"><path d="M-69.54,-24A69.54,9.93 0 0 1 69.54,-24V24A69.54,9.93 0 0 1 -69.54,24Z" fill="var(--_s)" stroke="var(--_b)"/><path d="M-69.54,-24A69.54,9.93 0 0 0 69.54,-24" fill="none" stroke="var(--_b)"/><text class="pele-label" x="0" y="10.57" text-anchor="middle">SIH/DATASUS</text></g><g class="pele-node pele-shape-rect" data-id="VIZ" transform="translate(2882.96,236.21)"><rect x="-91.58" y="-33" width="183.15" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Vizinho de confiança</tspan><tspan x="0" y="16.1">canal simulado</tspan></text></g><g class="pele-node pele-shape-rect" data-id="LLM" transform="translate(2878.6,352.71)"><rect x="-87.22" y="-43.5" width="174.43" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">LLM</tspan><tspan x="0" y="5.6">recebe só o achado</tspan><tspan x="0" y="26.6">redigido</tspan></text></g></g></svg></div><figcaption><span class="diagrama-links">2983×607 px · <a href="svg/arquitetura-1.svg">SVG claro</a> · <a href="svg/arquitetura-1.escuro.svg">SVG escuro</a></span><span class="diagrama-dica">Ctrl ou ⌘ + roda, pinça, duplo clique ou + e − para ampliar; arraste para mover.</span></figcaption></figure>
+<h2 id="quatro-decisões-que-mudam-o-desenho-da-descoberta">Quatro decisões que mudam o desenho da descoberta <a class="ancora" href="#quatro-decisões-que-mudam-o-desenho-da-descoberta" aria-label="Link para esta seção">#</a></h2>
+<ol>
+<li><strong>Um monólito modular em C#, não duas APIs.</strong> O enunciado de SOA aceita qualquer linguagem. Uma solução .NET com três módulos cobre a rubrica de SOA e a de C# com um processo, um deploy e uma linguagem de backend. O contrato REST entre FastAPI e .NET some e vira uma interface C#. O que se perde é a separação por processo, e a regra 2 repõe essa separação por projeto.</li>
+<li><strong>O módulo Motor não guarda dado pessoal.</strong> O Motor conhece só <code>casaToken</code> e perfil. O projeto <code>Corredor.Motor</code> não referencia <code>Corredor.Cadastro</code>, então o compilador impede o Motor de ler um nome. O app junta token e nome no celular, com a lista de nomes que baixou para o SQLite.</li>
+<li><strong>O <code>DiaCritico</code> entra direto no Motor.</strong> O turno de radar é do Motor.</li>
+<li><strong>O nó Wokwi publica em um broker público e o Mosquitto da VM faz bridge.</strong> O Wokwi do navegador só alcança a rede local com o Private Gateway, que é pago (<a href="https://docs.wokwi.com/guides/esp32-wifi">documentação do Wokwi</a>). O payload só tem token. O simulador das 39 casas publica direto no Mosquitto local.</li>
+</ol>
+<h2 id="partes-e-donos">Partes e donos <a class="ancora" href="#partes-e-donos" aria-label="Link para esta seção">#</a></h2>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Parte</th>
+<th>Pasta</th>
+<th>Tecnologia</th>
+<th>Dono de</th>
+<th>Disciplina</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nó do corredor</td>
+<td><code>iot/</code></td>
+<td>ESP32, Wokwi, PubSubClient</td>
+<td>leitura dos sensores, buffer, heartbeat</td>
+<td>Physical Computing</td>
+</tr>
+<tr>
+<td>Módulo Motor</td>
+<td><code>api/src/Corredor.Motor</code></td>
+<td>.NET 8, EF Core, MQTTnet</td>
+<td><code>CasaMonitorada</code>, <code>EventoSensor</code>, <code>DiaCritico</code>, <code>TurnoRadar</code>, estado do radar</td>
+<td>C#</td>
+</tr>
+<tr>
+<td>Módulo Cadastro</td>
+<td><code>api/src/Corredor.Cadastro</code></td>
+<td>.NET 8, EF Core</td>
+<td><code>Microarea</code>, <code>Idoso</code>, <code>Casa</code>, <code>Consentimento</code>, <code>VizinhoDeConfianca</code>, <code>Visita</code>, <code>MensagemSaida</code></td>
+<td>SOA</td>
+</tr>
+<tr>
+<td>Módulo Guarda</td>
+<td><code>api/src/Corredor.Guarda</code></td>
+<td>.NET 8, regras em JSON, LLM por HTTP</td>
+<td>regras de PII, rótulos, achados, painel</td>
+<td>Cybersecurity</td>
+</tr>
+<tr>
+<td>Host</td>
+<td><code>api/src/Corredor.Api</code></td>
+<td>ASP.NET Core, Swagger</td>
+<td>rotas, injeção de dependência, autenticação</td>
+<td>C# e SOA</td>
+</tr>
+<tr>
+<td>Testes</td>
+<td><code>api/tests/</code></td>
+<td>xUnit</td>
+<td>um projeto de teste por módulo</td>
+<td>C# e SOA</td>
+</tr>
+<tr>
+<td>Modelo de dia crítico</td>
+<td><code>ml/</code></td>
+<td>pandas, XGBoost, scikit-learn</td>
+<td>notebook, relatório, <code>prever_hoje.py</code></td>
+<td>IA e ML</td>
+</tr>
+<tr>
+<td>App da ACS</td>
+<td><code>app/</code></td>
+<td>Expo, React Native, TypeScript, Expo Router, expo-sqlite</td>
+<td>cache da lista de nomes e do radar, desfechos pendentes</td>
+<td>Mobile</td>
+</tr>
+<tr>
+<td>Infra</td>
+<td><code>infra/</code></td>
+<td>Bash, systemd, Nginx, Mosquitto, Postgres</td>
+<td>VM, serviços, logs, monitoramento</td>
+<td>Operating Systems</td>
+</tr>
+<tr>
+<td>Qualidade</td>
+<td>Azure Boards</td>
+<td>Features e Test Cases</td>
+<td>critérios de aceite</td>
+<td>Testing</td>
+</tr>
+</tbody></table>
+</div>
+<p>Regras de dependência entre projetos:</p>
+<ul>
+<li><code>Corredor.Motor</code> não referencia nenhum outro módulo.</li>
+<li><code>Corredor.Guarda</code> não referencia nenhum outro módulo.</li>
+<li><code>Corredor.Cadastro</code> referencia <code>Corredor.Guarda</code> e a interface <code>IMotorDeCasas</code>.</li>
+<li><code>Corredor.Api</code> referencia os três e registra tudo na injeção de dependência.</li>
+</ul>
+<p>Um Postgres, dois schemas, dois <code>DbContext</code>. Cada módulo tem as próprias migrações do EF Core e nunca lê o schema do outro.</p>
+<h2 id="contratos">Contratos <a class="ancora" href="#contratos" aria-label="Link para esta seção">#</a></h2>
+<p>Feche estes contratos antes de escrever lógica.</p>
+<h3 id="mqtt">MQTT <a class="ancora" href="#mqtt" aria-label="Link para esta seção">#</a></h3>
+<p>Tópico de evento: <code>corredor/v1/{casaToken}/evento</code>. Tópico de comando: <code>corredor/v1/{casaToken}/comando</code>.</p>
+<pre><code class="language-json">{
+  &quot;seq&quot;: 1842,
+  &quot;ts&quot;: &quot;2026-11-18T06:12:40Z&quot;,
+  &quot;tipo&quot;: &quot;MOVIMENTO&quot;,
+  &quot;tempC&quot;: 31.5,
+  &quot;tensaoV&quot;: 126.8,
+  &quot;bufferizado&quot;: false
+}
+</code></pre>
+<ul>
+<li><code>tipo</code> aceita <code>MOVIMENTO</code>, <code>BOTAO_BEM</code>, <code>BOTAO_SAIR</code>, <code>TELEMETRIA</code> e <code>HEARTBEAT</code>.</li>
+<li><code>seq</code> cresce a cada evento do nó. O Motor grava com chave única <code>(casaToken, seq)</code>. Um reenvio depois da queda do broker não duplica nada.</li>
+<li><code>ts</code> é a hora em que o evento aconteceu. <code>bufferizado: true</code> marca o evento que ficou guardado no nó.</li>
+<li>O comando tem um campo: <code>{&quot;tipo&quot;: &quot;DIA_CRITICO&quot;}</code> acende o LED âmbar. <code>{&quot;tipo&quot;: &quot;PEDIR_TOQUE&quot;}</code> toca o buzzer às 15h.</li>
+</ul>
+<h3 id="rotas-http">Rotas HTTP <a class="ancora" href="#rotas-http" aria-label="Link para esta seção">#</a></h3>
+<p>Todas ficam sob <code>/api</code> e aparecem no Swagger.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Rota</th>
+<th>Módulo</th>
+<th>Quem chama</th>
+<th>Efeito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PUT /dias-criticos/{data}</code></td>
+<td>Motor</td>
+<td>job de ML</td>
+<td>grava <code>DiaCritico {probabilidade, motivo, origem}</code> e abre o turno. Repetir a chamada não abre dois turnos.</td>
+</tr>
+<tr>
+<td><code>GET /radar?microarea={id}</code></td>
+<td>Motor</td>
+<td>app</td>
+<td>devolve só vermelhos e cinzas, ordenados, mais a contagem de verdes</td>
+</tr>
+<tr>
+<td><code>GET /casas/{token}/linha-do-tempo</code></td>
+<td>Motor</td>
+<td>app</td>
+<td>eventos das últimas 24 horas</td>
+</tr>
+<tr>
+<td><code>POST /idosos</code>, <code>POST /idosos/{id}/consentimento</code>, <code>PUT /idosos/{id}/vizinho</code></td>
+<td>Cadastro</td>
+<td>Swagger, na demo</td>
+<td>cadastro. A casa só ganha token ativo depois do consentimento.</td>
+</tr>
+<tr>
+<td><code>GET /lista-de-nomes?microarea={id}</code></td>
+<td>Cadastro</td>
+<td>app</td>
+<td>token, nome, endereço e vizinho, para o SQLite do celular</td>
+</tr>
+<tr>
+<td><code>POST /visitas</code></td>
+<td>Cadastro</td>
+<td>app</td>
+<td>grava o desfecho da ACS e confirma a casa no Motor</td>
+</tr>
+<tr>
+<td><code>POST /mensagens/verificar</code></td>
+<td>Cadastro</td>
+<td>app</td>
+<td>passa o texto pela Guarda antes de sair para o grupo do bairro</td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="interface-entre-cadastro-e-motor">Interface entre Cadastro e Motor <a class="ancora" href="#interface-entre-cadastro-e-motor" aria-label="Link para esta seção">#</a></h3>
+<pre><code class="language-csharp">public interface IMotorDeCasas
+{
+    Task DefinirPerfilAsync(CasaToken token, PerfilDaCasa perfil, CancellationToken ct);
+    Task ConfirmarAsync(CasaToken token, OrigemDaConfirmacao origem, CancellationToken ct);
+}
+</code></pre>
+<p><code>PerfilDaCasa</code> aceita <code>Sozinho</code>, <code>Acamado</code>, <code>Eletrodependente</code> e <code>Coabitado</code>. <code>OrigemDaConfirmacao</code> aceita <code>Acs</code> e <code>Vizinho</code>. A interface carrega token e enum, nunca nome.</p>
+<h3 id="estado-da-casa">Estado da casa <a class="ancora" href="#estado-da-casa" aria-label="Link para esta seção">#</a></h3>
+<p>O estado da casa não é uma coluna. O Motor calcula o estado com uma função pura, <code>Avaliar(casa, eventos, turno, agora)</code>, que percorre as regras nesta ordem:</p>
+<ol>
+<li><code>EnergiaEletrodependente</code>: perfil eletrodependente com tensão caindo ou sem heartbeat. Vermelho imediato, em qualquer dia.</li>
+<li><code>SemHeartbeat</code>: 30 minutos sem pacote. Cinza. Esta regra vem antes de qualquer sinal de vida antigo, então o silêncio do aparelho nunca vira verde.</li>
+<li><code>CalorInterno</code>: 34 °C ou mais por 2 horas, com turno aberto. Vermelho.</li>
+<li><code>SemMovimentoNaJanela</code>: nenhum <code>MOVIMENTO</code> nem <code>BOTAO_BEM</code> na janela das 10h ou das 15h, com turno aberto. Vermelho. Perfil <code>Acamado</code> entra aqui direto. <code>BOTAO_SAIR</code> suspende a regra até as 18h.</li>
+<li><code>IdaNoturnaSemVolta</code>: primeira regra a cortar se o prazo apertar.</li>
+</ol>
+<p>As cinco regras herdam de <code>RegraDeContato</code>. A ordem da lista sai de uma consulta LINQ. O consumidor MQTT é um <code>BackgroundService</code> assíncrono.</p>
+<p>Regras de domínio do Cadastro: sem consentimento não há token ativo, a família só é avisada com opt-in, e o registro da visita fica guardado mesmo depois que os eventos de 24 horas são apagados.</p>
+<h2 id="módulo-guarda-cyber">Módulo Guarda (Cyber) <a class="ancora" href="#módulo-guarda-cyber" aria-label="Link para esta seção">#</a></h2>
+<p>A equipe escreve o módulo do zero, em C#, dentro da mesma solução. O desenho segue a explicação do professor: detectar PII no que entra, impedir que o dado marcado saia por canal inseguro, e traduzir cada bloqueio para o cidadão com um LLM.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ponto do professor</th>
+<th>Arquivo</th>
+<th>Faz</th>
+<th>Rubrica</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. Parsing de PII</td>
+<td><code>Regras/pii.json</code></td>
+<td>uma regra por tipo: nome, regex, validador, máscara, severidade de 1 a 5</td>
+<td>parsing PII (3)</td>
+</tr>
+<tr>
+<td>1. Parsing de PII</td>
+<td><code>MotorDeParsing.cs</code></td>
+<td>aplica as regras a um texto ou a um JSON e devolve achados <code>{tipo, campo, valor mascarado, severidade}</code>. O validador de CPF confere os dígitos verificadores.</td>
+<td>parsing PII (3)</td>
+</tr>
+<tr>
+<td>1. Parsing de PII</td>
+<td><code>InterceptadorDeEntrada.cs</code></td>
+<td>middleware do ASP.NET. Lê o corpo de toda requisição, passa pelo <code>MotorDeParsing</code>, marca cada campo com PII e troca o valor pela máscara antes do log e antes do banco. <code>&quot;documento&quot;: &quot;123.456.789-00&quot;</code> vira <code>***.456.***-00</code>.</td>
+<td>parsing PII (3)</td>
+</tr>
+<tr>
+<td>2. Taint</td>
+<td><code>TextoRotulado.cs</code></td>
+<td>um texto mais os rótulos de PII que ele carrega. Juntar dois textos une os rótulos. <code>ToString()</code> devolve a máscara.</td>
+<td>taint (3)</td>
+</tr>
+<tr>
+<td>2. Taint</td>
+<td><code>SaidaSegura.cs</code></td>
+<td>camada de validação antes de cada saída. Rótulo proibido para o canal bloqueia o envio e grava um evento de segurança.</td>
+<td>taint (3)</td>
+</tr>
+<tr>
+<td>2. Taint</td>
+<td><code>FiltroDeResposta.cs</code> e <code>TratadorDeErros.cs</code></td>
+<td>bloqueiam PII em resposta de rota sem autenticação e em mensagem de erro que vai para a tela do app</td>
+<td>taint (3)</td>
+</tr>
+<tr>
+<td>3. IA</td>
+<td><code>Tradutor.cs</code></td>
+<td>manda ao LLM um prompt montado com o evento: tipo de dado, canal e módulo. Pede a tradução para um cidadão leigo de 60 anos, em 2 frases.</td>
+<td>IA (2)</td>
+</tr>
+<tr>
+<td>3. IA</td>
+<td><code>Painel.cs</code> e <code>painel/index.html</code></td>
+<td>mostra o farol verde, amarelo ou vermelho e a mensagem traduzida de cada evento</td>
+<td>painel (2)</td>
+</tr>
+</tbody></table>
+</div>
+<ul>
+<li><strong>Regras de PII.</strong> CPF, RG, CNS, CID-10 e termos de laudo médico, nome de remédio, &quot;mora sozinho&quot;, endereço, telefone e senha ou token.</li>
+<li><strong>Fontes.</strong> Tudo que entra por HTTP passa pelo <code>InterceptadorDeEntrada</code>. As propriedades sensíveis do Cadastro têm o tipo <code>TextoRotulado</code>: <code>Idoso.Nome</code>, <code>Idoso.Medicamentos</code>, <code>Idoso.Condicoes</code>, <code>Casa.Endereco</code>.</li>
+<li><strong>Sumidouros.</strong> Log, resposta HTTP sem autenticação, mensagem de erro, publicação MQTT, grupo do bairro e prompt do LLM. O log e o LLM aceitam só texto sem rótulo. A lista de nomes para o app autenticado aceita nome e endereço. O grupo do bairro não aceita nenhum rótulo.</li>
+<li><strong>O CPF não é dado do produto.</strong> O Corredor Aceso não pede CPF. Se a ACS digitar um CPF em um campo de observação, o interceptador mascara o valor antes de gravar. Esse é o caso de demonstração do ponto 1.</li>
+<li><strong>Farol do Risco Cidadão.</strong> Cada evento soma <code>severidade × exposição do canal</code>, com exposição 3 para canal aberto, 2 para log e 1 para canal interno. Soma zero nas últimas 24 horas dá verde. Só bloqueios de severidade até 3 dão amarelo. Qualquer bloqueio de severidade 4 ou 5 dá vermelho.</li>
+<li><strong>O LLM nunca recebe o dado.</strong> O prompt leva o tipo do dado e o canal, por exemplo &quot;vazamento de dado de saúde bloqueado no grupo do bairro&quot;. Se o LLM falhar, o painel mostra uma frase fixa por tipo de evento.</li>
+</ul>
+<h3 id="evidências-para-a-auditoria">Evidências para a auditoria <a class="ancora" href="#evidências-para-a-auditoria" aria-label="Link para esta seção">#</a></h3>
+<ol>
+<li>Um <code>POST</code> com <code>&quot;documento&quot;: &quot;123.456.789-00&quot;</code>: print do log e da linha no banco com <code>***.456.***-00</code>.</li>
+<li>Um teste que tenta gravar <code>Idoso.Nome</code> no log: o log recebe <code>[NOME]</code> e o painel ganha um evento.</li>
+<li>Uma rota sem autenticação que tentaria devolver <code>Idoso.Condicoes</code>: a resposta sai bloqueada.</li>
+<li>A ACS escreve &quot;ele mora sozinho e toma diurético&quot; para o grupo do bairro: a Guarda bloqueia, o LLM explica e o farol muda.</li>
+</ol>
+<h3 id="entrega">Entrega <a class="ancora" href="#entrega" aria-label="Link para esta seção">#</a></h3>
+<p>O professor pede dois arquivos separados:</p>
+<ul>
+<li>Um PDF com a documentação dos três pontos (Source, Auditoria e Vídeo do Dashboard), com prints do código e das quatro evidências, e o link do vídeo.</li>
+<li>Um ZIP ou o link do GitHub com o código-fonte.</li>
+</ul>
+<h2 id="infra-linux">Infra Linux <a class="ancora" href="#infra-linux" aria-label="Link para esta seção">#</a></h2>
+<p>A VM hospeda a API, o painel, o Mosquitto e o Postgres. Tudo sobe por script, dentro da VM.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Faz</th>
+<th>Rubrica</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>infra/01-rede.sh</code></td>
+<td>hostname <code>corredor-ubs</code>, IP fixo, nomes <code>api.corredor.local</code> e <code>painel.corredor.local</code>, firewall</td>
+<td>rede, DNS, IP (2)</td>
+</tr>
+<tr>
+<td><code>infra/02-app.sh</code></td>
+<td>instala Postgres, Mosquitto com bridge, runtime .NET e Nginx. Cria usuário de serviço, arquivo de variáveis e <code>corredor-api.service</code>, e roda as migrações</td>
+<td>aplicação (2)</td>
+</tr>
+<tr>
+<td><code>infra/monitor.sh</code></td>
+<td>mede CPU, disco e memória e grava alerta acima do limite</td>
+<td>monitoramento (2)</td>
+</tr>
+<tr>
+<td><code>infra/systemd/corredor-monitor.service</code></td>
+<td>roda o monitor com <code>Restart=always</code></td>
+<td>serviço tolerante a falhas (1)</td>
+</tr>
+<tr>
+<td><code>infra/lib/auditoria.sh</code></td>
+<td>cada script registra quem rodou, quando e o código de saída em <code>/var/log/corredor/auditoria.log</code></td>
+<td>logs de auditoria (1)</td>
+</tr>
+<tr>
+<td><code>infra/teste-de-falha.sh</code></td>
+<td>para o Mosquitto, o nó guarda os eventos, o broker volta e o Motor recebe tudo com a hora original. Depois mata o monitor e mostra o systemd religando</td>
+<td>funcionamento completo (2)</td>
+</tr>
+</tbody></table>
+</div>
+<p>Os scripts podem rodar duas vezes sem quebrar a VM. Cada passo confere o estado antes de mudar.</p>
+<h2 id="modelo-de-dia-crítico-ml">Modelo de dia crítico (ML) <a class="ancora" href="#modelo-de-dia-crítico-ml" aria-label="Link para esta seção">#</a></h2>
+<p>A pergunta, o alvo, a baseline e a grade de 24 combinações estão na seção 5 de <a href="../../discovery/01-ideia-vencedora.md">01-ideia-vencedora.md</a>. A pasta <code>ml/</code> entrega o que o enunciado pede:</p>
+<ul>
+<li><code>ml/corredor_aceso.ipynb</code> executado, com validação cruzada só no treino e métricas de treino e teste lado a lado.</li>
+<li><code>ml/dados/README.md</code> com fonte, link e período do INMET e do SIH.</li>
+<li><code>ml/requirements.txt</code> e <code>ml/RELATORIO_ML.md</code> de 2 a 4 páginas.</li>
+<li><code>ml/prever_hoje.py</code>, que carrega o modelo salvo e chama <code>PUT /api/dias-criticos/{data}</code>. Na VM, um timer do systemd roda o script às 05h. Na demo, o script roda com uma data histórica.</li>
+</ul>
+<p>Se o modelo empatar com a regra da noite quente, o relatório diz isso e o job usa a regra, com <code>origem: REGRA_BASE</code>.</p>
+<h2 id="app-da-acs-mobile">App da ACS (Mobile) <a class="ancora" href="#app-da-acs-mobile" aria-label="Link para esta seção">#</a></h2>
+<p>Telas com Expo Router: entrada, dia crítico, radar, detalhe da casa, mensagem bloqueada e encerramento do turno. O SQLite guarda três coisas: a lista de nomes, o último radar e os desfechos que ainda não subiram. Letra grande, alto contraste, rótulos para leitor de tela e nenhuma informação só por cor. O estado aparece também em texto.</p>
+<h2 id="onde-cada-disciplina-pontua">Onde cada disciplina pontua <a class="ancora" href="#onde-cada-disciplina-pontua" aria-label="Link para esta seção">#</a></h2>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Disciplina</th>
+<th>Critério do enunciado</th>
+<th>Onde está</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SOA</td>
+<td>domínio 3, banco 3, migrações 1,5, documentação 1,5, testes 1</td>
+<td><code>Corredor.Cadastro</code>: regras de consentimento, Postgres, migrações do EF Core, Swagger, xUnit.</td>
+</tr>
+<tr>
+<td>Cybersecurity</td>
+<td>parsing PII 3, taint 3, IA 2, painel 2</td>
+<td><code>Corredor.Guarda</code>, tabela acima. Entrega em PDF mais código-fonte.</td>
+</tr>
+<tr>
+<td>C#</td>
+<td>POO 3, Web API 2,5, EF Core + LINQ 1,5, async 1, qualidade 2</td>
+<td><code>Corredor.Motor</code> e <code>Corredor.Api</code>: <code>RegraDeContato</code> e cinco regras, <code>IMotorDeCasas</code> e injeção de dependência, ordenação em LINQ, consumidor MQTT assíncrono, xUnit.</td>
+</tr>
+<tr>
+<td>IA e ML</td>
+<td>6 critérios, dados reais</td>
+<td><code>ml/</code>. Vídeo de até 5 minutos.</td>
+</tr>
+<tr>
+<td>Mobile</td>
+<td>telas, consumo, banco, acessibilidade, aderência, documentação</td>
+<td><code>app/</code> e README com a ficha e os prints. Vídeo de até 3 minutos.</td>
+</tr>
+<tr>
+<td>Operating Systems</td>
+<td>6 itens da rubrica</td>
+<td><code>infra/</code>. Vídeo de até 7 minutos.</td>
+</tr>
+<tr>
+<td>Physical Computing</td>
+<td>circuito integrado à solução</td>
+<td><code>iot/</code>: o nó é o sensor do radar. Link do Wokwi, vídeo de até 4 minutos e <code>integrantes.txt</code>.</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Features 50%, Test Cases 50%</td>
+<td>Azure Boards: uma Feature por rota e por regra do Motor. Casos negativos: silêncio nunca vira verde, família sem opt-in não recebe aviso, mensagem com &quot;mora sozinha&quot; é bloqueada, reenvio não duplica evento.</td>
+</tr>
+</tbody></table>
+</div>
+<p>SOA e C# recebem o mesmo repositório. O README abre com a ficha e tem uma seção por disciplina, que aponta o módulo que aquela disciplina avalia.</p>
+<p>Vale para todas: um repositório, uma pasta por parte, <code>prompts.md</code> na raiz e só dados simulados ou públicos.</p>
+<h2 id="ordem-de-construção-até-1911">Ordem de construção até 19/11 <a class="ancora" href="#ordem-de-construção-até-1911" aria-label="Link para esta seção">#</a></h2>
+<p>Hoje é 16/11. Restam três dias, então a ordem importa mais que o tamanho.</p>
+<ol>
+<li><strong>16/11, noite.</strong> Fechar os contratos deste documento. Criar o repositório e a solução .NET com os cinco projetos vazios e as referências já restritas.</li>
+<li><strong>17/11.</strong> Fatia mínima de ponta a ponta: o simulador publica um <code>MOVIMENTO</code>, o Motor grava e <code>GET /api/radar</code> muda. Em paralelo: notebook de ML, <code>01-rede.sh</code> e <code>02-app.sh</code>, Cadastro com migrações, telas do app com dados falsos, <code>MotorDeParsing</code> com as regras de PII.</li>
+<li><strong>18/11.</strong> Ligar o nó Wokwi pelo bridge, o app na API, o estado cinza, a cena da mensagem bloqueada e o teste de falha. Preencher o Azure Boards.</li>
+<li><strong>19/11.</strong> Gravar os vídeos de manhã. Entregar até 23h55.</li>
+</ol>
+<p>Três pessoas escrevem no mesmo <code>api/</code>. Cada uma fica dentro do projeto do próprio módulo. Só uma pessoa mexe em <code>Corredor.Api/Program.cs</code>.</p>
+<p>Ordem de corte, do primeiro ao último: <code>IdaNoturnaSemVolta</code>, agrupamento de apagão por rua, aviso ao vizinho (fica só o registro), timer das 05h (o script roda à mão). Se a lista de nomes não estiver pronta até o meio-dia de 18/11, o app usa uma lista embutida, que o enunciado do Mobile permite.</p>
+<h2 id="o-que-a-equipe-precisa-confirmar">O que a equipe precisa confirmar <a class="ancora" href="#o-que-a-equipe-precisa-confirmar" aria-label="Link para esta seção">#</a></h2>
+<ul>
+<li>Os professores de SOA e de C# aceitam o mesmo repositório, com um módulo para cada disciplina? O texto do enunciado permite. Uma mensagem aos dois antes de 19/11 tira a dúvida.</li>
+<li>A entrevista com uma ACS real aconteceu? O pitch e a ficha ainda citam personas simuladas.</li>
+</ul>
+
+</main>
+<script src="js/pele.global.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

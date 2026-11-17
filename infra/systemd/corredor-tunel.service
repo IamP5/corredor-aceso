@@ -1,0 +1,16 @@
+[Unit]
+Description=Corredor Aceso - túnel HTTPS temporário (cloudflared quick tunnel)
+After=network-online.target nginx.service
+Wants=network-online.target
+
+# Ligado à mão por infra/tunel.sh, nunca pelo provisionamento.
+# A URL https://<aleatorio>.trycloudflare.com muda a cada partida do serviço.
+[Service]
+DynamicUser=yes
+ExecStart=/usr/bin/env cloudflared tunnel --no-autoupdate --url http://127.0.0.1:80
+Restart=on-failure
+RestartSec=10
+SyslogIdentifier=corredor-tunel
+
+[Install]
+WantedBy=multi-user.target

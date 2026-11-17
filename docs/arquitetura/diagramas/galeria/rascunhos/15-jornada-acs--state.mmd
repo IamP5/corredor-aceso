@@ -1,0 +1,11 @@
+stateDiagram-v2
+  direction LR
+  [*] --> Entrada
+  Entrada --> DiaCritico
+  DiaCritico --> Radar
+  Radar --> Detalhe: toca no card
+  Detalhe --> Radar: visita registrada
+  Detalhe --> Bloqueada: mensagem com PII
+  Bloqueada --> Detalhe
+  Radar --> Encerramento: fim do turno
+  Encerramento --> [*]

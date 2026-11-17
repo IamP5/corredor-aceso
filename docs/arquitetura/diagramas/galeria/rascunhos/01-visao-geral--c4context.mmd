@@ -1,0 +1,17 @@
+C4Context
+  title Corredor Aceso: contexto
+  Person(idosa, "Idosa", "mora sozinha, passa no corredor")
+  Person(acs, "ACS", "Agente Comunitária de Saúde")
+  Person_Ext(viz, "Vizinho de confiança", "recebe aviso neutro")
+  Person_Ext(cid, "Cidadão", "lê o painel Risco Cidadão")
+  System(ca, "Corredor Aceso", "radar das casas em silêncio no dia crítico")
+  System_Ext(no, "Nó ESP32 no Wokwi", "PIR, DHT22, tensão, botão")
+  System_Ext(llm, "LLM", "traduz o bloqueio em 2 frases")
+  System_Ext(inmet, "INMET e SIH/DATASUS", "dados públicos")
+  Rel(idosa, no, "passa no corredor, aperta o botão")
+  Rel(no, ca, "eventos só com token", "MQTT")
+  Rel(acs, ca, "radar, visitas", "app Expo")
+  Rel(ca, viz, "aviso neutro")
+  Rel(cid, ca, "farol")
+  Rel(ca, llm, "achado sem dado pessoal", "HTTP")
+  Rel(inmet, ca, "treino e previsão")

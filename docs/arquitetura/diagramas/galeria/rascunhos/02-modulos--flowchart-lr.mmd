@@ -1,0 +1,11 @@
+flowchart LR
+  host["Corredor.Api<br/>host, rotas, DI"]
+  cad["Corredor.Cadastro<br/>único dono de dado pessoal"]
+  guarda["Corredor.Guarda<br/>PII, taint, LLM"]
+  contratos["Corredor.Contratos<br/>IMotorDeCasas<br/>IReceptorDeContato"]
+  motor["Corredor.Motor<br/>regras e radar, só tokens"]:::luz
+  host --> cad & guarda & motor & contratos
+  cad -- "toda saída de texto" --> guarda
+  cad -- "chama" --> contratos
+  motor -- "implementa" --> contratos
+  classDef luz stroke-width:2px

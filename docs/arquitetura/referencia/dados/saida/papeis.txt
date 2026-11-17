@@ -1,0 +1,13 @@
+ok  aceita  corredor_motor le motor
+ok  recusa  corredor_motor le cadastro.idoso
+ok  recusa  corredor_motor le guarda
+ok  recusa  corredor_cadastro le motor
+ok  recusa  corredor_guarda le cadastro
+ok  recusa  dono do schema motor le cadastro
+ok  recusa  papel da API cria tabela
+ok  recusa  papel da API faz TRUNCATE
+ok  aceita  corredor_cadastro grava idoso e visita
+ok  recusa  papel da API altera visita
+ok  recusa  papel da API grava token sem consentimento
+ok  aceita  corredor_guarda grava evento
+ok  recusa  papel da API apaga evento de seguranca

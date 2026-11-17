@@ -1,0 +1,8 @@
+eventmodeling
+
+tf 01 pcr NoDoCorredor
+tf 02 cmd RegistrarPacote { tipo: MOVIMENTO, seq: 1842 }
+tf 03 evt Motor.MovimentoDetectado { casaToken, seq, ocorridoEm }
+tf 04 evt Motor.CasaFicouVerde
+tf 05 rmo Radar ->> 03 ->> 04
+tf 06 ui RadarDaACS

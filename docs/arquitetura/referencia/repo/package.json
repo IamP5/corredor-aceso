@@ -1,0 +1,20 @@
+{
+  "name": "corredor-aceso",
+  "private": true,
+  "description": "Só nomes de comando. Este arquivo não instala nada e não declara workspaces.",
+  "scripts": {
+    "dev:deps": "docker compose -f compose.dev.yml up -d",
+    "dev:api": "dotnet run --project api/src/Corredor.Api",
+    "setup:app": "npm --prefix app ci",
+    "check:api": "bash tools/verificar-api.sh",
+    "check:migracoes": "bash tools/conferir-migracoes.sh",
+    "check:pacote": "bash tools/empacotar.sh v0.0.0-ci linux-x64 && bash tools/conferir-pacote.sh dist/corredor-linux-x64.tar.gz v0.0.0-ci",
+    "check:app": "npm --prefix app run typecheck && npm --prefix app run lint",
+    "check:infra": "bash tools/conferir-infra.sh",
+    "check:terraform": "terraform -chdir=infra/nuvem fmt -check && terraform -chdir=infra/nuvem init -backend=false -input=false && terraform -chdir=infra/nuvem validate",
+    "check:ml": "python3 tools/conferir-python.py ml",
+    "check:iot": "python3 tools/conferir-python.py iot/simulador",
+    "check": "npm run check:migracoes && npm run check:api && npm run check:app && npm run check:infra && npm run check:ml && npm run check:iot",
+    "empacotar": "bash tools/empacotar.sh"
+  }
+}

@@ -1,0 +1,15 @@
+flowchart LR
+  push(["push ou pull request"])
+  subgraph jobs["GitHub Actions, em paralelo"]
+    api["api<br/>dotnet build + xUnit"]
+    app["app<br/>tsc + lint"]
+    ml["ml<br/>ruff + prever_hoje --seco"]
+    infra["infra<br/>shellcheck + bash -n"]
+    diag["diagramas<br/>npm run render"]
+  end
+  ok{"todos verdes?"}
+  merge(["merge na main"]):::luz
+  push --> api & app & ml & infra & diag
+  api & app & ml & infra & diag --> ok
+  ok -- sim --> merge
+  classDef luz stroke-width:2px

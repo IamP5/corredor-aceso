@@ -1,0 +1,9 @@
+[Unit]
+Description=Corredor Aceso - roda a previsão de dia crítico às 05h
+
+[Timer]
+OnCalendar=*-*-* 05:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

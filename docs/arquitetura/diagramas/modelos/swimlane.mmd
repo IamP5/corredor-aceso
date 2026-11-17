@@ -1,0 +1,22 @@
+%% Modelo swimlane-beta LR. Vista: release e rollback (onde cada passo roda).
+%% Regras: uma raia por lugar que executa (GitHub, VM), até 4 raias, rótulo de aresta só na decisão.
+%% Não use para passos paralelos que convergem: o Pele junta as arestas num tronco só.
+swimlane-beta LR
+  subgraph GitHub
+    tag([tag v* na main])
+    build[publica api e app]
+  end
+  subgraph VM
+    deploy[deploy.sh guarda a versão anterior]
+    smoke{/api/radar responde?}
+    rollback[rollback.sh volta o link e reinicia]:::alerta
+  end
+  subgraph Resultado
+    pronto([versão nova no ar]):::verde
+    anterior([versão anterior no ar])
+  end
+  tag --> build --> deploy --> smoke
+  smoke -->|sim| pronto
+  smoke -->|não| rollback --> anterior
+  classDef verde stroke-width:2px
+  classDef alerta stroke-width:2px

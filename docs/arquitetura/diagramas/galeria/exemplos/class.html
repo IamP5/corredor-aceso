@@ -1,0 +1,647 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Pele: class (40)</title>
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:400;src:url(../../tema/fontes/atkinson-hyperlegible-latin-400-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:700;src:url(../../tema/fontes/atkinson-hyperlegible-latin-700-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible Mono";src:url(../../tema/fontes/atkinson-hyperlegible-mono-latin-400-normal.woff2)}
+@font-face{font-family:Fraunces;font-weight:600;src:url(../../tema/fontes/fraunces-latin-600-normal.woff2)}
+body{margin:0;font:15px "Atkinson Hyperlegible",sans-serif;background:#efe9de;color:#0b1220}
+header{position:sticky;top:0;z-index:2;background:#0b1220;color:#f3ecdf;padding:10px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font:600 20px Fraunces,serif;margin:0}header a{color:#ffb13b}
+main{padding:16px 20px;display:grid;gap:16px}
+.cartao{background:#fff;border:1px solid #d8cfbf;border-radius:8px;padding:10px 14px}
+.cartao h2{font-size:15px;margin:0 0 8px}.cartao small{font-weight:400;color:#545d6e}
+.lado{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,2.2fr);gap:14px;align-items:start}
+pre{margin:0;font:12px/1.45 "Atkinson Hyperlegible Mono",monospace;background:#f6f2ea;padding:8px;border-radius:6px;overflow:auto;max-height:520px}
+.desenho{overflow:auto;padding:12px;border-radius:6px}
+.tema-claro .desenho{background:#fbf7ef}.tema-escuro .desenho{background:#0b1220}
+.desenho .erro{color:#b3262d;white-space:pre-wrap;font:12px monospace}.medida{font-size:12px;color:#545d6e}
+/* Tema claro do Corredor Aceso para diagramas Pele: documentos, README e GitHub no modo claro.
+   Papel quente, tinta da noite, uma única luz âmbar para o que importa.
+   O render.mjs injeta este arquivo dentro de cada SVG. Contraste medido por tema/contraste.mjs. */
+.tema-claro .pele {
+  --pele-bg: #fbf7ef;
+  --pele-fg: #0b1220;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #fbf7ef;
+  --pele-muted: #545d6e;
+  --pele-line: #3a4255;
+  --pele-surface: #f3ecdf;
+  --pele-surface-alt: #e9dfcc;
+  --pele-border: #968767;
+  --pele-accent: #9a5800;
+  --pele-critical: #b3262d;
+  --pele-error: #b3262d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #4a566e;
+  --pele-series-2: #9a5800;
+  --pele-series-3: #1d7350;
+  --pele-series-4: #b3262d;
+  --pele-series-5: #2d5f8b;
+  --pele-series-6: #6a4c93;
+  --pele-series-7: #2b7176;
+  --pele-series-8: #7a5c2e;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #b86e00;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #fbe3e3;
+  --ca-alerta-borda: #b3262d;
+  --ca-cinza: #ecebe8;
+  --ca-cinza-borda: #6b7385;
+  --ca-cinza-texto: #464e5e;
+  --ca-verde: #dff1e8;
+  --ca-verde-borda: #1d7350;
+}
+/* Tema escuro do Corredor Aceso para diagramas Pele: pitch, vídeo e GitHub no modo escuro.
+   A casa às 3 da manhã: fundo noite, texto papel, a lâmpada âmbar como única luz quente.
+   Cores de pitch/corredor-aceso/video/src/theme.ts. Contraste medido por tema/contraste.mjs. */
+.tema-escuro .pele {
+  --pele-bg: #0b1220;
+  --pele-fg: #f3ecdf;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #f3ecdf;
+  --pele-muted: #a3acbd;
+  --pele-line: #b8b0a2;
+  --pele-surface: #17223a;
+  --pele-surface-alt: #111a2d;
+  --pele-border: #56688c;
+  --pele-accent: #ffb13b;
+  --pele-critical: #e5484d;
+  --pele-error: #e5484d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #8b95a7;
+  --pele-series-2: #ffb13b;
+  --pele-series-3: #3dbe8b;
+  --pele-series-4: #e5484d;
+  --pele-series-5: #7fa7d9;
+  --pele-series-6: #c4a6e6;
+  --pele-series-7: #5cc8c8;
+  --pele-series-8: #d9c3a0;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #ffd08a;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #3a161c;
+  --ca-alerta-borda: #e5484d;
+  --ca-cinza: #1a2233;
+  --ca-cinza-borda: #8b95a7;
+  --ca-cinza-texto: #a3acbd;
+  --ca-verde: #0f2a22;
+  --ca-verde-borda: #3dbe8b;
+  /* Brilho da lâmpada no topo do fundo (só no tema escuro). */
+  --ca-brilho: #ffb13b;
+  --ca-brilho-opacidade: 0.09;
+}
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-claro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-claro .pele .luz text, .tema-claro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-claro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-claro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-claro .pele .cinza text, .tema-claro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-claro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-claro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-claro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-claro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-claro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-claro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-claro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-claro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-escuro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-escuro .pele .luz text, .tema-escuro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-escuro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-escuro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-escuro .pele .cinza text, .tema-escuro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-escuro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-escuro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-escuro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-escuro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-escuro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-escuro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-escuro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-escuro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+
+</style>
+<body class="tema-claro">
+<header><h1>Pele: class (40)</h1><a href="../../galeria/index.html">índice</a>
+<label>tema <select id="tema"><option value="tema-claro">claro do projeto</option><option value="tema-escuro">escuro do projeto</option><option value="padrao">padrão do Pele</option></select></label>
+<label><input type="checkbox" id="largura" checked> largura do README (820 px)</label>
+<span>exemplos de pele.run/examples</span></header>
+<main><section class="cartao" id="d0">
+<h2>01-several-relations-into-one-class.mmd <small>Edges &gt; Several relations into one class</small></h2>
+<div class="lado"><pre>classDiagram
+  Animal &lt;|-- Turtle
+  Animal &lt;|-- Shark
+  Animal &lt;|-- Whale
+  Animal *-- Habitat
+  Habitat o-- Animal
+  Turtle --&gt; Shark : fears
+  Shark --&gt; Turtle : hunts
+</pre><div class="desenho" data-i="0"></div></div></section>
+<section class="cartao" id="d1">
+<h2>02-wide-inheritance.mmd <small>Edges &gt; Wide inheritance</small></h2>
+<div class="lado"><pre>classDiagram
+  Shape &lt;|-- Circle
+  Shape &lt;|-- Square
+  Shape &lt;|-- Triangle
+  Shape &lt;|-- Hexagon
+  Shape &lt;|-- Ellipse
+  Shape &lt;|-- Diamond
+  Shape &lt;|-- Trapezoid
+  Circle --&gt; Canvas
+  Trapezoid --&gt; Canvas
+  Canvas --&gt; Shape
+</pre><div class="desenho" data-i="1"></div></div></section>
+<section class="cartao" id="d2">
+<h2>03-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+title: Animal example
+---
+classDiagram
+    note "From Duck till Zebra"
+    Animal &lt;|-- Duck
+    note for Duck "can fly&lt;br&gt;can swim&lt;br&gt;can dive&lt;br&gt;can help in debugging"
+    Animal &lt;|-- Fish
+    Animal &lt;|-- Zebra
+    Animal : +int age
+    Animal : +String gender
+    Animal: +isMammal()
+    Animal: +mate()
+    class Duck{
+        +String beakColor
+        +swim()
+        +quack()
+    }
+    class Fish{
+        -int sizeInFeet
+        -canEat()
+    }
+    class Zebra{
+        +bool is_wild
+        +run()
+    }
+</pre><div class="desenho" data-i="2"></div></div></section>
+<section class="cartao" id="d3">
+<h2>04-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+  class Customer {
+    +String name
+    +String email
+  }
+  class Order {
+    +String id
+    +Date placedAt
+    +total() Money
+  }
+  class LineItem {
+    +int quantity
+  }
+  class Payment {
+    &lt;&lt;interface&gt;&gt;
+    +authorize() bool
+  }
+  Customer "1" --&gt; "*" Order : places
+  Order "1" *-- "*" LineItem : contains
+  Order --&gt; Payment : settled by
+</pre><div class="desenho" data-i="3"></div></div></section>
+<section class="cartao" id="d4">
+<h2>05-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+config:
+  theme: default
+  look: classic
+  layout: dagre
+---
+classDiagram
+  class Customer {
+    +String name
+    +String email
+  }
+  class Order {
+    +String id
+    +Date placedAt
+    +total() Money
+  }
+  class LineItem {
+    +int quantity
+  }
+  class Payment {
+    &lt;&lt;interface&gt;&gt;
+    +authorize() bool
+  }
+  Customer "1" --&gt; "*" Order : places
+  Order "1" *-- "*" LineItem : contains
+  Order --&gt; Payment : settled by
+</pre><div class="desenho" data-i="4"></div></div></section>
+<section class="cartao" id="d5">
+<h2>06-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+title: Bank example
+---
+classDiagram
+    class BankAccount
+    BankAccount : +String owner
+    BankAccount : +Bigdecimal balance
+    BankAccount : +deposit(amount)
+    BankAccount : +withdrawal(amount)
+</pre><div class="desenho" data-i="5"></div></div></section>
+<section class="cartao" id="d6">
+<h2>07-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    class Animal
+    Vehicle &lt;|-- Car
+</pre><div class="desenho" data-i="6"></div></div></section>
+<section class="cartao" id="d7">
+<h2>08-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    class Animal["Animal with a label"]
+    class Car["Car with *! symbols"]
+    Animal --&gt; Car
+</pre><div class="desenho" data-i="7"></div></div></section>
+<section class="cartao" id="d8">
+<h2>09-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    class `Animal Class!`
+    class `Car Class`
+    `Animal Class!` --&gt; `Car Class`
+</pre><div class="desenho" data-i="8"></div></div></section>
+<section class="cartao" id="d9">
+<h2>10-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class BankAccount
+BankAccount : +String owner
+BankAccount : +BigDecimal balance
+BankAccount : +deposit(amount)
+BankAccount : +withdrawal(amount)
+</pre><div class="desenho" data-i="9"></div></div></section>
+<section class="cartao" id="d10">
+<h2>11-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class BankAccount{
+    +String owner
+    +BigDecimal balance
+    +deposit(amount)
+    +withdrawal(amount)
+}
+</pre><div class="desenho" data-i="10"></div></div></section>
+<section class="cartao" id="d11">
+<h2>12-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class BankAccount{
+    +String owner
+    +BigDecimal balance
+    +deposit(amount) bool
+    +withdrawal(amount) int
+}
+</pre><div class="desenho" data-i="11"></div></div></section>
+<section class="cartao" id="d12">
+<h2>13-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class Square~Shape~{
+    int id
+    List~int~ position
+    setPoints(List~int~ points)
+    getPoints() List~int~
+}
+
+Square : -List~string~ messages
+Square : +setMessages(List~string~ messages)
+Square : +getMessages() List~string~
+Square : +getDistanceMatrix() List~List~int~~
+</pre><div class="desenho" data-i="12"></div></div></section>
+<section class="cartao" id="d13">
+<h2>14-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+classA &lt;|-- classB
+classC *-- classD
+classE o-- classF
+classG &lt;-- classH
+classI -- classJ
+classK &lt;.. classL
+classM &lt;|.. classN
+classO .. classP
+</pre><div class="desenho" data-i="13"></div></div></section>
+<section class="cartao" id="d14">
+<h2>15-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+classA --|&gt; classB : Inheritance
+classC --* classD : Composition
+classE --o classF : Aggregation
+classG --&gt; classH : Association
+classI -- classJ : Link(Solid)
+classK ..&gt; classL : Dependency
+classM ..|&gt; classN : Realization
+classO .. classP : Link(Dashed)
+</pre><div class="desenho" data-i="14"></div></div></section>
+<section class="cartao" id="d15">
+<h2>16-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+classA &lt;|-- classB : implements
+classC *-- classD : composition
+classE o-- classF : aggregation
+</pre><div class="desenho" data-i="15"></div></div></section>
+<section class="cartao" id="d16">
+<h2>17-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    Animal &lt;|--|&gt; Zebra
+</pre><div class="desenho" data-i="16"></div></div></section>
+<section class="cartao" id="d17">
+<h2>18-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+  bar ()-- foo
+</pre><div class="desenho" data-i="17"></div></div></section>
+<section class="cartao" id="d18">
+<h2>19-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+  class Class01 {
+    int amount
+    draw()
+  }
+  Class01 --() bar
+  Class02 --() bar
+
+  foo ()-- Class01
+</pre><div class="desenho" data-i="18"></div></div></section>
+<section class="cartao" id="d19">
+<h2>20-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+namespace BaseShapes {
+    class Triangle
+    class Rectangle {
+      double width
+      double height
+    }
+}
+</pre><div class="desenho" data-i="19"></div></div></section>
+<section class="cartao" id="d20">
+<h2>21-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    namespace Auth["Authentication Service"] {
+        class UserService {
+            +login()
+            +logout()
+        }
+    }
+</pre><div class="desenho" data-i="20"></div></div></section>
+<section class="cartao" id="d21">
+<h2>22-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    namespace Company.Engineering.Backend {
+        class Developer {
+            +writeCode()
+        }
+    }
+    namespace Company.Engineering.Frontend {
+        class Designer {
+            +createMockup()
+        }
+    }
+    namespace Company.Engineering {
+        class TechLead {
+            +planSprint()
+        }
+    }
+    TechLead --&gt; Developer : leads
+    TechLead --&gt; Designer : leads
+</pre><div class="desenho" data-i="21"></div></div></section>
+<section class="cartao" id="d22">
+<h2>23-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    namespace Platform {
+        namespace Auth {
+            class UserService {
+                +login()
+                +logout()
+            }
+        }
+        namespace Data {
+            class Repository {
+                +find()
+                +save()
+            }
+        }
+        class Gateway {
+            +route()
+        }
+    }
+    Gateway --&gt; UserService : delegates
+    Gateway --&gt; Repository : delegates
+</pre><div class="desenho" data-i="22"></div></div></section>
+<section class="cartao" id="d23">
+<h2>24-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+config:
+  class:
+    hierarchicalNamespaces: false
+---
+classDiagram
+    namespace Company.Engineering.Backend {
+        class Developer {
+            +writeCode()
+        }
+    }
+    namespace Company.Engineering.Frontend {
+        class Designer {
+            +createMockup()
+        }
+    }
+    namespace Company {
+        class CEO {
+            +makeDecisions()
+        }
+    }
+    CEO --&gt; Developer : oversees
+    CEO --&gt; Designer : oversees
+</pre><div class="desenho" data-i="23"></div></div></section>
+<section class="cartao" id="d24">
+<h2>25-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    Customer "1" --&gt; "*" Ticket
+    Student "1" --&gt; "1..*" Course
+    Galaxy --&gt; "many" Star : Contains
+</pre><div class="desenho" data-i="24"></div></div></section>
+<section class="cartao" id="d25">
+<h2>26-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+  class Shape &lt;&lt;interface&gt;&gt;
+</pre><div class="desenho" data-i="25"></div></div></section>
+<section class="cartao" id="d26">
+<h2>27-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class Shape
+&lt;&lt;interface&gt;&gt; Shape
+Shape : noOfVertices
+Shape : draw()
+</pre><div class="desenho" data-i="26"></div></div></section>
+<section class="cartao" id="d27">
+<h2>28-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class Shape{
+    &lt;&lt;interface&gt;&gt;
+    noOfVertices
+    draw()
+}
+class Color{
+    &lt;&lt;enumeration&gt;&gt;
+    RED
+    BLUE
+    GREEN
+    WHITE
+    BLACK
+}
+</pre><div class="desenho" data-i="27"></div></div></section>
+<section class="cartao" id="d28">
+<h2>29-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+%% This whole line is a comment classDiagram class Shape &lt;&lt;interface&gt;&gt;
+class Shape{
+    &lt;&lt;interface&gt;&gt;
+    noOfVertices
+    draw()
+}
+</pre><div class="desenho" data-i="28"></div></div></section>
+<section class="cartao" id="d29">
+<h2>30-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+  direction RL
+  class Student {
+    -idCard : IdCard
+  }
+  class IdCard{
+    -id : int
+    -name : string
+  }
+  class Bike{
+    -id : int
+    -name : string
+  }
+  Student "1" --o "1" IdCard : carries
+  Student "1" --o "1" Bike : rides
+</pre><div class="desenho" data-i="29"></div></div></section>
+<section class="cartao" id="d30">
+<h2>31-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    note "This is a general note"
+    note for MyClass "This is a note for a class"
+    class MyClass{
+    }
+</pre><div class="desenho" data-i="30"></div></div></section>
+<section class="cartao" id="d31">
+<h2>32-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class Shape
+link Shape "https://www.github.com" "This is a tooltip for a link"
+class Shape2
+click Shape2 href "https://www.github.com" "This is a tooltip for a link"
+</pre><div class="desenho" data-i="31"></div></div></section>
+<section class="cartao" id="d32">
+<h2>33-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+class Shape
+callback Shape "callbackFunction" "This is a tooltip for a callback"
+class Shape2
+click Shape2 call callbackFunction() "This is a tooltip for a callback"
+</pre><div class="desenho" data-i="32"></div></div></section>
+<section class="cartao" id="d33">
+<h2>34-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    class Class01
+    class Class02
+    callback Class01 "callbackFunction" "Callback tooltip"
+    link Class02 "https://www.github.com" "This is a link"
+    class Class03
+    class Class04
+    click Class03 call callbackFunction() "Callback tooltip"
+    click Class04 href "https://www.github.com" "This is a link"
+</pre><div class="desenho" data-i="33"></div></div></section>
+<section class="cartao" id="d34">
+<h2>35-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+  class Animal
+  class Mineral
+  style Animal fill:#f9f,stroke:#333,stroke-width:4px
+  style Mineral fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
+</pre><div class="desenho" data-i="34"></div></div></section>
+<section class="cartao" id="d35">
+<h2>36-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    class Animal:::someclass
+    classDef someclass fill:#f96
+</pre><div class="desenho" data-i="35"></div></div></section>
+<section class="cartao" id="d36">
+<h2>37-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    class Animal:::someclass {
+        -int sizeInFeet
+        -canEat()
+    }
+    classDef someclass fill:#f96
+</pre><div class="desenho" data-i="36"></div></div></section>
+<section class="cartao" id="d37">
+<h2>38-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+  class Animal:::pink
+  class Mineral
+
+  classDef default fill:#f96,color:red
+  classDef pink color:#f9f
+</pre><div class="desenho" data-i="37"></div></div></section>
+<section class="cartao" id="d38">
+<h2>39-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>classDiagram
+    class Animal:::styleClass
+</pre><div class="desenho" data-i="38"></div></div></section>
+<section class="cartao" id="d39">
+<h2>40-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+  config:
+    class:
+      hideEmptyMembersBox: true
+---
+classDiagram
+  class Duck
+</pre><div class="desenho" data-i="39"></div></div></section></main>
+<script src="../../node_modules/pele/dist/pele.global.js"></script>
+<script>
+const fontes = ["classDiagram\n  Animal <|-- Turtle\n  Animal <|-- Shark\n  Animal <|-- Whale\n  Animal *-- Habitat\n  Habitat o-- Animal\n  Turtle --> Shark : fears\n  Shark --> Turtle : hunts\n","classDiagram\n  Shape <|-- Circle\n  Shape <|-- Square\n  Shape <|-- Triangle\n  Shape <|-- Hexagon\n  Shape <|-- Ellipse\n  Shape <|-- Diamond\n  Shape <|-- Trapezoid\n  Circle --> Canvas\n  Trapezoid --> Canvas\n  Canvas --> Shape\n","---\ntitle: Animal example\n---\nclassDiagram\n    note \"From Duck till Zebra\"\n    Animal <|-- Duck\n    note for Duck \"can fly<br>can swim<br>can dive<br>can help in debugging\"\n    Animal <|-- Fish\n    Animal <|-- Zebra\n    Animal : +int age\n    Animal : +String gender\n    Animal: +isMammal()\n    Animal: +mate()\n    class Duck{\n        +String beakColor\n        +swim()\n        +quack()\n    }\n    class Fish{\n        -int sizeInFeet\n        -canEat()\n    }\n    class Zebra{\n        +bool is_wild\n        +run()\n    }\n","classDiagram\n  class Customer {\n    +String name\n    +String email\n  }\n  class Order {\n    +String id\n    +Date placedAt\n    +total() Money\n  }\n  class LineItem {\n    +int quantity\n  }\n  class Payment {\n    <<interface>>\n    +authorize() bool\n  }\n  Customer \"1\" --> \"*\" Order : places\n  Order \"1\" *-- \"*\" LineItem : contains\n  Order --> Payment : settled by\n","---\nconfig:\n  theme: default\n  look: classic\n  layout: dagre\n---\nclassDiagram\n  class Customer {\n    +String name\n    +String email\n  }\n  class Order {\n    +String id\n    +Date placedAt\n    +total() Money\n  }\n  class LineItem {\n    +int quantity\n  }\n  class Payment {\n    <<interface>>\n    +authorize() bool\n  }\n  Customer \"1\" --> \"*\" Order : places\n  Order \"1\" *-- \"*\" LineItem : contains\n  Order --> Payment : settled by\n","---\ntitle: Bank example\n---\nclassDiagram\n    class BankAccount\n    BankAccount : +String owner\n    BankAccount : +Bigdecimal balance\n    BankAccount : +deposit(amount)\n    BankAccount : +withdrawal(amount)\n","classDiagram\n    class Animal\n    Vehicle <|-- Car\n","classDiagram\n    class Animal[\"Animal with a label\"]\n    class Car[\"Car with *! symbols\"]\n    Animal --> Car\n","classDiagram\n    class `Animal Class!`\n    class `Car Class`\n    `Animal Class!` --> `Car Class`\n","classDiagram\nclass BankAccount\nBankAccount : +String owner\nBankAccount : +BigDecimal balance\nBankAccount : +deposit(amount)\nBankAccount : +withdrawal(amount)\n","classDiagram\nclass BankAccount{\n    +String owner\n    +BigDecimal balance\n    +deposit(amount)\n    +withdrawal(amount)\n}\n","classDiagram\nclass BankAccount{\n    +String owner\n    +BigDecimal balance\n    +deposit(amount) bool\n    +withdrawal(amount) int\n}\n","classDiagram\nclass Square~Shape~{\n    int id\n    List~int~ position\n    setPoints(List~int~ points)\n    getPoints() List~int~\n}\n\nSquare : -List~string~ messages\nSquare : +setMessages(List~string~ messages)\nSquare : +getMessages() List~string~\nSquare : +getDistanceMatrix() List~List~int~~\n","classDiagram\nclassA <|-- classB\nclassC *-- classD\nclassE o-- classF\nclassG <-- classH\nclassI -- classJ\nclassK <.. classL\nclassM <|.. classN\nclassO .. classP\n","classDiagram\nclassA --|> classB : Inheritance\nclassC --* classD : Composition\nclassE --o classF : Aggregation\nclassG --> classH : Association\nclassI -- classJ : Link(Solid)\nclassK ..> classL : Dependency\nclassM ..|> classN : Realization\nclassO .. classP : Link(Dashed)\n","classDiagram\nclassA <|-- classB : implements\nclassC *-- classD : composition\nclassE o-- classF : aggregation\n","classDiagram\n    Animal <|--|> Zebra\n","classDiagram\n  bar ()-- foo\n","classDiagram\n  class Class01 {\n    int amount\n    draw()\n  }\n  Class01 --() bar\n  Class02 --() bar\n\n  foo ()-- Class01\n","classDiagram\nnamespace BaseShapes {\n    class Triangle\n    class Rectangle {\n      double width\n      double height\n    }\n}\n","classDiagram\n    namespace Auth[\"Authentication Service\"] {\n        class UserService {\n            +login()\n            +logout()\n        }\n    }\n","classDiagram\n    namespace Company.Engineering.Backend {\n        class Developer {\n            +writeCode()\n        }\n    }\n    namespace Company.Engineering.Frontend {\n        class Designer {\n            +createMockup()\n        }\n    }\n    namespace Company.Engineering {\n        class TechLead {\n            +planSprint()\n        }\n    }\n    TechLead --> Developer : leads\n    TechLead --> Designer : leads\n","classDiagram\n    namespace Platform {\n        namespace Auth {\n            class UserService {\n                +login()\n                +logout()\n            }\n        }\n        namespace Data {\n            class Repository {\n                +find()\n                +save()\n            }\n        }\n        class Gateway {\n            +route()\n        }\n    }\n    Gateway --> UserService : delegates\n    Gateway --> Repository : delegates\n","---\nconfig:\n  class:\n    hierarchicalNamespaces: false\n---\nclassDiagram\n    namespace Company.Engineering.Backend {\n        class Developer {\n            +writeCode()\n        }\n    }\n    namespace Company.Engineering.Frontend {\n        class Designer {\n            +createMockup()\n        }\n    }\n    namespace Company {\n        class CEO {\n            +makeDecisions()\n        }\n    }\n    CEO --> Developer : oversees\n    CEO --> Designer : oversees\n","classDiagram\n    Customer \"1\" --> \"*\" Ticket\n    Student \"1\" --> \"1..*\" Course\n    Galaxy --> \"many\" Star : Contains\n","classDiagram\n  class Shape <<interface>>\n","classDiagram\nclass Shape\n<<interface>> Shape\nShape : noOfVertices\nShape : draw()\n","classDiagram\nclass Shape{\n    <<interface>>\n    noOfVertices\n    draw()\n}\nclass Color{\n    <<enumeration>>\n    RED\n    BLUE\n    GREEN\n    WHITE\n    BLACK\n}\n","classDiagram\n%% This whole line is a comment classDiagram class Shape <<interface>>\nclass Shape{\n    <<interface>>\n    noOfVertices\n    draw()\n}\n","classDiagram\n  direction RL\n  class Student {\n    -idCard : IdCard\n  }\n  class IdCard{\n    -id : int\n    -name : string\n  }\n  class Bike{\n    -id : int\n    -name : string\n  }\n  Student \"1\" --o \"1\" IdCard : carries\n  Student \"1\" --o \"1\" Bike : rides\n","classDiagram\n    note \"This is a general note\"\n    note for MyClass \"This is a note for a class\"\n    class MyClass{\n    }\n","classDiagram\nclass Shape\nlink Shape \"https://www.github.com\" \"This is a tooltip for a link\"\nclass Shape2\nclick Shape2 href \"https://www.github.com\" \"This is a tooltip for a link\"\n","classDiagram\nclass Shape\ncallback Shape \"callbackFunction\" \"This is a tooltip for a callback\"\nclass Shape2\nclick Shape2 call callbackFunction() \"This is a tooltip for a callback\"\n","classDiagram\n    class Class01\n    class Class02\n    callback Class01 \"callbackFunction\" \"Callback tooltip\"\n    link Class02 \"https://www.github.com\" \"This is a link\"\n    class Class03\n    class Class04\n    click Class03 call callbackFunction() \"Callback tooltip\"\n    click Class04 href \"https://www.github.com\" \"This is a link\"\n","classDiagram\n  class Animal\n  class Mineral\n  style Animal fill:#f9f,stroke:#333,stroke-width:4px\n  style Mineral fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5\n","classDiagram\n    class Animal:::someclass\n    classDef someclass fill:#f96\n","classDiagram\n    class Animal:::someclass {\n        -int sizeInFeet\n        -canEat()\n    }\n    classDef someclass fill:#f96\n","classDiagram\n  class Animal:::pink\n  class Mineral\n\n  classDef default fill:#f96,color:red\n  classDef pink color:#f9f\n","classDiagram\n    class Animal:::styleClass\n","---\n  config:\n    class:\n      hideEmptyMembersBox: true\n---\nclassDiagram\n  class Duck\n"];
+const medidas = ["Node, tema padrão: 367x333","Node, tema padrão: 877x346","Node, tema padrão: 597x383","Node, tema padrão: 294x542","Node, tema padrão: 294x542","Node, tema padrão: 171x200","Node, tema padrão: 214x192","Node, tema padrão: 189x192","Node, tema padrão: 146x192","Node, tema padrão: 172x164","Node, tema padrão: 172x164","Node, tema padrão: 197x164","Node, tema padrão: 281x248","Node, tema padrão: 900x192","Node, tema padrão: 912x217","Node, tema padrão: 332x217","Node, tema padrão: 94x192","Node, tema padrão: 80x153","Node, tema padrão: 200x315","Node, tema padrão: 291x180","Node, tema padrão: 204x180","Node, tema padrão: 493x463","Node, tema padrão: 401x424","Node, tema padrão: 1044x428","Node, tema padrão: 358x233","Node, tema padrão: 105x94","Node, tema padrão: 121x140","Node, tema padrão: 273x201","Node, tema padrão: 121x140","Node, tema padrão: 376x264","Node, tema padrão: 389x169","Node, tema padrão: 209x76","Node, tema padrão: 209x76","Node, tema padrão: 474x76","Node, tema padrão: 214x76","Node, tema padrão: 94x76","Node, tema padrão: 128x122","Node, tema padrão: 214x76","Node, tema padrão: 94x76","Node, tema padrão: 80x56"];
+function desenhar() {
+  const t = document.getElementById('tema').value, larg = document.getElementById('largura').checked;
+  document.body.className = t === 'padrao' ? '' : t;
+  document.querySelectorAll('.desenho').forEach((el) => {
+    const i = +el.dataset.i;
+    const op = { idPrefix: 'g' + i };
+    if (t !== 'padrao') Object.assign(op, { fontFamily: '"Atkinson Hyperlegible", sans-serif', fontFamilyMono: '"Atkinson Hyperlegible Mono", monospace' });
+    if (larg) Object.assign(op, { maxWidth: 820, directionBreakpoint: 821 });
+    try {
+      const r = pele.render(fontes[i], op);
+      el.innerHTML = r.svg + '<div class="medida">navegador: ' + Math.round(r.width) + 'x' + Math.round(r.height) + (medidas[i] ? ' · ' + medidas[i] : '') + '</div>';
+    } catch (e) { el.innerHTML = '<div class="erro"></div>'; el.firstChild.textContent = e.message; }
+  });
+}
+document.getElementById('tema').onchange = desenhar;
+document.getElementById('largura').onchange = desenhar;
+Promise.all(['400 16px "Atkinson Hyperlegible"', '700 16px "Atkinson Hyperlegible"', '16px "Atkinson Hyperlegible Mono"', '600 16px Fraunces'].map((f) => document.fonts.load(f))).then(desenhar, desenhar);
+</script></html>

@@ -1,0 +1,6 @@
+flowchart LR
+  tag(["tag v* na main"]) --> build["publica api e app"] --> deploy["deploy.sh na VM<br/>guarda a versão anterior"] --> smoke{"/api/radar responde?"}
+  smoke -- sim --> pronto(["versão nova no ar"]):::verde
+  smoke -- não --> rollback["rollback.sh<br/>volta o link e reinicia"]:::alerta --> anterior(["versão anterior no ar"])
+  classDef verde stroke-width:2px
+  classDef alerta stroke-width:2px

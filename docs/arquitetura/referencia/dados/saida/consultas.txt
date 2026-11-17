@@ -1,0 +1,177 @@
+
+== 1. Agregado Idoso: consentimento, vizinho, revogacao, novo consentimento
+   [ok] idoso achado pelo token, com consentimento e vizinho
+   [ok] rotulo vem da coluna: Nome
+   [ok] rotulo vem da coluna: Saude
+   [ok] ToString() do nome devolve a mascara
+   [ok] colhido_em gravado em UTC a partir de -03:00
+   [ok] revogar apaga o token, remove o vizinho e guarda o consentimento revogado
+   [ok] consentimento novo gera token novo; indice parcial aceita 1 revogado + 1 vigente
+
+== 2. Concorrencia otimista com xmin (DiaCritico)
+   [ok] segundo encerramento concorrente falha com DbUpdateConcurrencyException
+   [ok] repetir o caso de uso com leitura nova devolve o resumo do primeiro encerramento
+
+== 3. RegistrarPacote: UPDATE monotonico + INSERT ON CONFLICT DO NOTHING
+   [ok] pacote de casa ativa avanca ultimo_pacote_em
+   [ok] mesmo (token, seq, ts) de novo: casa ativa, zero linha nova
+   [ok] seq 1 com ts novo depois do reinicio do no e aceito
+   [ok] pacote com hora de chegada menor nao faz ultimo_pacote_em voltar
+   [ok] token desconhecido e descartado sem gravar
+   [ok] um evento por chave
+
+== 4. Confirmar e DesativarCasa pelo agregado
+   [ok] confirmacao repetida gravada uma vez e carregada com a casa
+   [ok] casa desativada fica, sem confirmacoes e sem eventos
+   [ok] pacote de casa desativada e descartado
+
+== 5. Colecao de TipoDeDado em text[] e AnexarMensagem
+   [ok] tipos_de_dado volta como lista de enum
+   [ok] observacao volta com os rotulos de texto livre
+
+== 6. Corrida entre pacote e revogacao
+   [ok] a revogacao espera o pacote que esta no meio da transacao
+   [ok] o evento que entrou antes da revogacao e apagado por ela
+   [ok] o pacote espera a revogacao que esta no meio da transacao
+   [ok] o pacote que esperou e descartado e a casa fica sem evento
+
+== 6b. Expurgo pelo Npgsql, com o texto de consultas/expurgo.sql
+   [ok] o texto do expurgo roda pelo Npgsql e apaga a leitura velha de casa comum
+
+== 7. Armadilhas
+   [ok] SQL escrito a mao: o Npgsql recusa DateTimeOffset com -03:00
+   [ok] hora com decimos de microssegundo volta cortada no microssegundo, sem codigo de corte
+   [ok] chave do episodio com Desde de decimos de microssegundo acha a linha gravada: o Npgsql corta o parametro igual
+
+== 8. Consultas principais: SQL gerado e plano
+
+-- radar: casas ativas da microarea, com as confirmacoes
+-- @microarea='3'
+SELECT c.casa_token, c.ativada_em, c.desativada_em, c.microarea_id, c.ultimo_pacote_em, c.perfil_contato, c.perfil_eletrodependente, c0.id, c0.casa_token, c0.origem, c0.quando, c0.resultado
+FROM motor.casa_monitorada AS c
+LEFT JOIN motor.confirmacao AS c0 ON c.casa_token = c0.casa_token
+WHERE c.microarea_id = @microarea AND c.desativada_em IS NULL
+ORDER BY c.casa_token
+   plano| Sort
+   plano|   Sort Key: c.casa_token
+   plano|   ->  Hash Right Join
+   plano|         Hash Cond: (c0.casa_token = c.casa_token)
+   plano|         ->  Seq Scan on confirmacao c0
+   plano|         ->  Hash
+   plano|               ->  Index Scan using ix_casa_monitorada_microarea_ativa on casa_monitorada c
+   plano|                     Index Cond: (microarea_id = 3)
+
+-- radar e entrada da avaliacao: eventos de 24 h mais as leituras baixas guardadas
+-- @microarea='3'
+-- @desde='2026-11-17T13:31:00.0000000+00:00' (DbType = DateTime)
+-- @tensaoMinima='100' (Nullable = true)
+SELECT e.casa_token, e.tipo, e.ocorrido_em, e.temp_c, e.tensao_v
+FROM motor.evento_sensor AS e
+WHERE EXISTS (
+    SELECT 1
+    FROM motor.casa_monitorada AS c
+    WHERE c.casa_token = e.casa_token AND c.microarea_id = @microarea AND c.desativada_em IS NULL) AND (e.ocorrido_em >= @desde OR e.tensao_v < @tensaoMinima)
+   plano| Gather
+   plano|   Workers Planned: 2
+   plano|   ->  Hash Join
+   plano|         Hash Cond: (e.casa_token = c.casa_token)
+   plano|         ->  Parallel Seq Scan on evento_sensor e
+   plano|               Filter: ((ocorrido_em >= '2026-11-17 13:31:00+00'::timestamp with time zone) OR (tensao_v < '100'::numeric))
+   plano|         ->  Hash
+   plano|               ->  Index Scan using ix_casa_monitorada_microarea_ativa on casa_monitorada c
+   plano|                     Index Cond: (microarea_id = 3)
+   40 casas com evento, 13080 eventos carregados
+   [ok] eventos agrupados por casa na memoria
+
+-- dia critico de hoje
+-- @hoje='11/18/2026' (DbType = Date)
+SELECT d.data, d.aberto_em, d.encerrado_em, d.motivo, d.origem, d.probabilidade, d.toque_pedido_em, d.xmin, d.resumo_atendidas, d.resumo_casas_ativas, d.resumo_cinzas_pendentes, d.resumo_com_sinal_de_vida_ate_10h, d.resumo_vermelhas_pendentes
+FROM motor.dia_critico AS d
+WHERE d.data = @hoje
+   plano| Seq Scan on dia_critico d
+   plano|   Filter: (data = '2026-11-18'::date)
+
+-- linha do tempo de uma casa
+-- @token='3b762a04b329548214bedcd04804de2f' (Nullable = false)
+-- @desde='2026-11-17T13:31:00.0000000+00:00' (DbType = DateTime)
+SELECT e.casa_token, e.ocorrido_em, e.seq, e.bufferizado, e.recebido_em, e.temp_c, e.tensao_v, e.tipo
+FROM motor.evento_sensor AS e
+WHERE e.casa_token = @token AND e.ocorrido_em >= @desde
+ORDER BY e.ocorrido_em, e.seq
+   plano| Index Scan using pk_evento_sensor on evento_sensor e
+   plano|   Index Cond: ((casa_token = '3b762a04b329548214bedcd04804de2f'::text) AND (ocorrido_em >= '2026-11-17 13:31:00+00'::timestamp with time zone))
+   [ok] lista de nomes nao le condicoes nem medicamentos do banco
+   [ok] lista de nomes projeta TextoRotulado com rotulo e deixa o vizinho nulo quando nao existe
+
+-- lista de nomes da microarea
+-- @microarea='3'
+SELECT i.casa_token, i.nome, i.casa_endereco, v.nome, v.telefone
+FROM cadastro.idoso AS i
+LEFT JOIN cadastro.vizinho_de_confianca AS v ON i.id = v.idoso_id
+WHERE i.microarea_id = @microarea AND i.casa_token IS NOT NULL
+   plano| Hash Right Join
+   plano|   Hash Cond: (v.idoso_id = i.id)
+   plano|   ->  Seq Scan on vizinho_de_confianca v
+   plano|   ->  Hash
+   plano|         ->  Index Scan using ix_idoso_microarea_com_token on idoso i
+   plano|               Index Cond: (microarea_id = 3)
+
+-- avisos das ultimas 24 h da microarea
+-- @microarea='3'
+-- @desde='2026-11-17T13:31:00.0000000+00:00' (DbType = DateTime)
+SELECT a.id, a.casa_token, a.desde, a.microarea_id, a.motivo, a.registrado_em, a.respondido_em, a.resposta, a.xmin
+FROM cadastro.aviso_ao_vizinho AS a
+WHERE a.microarea_id = @microarea AND a.registrado_em >= @desde
+ORDER BY a.registrado_em
+   plano| Sort
+   plano|   Sort Key: registrado_em
+   plano|   ->  Bitmap Heap Scan on aviso_ao_vizinho a
+   plano|         Recheck Cond: ((microarea_id = 3) AND (registrado_em >= '2026-11-17 13:31:00+00'::timestamp with time zone))
+   plano|         ->  Bitmap Index Scan on ix_aviso_ao_vizinho_microarea_registrado
+   plano|               Index Cond: ((microarea_id = 3) AND (registrado_em >= '2026-11-17 13:31:00+00'::timestamp with time zone))
+
+-- idoso pelo token (POST /visitas e ReceptorDeContato)
+-- @token='bba905999961c5108ee27832343ffd44'
+SELECT i.id, i.condicoes, i.medicamentos, i.microarea_id, i.nome, i.xmin, i.perfil_contato, i.perfil_eletrodependente, i.id, i.casa_endereco, i.casa_token, v.idoso_id, c.id, c.colhido_em, c.colhido_por, c.idoso_id, c.revogado_em, c.versao_do_termo, c.autorizacoes_avisar_familia, c.autorizacoes_avisar_vizinho, v.aceitou_em, v.nome, v.telefone
+FROM cadastro.idoso AS i
+LEFT JOIN cadastro.vizinho_de_confianca AS v ON i.id = v.idoso_id
+LEFT JOIN cadastro.consentimento AS c ON i.id = c.idoso_id
+WHERE i.casa_token = @token
+ORDER BY i.id, v.idoso_id
+   plano| Sort
+   plano|   Sort Key: i.id, v.idoso_id
+   plano|   ->  Nested Loop Left Join
+   plano|         ->  Hash Right Join
+   plano|               Hash Cond: (c.idoso_id = i.id)
+   plano|               ->  Seq Scan on consentimento c
+   plano|               ->  Hash
+   plano|                     ->  Index Scan using ux_idoso_casa_token on idoso i
+   plano|                           Index Cond: (casa_token = 'bba905999961c5108ee27832343ffd44'::text)
+   plano|         ->  Index Scan using pk_vizinho_de_confianca on vizinho_de_confianca v
+   plano|               Index Cond: (idoso_id = i.id)
+
+-- painel: os 50 eventos de seguranca mais novos das ultimas 24 h
+-- @desde='2026-11-17T13:31:00.0000000+00:00' (DbType = DateTime)
+-- @p='50'
+SELECT e.id, e.canal, e.modulo, e.ocorrido_em, e.rota, e.severidade, e.tipo, e.tipos_de_dado, e.mensagem_origem, e.mensagem_texto
+FROM guarda.evento_de_seguranca AS e
+WHERE e.ocorrido_em >= @desde
+ORDER BY e.ocorrido_em DESC
+LIMIT @p
+   plano| Limit
+   plano|   ->  Index Scan using ix_evento_de_seguranca_ocorrido_em on evento_de_seguranca e
+   plano|         Index Cond: (ocorrido_em >= '2026-11-17 13:31:00+00'::timestamp with time zone)
+
+-- painel: contagem por tipo, canal e severidade para o farol e os pontos
+-- @desde='2026-11-17T13:31:00.0000000+00:00' (DbType = DateTime)
+SELECT e.tipo, e.canal, e.severidade, count(*)::int
+FROM guarda.evento_de_seguranca AS e
+WHERE e.ocorrido_em >= @desde
+GROUP BY e.tipo, e.canal, e.severidade
+   plano| HashAggregate
+   plano|   Group Key: tipo, canal, severidade
+   plano|   ->  Index Scan using ix_evento_de_seguranca_ocorrido_em on evento_de_seguranca e
+   plano|         Index Cond: (ocorrido_em >= '2026-11-17 13:31:00+00'::timestamp with time zone)
+   [ok] contagem do painel volta agrupada
+
+TODAS AS CONFERENCIAS PASSARAM

@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Comando único de operação da VM. Instalado em /usr/local/sbin/corredor.
+set -euo pipefail
+INFRA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+ajuda() {
+  cat <<'AJUDA'
+Uso: sudo corredor <comando>
+
+  status                     versão no ar, serviços, rede e saúde
+  deploy vX.Y.Z | --ultima   implanta uma release (volta sozinho se falhar)
+  deploy --arquivo PACOTE    implanta um pacote local
+  voltar                     rollback manual para a versão anterior
+  reiniciar api              reinicia a API
+  logs api|monitor|alertas|deploy|auditoria
+  infra [ref]                atualiza infra/ para a ref do Git e provisiona de novo
+  teste-de-falha [cenário]   roda o teste de falha
+  tunel [parar]              liga ou desliga a URL HTTPS temporária do cloudflared
+AJUDA
+}
+
+comando="${1:-status}"
+shift || true
+case "$comando" in
+  status) exec bash "$INFRA_DIR/verificar.sh" "$@" ;;
+  deploy) exec bash "$INFRA_DIR/deploy.sh" "$@" ;;
+  voltar) exec bash "$INFRA_DIR/deploy.sh" --voltar ;;
+  teste-de-falha) exec bash "$INFRA_DIR/teste-de-falha.sh" "$@" ;;
+  tunel) exec bash "$INFRA_DIR/tunel.sh" "$@" ;;
+  reiniciar)
+    [[ ${1:-} == api ]] || { ajuda; exit 2; }
+    systemctl restart corredor-api
+    logger -t corredor-auditoria -- "script=corredor usuario=${SUDO_USER:-$(id -un)} evento=reiniciar_api"
+    systemctl --no-pager --lines=0 status corredor-api
+    ;;
+  logs)
+    case "${1:-api}" in
+      api) exec journalctl -u corredor-api -n 100 --no-pager ;;
+      monitor) exec tail -n 40 /var/log/corredor/monitor/monitor.log ;;
+      alertas) exec tail -n 40 /var/log/corredor/monitor/alertas.log ;;
+      deploy) exec tail -n 40 /var/log/corredor/deploy.log ;;
+      auditoria) exec tail -n 40 /var/log/corredor/auditoria.log ;;
+      *) ajuda; exit 2 ;;
+    esac
+    ;;
+  infra)
+    ref="${1:-main}"
+    git -C "$INFRA_DIR/.." fetch --depth 1 origin "$ref"
+    git -C "$INFRA_DIR/.." checkout --quiet --detach FETCH_HEAD
+    exec bash "$INFRA_DIR/provisionar.sh"
+    ;;
+  *) ajuda; exit 2 ;;
+esac

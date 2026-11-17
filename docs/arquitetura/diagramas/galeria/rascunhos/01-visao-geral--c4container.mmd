@@ -1,0 +1,27 @@
+C4Container
+  title Corredor Aceso: contêineres
+  Person(acs, "ACS", "Agente Comunitária de Saúde")
+  System_Ext(no, "Nó ESP32 no Wokwi", "PIR, DHT22, tensão, botão, heartbeat")
+  System_Ext(sim, "Simulador de 39 casas", "script Python")
+  System_Ext(pub, "Broker MQTT público", "só casaToken")
+  System_Ext(llm, "LLM", "recebe só o achado redigido")
+  Container(app, "App da ACS", "Expo, React Native, SQLite", "radar da microárea e lista de nomes")
+  System_Boundary(vm, "VM Linux da UBS") {
+    Container(mq, "Mosquitto", "MQTT", "bridge e broker local")
+    Container(nginx, "Nginx", "proxy", "api.corredor.local")
+    Container(api, "corredor-api", ".NET 8", "Motor, Cadastro e Guarda")
+    Container(painel, "Painel Risco Cidadão", "HTML", "farol e mensagem traduzida")
+    ContainerDb(pg, "Postgres", "schemas motor, cadastro, guarda", "casas, eventos, visitas")
+    Container(job, "Job das 05h", "Python, XGBoost", "prevê o dia crítico")
+  }
+  Rel(no, pub, "publica evento", "MQTT")
+  Rel(pub, mq, "bridge")
+  Rel(sim, mq, "publica", "MQTT")
+  Rel(mq, api, "eventos e comandos")
+  Rel(acs, app, "usa")
+  Rel(app, nginx, "radar, visitas", "HTTPS")
+  Rel(nginx, api, "/api")
+  Rel(nginx, painel, "/painel")
+  Rel(job, nginx, "PUT /api/dias-criticos")
+  Rel(api, pg, "lê e grava", "EF Core")
+  Rel(api, llm, "achado sem dado pessoal", "HTTP")

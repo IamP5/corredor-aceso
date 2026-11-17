@@ -1,0 +1,33 @@
+[Unit]
+Description=Corredor Aceso - API .NET (Motor, Cadastro e Guarda)
+After=network-online.target postgresql.service mosquitto.service
+Wants=network-online.target postgresql.service mosquitto.service
+StartLimitIntervalSec=300
+StartLimitBurst=10
+# Mais de 10 partidas em 5 minutos: o systemd desiste e dispara o alerta de falha definitiva.
+OnFailure=corredor-alerta@%n.service
+
+[Service]
+User=corredor
+Group=corredor
+WorkingDirectory=/opt/corredor/current/api
+EnvironmentFile=/etc/corredor/api.env
+EnvironmentFile=-/etc/corredor/segredos.env
+ExecStart=/opt/corredor/current/api/Corredor.Api
+Restart=on-failure
+# Religa sem passar pelo estado failed (systemd 254 ou mais novo). Sem isto, cada
+# queda dispararia o OnFailure, e o alerta de falha definitiva sairia a cada kill -9.
+RestartMode=direct
+RestartSec=2
+RestartSteps=5
+RestartMaxDelaySec=30
+KillSignal=SIGINT
+TimeoutStopSec=20
+SyslogIdentifier=corredor-api
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

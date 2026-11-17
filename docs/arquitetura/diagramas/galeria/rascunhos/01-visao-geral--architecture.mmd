@@ -1,0 +1,24 @@
+architecture-beta
+  group casa(server)[Casa da idosa]
+  service no(server)[Nó ESP32] in casa
+  service sim(disk)[Simulador 39 casas] in casa
+  service pub(internet)[Broker público]
+  service app(cloud)[App da ACS]
+  service llm(cloud)[LLM]
+  group vm(server)[VM da UBS]
+  service mq(server)[Mosquitto] in vm
+  service nginx(internet)[Nginx] in vm
+  service api(server)[corredor-api] in vm
+  service painel(disk)[Painel] in vm
+  service pg(database)[Postgres] in vm
+  service job(disk)[Job das 05h] in vm
+  no:R --> L:pub
+  pub:R --> L:mq
+  sim:B --> T:mq
+  mq:R --> L:api
+  app:B --> T:nginx
+  nginx:B --> T:api
+  nginx:R --> L:painel
+  job:L --> R:nginx
+  api:B --> T:pg
+  api:R --> L:llm

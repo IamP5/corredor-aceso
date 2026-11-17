@@ -1,0 +1,18 @@
+swimlane-beta LR
+  subgraph App
+    escreve[ACS escreve ao grupo do bairro]
+    tela[tela de mensagem bloqueada]
+  end
+  subgraph Cadastro
+    verifica[POST /api/mensagens/verificar]
+    grava[grava só o texto mascarado]
+  end
+  subgraph Guarda
+    parse[MotorDeParsing: Saude, MoraSozinho]
+    saida{GrupoDoBairro aceita o rótulo?}
+    trad[Tradutor pede 2 frases ao LLM]
+    farol[farol vermelho no painel]
+  end
+  escreve --> verifica --> parse --> saida
+  saida -->|não| grava --> tela
+  saida -->|não| trad --> farol

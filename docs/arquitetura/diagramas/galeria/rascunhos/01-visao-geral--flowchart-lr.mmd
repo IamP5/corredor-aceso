@@ -1,0 +1,47 @@
+flowchart LR
+  subgraph CASA["Casa da idosa"]
+    ESP["Nó ESP32 no Wokwi<br/>PIR + LED de caminho, DHT22,<br/>tensão, botão, buzzer,<br/>buffer + heartbeat"]
+    SIM["Simulador de 39 casas<br/>script Python"]
+  end
+
+  PUB["Broker MQTT público<br/>só token, sem dado pessoal"]
+  APP["App Expo da ACS<br/>radar + SQLite"]
+
+  subgraph VM["VM Linux da UBS, provisionada por Shell Script, vigiada pelo corredor-monitor.service"]
+    MQ["Mosquitto<br/>bridge + broker local"]
+    NGINX["Nginx<br/>api.corredor.local"]
+    JOB["Job das 05h<br/>modelo XGBoost"]
+    subgraph API["corredor-api.service: um processo .NET 8"]
+      MOTOR["Módulo Motor<br/>regras de contato, radar<br/>só tokens e perfis"]
+      CAD["Módulo Cadastro<br/>idoso, consentimento, visita<br/>único dono de dado pessoal"]
+      GUARDA["Módulo Guarda<br/>interceptador de entrada,<br/>taint nas saídas, LLM"]
+    end
+    PAINEL["Painel Risco Cidadão<br/>farol + mensagem traduzida"]
+    PG[("Postgres<br/>schema motor e schema cadastro")]
+  end
+
+  subgraph DADOS["Dados públicos"]
+    INMET[("INMET A701")]
+    SIH[("SIH/DATASUS")]
+  end
+
+  VIZ["Vizinho de confiança<br/>canal simulado"]
+  LLM["LLM<br/>recebe só o achado redigido"]
+
+  ESP -- "MQTT evento" --> PUB
+  PUB -- bridge --> MQ
+  SIM -- MQTT --> MQ
+  MQ <-- "eventos e comandos" --> MOTOR
+  APP -- HTTPS --> NGINX
+  NGINX -- "/api" --> API
+  NGINX -- "/painel" --> PAINEL
+  CAD -- "toda saída de texto" --> GUARDA
+  CAD -- "IMotorDeCasas" --> MOTOR
+  MOTOR -. "aviso neutro" .-> VIZ
+  INMET --> JOB
+  SIH -. "treino no notebook" .-> JOB
+  JOB -- "PUT /api/dias-criticos/{data}" --> NGINX
+  MOTOR --> PG
+  CAD --> PG
+  GUARDA --> PAINEL
+  GUARDA -- "achado sem dado pessoal" --> LLM

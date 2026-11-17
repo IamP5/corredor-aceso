@@ -1,0 +1,279 @@
+coluna cadastro.aviso_ao_vizinho.casa_token text NOT NULL
+coluna cadastro.aviso_ao_vizinho.desde timestamp with time zone NOT NULL
+coluna cadastro.aviso_ao_vizinho.id uuid NOT NULL
+coluna cadastro.aviso_ao_vizinho.microarea_id integer NOT NULL
+coluna cadastro.aviso_ao_vizinho.motivo text NOT NULL
+coluna cadastro.aviso_ao_vizinho.registrado_em timestamp with time zone NOT NULL
+coluna cadastro.aviso_ao_vizinho.respondido_em timestamp with time zone NULL
+coluna cadastro.aviso_ao_vizinho.resposta text NULL
+coluna cadastro.consentimento.autorizacoes_avisar_familia boolean NOT NULL
+coluna cadastro.consentimento.autorizacoes_avisar_vizinho boolean NOT NULL
+coluna cadastro.consentimento.colhido_em timestamp with time zone NOT NULL
+coluna cadastro.consentimento.colhido_por character varying(40) NOT NULL
+coluna cadastro.consentimento.id uuid NOT NULL
+coluna cadastro.consentimento.idoso_id uuid NOT NULL
+coluna cadastro.consentimento.revogado_em timestamp with time zone NULL
+coluna cadastro.consentimento.versao_do_termo character varying(20) NOT NULL
+coluna cadastro.idoso.casa_endereco character varying(200) NOT NULL
+coluna cadastro.idoso.casa_token text NULL
+coluna cadastro.idoso.condicoes character varying(500) NULL
+coluna cadastro.idoso.id uuid NOT NULL
+coluna cadastro.idoso.medicamentos character varying(500) NULL
+coluna cadastro.idoso.microarea_id integer NOT NULL
+coluna cadastro.idoso.nome character varying(120) NOT NULL
+coluna cadastro.idoso.perfil_contato text NOT NULL
+coluna cadastro.idoso.perfil_eletrodependente boolean NOT NULL
+coluna cadastro.mensagem_saida.acs_id character varying(40) NOT NULL
+coluna cadastro.mensagem_saida.canal text NOT NULL
+coluna cadastro.mensagem_saida.id uuid NOT NULL
+coluna cadastro.mensagem_saida.texto_mascarado character varying(1000) NOT NULL
+coluna cadastro.mensagem_saida.tipos_de_dado _text NOT NULL
+coluna cadastro.mensagem_saida.veredito text NOT NULL
+coluna cadastro.mensagem_saida.verificada_em timestamp with time zone NOT NULL
+coluna cadastro.microarea.acs_responsavel character varying(40) NOT NULL
+coluna cadastro.microarea.id integer NOT NULL
+coluna cadastro.microarea.nome character varying(80) NOT NULL
+coluna cadastro.visita.acs_id character varying(40) NOT NULL
+coluna cadastro.visita.desfecho text NOT NULL
+coluna cadastro.visita.id uuid NOT NULL
+coluna cadastro.visita.idoso_id uuid NOT NULL
+coluna cadastro.visita.observacao character varying(500) NULL
+coluna cadastro.visita.ocorrida_em timestamp with time zone NOT NULL
+coluna cadastro.visita.registrada_em timestamp with time zone NOT NULL
+coluna cadastro.vizinho_de_confianca.aceitou_em timestamp with time zone NOT NULL
+coluna cadastro.vizinho_de_confianca.idoso_id uuid NOT NULL
+coluna cadastro.vizinho_de_confianca.nome character varying(120) NOT NULL
+coluna cadastro.vizinho_de_confianca.telefone character varying(20) NOT NULL
+coluna guarda.evento_de_seguranca.canal text NOT NULL
+coluna guarda.evento_de_seguranca.id uuid NOT NULL
+coluna guarda.evento_de_seguranca.mensagem_origem text NULL
+coluna guarda.evento_de_seguranca.mensagem_texto character varying(400) NULL
+coluna guarda.evento_de_seguranca.modulo character varying(40) NOT NULL
+coluna guarda.evento_de_seguranca.ocorrido_em timestamp with time zone NOT NULL
+coluna guarda.evento_de_seguranca.rota character varying(200) NULL
+coluna guarda.evento_de_seguranca.severidade smallint NOT NULL
+coluna guarda.evento_de_seguranca.tipo text NOT NULL
+coluna guarda.evento_de_seguranca.tipos_de_dado _text NOT NULL
+coluna motor.casa_monitorada.ativada_em timestamp with time zone NOT NULL
+coluna motor.casa_monitorada.casa_token text NOT NULL
+coluna motor.casa_monitorada.desativada_em timestamp with time zone NULL
+coluna motor.casa_monitorada.microarea_id integer NOT NULL
+coluna motor.casa_monitorada.perfil_contato text NOT NULL
+coluna motor.casa_monitorada.perfil_eletrodependente boolean NOT NULL
+coluna motor.casa_monitorada.ultimo_pacote_em timestamp with time zone NULL
+coluna motor.confirmacao.casa_token text NOT NULL
+coluna motor.confirmacao.id uuid NOT NULL
+coluna motor.confirmacao.origem text NOT NULL
+coluna motor.confirmacao.quando timestamp with time zone NOT NULL
+coluna motor.confirmacao.resultado text NOT NULL
+coluna motor.dia_critico.aberto_em timestamp with time zone NOT NULL
+coluna motor.dia_critico.data date NOT NULL
+coluna motor.dia_critico.encerrado_em timestamp with time zone NULL
+coluna motor.dia_critico.motivo character varying(200) NOT NULL
+coluna motor.dia_critico.origem text NOT NULL
+coluna motor.dia_critico.probabilidade numeric(4,3) NOT NULL
+coluna motor.dia_critico.resumo_atendidas integer NULL
+coluna motor.dia_critico.resumo_casas_ativas integer NULL
+coluna motor.dia_critico.resumo_cinzas_pendentes integer NULL
+coluna motor.dia_critico.resumo_com_sinal_de_vida_ate_10h integer NULL
+coluna motor.dia_critico.resumo_vermelhas_pendentes integer NULL
+coluna motor.dia_critico.toque_pedido_em timestamp with time zone NULL
+coluna motor.evento_sensor.bufferizado boolean NOT NULL
+coluna motor.evento_sensor.casa_token text NOT NULL
+coluna motor.evento_sensor.ocorrido_em timestamp with time zone NOT NULL
+coluna motor.evento_sensor.recebido_em timestamp with time zone NOT NULL
+coluna motor.evento_sensor.seq bigint NOT NULL
+coluna motor.evento_sensor.temp_c numeric(4,1) NULL
+coluna motor.evento_sensor.tensao_v numeric(5,1) NULL
+coluna motor.evento_sensor.tipo text NOT NULL
+comentario cadastro.aviso_ao_vizinho.casa_token classe=pseudonimizado
+comentario cadastro.aviso_ao_vizinho.desde classe=pseudonimizado
+comentario cadastro.aviso_ao_vizinho.id classe=pseudonimizado
+comentario cadastro.aviso_ao_vizinho.microarea_id classe=nenhum
+comentario cadastro.aviso_ao_vizinho.motivo classe=pseudonimizado+sensivel
+comentario cadastro.aviso_ao_vizinho.registrado_em classe=pseudonimizado
+comentario cadastro.aviso_ao_vizinho.respondido_em classe=pseudonimizado
+comentario cadastro.aviso_ao_vizinho.resposta classe=pseudonimizado
+comentario cadastro.consentimento.autorizacoes_avisar_familia classe=pessoal
+comentario cadastro.consentimento.autorizacoes_avisar_vizinho classe=pessoal
+comentario cadastro.consentimento.colhido_em classe=pessoal
+comentario cadastro.consentimento.colhido_por classe=pessoal
+comentario cadastro.consentimento.id classe=pessoal
+comentario cadastro.consentimento.idoso_id classe=pessoal
+comentario cadastro.consentimento.revogado_em classe=pessoal
+comentario cadastro.consentimento.versao_do_termo classe=pessoal
+comentario cadastro.idoso.casa_endereco classe=pessoal; rotulo=Endereco
+comentario cadastro.idoso.casa_token classe=pessoal
+comentario cadastro.idoso.condicoes classe=sensivel; rotulo=Saude
+comentario cadastro.idoso.id classe=pessoal
+comentario cadastro.idoso.medicamentos classe=sensivel; rotulo=Saude
+comentario cadastro.idoso.microarea_id classe=nenhum
+comentario cadastro.idoso.nome classe=pessoal; rotulo=Nome
+comentario cadastro.idoso.perfil_contato classe=sensivel
+comentario cadastro.idoso.perfil_eletrodependente classe=sensivel
+comentario cadastro.mensagem_saida.acs_id classe=pessoal
+comentario cadastro.mensagem_saida.canal classe=nenhum
+comentario cadastro.mensagem_saida.id classe=nenhum
+comentario cadastro.mensagem_saida.texto_mascarado classe=pessoal; mascarado
+comentario cadastro.mensagem_saida.tipos_de_dado classe=nenhum
+comentario cadastro.mensagem_saida.veredito classe=nenhum
+comentario cadastro.mensagem_saida.verificada_em classe=nenhum
+comentario cadastro.microarea.acs_responsavel classe=pessoal
+comentario cadastro.microarea.id classe=nenhum
+comentario cadastro.microarea.nome classe=nenhum
+comentario cadastro.visita.acs_id classe=pessoal
+comentario cadastro.visita.desfecho classe=sensivel
+comentario cadastro.visita.id classe=sensivel
+comentario cadastro.visita.idoso_id classe=sensivel
+comentario cadastro.visita.observacao classe=sensivel; rotulo=Saude+MoraSozinho+Nome+Endereco+Telefone
+comentario cadastro.visita.ocorrida_em classe=sensivel
+comentario cadastro.visita.registrada_em classe=sensivel
+comentario cadastro.vizinho_de_confianca.aceitou_em classe=pessoal
+comentario cadastro.vizinho_de_confianca.idoso_id classe=pessoal
+comentario cadastro.vizinho_de_confianca.nome classe=pessoal; rotulo=Nome
+comentario cadastro.vizinho_de_confianca.telefone classe=pessoal; rotulo=Telefone
+comentario guarda.evento_de_seguranca.canal classe=nenhum
+comentario guarda.evento_de_seguranca.id classe=nenhum
+comentario guarda.evento_de_seguranca.mensagem_origem classe=nenhum
+comentario guarda.evento_de_seguranca.mensagem_texto classe=nenhum
+comentario guarda.evento_de_seguranca.modulo classe=nenhum
+comentario guarda.evento_de_seguranca.ocorrido_em classe=nenhum
+comentario guarda.evento_de_seguranca.rota classe=nenhum
+comentario guarda.evento_de_seguranca.severidade classe=nenhum
+comentario guarda.evento_de_seguranca.tipo classe=nenhum
+comentario guarda.evento_de_seguranca.tipos_de_dado classe=nenhum
+comentario motor.casa_monitorada.ativada_em classe=pseudonimizado
+comentario motor.casa_monitorada.casa_token classe=pseudonimizado
+comentario motor.casa_monitorada.desativada_em classe=pseudonimizado
+comentario motor.casa_monitorada.microarea_id classe=pseudonimizado
+comentario motor.casa_monitorada.perfil_contato classe=pseudonimizado+sensivel
+comentario motor.casa_monitorada.perfil_eletrodependente classe=pseudonimizado+sensivel
+comentario motor.casa_monitorada.ultimo_pacote_em classe=pseudonimizado
+comentario motor.confirmacao.casa_token classe=pseudonimizado
+comentario motor.confirmacao.id classe=pseudonimizado
+comentario motor.confirmacao.origem classe=pseudonimizado
+comentario motor.confirmacao.quando classe=pseudonimizado
+comentario motor.confirmacao.resultado classe=pseudonimizado
+comentario motor.dia_critico.aberto_em classe=nenhum
+comentario motor.dia_critico.data classe=nenhum
+comentario motor.dia_critico.encerrado_em classe=nenhum
+comentario motor.dia_critico.motivo classe=nenhum
+comentario motor.dia_critico.origem classe=nenhum
+comentario motor.dia_critico.probabilidade classe=nenhum
+comentario motor.dia_critico.resumo_atendidas classe=nenhum
+comentario motor.dia_critico.resumo_casas_ativas classe=nenhum
+comentario motor.dia_critico.resumo_cinzas_pendentes classe=nenhum
+comentario motor.dia_critico.resumo_com_sinal_de_vida_ate_10h classe=nenhum
+comentario motor.dia_critico.resumo_vermelhas_pendentes classe=nenhum
+comentario motor.dia_critico.toque_pedido_em classe=nenhum
+comentario motor.evento_sensor.bufferizado classe=pseudonimizado
+comentario motor.evento_sensor.casa_token classe=pseudonimizado
+comentario motor.evento_sensor.ocorrido_em classe=pseudonimizado
+comentario motor.evento_sensor.recebido_em classe=pseudonimizado
+comentario motor.evento_sensor.seq classe=pseudonimizado
+comentario motor.evento_sensor.temp_c classe=pseudonimizado
+comentario motor.evento_sensor.tensao_v classe=pseudonimizado
+comentario motor.evento_sensor.tipo classe=pseudonimizado
+funcao cadastro.conferir_token_com_consentimento() md5=d4a0ac6cf78dc7bd38e8187019ee0fd3
+funcao cadastro.recusar_alteracao() md5=595039de98ec514b7df0b98242d2b59b
+funcao guarda.proteger_evento() md5=43d1ab0be25eae78980c67d7bf7e637d
+funcao motor.recusar_alteracao() md5=595039de98ec514b7df0b98242d2b59b
+gatilho cadastro.consentimento CREATE CONSTRAINT TRIGGER consentimento_token_com_consentimento AFTER INSERT OR DELETE OR UPDATE OF revogado_em ON cadastro.consentimento DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION cadastro.conferir_token_com_consentimento()
+gatilho cadastro.idoso CREATE CONSTRAINT TRIGGER idoso_token_com_consentimento AFTER INSERT OR UPDATE OF casa_token ON cadastro.idoso DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION cadastro.conferir_token_com_consentimento()
+gatilho cadastro.mensagem_saida CREATE TRIGGER mensagem_saida_so_insert BEFORE DELETE OR UPDATE ON cadastro.mensagem_saida FOR EACH ROW EXECUTE FUNCTION cadastro.recusar_alteracao()
+gatilho cadastro.visita CREATE TRIGGER visita_so_insert BEFORE DELETE OR UPDATE ON cadastro.visita FOR EACH ROW EXECUTE FUNCTION cadastro.recusar_alteracao()
+gatilho guarda.evento_de_seguranca CREATE TRIGGER evento_de_seguranca_protegido BEFORE DELETE OR UPDATE ON guarda.evento_de_seguranca FOR EACH ROW EXECUTE FUNCTION guarda.proteger_evento()
+gatilho motor.evento_sensor CREATE TRIGGER evento_sensor_sem_update BEFORE UPDATE ON motor.evento_sensor FOR EACH ROW EXECUTE FUNCTION motor.recusar_alteracao()
+indice cadastro.aviso_ao_vizinho CREATE INDEX ix_aviso_ao_vizinho_microarea_registrado ON cadastro.aviso_ao_vizinho USING btree (microarea_id, registrado_em)
+indice cadastro.aviso_ao_vizinho CREATE UNIQUE INDEX pk_aviso_ao_vizinho ON cadastro.aviso_ao_vizinho USING btree (id)
+indice cadastro.aviso_ao_vizinho CREATE UNIQUE INDEX ux_aviso_ao_vizinho_episodio ON cadastro.aviso_ao_vizinho USING btree (casa_token, motivo, desde)
+indice cadastro.consentimento CREATE UNIQUE INDEX pk_consentimento ON cadastro.consentimento USING btree (id)
+indice cadastro.consentimento CREATE UNIQUE INDEX ux_consentimento_vigente ON cadastro.consentimento USING btree (idoso_id) WHERE (revogado_em IS NULL)
+indice cadastro.idoso CREATE INDEX ix_idoso_microarea_com_token ON cadastro.idoso USING btree (microarea_id) WHERE (casa_token IS NOT NULL)
+indice cadastro.idoso CREATE UNIQUE INDEX pk_idoso ON cadastro.idoso USING btree (id)
+indice cadastro.idoso CREATE UNIQUE INDEX ux_idoso_casa_token ON cadastro.idoso USING btree (casa_token)
+indice cadastro.mensagem_saida CREATE UNIQUE INDEX pk_mensagem_saida ON cadastro.mensagem_saida USING btree (id)
+indice cadastro.microarea CREATE UNIQUE INDEX pk_microarea ON cadastro.microarea USING btree (id)
+indice cadastro.visita CREATE INDEX ix_visita_idoso_ocorrida ON cadastro.visita USING btree (idoso_id, ocorrida_em)
+indice cadastro.visita CREATE UNIQUE INDEX pk_visita ON cadastro.visita USING btree (id)
+indice cadastro.vizinho_de_confianca CREATE UNIQUE INDEX pk_vizinho_de_confianca ON cadastro.vizinho_de_confianca USING btree (idoso_id)
+indice guarda.evento_de_seguranca CREATE INDEX ix_evento_de_seguranca_ocorrido_em ON guarda.evento_de_seguranca USING btree (ocorrido_em DESC)
+indice guarda.evento_de_seguranca CREATE UNIQUE INDEX pk_evento_de_seguranca ON guarda.evento_de_seguranca USING btree (id)
+indice motor.casa_monitorada CREATE INDEX ix_casa_monitorada_microarea_ativa ON motor.casa_monitorada USING btree (microarea_id) WHERE (desativada_em IS NULL)
+indice motor.casa_monitorada CREATE UNIQUE INDEX pk_casa_monitorada ON motor.casa_monitorada USING btree (casa_token)
+indice motor.confirmacao CREATE INDEX ix_confirmacao_casa_quando ON motor.confirmacao USING btree (casa_token, quando)
+indice motor.confirmacao CREATE UNIQUE INDEX pk_confirmacao ON motor.confirmacao USING btree (id)
+indice motor.dia_critico CREATE UNIQUE INDEX pk_dia_critico ON motor.dia_critico USING btree (data)
+indice motor.evento_sensor CREATE UNIQUE INDEX pk_evento_sensor ON motor.evento_sensor USING btree (casa_token, ocorrido_em, seq)
+linha cadastro.microarea 3 Microárea 3 - Vila Exemplo acs-demo-01
+restricao cadastro.aviso_ao_vizinho ck_aviso_ao_vizinho_casa_token CHECK ((casa_token ~ '^[0-9a-f]{32}$'::text))
+restricao cadastro.aviso_ao_vizinho ck_aviso_ao_vizinho_motivo CHECK ((motivo = ANY (ARRAY['EnergiaEletrodependente'::text, 'SemHeartbeat'::text, 'CalorInterno'::text, 'SemMovimentoNaJanela'::text])))
+restricao cadastro.aviso_ao_vizinho ck_aviso_ao_vizinho_resposta CHECK ((resposta = ANY (ARRAY['EstaBem'::text, 'PrecisaDeAjuda'::text])))
+restricao cadastro.aviso_ao_vizinho ck_aviso_ao_vizinho_resposta_com_hora CHECK (((resposta IS NULL) = (respondido_em IS NULL)))
+restricao cadastro.aviso_ao_vizinho fk_aviso_ao_vizinho_microarea FOREIGN KEY (microarea_id) REFERENCES cadastro.microarea(id) ON DELETE RESTRICT
+restricao cadastro.aviso_ao_vizinho pk_aviso_ao_vizinho PRIMARY KEY (id)
+restricao cadastro.consentimento ck_consentimento_colhido_por CHECK (((colhido_por)::text ~ '^[a-z0-9-]{3,40}$'::text))
+restricao cadastro.consentimento ck_consentimento_versao_do_termo CHECK ((btrim((versao_do_termo)::text) <> ''::text))
+restricao cadastro.consentimento consentimento_token_com_consentimento TRIGGER DEFERRABLE INITIALLY DEFERRED
+restricao cadastro.consentimento fk_consentimento_idoso FOREIGN KEY (idoso_id) REFERENCES cadastro.idoso(id) ON DELETE CASCADE
+restricao cadastro.consentimento pk_consentimento PRIMARY KEY (id)
+restricao cadastro.idoso ck_idoso_casa_endereco CHECK ((btrim((casa_endereco)::text) <> ''::text))
+restricao cadastro.idoso ck_idoso_casa_token CHECK ((casa_token ~ '^[0-9a-f]{32}$'::text))
+restricao cadastro.idoso ck_idoso_nome CHECK ((btrim((nome)::text) <> ''::text))
+restricao cadastro.idoso ck_idoso_perfil_contato CHECK ((perfil_contato = ANY (ARRAY['Sozinho'::text, 'Acamado'::text, 'Coabitado'::text])))
+restricao cadastro.idoso ck_idoso_sem_cpf_em_claro CHECK ((concat_ws(' '::text, nome, casa_endereco, condicoes, medicamentos) !~ '[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}'::text))
+restricao cadastro.idoso fk_idoso_microarea FOREIGN KEY (microarea_id) REFERENCES cadastro.microarea(id) ON DELETE RESTRICT
+restricao cadastro.idoso idoso_token_com_consentimento TRIGGER DEFERRABLE INITIALLY DEFERRED
+restricao cadastro.idoso pk_idoso PRIMARY KEY (id)
+restricao cadastro.mensagem_saida ck_mensagem_saida_acs_id CHECK (((acs_id)::text ~ '^[a-z0-9-]{3,40}$'::text))
+restricao cadastro.mensagem_saida ck_mensagem_saida_bloqueada_tem_tipo CHECK (((veredito = 'Liberada'::text) OR (cardinality(tipos_de_dado) > 0)))
+restricao cadastro.mensagem_saida ck_mensagem_saida_canal CHECK ((canal = ANY (ARRAY['Log'::text, 'RespostaSemAutenticacao'::text, 'MensagemDeErro'::text, 'Mqtt'::text, 'GrupoDoBairro'::text, 'PromptDoLlm'::text, 'Vizinho'::text, 'AppAutenticado'::text, 'Banco'::text])))
+restricao cadastro.mensagem_saida ck_mensagem_saida_sem_cpf_em_claro CHECK (((texto_mascarado)::text !~ '[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}'::text))
+restricao cadastro.mensagem_saida ck_mensagem_saida_tipos_de_dado CHECK ((tipos_de_dado <@ ARRAY['Cpf'::text, 'Rg'::text, 'Cns'::text, 'Saude'::text, 'MoraSozinho'::text, 'Endereco'::text, 'Telefone'::text, 'Nome'::text, 'Credencial'::text]))
+restricao cadastro.mensagem_saida ck_mensagem_saida_veredito CHECK ((veredito = ANY (ARRAY['Liberada'::text, 'Bloqueada'::text])))
+restricao cadastro.mensagem_saida pk_mensagem_saida PRIMARY KEY (id)
+restricao cadastro.microarea ck_microarea_acs_responsavel CHECK (((acs_responsavel)::text ~ '^[a-z0-9-]{3,40}$'::text))
+restricao cadastro.microarea ck_microarea_id CHECK ((id > 0))
+restricao cadastro.microarea ck_microarea_nome CHECK ((btrim((nome)::text) <> ''::text))
+restricao cadastro.microarea pk_microarea PRIMARY KEY (id)
+restricao cadastro.visita ck_visita_acs_id CHECK (((acs_id)::text ~ '^[a-z0-9-]{3,40}$'::text))
+restricao cadastro.visita ck_visita_desfecho CHECK ((desfecho = ANY (ARRAY['EstavaBem'::text, 'EstavaFora'::text, 'NaoAbriu'::text, 'Encaminhada'::text])))
+restricao cadastro.visita ck_visita_sem_cpf_em_claro CHECK (((observacao)::text !~ '[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}'::text))
+restricao cadastro.visita fk_visita_idoso FOREIGN KEY (idoso_id) REFERENCES cadastro.idoso(id) ON DELETE RESTRICT
+restricao cadastro.visita pk_visita PRIMARY KEY (id)
+restricao cadastro.vizinho_de_confianca ck_vizinho_de_confianca_nome CHECK ((btrim((nome)::text) <> ''::text))
+restricao cadastro.vizinho_de_confianca ck_vizinho_de_confianca_sem_cpf_em_claro CHECK ((concat_ws(' '::text, nome, telefone) !~ '[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}'::text))
+restricao cadastro.vizinho_de_confianca ck_vizinho_de_confianca_telefone CHECK ((btrim((telefone)::text) <> ''::text))
+restricao cadastro.vizinho_de_confianca fk_vizinho_de_confianca_idoso FOREIGN KEY (idoso_id) REFERENCES cadastro.idoso(id) ON DELETE CASCADE
+restricao cadastro.vizinho_de_confianca pk_vizinho_de_confianca PRIMARY KEY (idoso_id)
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_canal CHECK ((canal = ANY (ARRAY['Log'::text, 'RespostaSemAutenticacao'::text, 'MensagemDeErro'::text, 'Mqtt'::text, 'GrupoDoBairro'::text, 'PromptDoLlm'::text, 'Vizinho'::text, 'AppAutenticado'::text, 'Banco'::text])))
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_mensagem_inteira CHECK (((mensagem_texto IS NULL) = (mensagem_origem IS NULL)))
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_mensagem_origem CHECK ((mensagem_origem = ANY (ARRAY['Llm'::text, 'FraseFixa'::text])))
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_modulo CHECK ((btrim((modulo)::text) <> ''::text))
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_rota_sem_identificador CHECK (((rota)::text !~ '[?]|[0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-'::text))
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_severidade CHECK (((severidade >= 1) AND (severidade <= 5)))
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_tipo CHECK ((tipo = ANY (ARRAY['MascaramentoNaEntrada'::text, 'BloqueioDeSaida'::text])))
+restricao guarda.evento_de_seguranca ck_evento_de_seguranca_tipos_de_dado CHECK (((cardinality(tipos_de_dado) > 0) AND (tipos_de_dado <@ ARRAY['Cpf'::text, 'Rg'::text, 'Cns'::text, 'Saude'::text, 'MoraSozinho'::text, 'Endereco'::text, 'Telefone'::text, 'Nome'::text, 'Credencial'::text])))
+restricao guarda.evento_de_seguranca pk_evento_de_seguranca PRIMARY KEY (id)
+restricao motor.casa_monitorada ck_casa_monitorada_microarea CHECK ((microarea_id > 0))
+restricao motor.casa_monitorada ck_casa_monitorada_perfil_contato CHECK ((perfil_contato = ANY (ARRAY['Sozinho'::text, 'Acamado'::text, 'Coabitado'::text])))
+restricao motor.casa_monitorada ck_casa_monitorada_token CHECK ((casa_token ~ '^[0-9a-f]{32}$'::text))
+restricao motor.casa_monitorada pk_casa_monitorada PRIMARY KEY (casa_token)
+restricao motor.confirmacao ck_confirmacao_origem CHECK ((origem = ANY (ARRAY['Acs'::text, 'Vizinho'::text])))
+restricao motor.confirmacao ck_confirmacao_resultado CHECK ((resultado = ANY (ARRAY['PessoaVista'::text, 'AusenciaConfirmada'::text])))
+restricao motor.confirmacao ck_confirmacao_vizinho_so_ve_pessoa CHECK (((origem = 'Acs'::text) OR (resultado = 'PessoaVista'::text)))
+restricao motor.confirmacao fk_confirmacao_casa_monitorada FOREIGN KEY (casa_token) REFERENCES motor.casa_monitorada(casa_token) ON DELETE CASCADE
+restricao motor.confirmacao pk_confirmacao PRIMARY KEY (id)
+restricao motor.dia_critico ck_dia_critico_motivo CHECK ((btrim((motivo)::text) <> ''::text))
+restricao motor.dia_critico ck_dia_critico_origem CHECK ((origem = ANY (ARRAY['Modelo'::text, 'RegraBase'::text, 'Manual'::text])))
+restricao motor.dia_critico ck_dia_critico_probabilidade CHECK (((probabilidade >= (0)::numeric) AND (probabilidade <= (1)::numeric)))
+restricao motor.dia_critico ck_dia_critico_resumo_faixa CHECK (((resumo_casas_ativas >= 0) AND ((resumo_com_sinal_de_vida_ate_10h >= 0) AND (resumo_com_sinal_de_vida_ate_10h <= resumo_casas_ativas)) AND (resumo_atendidas >= 0) AND (resumo_vermelhas_pendentes >= 0) AND (resumo_cinzas_pendentes >= 0) AND (((resumo_atendidas + resumo_vermelhas_pendentes) + resumo_cinzas_pendentes) <= resumo_casas_ativas)))
+restricao motor.dia_critico ck_dia_critico_resumo_so_no_encerramento CHECK ((num_nulls(encerrado_em, resumo_casas_ativas, resumo_com_sinal_de_vida_ate_10h, resumo_atendidas, resumo_vermelhas_pendentes, resumo_cinzas_pendentes) = ANY (ARRAY[0, 6])))
+restricao motor.dia_critico pk_dia_critico PRIMARY KEY (data)
+restricao motor.evento_sensor ck_evento_sensor_leitura_so_na_telemetria CHECK (((tipo = 'Telemetria'::text) OR ((temp_c IS NULL) AND (tensao_v IS NULL))))
+restricao motor.evento_sensor ck_evento_sensor_seq CHECK ((seq >= 0))
+restricao motor.evento_sensor ck_evento_sensor_temp_c CHECK (((temp_c >= ('-10'::integer)::numeric) AND (temp_c <= (60)::numeric)))
+restricao motor.evento_sensor ck_evento_sensor_tensao_v CHECK (((tensao_v >= (0)::numeric) AND (tensao_v <= (260)::numeric)))
+restricao motor.evento_sensor ck_evento_sensor_tipo CHECK ((tipo = ANY (ARRAY['Movimento'::text, 'BotaoBem'::text, 'BotaoSair'::text, 'Telemetria'::text])))
+restricao motor.evento_sensor fk_evento_sensor_casa_monitorada FOREIGN KEY (casa_token) REFERENCES motor.casa_monitorada(casa_token) ON DELETE RESTRICT
+restricao motor.evento_sensor pk_evento_sensor PRIMARY KEY (casa_token, ocorrido_em, seq)

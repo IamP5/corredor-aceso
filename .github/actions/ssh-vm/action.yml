@@ -1,0 +1,35 @@
+name: ssh-vm
+description: Roda um comando `sudo corredor ...` na VM, como o usuário deploy.
+inputs:
+  host:
+    description: Nome público da VM
+    required: true
+  hosts-conhecidos:
+    description: Linha de known_hosts da VM (saída de ssh-keyscan -t ed25519)
+    required: true
+  chave:
+    description: Chave privada do usuário deploy
+    required: true
+  comando:
+    description: Argumentos de `sudo corredor`, por exemplo "deploy v0.3.0"
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        VM_HOST: ${{ inputs.host }}
+        VM_HOSTS_CONHECIDOS: ${{ inputs.hosts-conhecidos }}
+        VM_CHAVE: ${{ inputs.chave }}
+        COMANDO: ${{ inputs.comando }}
+      run: |
+        if [[ ! $COMANDO =~ ^(status|voltar|reiniciar\ api|deploy\ v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?)$ ]]; then
+          echo "comando não permitido: $COMANDO" >&2
+          exit 2
+        fi
+        install -m 700 -d ~/.ssh
+        printf '%s\n' "$VM_CHAVE" > ~/.ssh/corredor_deploy
+        chmod 600 ~/.ssh/corredor_deploy
+        printf '%s\n' "$VM_HOSTS_CONHECIDOS" > ~/.ssh/known_hosts
+        ssh -i ~/.ssh/corredor_deploy -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 \
+          "deploy@$VM_HOST" "sudo corredor $COMANDO"

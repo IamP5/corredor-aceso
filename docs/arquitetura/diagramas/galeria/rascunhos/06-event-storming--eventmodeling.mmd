@@ -1,0 +1,28 @@
+eventmodeling
+
+tf 01 pcr JobDePrevisao
+tf 02 cmd DeclararDiaCritico { data: 2026-11-18; probabilidade: 0.81 }
+tf 03 evt Motor.DiaCriticoDeclarado
+tf 04 evt Motor.TurnoAberto
+tf 05 pcr AoDeclararDiaCritico
+tf 06 evt Motor.ComandoDiaCriticoPublicado
+rf 07 pcr NoDoCorredor
+tf 08 cmd RegistrarPacote { tipo: MOVIMENTO }
+tf 09 evt Motor.MovimentoDetectado
+tf 10 rmo Radar ->> 04 ->> 09
+tf 11 ui RadarDaACS
+rf 12 pcr Relogio
+tf 13 evt Motor.JanelaEncerrada
+tf 14 evt Motor.CasaFicouVermelha
+tf 15 pcr VigiaDoRadar
+tf 16 cmd PedirContato
+tf 17 evt Cadastro.AvisoAoVizinhoRegistrado
+rf 18 ui TelaDaVisita
+tf 19 cmd RegistrarVisita { desfecho: EstavaBem }
+tf 20 evt Cadastro.VisitaRegistrada
+tf 21 pcr TradutorDeDesfecho
+tf 22 cmd Confirmar { origem: Acs; resultado: PessoaVista }
+tf 23 evt Motor.ConfirmacaoRegistrada
+tf 24 rmo Radar ->> 14 ->> 23
+rf 25 cmd EncerrarTurno
+tf 26 evt Motor.TurnoEncerrado { resumo }

@@ -1,0 +1,13 @@
+[Unit]
+Description=Corredor Aceso - alerta de falha definitiva de %i
+
+# Disparada pelo OnFailure= de corredor-api e corredor-ml quando o systemd
+# desiste de religar. Grava no mesmo alertas.log do monitor e no journal.
+# Roda como corredor-mon, o dono do alertas.log. Como root, criaria o arquivo
+# com dono root, e o monitor não conseguiria mais gravar os próprios alertas.
+[Service]
+Type=oneshot
+User=corredor-mon
+Group=corredor-mon
+ExecStart=/bin/sh -c 'echo "$$(date -Is) ALERTA falha definitiva: %i entrou em failed e o systemd parou de religar" >> /var/log/corredor/monitor/alertas.log'
+ExecStart=/usr/bin/logger -t corredor-monitor -p user.crit "ALERTA falha definitiva: %i entrou em failed e o systemd parou de religar"

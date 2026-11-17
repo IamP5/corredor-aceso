@@ -1,0 +1,19 @@
+stateDiagram-v2
+  direction LR
+  [*] --> Aguardando: casa ativada
+  Aguardando --> Verde: sinal de vida na janela, turno aberto
+  Verde --> Aguardando: janela das 10h ou 15h vence
+  Aguardando --> Vermelho: R4 sem movimento na janela vencida
+  Aguardando --> Vermelho: R3 34 °C por 2 h
+  Verde --> Vermelho: R1 tensão baixa, eletrodependente
+  Vermelho --> Verde: sinal de vida aceito pelo perfil
+  Verde --> Cinza: R2 30 min sem pacote
+  Aguardando --> Cinza: R2 30 min sem pacote
+  Cinza --> Verde: nó volta com sinal de vida
+  Vermelho --> Aguardando: turno encerrado
+  class Vermelho alerta
+  class Cinza cinza
+  class Verde verde
+  classDef alerta stroke-width:2px
+  classDef cinza stroke-width:1px
+  classDef verde stroke-width:2px

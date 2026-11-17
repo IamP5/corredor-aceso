@@ -1,0 +1,38 @@
+# Padrões versionados, iguais em todos os ambientes.
+# Ordem de leitura: este arquivo, depois config/ambientes/<ambiente>.conf,
+# depois /etc/corredor/corredor.conf (ajuste local, fora do Git).
+
+# Repositório. O mesmo valor aparece em infra/cloud-init/corredor.yaml.
+# tools/conferir-infra.sh falha no CI se os dois divergirem.
+CORREDOR_REPO_GH="SUA-ORG/corredor-aceso"
+CORREDOR_RELEASES_URL="https://github.com/${CORREDOR_REPO_GH}/releases"
+
+# Rede
+CORREDOR_HOSTNAME="corredor-ubs"
+CORREDOR_FUSO="America/Sao_Paulo"
+CORREDOR_IP_SERVICO="10.77.0.1"
+CORREDOR_IP_PREFIXO="24"
+CORREDOR_DOMINIO_INTERNO="corredor.internal"
+CORREDOR_DNS_RESERVA="1.1.1.1 9.9.9.9"
+CORREDOR_DOMINIO_PUBLICO=""
+CORREDOR_EMAIL_TLS=""
+# Zona DNS do dnsmasq no IP de serviço, além do bloco do /etc/hosts. "sim" liga.
+CORREDOR_DNS_ZONA="nao"
+
+# Aplicação. Um schema e dois papéis do banco por módulo (ver config/bd-modulo.sql).
+MODULOS_BD="motor cadastro guarda"
+BD_NOME="corredor"
+API_PORTA="5000"
+# Development liga o PUT /api/demo/relogio e os parâmetros de demo do Motor.
+API_AMBIENTE_ASPNET="Production"
+RELEASES_MANTIDAS="4"
+ESPERA_SAUDE_S="60"
+
+# MQTT: ponte de saída até o broker público onde o nó do Wokwi publica.
+MQTT_PUBLICO_HOST="broker.hivemq.com"
+MQTT_PUBLICO_PORTA="1883"
+MQTT_PREFIXO_PUBLICO="gs26-TROQUE-ISTO"
+
+# Casa usada só pelo teste de falha: 32 caracteres hexadecimais minúsculos, como todo
+# CasaToken. O seed do Motor precisa ativar esta casa.
+CASA_TESTE_TOKEN="fa11fa11fa11fa11fa11fa11fa11fa11"

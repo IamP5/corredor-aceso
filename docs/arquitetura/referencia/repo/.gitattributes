@@ -1,0 +1,6 @@
+# Bash, YAML e units vão para uma VM Linux. Com CRLF do Windows eles quebram.
+* text=auto eol=lf
+*.sh text eol=lf
+infra/bin/* text eol=lf
+*.png binary
+*.joblib binary

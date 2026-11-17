@@ -1,0 +1,15 @@
+sequenceDiagram
+  actor dev as Equipe
+  participant gh as GitHub Actions
+  participant vm as VM corredor-ubs
+  participant sd as systemd
+  dev->>gh: git tag v1.0-demo
+  gh->>vm: copia a release para /opt/corredor/releases
+  vm->>sd: troca o link current e reinicia
+  gh->>vm: smoke test GET /api/radar
+  alt resposta 200
+    vm-->>gh: ok, versão no ar
+  else falhou
+    gh->>vm: rollback: link volta para a anterior
+    vm->>sd: reinicia corredor-api
+  end

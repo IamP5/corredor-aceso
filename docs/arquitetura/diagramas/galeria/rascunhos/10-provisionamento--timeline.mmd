@@ -1,0 +1,10 @@
+timeline TD
+  title Provisionamento da VM, em ordem
+  section 1. Rede
+    01-rede.sh : hostname corredor-ubs : IP fixo e nomes .local : firewall
+  section 2. Aplicação
+    02-app.sh : Postgres, Mosquitto, .NET, Nginx : usuário de serviço : corredor-api.service e migrações
+  section 3. Vigilância
+    monitor.sh : CPU, disco e memória : corredor-monitor.service com Restart=always
+  section 4. Prova
+    teste-de-falha.sh : para o Mosquitto : mata o monitor

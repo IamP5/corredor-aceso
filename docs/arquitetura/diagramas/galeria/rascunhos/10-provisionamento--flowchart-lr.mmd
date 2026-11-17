@@ -1,0 +1,5 @@
+flowchart LR
+  rede["01-rede.sh<br/>hostname, IP fixo,<br/>nomes .local, firewall"] --> app["02-app.sh<br/>Postgres, Mosquitto,<br/>.NET, Nginx, migrações"] --> mon["monitor.sh +<br/>corredor-monitor.service"] --> teste["teste-de-falha.sh<br/>para o Mosquitto,<br/>mata o monitor"]:::luz
+  aud["lib/auditoria.sh<br/>quem, quando, código de saída"]:::externo -.-> rede & app & mon & teste
+  classDef luz stroke-width:2px
+  classDef externo stroke-width:1px

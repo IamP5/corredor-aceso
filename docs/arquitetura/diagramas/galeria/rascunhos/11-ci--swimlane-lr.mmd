@@ -1,0 +1,21 @@
+swimlane-beta LR
+  subgraph Gatilho
+    push([push ou PR])
+  end
+  subgraph Checagens em paralelo
+    api[api: dotnet build + xUnit]
+    app[app: tsc + lint]
+    ml[ml: ruff + prever_hoje --seco]
+    infra[infra: shellcheck + bash -n]
+    diag[diagramas: npm run render]
+  end
+  subgraph Portão
+    ok{todos verdes?}
+    merge([merge na main])
+  end
+  push --> api --> ok
+  push --> app --> ok
+  push --> ml --> ok
+  push --> infra --> ok
+  push --> diag --> ok
+  ok -->|sim| merge

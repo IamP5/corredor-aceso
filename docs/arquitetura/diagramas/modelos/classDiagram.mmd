@@ -1,0 +1,39 @@
+%% Modelo classDiagram. Vistas: módulos e dependências permitidas, agregados (um namespace por módulo).
+%% Regras: estereótipo em português (<<raiz>>, <<entidade>>, <<interface>>), até 10 classes, até 6 membros por classe.
+%% Use ..> para "depende de", ..|> para "implementa" e *-- para composição dentro do agregado.
+classDiagram
+  direction LR
+  class Api["Corredor.Api"] {
+    <<host>>
+    Program.cs, rotas e DI
+  }
+  class Contratos["Corredor.Contratos"] {
+    <<núcleo compartilhado>>
+    CasaToken, PerfilDaCasa
+  }
+  class IMotorDeCasas {
+    <<interface>>
+    DefinirPerfilAsync(token, perfil, ct)
+    ConfirmarAsync(token, origem, ct)
+  }
+  class Motor["Corredor.Motor"] {
+    <<módulo C#>>
+    RegraDeContato
+    AvaliadorDeCasas
+  }
+  class Cadastro["Corredor.Cadastro"] {
+    <<módulo SOA>>
+    Idoso, Visita, MensagemSaida
+  }
+  class Guarda["Corredor.Guarda"] {
+    <<módulo Cyber>>
+    MotorDeParsing
+    SaidaSegura
+  }
+  Api ..> Motor
+  Api ..> Cadastro
+  Api ..> Guarda
+  Contratos *-- IMotorDeCasas
+  Motor ..|> IMotorDeCasas
+  Cadastro ..> IMotorDeCasas : token, nunca nome
+  Cadastro ..> Guarda : toda saída de texto

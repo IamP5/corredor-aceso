@@ -1,0 +1,3113 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modelo de domínio do Corredor Aceso · Corredor Aceso</title>
+<script>(function(){var t;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='claro'&&t!=='escuro')t=matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro';document.documentElement.setAttribute('data-tema',t)})()</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="topo">
+<a class="marca" href="index.html">Corredor Aceso · Arquitetura</a>
+<nav class="paginas" aria-label="Páginas"><a href="arquitetura.html">Arquitetura técnica</a><a href="02-event-storming.html">Event storming</a><a href="03-modelo-de-dominio.html" aria-current="page">Modelo de domínio</a><a href="04-modelo-de-dados.html">Modelo de dados</a><a href="05-infra-e-entrega.html">Infraestrutura, CI/CD, releases e repositório</a><a href="guia.html">Guia de diagramas</a></nav>
+<button type="button" class="tema-botao">Tema</button>
+</header>
+<main>
+<h1>Modelo de domínio do Corredor Aceso</h1>
+<nav class="sumario" aria-label="Sumário"><details open><summary>Sumário</summary><ol><li><a href="#1-contextos-delimitados">1. Contextos delimitados</a><ol><li><a href="#11-os-contextos">1.1 Os contextos</a></li><li><a href="#12-mapa-de-contexto">1.2 Mapa de contexto</a></li></ol></li><li><a href="#2-projetos-net-e-referências-permitidas">2. Projetos .NET e referências permitidas</a></li><li><a href="#3-linguagem-ubíqua">3. Linguagem ubíqua</a></li><li><a href="#4-design-tático-por-contexto">4. Design tático por contexto</a><ol><li><a href="#41-convenções-dos-três-módulos">4.1 Convenções dos três módulos</a></li><li><a href="#42-motor">4.2 Motor</a></li><li><a href="#43-cadastro">4.3 Cadastro</a></li><li><a href="#44-guarda">4.4 Guarda</a></li><li><a href="#45-chave-de-idempotência-de-cada-comando">4.5 Chave de idempotência de cada comando</a></li></ol></li><li><a href="#5-regras-da-situação-da-casa">5. Regras da situação da casa</a><ol><li><a href="#51-entradas-da-avaliação">5.1 Entradas da avaliação</a></li><li><a href="#52-janelas-de-contato">5.2 Janelas de contato</a></li><li><a href="#53-sinal-de-vida-por-perfil-de-contato">5.3 Sinal de vida por perfil de contato</a></li><li><a href="#54-as-regras-em-ordem">5.4 As regras em ordem</a></li><li><a href="#55-passos-do-avaliador">5.5 Passos do avaliador</a></li><li><a href="#56-tabela-verdade-da-situação">5.6 Tabela verdade da situação</a></li><li><a href="#57-tabela-verdade-do-atendimento">5.7 Tabela verdade do atendimento</a></li><li><a href="#58-exemplos">5.8 Exemplos</a></li><li><a href="#59-parâmetros-e-relógio-de-demo">5.9 Parâmetros e relógio de demo</a></li></ol></li><li><a href="#6-contratos-públicos">6. Contratos públicos</a><ol><li><a href="#61-corredorcontratos">6.1 <code>Corredor.Contratos</code></a></li><li><a href="#62-mqtt">6.2 MQTT</a></li><li><a href="#63-rotas-http">6.3 Rotas HTTP</a></li></ol></li><li><a href="#7-casos-de-teste">7. Casos de teste</a></li><li><a href="#8-o-que-entra-em-1911">8. O que entra em 19/11</a><ol><li><a href="#81-ordem-de-construção">8.1 Ordem de construção</a></li><li><a href="#82-ordem-de-corte">8.2 Ordem de corte</a></li><li><a href="#83-nunca-corta">8.3 Nunca corta</a></li><li><a href="#84-fora-da-entrega">8.4 Fora da entrega</a></li></ol></li><li><a href="#9-mudanças-em-relação-a-docsarquiteturamd">9. Mudanças em relação a <code>docs/arquitetura.md</code></a><ol><li><a href="#91-mudanças-pedidas-pelo-modelo-de-dados">9.1 Mudanças pedidas pelo modelo de dados</a></li></ol></li></ol></details></nav><p>Este documento define o modelo de domínio que a equipe constrói até 19/11/2026, 23h55. Ele parte das sessões de <a href="02-event-storming.html">02-event-storming.md</a> e chega aos contextos, aos projetos .NET, aos nomes de código, às regras da situação da casa, aos contratos e aos casos de teste.</p>
+<p>O modelo mantém as decisões fixas de <a href="arquitetura.html">arquitetura.md</a>: um monólito modular .NET 8 com os módulos Motor, Cadastro e Guarda, a situação da casa calculada por função pura e o contrato MQTT. A seção 9 lista cada ponto em que este modelo muda a arquitetura.</p>
+<p>Quem programa o Motor lê as seções 3, 4.2, 5 e 6. Quem programa o Cadastro lê 3, 4.3 e 6. Quem programa a Guarda lê 3, 4.4 e 6.3. Quem programa o nó lê 6.2. Quem programa o app lê 3, 5.6 e 6.3. Todos leem a seção 8 antes de abrir o editor.</p>
+<h2 id="1-contextos-delimitados">1. Contextos delimitados <a class="ancora" href="#1-contextos-delimitados" aria-label="Link para esta seção">#</a></h2>
+<h3 id="11-os-contextos">1.1 Os contextos <a class="ancora" href="#11-os-contextos" aria-label="Link para esta seção">#</a></h3>
+<p>Cada contexto leva o nome do módulo.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Contexto</th>
+<th>Subdomínio</th>
+<th>Pergunta que ele responde</th>
+<th>Dado pessoal</th>
+<th>Projeto</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Motor</td>
+<td>Principal</td>
+<td>Quem ficou sem sinal de vida e em que ordem a ACS deve ir?</td>
+<td>Só dado pseudonimizado: token, microárea e perfil. Não é anônimo, porque o Cadastro sabe ligar o token à pessoa.</td>
+<td><code>api/src/Corredor.Motor</code></td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td>De apoio</td>
+<td>Quem é a pessoa, o que ela autorizou, o que a ACS encontrou e quem o vizinho deve olhar?</td>
+<td>Dono único.</td>
+<td><code>api/src/Corredor.Cadastro</code></td>
+</tr>
+<tr>
+<td>Guarda</td>
+<td>De apoio</td>
+<td>Este texto pode sair por este canal?</td>
+<td>Nunca grava o valor. Só o tipo de dado.</td>
+<td><code>api/src/Corredor.Guarda</code></td>
+</tr>
+</tbody></table>
+</div>
+<p><code>Corredor.Contratos</code> não é um contexto. Ele é o núcleo compartilhado mínimo entre Motor e Cadastro: tipos e interfaces, sem lógica. <code>Corredor.Api</code> também não é contexto. Ele é o host: autenticação, injeção de dependência e os middlewares da Guarda.</p>
+<p>Fora do processo .NET existem cinco contextos externos: o nó, o job de previsão, o app da ACS, o LLM e o canal do vizinho.</p>
+<p>A mesma casa aparece em dois contextos com dois modelos. No Cadastro ela é <code>Casa</code>, com endereço e token, dentro do <code>Idoso</code>. No Motor ela é <code>CasaMonitorada</code>, com token, microárea, perfil e último pacote. O único elo entre as duas é o <code>CasaToken</code>.</p>
+<h3 id="12-mapa-de-contexto">1.2 Mapa de contexto <a class="ancora" href="#12-mapa-de-contexto" aria-label="Link para esta seção">#</a></h3>
+<figure class="diagrama" id="diagrama-1" style="--w:1560px;--h:281px;--r:0.1801"><div class="diagrama-quadro"><svg xmlns="http://www.w3.org/2000/svg" class="pele pele-flowchart" viewBox="0 0 1560 281" width="1560" height="281" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_r:var(--pele-radius,4px);--_fm:var(--pele-font-mono,&quot;Atkinson Hyperlegible Mono&quot;, monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,&quot;Atkinson Hyperlegible&quot;, sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="flowchart"><g class="pele-edges" fill="none" stroke="var(--_l)" stroke-linecap="round"><g class="pele-edge" data-id="L_NO_MOTOR_0"><path d="M196.74,32L418.28,32C425.97,32 425.97,108 433.65,108L438.78,108"/><path class="pele-marker" d="M445.78,108L437.78,111.36L437.78,104.64Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_ML_MOTOR_0"><path d="M196.74,120L438.78,120"/><path class="pele-marker" d="M445.78,120L437.78,123.36L437.78,116.64Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_CT_MOTOR_0"><path d="M196.74,231.25L368.02,231.25C400.4,231.25 400.4,132 432.78,132L445.78,132"/></g><g class="pele-edge" data-id="L_CT_CAD_0"><path d="M196.74,247.25L903.83,247.25C996.27,247.25 996.27,202.75 1088.72,202.75L1101.72,202.75"/></g><g class="pele-edge" data-id="L_MOTOR_CAD_0"><path d="M523.19,132C616.85,132 616.85,190.75 710.52,190.75L1094.72,190.75"/><path class="pele-marker" d="M1101.72,190.75L1093.72,194.11L1093.72,187.39Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_GUARDA_CAD_0"><path d="M850.79,110.75C887.56,110.75 887.56,123.25 924.33,123.25L1074.22,123.25C1081.9,123.25 1081.9,178.75 1089.59,178.75L1094.72,178.75"/><path class="pele-marker" d="M1101.72,178.75L1093.72,182.11L1093.72,175.39Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_MOTOR_GUARDA_0"><path d="M523.19,120C533.44,120 533.44,102.75 543.69,102.75L763.56,102.75" stroke-dasharray="3 4"/></g><g class="pele-edge" data-id="L_MOTOR_APP_0"><path d="M523.19,108C550.85,108 550.85,30.25 578.52,30.25L1391.95,30.25"/><path class="pele-marker" d="M1398.95,30.25L1390.95,33.61L1390.95,26.89Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_CAD_APP_0"><path d="M1201.06,182.75C1211.31,182.75 1211.31,50.75 1221.56,50.75L1391.95,50.75"/><path class="pele-marker" d="M1398.95,50.75L1390.95,54.11L1390.95,47.39Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_GUARDA_LLM_0"><path d="M850.79,94.75C887.56,94.75 887.56,82.25 924.33,82.25L1111.2,82.25"/><path class="pele-marker" d="M1118.2,82.25L1110.2,85.61L1110.2,78.89Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_CAD_VIZ_0"><path d="M1201.06,198.75C1211.31,198.75 1211.31,211.25 1221.56,211.25L1391.95,211.25"/><path class="pele-marker" d="M1398.95,211.25L1390.95,214.61L1390.95,207.89Z" fill="var(--_l)" stroke="none"/></g></g><g class="pele-edge-labels" font-size="14"><g class="pele-edge-label" data-id="L_NO_MOTOR_0"><rect x="219.24" y="21.5" width="197.04" height="21" rx="3" fill="var(--_bg)"/><text x="317.76" y="36.9" text-anchor="middle">linguagem publicada: MQTT v1</text></g><g class="pele-edge-label" data-id="L_ML_MOTOR_0"><rect x="277.07" y="109.5" width="81.37" height="21" rx="3" fill="var(--_bg)"/><text x="317.76" y="124.9" text-anchor="middle">conformista</text></g><g class="pele-edge-label" data-id="L_MOTOR_CAD_0"><rect x="712.52" y="172.75" width="189.31" height="36" rx="3" fill="var(--_bg)"/><text text-anchor="middle" xml:space="preserve"><tspan x="807.17" y="186.65">fornecedor: IMotorDeCasas e</tspan><tspan x="807.17" y="204.65">IReceptorDeContato</tspan></text></g><g class="pele-edge-label" data-id="L_GUARDA_CAD_0"><rect x="928.91" y="112.75" width="140.72" height="21" rx="3" fill="var(--_bg)"/><text x="999.27" y="128.15" text-anchor="middle">Cadastro conformista</text></g><g class="pele-edge-label" data-id="L_MOTOR_GUARDA_0"><rect x="545.69" y="92.25" width="135.33" height="21" rx="3" fill="var(--_bg)"/><text x="613.35" y="107.65" text-anchor="middle">caminhos separados</text></g><g class="pele-edge-label" data-id="L_MOTOR_APP_0"><rect x="759.44" y="19.75" width="95.47" height="21" rx="3" fill="var(--_bg)"/><text x="807.17" y="35.15" text-anchor="middle">serviço aberto</text></g><g class="pele-edge-label" data-id="L_CAD_APP_0"><rect x="1248.77" y="40.25" width="95.47" height="21" rx="3" fill="var(--_bg)"/><text x="1296.5" y="55.65" text-anchor="middle">serviço aberto</text></g><g class="pele-edge-label" data-id="L_GUARDA_LLM_0"><rect x="926.33" y="71.75" width="145.89" height="21" rx="3" fill="var(--_bg)"/><text x="999.27" y="87.15" text-anchor="middle">camada anticorrupção</text></g><g class="pele-edge-label" data-id="L_CAD_VIZ_0"><rect x="1223.56" y="200.75" width="145.89" height="21" rx="3" fill="var(--_bg)"/><text x="1296.5" y="216.15" text-anchor="middle">camada anticorrupção</text></g></g><g class="pele-nodes"><g class="pele-node pele-shape-rect" data-id="NO" transform="translate(168.81,32)"><rect x="-27.93" y="-24" width="55.86" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">Nó</text></g><g class="pele-node pele-shape-rect" data-id="MOTOR" transform="translate(484.48,120)"><rect x="-38.7" y="-24" width="77.41" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">Motor</text></g><g class="pele-node pele-shape-rect" data-id="ML" transform="translate(122.7,120)"><rect x="-74.03" y="-24" width="148.06" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">Job de previsão</text></g><g class="pele-node pele-shape-rect" data-id="CT" transform="translate(102.37,239.25)"><rect x="-94.37" y="-33" width="188.74" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Corredor.Contratos</tspan><tspan x="0" y="16.1">núcleo compartilhado</tspan></text></g><g class="pele-node pele-shape-rect" data-id="CAD" transform="translate(1151.39,190.75)"><rect x="-49.67" y="-24" width="99.34" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">Cadastro</text></g><g class="pele-node pele-shape-rect" data-id="GUARDA" transform="translate(807.17,102.75)"><rect x="-43.62" y="-24" width="87.23" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">Guarda</text></g><g class="pele-node pele-shape-rect" data-id="APP" transform="translate(1459.23,42.25)"><rect x="-60.29" y="-24" width="120.58" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">App da ACS</text></g><g class="pele-node pele-shape-rect" data-id="LLM" transform="translate(1151.39,82.25)"><rect x="-33.18" y="-24" width="66.37" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">LLM</text></g><g class="pele-node pele-shape-rect" data-id="VIZ" transform="translate(1475.11,211.25)"><rect x="-76.16" y="-24" width="152.32" height="48" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="5.6" text-anchor="middle">Canal do vizinho</text></g></g></svg></div><figcaption><span class="diagrama-links">1560×281 px · <a href="svg/03-modelo-de-dominio-1.svg">SVG claro</a> · <a href="svg/03-modelo-de-dominio-1.escuro.svg">SVG escuro</a></span><span class="diagrama-dica">Ctrl ou ⌘ + roda, pinça, duplo clique ou + e − para ampliar; arraste para mover.</span></figcaption></figure>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Par</th>
+<th>Relação</th>
+<th>Quem manda no contrato</th>
+<th>Como aparece no código</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Motor e Cadastro</td>
+<td>Cliente e fornecedor. O Motor é o fornecedor.</td>
+<td>Motor</td>
+<td>O Motor define <code>IMotorDeCasas</code> e os tipos em <code>Corredor.Contratos</code>. O Cadastro chama a interface. Nenhum dos dois projetos referencia o outro. O host liga a implementação.</td>
+</tr>
+<tr>
+<td>Motor e Cadastro, no pedido de contato</td>
+<td>Inversão de dependência. O Motor declara a porta e o Cadastro implementa.</td>
+<td>Motor</td>
+<td><code>IReceptorDeContato</code> em <code>Corredor.Contratos</code>. <code>ReceptorDeContato</code> no Cadastro.</td>
+</tr>
+<tr>
+<td>Motor e Cadastro, nos tipos</td>
+<td>Núcleo compartilhado mínimo</td>
+<td>Motor, com acordo do Cadastro</td>
+<td><code>Corredor.Contratos</code> só tem os tipos da seção 6.1. Uma mudança ali exige acordo das duas pessoas.</td>
+</tr>
+<tr>
+<td>Cadastro e Guarda</td>
+<td>Conformista</td>
+<td>Guarda</td>
+<td><code>Idoso.Nome</code> tem o tipo <code>TextoRotulado</code>. Toda saída de texto do Cadastro passa pela <code>SaidaSegura</code>.</td>
+</tr>
+<tr>
+<td>Motor e Guarda</td>
+<td>Caminhos separados</td>
+<td>Ninguém</td>
+<td>Nenhum projeto referencia o outro. O host aplica o <code>InterceptadorDeEntrada</code>, o <code>FiltroDeResposta</code> e o <code>TratadorDeErros</code> também nas rotas do Motor.</td>
+</tr>
+<tr>
+<td>Nó e Motor</td>
+<td>Linguagem publicada, com camada anticorrupção no Motor</td>
+<td>O contrato MQTT v1</td>
+<td><code>TradutorDePacote</code> converte o JSON em <code>PacoteDoNo</code>. Nenhuma classe de domínio conhece JSON nem MQTT.</td>
+</tr>
+<tr>
+<td>Job de previsão e Motor</td>
+<td>Serviço aberto. O job é conformista.</td>
+<td>Motor</td>
+<td><code>PUT /api/dias-criticos/{data}</code>.</td>
+</tr>
+<tr>
+<td>App e Motor, app e Cadastro</td>
+<td>Serviço aberto com linguagem publicada. O app é conformista.</td>
+<td>Motor e Cadastro</td>
+<td>O Swagger. O app junta <code>casaToken</code> e nome no celular.</td>
+</tr>
+<tr>
+<td>Guarda e LLM</td>
+<td>Camada anticorrupção</td>
+<td>Guarda</td>
+<td><code>Tradutor</code> monta o prompt com tipo de dado, canal e módulo. Tem frase fixa de reserva.</td>
+</tr>
+<tr>
+<td>Cadastro e canal do vizinho</td>
+<td>Camada anticorrupção</td>
+<td>Cadastro</td>
+<td><code>ReceptorDeContato</code> monta o texto neutro e grava o envio simulado.</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="2-projetos-net-e-referências-permitidas">2. Projetos .NET e referências permitidas <a class="ancora" href="#2-projetos-net-e-referências-permitidas" aria-label="Link para esta seção">#</a></h2>
+<pre><code>api/
+  src/
+    Corredor.Contratos/   tipos e interfaces compartilhados. Não referencia nada.
+    Corredor.Motor/       referencia Corredor.Contratos.
+    Corredor.Cadastro/    referencia Corredor.Contratos e Corredor.Guarda.
+    Corredor.Guarda/      não referencia nenhum projeto da solução.
+    Corredor.Api/         referencia os quatro. Único Program.cs.
+  tests/
+    Corredor.Motor.Testes/
+    Corredor.Cadastro.Testes/
+    Corredor.Guarda.Testes/
+</code></pre>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Projeto</th>
+<th>Pode referenciar</th>
+<th>Não pode referenciar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Corredor.Contratos</code></td>
+<td>nada</td>
+<td>qualquer projeto</td>
+</tr>
+<tr>
+<td><code>Corredor.Motor</code></td>
+<td><code>Corredor.Contratos</code></td>
+<td><code>Corredor.Cadastro</code>, <code>Corredor.Guarda</code></td>
+</tr>
+<tr>
+<td><code>Corredor.Guarda</code></td>
+<td>nada</td>
+<td>qualquer projeto</td>
+</tr>
+<tr>
+<td><code>Corredor.Cadastro</code></td>
+<td><code>Corredor.Contratos</code>, <code>Corredor.Guarda</code></td>
+<td><code>Corredor.Motor</code></td>
+</tr>
+<tr>
+<td><code>Corredor.Api</code></td>
+<td>os quatro</td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+<p>O compilador garante a regra de privacidade. O Motor não tem como ler um nome, porque não referencia o Cadastro e não conhece <code>TextoRotulado</code>. O Cadastro não tem como abrir o <code>MotorDbContext</code>, porque não referencia o Motor.</p>
+<p>Cada módulo usa as mesmas pastas:</p>
+<pre><code>Corredor.Motor/
+  Dominio/      agregados, objetos de valor, regras, eventos de domínio. Sem EF Core e sem ASP.NET.
+  Aplicacao/    um caso de uso por comando. Carrega, chama o agregado, grava, executa a política.
+  Infra/        DbContext, migrações, MQTT, BackgroundService.
+  Rotas/        endpoints do módulo.
+  MotorModulo.cs   AddMotor() e MapMotor().
+</code></pre>
+<p>O <code>Program.cs</code> tem uma linha de registro por módulo, e só uma pessoa edita o arquivo:</p>
+<pre><code class="language-csharp">builder.Services.AddGuarda(cfg).AddMotor(cfg).AddCadastro(cfg);
+app.UseGuarda();
+app.MapMotor(); app.MapCadastro(); app.MapGuarda();
+</code></pre>
+<p>Um Postgres, três schemas: <code>motor</code>, <code>cadastro</code> e <code>guarda</code>. Três <code>DbContext</code>, cada um com as próprias migrações do EF Core. Nenhum módulo lê o schema de outro. Cada módulo conecta com um papel próprio do Postgres, que não enxerga o schema dos outros.</p>
+<h2 id="3-linguagem-ubíqua">3. Linguagem ubíqua <a class="ancora" href="#3-linguagem-ubíqua" aria-label="Link para esta seção">#</a></h2>
+<p>Os nomes de domínio ficam em português, sem acento e sem cedilha no código. Os sufixos do framework ficam em inglês, como <code>Async</code> e <code>DbContext</code>. Os projetos de teste terminam em <code>Testes</code>. O nome da coluna &quot;Nome no código&quot; é o que aparece em classe, tabela, rota e teste.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Termo</th>
+<th>Significado</th>
+<th>Nome no código</th>
+<th>Contexto</th>
+<th>Não use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ACS</td>
+<td>Agente comunitária de saúde. Opera o app e o radar.</td>
+<td><code>AcsId</code></td>
+<td>Cadastro</td>
+<td>agente, usuário, operador</td>
+</tr>
+<tr>
+<td>Microárea</td>
+<td>Território de uma ACS.</td>
+<td><code>Microarea</code>, <code>MicroareaId</code></td>
+<td>Cadastro, Contratos</td>
+<td>área, região</td>
+</tr>
+<tr>
+<td>Idoso</td>
+<td>A pessoa cadastrada. Vale para a idosa e para o idoso.</td>
+<td><code>Idoso</code></td>
+<td>Cadastro</td>
+<td>paciente, usuário, cidadão</td>
+</tr>
+<tr>
+<td>Casa</td>
+<td>O endereço em que o idoso mora, com o token.</td>
+<td><code>Casa</code></td>
+<td>Cadastro</td>
+<td>residência, domicílio</td>
+</tr>
+<tr>
+<td>Casa monitorada</td>
+<td>A mesma casa vista pelo Motor: token, microárea, perfil e último pacote.</td>
+<td><code>CasaMonitorada</code></td>
+<td>Motor</td>
+<td>casa, no Motor</td>
+</tr>
+<tr>
+<td>Token da casa</td>
+<td>Identificador aleatório de 128 bits. Único elo entre <code>Casa</code> e <code>CasaMonitorada</code>.</td>
+<td><code>CasaToken</code></td>
+<td>Contratos</td>
+<td>id da casa, código</td>
+</tr>
+<tr>
+<td>Consentimento</td>
+<td>Autorização do idoso, registrada na UBS com a ACS presente. Vigente ou revogado.</td>
+<td><code>Consentimento</code></td>
+<td>Cadastro</td>
+<td>termo, aceite</td>
+</tr>
+<tr>
+<td>Autorizações</td>
+<td>As escolhas dentro do consentimento: avisar o vizinho e avisar a família.</td>
+<td><code>Autorizacoes</code></td>
+<td>Cadastro</td>
+<td>opt-in, permissões, escopo</td>
+</tr>
+<tr>
+<td>Vizinho de confiança</td>
+<td>Pessoa que o idoso escolheu e que aceitou ser avisada.</td>
+<td><code>VizinhoDeConfianca</code></td>
+<td>Cadastro</td>
+<td>contato, cuidador, responsável</td>
+</tr>
+<tr>
+<td>Perfil da casa</td>
+<td>O perfil de contato mais a eletrodependência.</td>
+<td><code>PerfilDaCasa</code></td>
+<td>Contratos</td>
+<td>tipo, categoria</td>
+</tr>
+<tr>
+<td>Perfil de contato</td>
+<td>Como a casa dá sinal de vida: <code>Sozinho</code>, <code>Acamado</code> ou <code>Coabitado</code>.</td>
+<td><code>PerfilDeContato</code></td>
+<td>Contratos</td>
+<td>mobilidade, convívio</td>
+</tr>
+<tr>
+<td>Eletrodependente</td>
+<td>Casa com equipamento de saúde ligado na tomada.</td>
+<td><code>PerfilDaCasa.Eletrodependente</code></td>
+<td>Contratos</td>
+<td>cliente vital</td>
+</tr>
+<tr>
+<td>Nó</td>
+<td>O ESP32 do corredor. Na tela, &quot;aparelho&quot;.</td>
+<td>sem classe</td>
+<td>fora do .NET</td>
+<td>dispositivo, placa</td>
+</tr>
+<tr>
+<td>Pacote</td>
+<td>Qualquer mensagem MQTT do nó.</td>
+<td><code>PacoteDoNo</code>, <code>TipoDePacote</code></td>
+<td>Motor</td>
+<td>payload, ping</td>
+</tr>
+<tr>
+<td>Último pacote</td>
+<td>Hora do servidor em que chegou o último pacote aceito.</td>
+<td><code>CasaMonitorada.UltimoPacoteEm</code></td>
+<td>Motor</td>
+<td>último heartbeat</td>
+</tr>
+<tr>
+<td>Evento do sensor</td>
+<td>Pacote gravado: movimento, botão ou telemetria. Nunca heartbeat.</td>
+<td><code>EventoSensor</code></td>
+<td>Motor</td>
+<td>registro, mensagem</td>
+</tr>
+<tr>
+<td>Leitura</td>
+<td>Temperatura e tensão de um evento do sensor.</td>
+<td><code>TempC</code>, <code>TensaoV</code></td>
+<td>Motor</td>
+<td>medição</td>
+</tr>
+<tr>
+<td>Ocorrido em</td>
+<td>Hora do fato no nó. Vem do <code>ts</code>.</td>
+<td><code>OcorridoEm</code></td>
+<td>Motor</td>
+<td>timestamp</td>
+</tr>
+<tr>
+<td>Recebido em</td>
+<td>Hora do servidor em que o pacote chegou.</td>
+<td><code>RecebidoEm</code></td>
+<td>Motor</td>
+<td>hora de chegada</td>
+</tr>
+<tr>
+<td>Sinal de vida</td>
+<td>Evidência de que a pessoa estava bem num instante. Depende do perfil de contato. Na tela, &quot;deu sinal hoje&quot;.</td>
+<td><code>HistoricoDaCasa.TemSinalDeVidaDesde</code></td>
+<td>Motor</td>
+<td>check-in, presença, prova</td>
+</tr>
+<tr>
+<td>Saída avisada</td>
+<td>Duplo toque do idoso, &quot;hoje vou sair&quot;.</td>
+<td><code>TipoDePacote.BotaoSair</code></td>
+<td>Motor</td>
+<td>ausência, aviso de saída</td>
+</tr>
+<tr>
+<td>Confirmação</td>
+<td>Um humano informa o que encontrou na casa: origem, resultado e hora.</td>
+<td><code>Confirmacao</code></td>
+<td>Contratos</td>
+<td>check, baixa, validação</td>
+</tr>
+<tr>
+<td>Origem da confirmação</td>
+<td>Quem confirmou: <code>Acs</code> ou <code>Vizinho</code>.</td>
+<td><code>OrigemDaConfirmacao</code></td>
+<td>Contratos</td>
+<td>fonte</td>
+</tr>
+<tr>
+<td>Pessoa vista</td>
+<td>Resultado em que alguém viu a pessoa bem. É sinal de vida.</td>
+<td><code>ResultadoDaConfirmacao.PessoaVista</code></td>
+<td>Contratos</td>
+<td>contato feito</td>
+</tr>
+<tr>
+<td>Ausência confirmada</td>
+<td>Resultado em que a ACS foi à casa e a pessoa estava fora. Nunca é sinal de vida.</td>
+<td><code>ResultadoDaConfirmacao.AusenciaConfirmada</code></td>
+<td>Contratos</td>
+<td>saída, fora de casa</td>
+</tr>
+<tr>
+<td>Dia crítico</td>
+<td>O dia em que o modelo, a regra base ou a UBS prevê excesso de internações de 60+.</td>
+<td><code>DiaCritico</code></td>
+<td>Motor</td>
+<td>alerta de calor, dia de risco</td>
+</tr>
+<tr>
+<td>Origem do dia crítico</td>
+<td><code>Modelo</code>, <code>RegraBase</code> ou <code>Manual</code>.</td>
+<td><code>OrigemDoDiaCritico</code></td>
+<td>Motor</td>
+<td>fonte</td>
+</tr>
+<tr>
+<td>Turno</td>
+<td>O tempo do dia crítico em que as regras de calor e de silêncio valem: da abertura ao encerramento ou às 18h.</td>
+<td><code>TurnoRadar</code></td>
+<td>Motor</td>
+<td>plantão, sessão</td>
+</tr>
+<tr>
+<td>Janela</td>
+<td>Pedaço do dia que limita a validade de um sinal de vida e de uma confirmação.</td>
+<td><code>JanelaDeContato</code></td>
+<td>Motor</td>
+<td>período, faixa, intervalo</td>
+</tr>
+<tr>
+<td>Prazo</td>
+<td>Hora em que a janela da manhã ou a da tarde vence.</td>
+<td><code>JanelaDeContato.Prazo</code></td>
+<td>Motor</td>
+<td>limite, deadline</td>
+</tr>
+<tr>
+<td>Regra de contato</td>
+<td>Uma das regras que podem pôr a casa em alerta.</td>
+<td><code>RegraDeContato</code></td>
+<td>Motor</td>
+<td>validação, critério</td>
+</tr>
+<tr>
+<td>Alerta</td>
+<td>O que uma regra de contato devolve quando pega a casa: situação, motivo e desde quando. Calculado, nunca gravado.</td>
+<td><code>Alerta</code></td>
+<td>Motor</td>
+<td>disparo, alarme, ocorrência</td>
+</tr>
+<tr>
+<td>Motivo do alerta</td>
+<td>O nome da regra que devolveu o alerta.</td>
+<td><code>MotivoDoAlerta</code></td>
+<td>Contratos</td>
+<td>código da regra</td>
+</tr>
+<tr>
+<td>Desde</td>
+<td>Início do alerta. Com o token e o motivo, identifica o episódio.</td>
+<td><code>Alerta.Desde</code></td>
+<td>Motor</td>
+<td>aberto em</td>
+</tr>
+<tr>
+<td>Situação</td>
+<td><code>Verde</code>, <code>Aguardando</code>, <code>Vermelho</code> ou <code>Cinza</code>.</td>
+<td><code>SituacaoDaCasa</code></td>
+<td>Motor</td>
+<td>estado, status, cor</td>
+</tr>
+<tr>
+<td>Avaliação</td>
+<td>A situação de uma casa num instante, com o alerta e o atendimento.</td>
+<td><code>Avaliacao</code></td>
+<td>Motor</td>
+<td>diagnóstico</td>
+</tr>
+<tr>
+<td>Atendida</td>
+<td>A casa tem alerta e uma confirmação que a regra aceita, feita depois do <code>Desde</code> e dentro da janela atual.</td>
+<td><code>Avaliacao.Atendida</code></td>
+<td>Motor</td>
+<td>resolvida, fechada</td>
+</tr>
+<tr>
+<td>Pendente</td>
+<td>A casa tem alerta e não está atendida.</td>
+<td><code>Avaliacao.Pendente</code></td>
+<td>Motor</td>
+<td>aberta</td>
+</tr>
+<tr>
+<td>Radar</td>
+<td>As casas pendentes, atendidas e aguardando de uma microárea, em ordem, com a contagem de verdes.</td>
+<td><code>Radar</code>, <code>CardDoRadar</code></td>
+<td>Motor</td>
+<td>lista, fila, painel</td>
+</tr>
+<tr>
+<td>Linha do tempo</td>
+<td>Eventos do sensor e confirmações das últimas 24 horas de uma casa.</td>
+<td><code>LinhaDoTempo</code></td>
+<td>Motor</td>
+<td>histórico</td>
+</tr>
+<tr>
+<td>Pedido de contato</td>
+<td>O que o Motor manda pela porta quando uma casa tem alerta pendente: token, motivo e desde.</td>
+<td><code>PedidoDeContato</code>, <code>IReceptorDeContato</code></td>
+<td>Contratos</td>
+<td>notificação</td>
+</tr>
+<tr>
+<td>Pedido de toque</td>
+<td>Comando que toca o buzzer do nó às 14h30.</td>
+<td><code>PedirToque</code>, <code>PEDIR_TOQUE</code></td>
+<td>Motor</td>
+<td>lembrete</td>
+</tr>
+<tr>
+<td>Parâmetros do Motor</td>
+<td>Todos os números das regras, com valor de produção e de demo.</td>
+<td><code>ParametrosDoMotor</code></td>
+<td>Motor</td>
+<td>limites, constantes soltas</td>
+</tr>
+<tr>
+<td>Relógio de demo</td>
+<td>Relógio do Motor que aceita um deslocamento em desenvolvimento.</td>
+<td><code>RelogioDeDemo</code></td>
+<td>Motor</td>
+<td>relógio falso</td>
+</tr>
+<tr>
+<td>Resumo do turno</td>
+<td>As contagens gravadas no encerramento. É o indicador de impacto.</td>
+<td><code>ResumoDoTurno</code></td>
+<td>Motor</td>
+<td>relatório</td>
+</tr>
+<tr>
+<td>Expurgo</td>
+<td>Apagar eventos do sensor e confirmações com mais de 24 horas.</td>
+<td><code>Expurgo</code></td>
+<td>Motor</td>
+<td>limpeza, purga</td>
+</tr>
+<tr>
+<td>Visita</td>
+<td>A ida da ACS a uma casa, com desfecho. Não muda e não some.</td>
+<td><code>Visita</code></td>
+<td>Cadastro</td>
+<td>atendimento, checagem</td>
+</tr>
+<tr>
+<td>Desfecho</td>
+<td>O que a ACS encontrou na visita.</td>
+<td><code>Desfecho</code></td>
+<td>Cadastro</td>
+<td>status, conclusão</td>
+</tr>
+<tr>
+<td>Aviso ao vizinho</td>
+<td>Mensagem neutra que pede ao vizinho para olhar a pessoa.</td>
+<td><code>AvisoAoVizinho</code></td>
+<td>Cadastro</td>
+<td>notificação, alerta</td>
+</tr>
+<tr>
+<td>Resposta do vizinho</td>
+<td><code>EstaBem</code> ou <code>PrecisaDeAjuda</code>.</td>
+<td><code>RespostaDoVizinho</code></td>
+<td>Cadastro</td>
+<td>retorno</td>
+</tr>
+<tr>
+<td>Lista de nomes</td>
+<td>Token, nome, endereço e vizinho das casas ativas, para o SQLite do celular.</td>
+<td><code>ListaDeNomes</code>, <code>ItemDaListaDeNomes</code></td>
+<td>Cadastro</td>
+<td>agenda, cadastro no app</td>
+</tr>
+<tr>
+<td>Mensagem de saída</td>
+<td>Texto que a ACS quer mandar para um canal aberto, com o veredito.</td>
+<td><code>MensagemSaida</code></td>
+<td>Cadastro</td>
+<td>post, envio</td>
+</tr>
+<tr>
+<td>Versão segura</td>
+<td>Texto fixo que substitui a mensagem bloqueada.</td>
+<td><code>VersaoSegura</code></td>
+<td>Cadastro</td>
+<td>sugestão</td>
+</tr>
+<tr>
+<td>Tipo de dado</td>
+<td>A categoria de um dado pessoal, como CPF, saúde ou mora sozinho. É o rótulo do taint.</td>
+<td><code>TipoDeDado</code></td>
+<td>Guarda</td>
+<td>tag, classe</td>
+</tr>
+<tr>
+<td>Regra de PII</td>
+<td>Padrão, validador, máscara e severidade de um tipo de dado.</td>
+<td><code>RegraDePii</code></td>
+<td>Guarda</td>
+<td>filtro</td>
+</tr>
+<tr>
+<td>Achado</td>
+<td>Um dado pessoal encontrado num texto, sem o valor em claro.</td>
+<td><code>Achado</code></td>
+<td>Guarda</td>
+<td>match, detecção</td>
+</tr>
+<tr>
+<td>Texto rotulado</td>
+<td>Um texto com os tipos de dado que ele carrega.</td>
+<td><code>TextoRotulado</code></td>
+<td>Guarda</td>
+<td>string sensível</td>
+</tr>
+<tr>
+<td>Canal</td>
+<td>Lugar por onde um texto sai.</td>
+<td><code>Canal</code></td>
+<td>Guarda</td>
+<td>destino, sumidouro</td>
+</tr>
+<tr>
+<td>Política de canal</td>
+<td>Tabela com os tipos de dado que cada canal aceita e a exposição dele.</td>
+<td><code>PoliticaDeCanal</code></td>
+<td>Guarda</td>
+<td>regra de saída</td>
+</tr>
+<tr>
+<td>Saída segura</td>
+<td>A única porta por onde o valor de um texto rotulado sai.</td>
+<td><code>SaidaSegura</code></td>
+<td>Guarda</td>
+<td>validador</td>
+</tr>
+<tr>
+<td>Veredito</td>
+<td><code>Liberada</code> ou <code>Bloqueada</code>.</td>
+<td><code>Veredito</code></td>
+<td>Guarda</td>
+<td>decisão da saída</td>
+</tr>
+<tr>
+<td>Evento de segurança</td>
+<td>O registro de um mascaramento na entrada ou de uma saída bloqueada, sem o valor.</td>
+<td><code>EventoDeSeguranca</code></td>
+<td>Guarda</td>
+<td>incidente</td>
+</tr>
+<tr>
+<td>Farol</td>
+<td>O indicador verde, amarelo ou vermelho do painel Risco Cidadão.</td>
+<td><code>CorDoFarol</code>, <code>Farol</code></td>
+<td>Guarda</td>
+<td>semáforo</td>
+</tr>
+<tr>
+<td>Mensagem ao cidadão</td>
+<td>O bloqueio explicado em duas frases simples.</td>
+<td><code>MensagemAoCidadao</code></td>
+<td>Guarda</td>
+<td>tradução solta</td>
+</tr>
+</tbody></table>
+</div>
+<p>Palavras que colidem, e como a equipe usa cada uma:</p>
+<ul>
+<li>&quot;Motor&quot; sozinho é o módulo Motor. A classe da Guarda sempre se chama <code>MotorDeParsing</code>.</li>
+<li>&quot;Verde&quot; e &quot;Vermelho&quot; existem em <code>SituacaoDaCasa</code> e em <code>CorDoFarol</code>. São dois enums. Nenhum código converte um no outro.</li>
+<li>&quot;Evento&quot; sozinho não existe. Sempre <code>EventoSensor</code>, <code>EventoDeSeguranca</code> ou evento de domínio.</li>
+<li>&quot;Saída&quot; sozinho não existe. No Motor é saída avisada. Na Guarda é saída segura ou saída bloqueada.</li>
+<li>&quot;Aviso&quot; sozinho é o aviso ao vizinho.</li>
+<li>&quot;Contato&quot; sozinho não existe. Sempre regra de contato, perfil de contato, janela de contato ou pedido de contato.</li>
+<li>&quot;Motivo&quot; no radar é <code>MotivoDoAlerta</code>. No dia crítico, <code>DiaCritico.Motivo</code> é o texto que o job manda.</li>
+</ul>
+<h2 id="4-design-tático-por-contexto">4. Design tático por contexto <a class="ancora" href="#4-design-tático-por-contexto" aria-label="Link para esta seção">#</a></h2>
+<h3 id="41-convenções-dos-três-módulos">4.1 Convenções dos três módulos <a class="ancora" href="#41-convenções-dos-três-módulos" aria-label="Link para esta seção">#</a></h3>
+<ul>
+<li><strong>Raiz de agregado.</strong> As propriedades têm <code>private set</code>. Os dados da raiz só mudam por um método com nome de comando. A criação passa por um método de fábrica estático que valida as invariantes. O EF Core usa um construtor privado sem parâmetros.</li>
+<li><strong>Objeto de valor.</strong> É um <code>record</code> imutável que se valida na criação. Dois primitivos com sentidos diferentes ganham dois tipos. <code>CasaToken</code> e <code>MicroareaId</code> nunca são <code>string</code> ou <code>int</code> soltos dentro do domínio.</li>
+<li><strong>Tempo.</strong> Nenhuma classe de domínio lê o relógio. Todo método que depende da hora recebe <code>agora</code>. Os casos de uso leem a hora do <code>TimeProvider</code>, que é o <code>RelogioDeDemo</code>. O banco guarda <code>DateTimeOffset</code> em UTC. O fuso <code>America/Sao_Paulo</code> aparece num lugar só, o corte das janelas.</li>
+<li><strong>Evento de domínio em código.</strong> É um <code>record</code> imutável com nome no passado. O método do agregado devolve o evento. O caso de uso grava e depois chama a política, na mesma chamada. Não há MediatR, barramento nem outbox.</li>
+<li><strong>Erro de domínio.</strong> Uma invariante violada lança <code>RegraDeDominioViolada</code>, com um código e uma mensagem sem dado pessoal. O <code>TratadorDeErros</code> converte em resposta 422, ou 409 quando o código é de conflito.</li>
+<li><strong>Idempotência.</strong> Todo comando que pode ser repetido tem uma chave. A seção 4.5 lista cada uma.</li>
+<li><strong>Concorrência.</strong> Com conflito de versão ou com chave de idempotência repetida no banco, o caso de uso recarrega e roda o comando de novo, uma vez. Todo comando com chave na seção 4.5 converge, então a segunda rodada devolve o que já existe.</li>
+<li><strong>Parâmetros.</strong> Todo número das regras vem de <code>ParametrosDoMotor</code>, menos <code>ToleranciaDoRelogio</code>. Ela fica em <code>ParametrosDoRelogio</code>, em <code>Corredor.Contratos</code>, porque o Cadastro também usa. A seção 5.9 lista os valores.</li>
+</ul>
+<h3 id="42-motor">4.2 Motor <a class="ancora" href="#42-motor" aria-label="Link para esta seção">#</a></h3>
+<h4 id="agregado-casamonitorada">Agregado <code>CasaMonitorada</code> <a class="ancora" href="#agregado-casamonitorada" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>CasaMonitorada</code>, identificada pelo <code>CasaToken</code>.</td>
+</tr>
+<tr>
+<td>Entidade interna</td>
+<td><code>Confirmacao</code>, com <code>Id</code>, <code>Origem</code>, <code>Resultado</code> e <code>Quando</code>.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>CasaToken</code>, <code>MicroareaId</code>, <code>PerfilDaCasa</code>.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td>Token, microárea, perfil, <code>AtivadaEm</code>, <code>DesativadaEm</code>, <code>UltimoPacoteEm</code> e as confirmações das últimas 24 horas.</td>
+</tr>
+<tr>
+<td>Calculado</td>
+<td>Situação, alerta, atendimento. Nada disso tem coluna.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li>O token e a microárea nunca mudam.</li>
+<li><code>UltimoPacoteEm</code> só anda para frente e recebe a hora do servidor, nunca o <code>ts</code> do pacote.</li>
+<li>Uma casa desativada não aceita perfil, pacote nem confirmação. A desativação é definitiva. A linha fica, sem eventos nem confirmações, só para o token nunca voltar. Um consentimento novo gera outro token.</li>
+<li>Uma confirmação com <code>Id</code> repetido é ignorada.</li>
+<li>Uma confirmação com <code>Quando</code> depois de <code>agora</code> mais <code>ToleranciaDoRelogio</code> é recusada. Uma confirmação com mais de 24 horas é recusada.</li>
+<li>A casa não tem propriedade de nome, endereço, telefone ou texto livre.</li>
+</ol>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Efeito</th>
+<th>Evento</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>AtivarCasa(token, microarea, perfil, agora)</code></td>
+<td>Cria a casa. Casa ativa com o mesmo token só atualiza o perfil. Casa desativada recusa com <code>CASA_DESATIVADA</code>.</td>
+<td><code>CasaAtivada</code></td>
+<td><code>casaToken</code></td>
+</tr>
+<tr>
+<td><code>DefinirPerfil(perfil)</code></td>
+<td>Troca o perfil.</td>
+<td><code>PerfilDaCasaDefinido</code></td>
+<td><code>casaToken</code>, o último valor vale</td>
+</tr>
+<tr>
+<td><code>RegistrarPacote(recebidoEm)</code></td>
+<td>Avança <code>UltimoPacoteEm</code>.</td>
+<td>nenhum para outro módulo</td>
+<td>não precisa: só anda para frente</td>
+</tr>
+<tr>
+<td><code>Confirmar(confirmacao, agora)</code></td>
+<td>Guarda a confirmação.</td>
+<td><code>ConfirmacaoRegistrada</code></td>
+<td><code>Confirmacao.Id</code></td>
+</tr>
+<tr>
+<td><code>DesativarCasa(agora)</code></td>
+<td>Grava <code>DesativadaEm</code>. O caso de uso apaga eventos e confirmações da casa.</td>
+<td><code>CasaDesativada</code></td>
+<td><code>casaToken</code>. Repetir não muda nada.</td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="agregado-eventosensor">Agregado <code>EventoSensor</code> <a class="ancora" href="#agregado-eventosensor" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>EventoSensor</code>, identificado por <code>(CasaToken, Seq, OcorridoEm)</code>. Imutável.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>TipoDePacote {Movimento, BotaoBem, BotaoSair, Telemetria, Heartbeat}</code>, <code>TempC</code>, <code>TensaoV</code>.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td>Token, <code>Seq</code>, tipo, <code>OcorridoEm</code>, <code>RecebidoEm</code>, <code>TempC</code>, <code>TensaoV</code>, <code>Bufferizado</code>.</td>
+</tr>
+<tr>
+<td>Calculado</td>
+<td>Se é sinal de vida, que depende do perfil de contato. A seção 5.3 diz quando.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li><code>(CasaToken, Seq, OcorridoEm)</code> é único. O índice único do banco garante. A gravação usa <code>INSERT ... ON CONFLICT DO NOTHING</code>, e a repetição conta como sucesso.</li>
+<li>O tipo nunca é <code>Heartbeat</code>. O heartbeat só avança <code>UltimoPacoteEm</code>.</li>
+<li><code>OcorridoEm</code> não passa de <code>RecebidoEm</code> mais <code>ToleranciaDoRelogio</code>. <code>OcorridoEm</code> não tem mais de 24 horas. Um pacote fora disso é recusado inteiro e não avança <code>UltimoPacoteEm</code>.</li>
+<li>O evento só existe para uma casa ativa. O caso de uso <code>RegistrarPacote</code> confere isso, porque a regra cruza dois agregados.</li>
+<li>A temperatura fica entre -10 °C e 60 °C. A tensão fica entre 0 V e 260 V. O valor fora da faixa é gravado como ausente.</li>
+</ol>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Efeito</th>
+<th>Evento</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>EventoSensor.De(pacote, recebidoEm)</code></td>
+<td>Cria o evento.</td>
+<td><code>EventoSensorRegistrado</code>. No event storming, ele aparece como <code>MovimentoDetectado</code>, <code>BotaoBemPressionado</code>, <code>SaidaAvisada</code>, <code>TelemetriaRecebida</code> ou <code>EventoReenviado</code>.</td>
+<td><code>(casaToken, seq, ts)</code></td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="agregado-diacritico">Agregado <code>DiaCritico</code> <a class="ancora" href="#agregado-diacritico" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>DiaCritico</code>, identificado pela <code>Data</code> de São Paulo.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>Probabilidade</code>, <code>OrigemDoDiaCritico {Modelo, RegraBase, Manual}</code>, <code>TurnoRadar</code>, <code>JanelaDeContato</code>, <code>ResumoDoTurno</code>.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td>Data, probabilidade, motivo, origem, <code>AbertoEm</code>, <code>ToquePedidoEm</code>, <code>EncerradoEm</code> e o <code>ResumoDoTurno</code>.</td>
+</tr>
+<tr>
+<td>Calculado</td>
+<td><code>Turno(parametros)</code> devolve o <code>TurnoRadar</code>. O turno não tem tabela.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li>Existe no máximo um <code>DiaCritico</code> por data.</li>
+<li>A data é a de hoje, no fuso de São Paulo.</li>
+<li>A probabilidade fica entre 0 e 1. O motivo tem de 1 a 200 caracteres.</li>
+<li>Declarar de novo a mesma data atualiza probabilidade, motivo e origem. <code>AbertoEm</code> não muda, então a janela da manhã não se desloca.</li>
+<li>Depois do encerramento, declarar de novo é recusado com <code>TURNO_ENCERRADO</code>. O turno encerrado não reabre.</li>
+<li>O toque é pedido no máximo uma vez por dia.</li>
+<li>Existe um encerramento por data. O resumo é gravado no encerramento e não muda. Encerrar de novo devolve o mesmo resumo.</li>
+</ol>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Efeito</th>
+<th>Evento</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DeclararDiaCritico(data, previsao, agora)</code></td>
+<td>Cria o dia crítico e abre o turno, ou atualiza a previsão.</td>
+<td><code>DiaCriticoDeclarado</code></td>
+<td><code>data</code></td>
+</tr>
+<tr>
+<td><code>PedirToque(agora)</code></td>
+<td>Grava <code>ToquePedidoEm</code>.</td>
+<td><code>ToquePedido</code></td>
+<td><code>ToquePedidoEm</code> preenchido</td>
+</tr>
+<tr>
+<td><code>EncerrarTurno(resumo, agora)</code></td>
+<td>Grava <code>EncerradoEm</code> e o resumo.</td>
+<td><code>TurnoEncerrado</code></td>
+<td><code>data</code></td>
+</tr>
+</tbody></table>
+</div>
+<p><code>TurnoRadar</code> tem <code>AbertoEm</code>, <code>FimPrevisto</code>, <code>EncerradoEm</code>, a janela da manhã e a janela da tarde. <code>EstaAberto(agora)</code> é verdadeiro quando o turno não foi encerrado e <code>agora</code> vem antes de <code>FimPrevisto</code>. A seção 5.2 diz como as janelas são cortadas.</p>
+<p><code>ResumoDoTurno</code> guarda cinco números: casas ativas, casas com sinal de vida até as 10h, casas atendidas, casas vermelhas pendentes e casas cinza pendentes. O segundo número é o indicador principal da ficha. Os eventos somem em 24 horas, então o resumo é o único lugar em que esse número sobrevive.</p>
+<h4 id="serviços-políticas-e-processos-do-motor">Serviços, políticas e processos do Motor <a class="ancora" href="#serviços-políticas-e-processos-do-motor" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Tipo</th>
+<th>Faz</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>AvaliadorDeCasas</code></td>
+<td>Serviço de domínio, puro</td>
+<td>Aplica as regras da seção 5 e devolve a <code>Avaliacao</code>. Não lê banco nem relógio.</td>
+</tr>
+<tr>
+<td><code>RegraDeContato</code></td>
+<td>Classe abstrata</td>
+<td><code>Ordem</code>, <code>ExigeTurnoAberto</code>, <code>Avaliar(contexto)</code> e <code>AceitaConfirmacao(confirmacao)</code>. O método <code>Avaliar</code> confere o turno e só então chama <code>AvaliarNucleo(contexto)</code>, que cada regra implementa. As quatro regras da entrega herdam dela.</td>
+</tr>
+<tr>
+<td><code>TradutorDePacote</code></td>
+<td>Camada anticorrupção</td>
+<td>Converte o JSON em <code>PacoteDoNo</code>. Recusa tipo desconhecido e campo faltando. Com o <code>RelogioDeDemo</code> deslocado, soma o mesmo deslocamento ao <code>ts</code>.</td>
+</tr>
+<tr>
+<td><code>RegistrarPacote</code></td>
+<td>Caso de uso</td>
+<td>Confere a casa ativa e o <code>ts</code>, avança <code>UltimoPacoteEm</code>, cria o <code>EventoSensor</code> quando o tipo não é heartbeat e trata a repetição como sucesso.</td>
+</tr>
+<tr>
+<td><code>ConsumidorMqtt</code></td>
+<td><code>BackgroundService</code>, assíncrono</td>
+<td>Assina <code>corredor/v1/+/evento</code> e chama <code>RegistrarPacote</code>. Pacote de token desconhecido ou inativo é descartado sem gravar o payload no log.</td>
+</tr>
+<tr>
+<td><code>PublicadorDeComandos</code></td>
+<td>Infraestrutura</td>
+<td>Publica em <code>corredor/v1/{casaToken}/comando</code>.</td>
+</tr>
+<tr>
+<td><code>AoDeclararDiaCritico</code></td>
+<td>Política P8</td>
+<td>Publica <code>DIA_CRITICO</code> para cada casa ativa.</td>
+</tr>
+<tr>
+<td><code>VigiaDoRadar</code></td>
+<td><code>BackgroundService</code>, a cada <code>IntervaloDoVigia</code></td>
+<td>Avalia as casas ativas. Manda um <code>PedidoDeContato</code> pela porta <code>IReceptorDeContato</code> para cada vermelho pendente e para cada cinza pendente com turno aberto. Às 14h30, chama <code>PedirToque</code>, que publica <code>PEDIR_TOQUE</code> para as casas <code>Sozinho</code> sem sinal de vida desde as 10h. Às 18h, encerra o turno com o resumo se ninguém encerrou.</td>
+</tr>
+<tr>
+<td><code>Expurgo</code></td>
+<td><code>BackgroundService</code>, a cada <code>IntervaloDoExpurgo</code></td>
+<td>Apaga eventos do sensor e confirmações com mais de 24 horas. Não apaga leitura de tensão abaixo de <code>TensaoMinima</code> de casa ativa e eletrodependente enquanto não existe confirmação <code>Acs</code> com <code>PessoaVista</code> depois dela, porque a trava da regra de energia depende dela. Apaga os eventos antes das confirmações, na mesma transação.</td>
+</tr>
+<tr>
+<td><code>MotorDeCasas</code></td>
+<td>Implementação de <code>IMotorDeCasas</code></td>
+<td>Recebe os quatro comandos do Cadastro.</td>
+</tr>
+<tr>
+<td><code>RelogioDeDemo</code></td>
+<td><code>TimeProvider</code></td>
+<td>Em desenvolvimento, aplica o deslocamento de <code>PUT /api/demo/relogio</code>. Em produção, é o <code>TimeProvider.System</code>.</td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="modelos-de-leitura-do-motor">Modelos de leitura do Motor <a class="ancora" href="#modelos-de-leitura-do-motor" aria-label="Link para esta seção">#</a></h4>
+<ul>
+<li><strong><code>Radar</code>.</strong> Tem <code>TurnoAberto</code>, <code>Agora</code>, as listas <code>Pendentes</code>, <code>Atendidas</code> e <code>Aguardando</code>, e a contagem <code>Verdes</code>. A ordem de <code>Pendentes</code> e de <code>Atendidas</code> sai de uma consulta LINQ: <code>Vermelho</code> antes de <code>Cinza</code>, depois a <code>Ordem</code> da regra, depois o <code>Desde</code> mais antigo.</li>
+<li><strong><code>CardDoRadar</code>.</strong> Tem <code>CasaToken</code>, <code>Situacao</code>, <code>Motivo</code>, <code>Desde</code>, <code>Atendida</code>, <code>Perfil</code> e <code>UltimoPacoteEm</code>. O app troca o motivo por um texto, porque nenhuma informação pode depender só da cor.</li>
+<li><strong><code>LinhaDoTempo</code>.</strong> Tem os eventos do sensor e as confirmações de uma casa nas últimas 24 horas, em ordem de <code>OcorridoEm</code>, com a marca de bufferizado.</li>
+</ul>
+<p>O <code>Radar</code> é calculado a cada <code>GET /api/radar</code>. O caso de uso carrega as casas ativas da microárea, os eventos do sensor e as confirmações das últimas 24 horas, as leituras de tensão baixa de qualquer idade, pelo mesmo critério do <code>Expurgo</code>, e o dia crítico de hoje. Ele monta um <code>HistoricoDaCasa</code> por token com uma consulta LINQ agrupada e avalia cada casa. Com 40 casas e sem heartbeat gravado, isso é uma consulta e um laço.</p>
+<h4 id="o-que-o-motor-grava-e-o-que-calcula">O que o Motor grava e o que calcula <a class="ancora" href="#o-que-o-motor-grava-e-o-que-calcula" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gravado</th>
+<th>Calculado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>casa_monitorada</code>, com <code>ultimo_pacote_em</code></td>
+<td>Situação, alerta, atendimento, motivo e <code>Desde</code></td>
+</tr>
+<tr>
+<td><code>confirmacao</code>, por 24 horas</td>
+<td>Sinal de vida, sequências de calor e de tensão baixa</td>
+</tr>
+<tr>
+<td><code>evento_sensor</code>, por 24 horas, sem heartbeat</td>
+<td>Turno, janelas, janela atual</td>
+</tr>
+<tr>
+<td><code>dia_critico</code>, com o resumo</td>
+<td>Radar, ordem, contagens, linha do tempo</td>
+</tr>
+</tbody></table>
+</div>
+<p>O Motor não grava alerta, aviso nem pedido de contato.</p>
+<h3 id="43-cadastro">4.3 Cadastro <a class="ancora" href="#43-cadastro" aria-label="Link para esta seção">#</a></h3>
+<h4 id="agregado-idoso">Agregado <code>Idoso</code> <a class="ancora" href="#agregado-idoso" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>Idoso</code>, identificado por <code>IdosoId</code>.</td>
+</tr>
+<tr>
+<td>Entidades internas</td>
+<td><code>Casa</code>, com endereço e token. <code>Consentimento</code>, uma lista que só cresce. <code>VizinhoDeConfianca</code>, no máximo um.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>Autorizacoes(AvisarVizinho, AvisarFamilia)</code>, <code>PerfilDaCasa</code>, <code>CasaToken</code>, <code>MicroareaId</code>, <code>TextoRotulado</code> nos campos pessoais.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td>Microárea, <code>Nome</code>, <code>Condicoes</code>, <code>Medicamentos</code>, perfil, endereço e token da casa, os consentimentos com quem colheu, a data, a versão do termo e a data de revogação, e o vizinho com nome, telefone e <code>AceitouEm</code>.</td>
+</tr>
+<tr>
+<td>Calculado</td>
+<td><code>ConsentimentoVigente</code>, <code>TokenAtivo</code>, <code>PodeAvisarVizinho</code>, <code>DestinatariosDoAviso()</code>.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li>Sem consentimento vigente não há token. O token nasce dentro de <code>RegistrarConsentimento</code>.</li>
+<li>Existe no máximo um consentimento vigente. O consentimento revogado fica guardado, com a data.</li>
+<li>O consentimento registra a ACS que o colheu, a data e a versão do termo. A data não está no futuro.</li>
+<li>O token tem 128 bits de <code>RandomNumberGenerator</code>. Ele nunca deriva de nome, endereço ou documento. Um consentimento novo gera um token novo.</li>
+<li>Registrar o consentimento com um vigente devolve o mesmo token e repete a ativação no Motor.</li>
+<li>O vizinho só é indicado com a autorização <code>AvisarVizinho</code> e com a data em que ele aceitou.</li>
+<li><code>DestinatariosDoAviso()</code> nunca inclui a família sem a autorização <code>AvisarFamilia</code>.</li>
+<li>Revogar o consentimento apaga o token da <code>Casa</code> e remove o vizinho. O caso de uso apaga, na mesma transação, os avisos ao vizinho daquele token. As visitas ficam.</li>
+<li><code>Nome</code> e <code>Casa.Endereco</code> são obrigatórios. <code>Nome</code>, <code>Condicoes</code>, <code>Medicamentos</code>, <code>Casa.Endereco</code> e o nome e o telefone do vizinho têm o tipo <code>TextoRotulado</code>. O rótulo vem do campo, não do conteúdo.</li>
+<li>O cadastro não tem CPF, RG, CNS nem data de nascimento. O produto não usa esses dados.</li>
+</ol>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Evento</th>
+<th>Política</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CadastrarIdoso(microarea, nome, endereco, perfil, condicoes, medicamentos, id?)</code></td>
+<td><code>IdosoCadastrado</code></td>
+<td>nenhuma</td>
+<td>nenhuma. A rota é de demo, no Swagger, e repetir cria outro idoso. Só a carga da demo, <code>Corredor.Api --semear</code>, informa o <code>id</code>, e repetir a carga pula o idoso que já existe.</td>
+</tr>
+<tr>
+<td><code>RegistrarConsentimento(acs, versaoDoTermo, autorizacoes, agora)</code></td>
+<td><code>ConsentimentoRegistrado</code></td>
+<td>P1</td>
+<td><code>IdosoId</code>. Com consentimento vigente, devolve o mesmo token.</td>
+</tr>
+<tr>
+<td><code>RevogarConsentimento(agora)</code></td>
+<td><code>ConsentimentoRevogado</code></td>
+<td>P4</td>
+<td><code>IdosoId</code>. Sem consentimento vigente, não faz nada.</td>
+</tr>
+<tr>
+<td><code>IndicarVizinho(nome, telefone, aceitouEm)</code></td>
+<td><code>VizinhoDeConfiancaIndicado</code></td>
+<td>nenhuma</td>
+<td><code>IdosoId</code>. Indicar de novo substitui o vizinho.</td>
+</tr>
+<tr>
+<td><code>AlterarPerfil(perfil)</code></td>
+<td><code>PerfilDaCasaAlterado</code></td>
+<td>P21</td>
+<td><code>IdosoId</code>, o último valor vale.</td>
+</tr>
+</tbody></table>
+</div>
+<p>O Cadastro grava primeiro e chama o Motor depois. Os dois schemas não têm transação comum. Se a chamada falha, repetir o comando conserta, porque os métodos de <code>IMotorDeCasas</code> convergem. Ao iniciar, a <code>ReconciliacaoComMotor</code> reenvia <code>AtivarCasaAsync</code> para todo idoso com token.</p>
+<h4 id="agregado-visita">Agregado <code>Visita</code> <a class="ancora" href="#agregado-visita" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>Visita</code>, identificada por um <code>Id</code> gerado no celular. Imutável.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>Desfecho {EstavaBem, EstavaFora, NaoAbriu, Encaminhada}</code>, <code>TextoRotulado</code> na observação.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td><code>Id</code>, <code>IdosoId</code>, <code>AcsId</code>, <code>OcorridaEm</code>, <code>RegistradaEm</code>, desfecho e observação.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li>Uma visita nunca é alterada nem apagada. Uma correção é outra visita.</li>
+<li>Repetir o mesmo <code>Id</code> devolve a visita que já existe e chama o Motor de novo. A confirmação leva o mesmo <code>Id</code>, então o Motor ignora a repetição.</li>
+<li><code>OcorridaEm</code> não passa de <code>agora</code> mais <code>ToleranciaDoRelogio</code>. Antes de conferir, o caso de uso soma a <code>OcorridaEm</code> o deslocamento do relógio de demo, como o <code>TradutorDePacote</code> faz com o <code>ts</code>.</li>
+<li>A visita só existe para um idoso com token ativo na hora do registro.</li>
+<li>A observação é <code>TextoRotulado</code> com o rótulo <code>Saude</code>, que vem do campo, mais os rótulos que o <code>MotorDeParsing</code> achar. Lida do banco, ela volta com todos os rótulos de texto livre: <code>Saude</code>, <code>MoraSozinho</code>, <code>Nome</code>, <code>Endereco</code> e <code>Telefone</code>. CPF, RG, CNS e credencial já chegam mascarados pelo interceptador.</li>
+<li>O expurgo de 24 horas e a revogação do consentimento não apagam visitas.</li>
+<li>Se o Motor recusa a confirmação porque ela tem mais de 24 horas, o Cadastro mantém a visita e responde 201.</li>
+</ol>
+<p><code>TradutorDeDesfecho</code> é um dicionário com a tabela abaixo. Ele é o único lugar que decide se um desfecho vira confirmação no Motor.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Desfecho</th>
+<th>A pessoa foi vista?</th>
+<th>Chamada ao Motor</th>
+<th>Efeito no radar</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>EstavaBem</code></td>
+<td>Sim</td>
+<td><code>ConfirmarAsync</code> com <code>Acs</code> e <code>PessoaVista</code></td>
+<td>Sinal de vida. Atende o alerta de calor ou de cinza, e o de energia, na janela atual.</td>
+</tr>
+<tr>
+<td><code>Encaminhada</code></td>
+<td>Sim</td>
+<td><code>ConfirmarAsync</code> com <code>Acs</code> e <code>PessoaVista</code></td>
+<td>Igual a <code>EstavaBem</code>.</td>
+</tr>
+<tr>
+<td><code>EstavaFora</code></td>
+<td>Não</td>
+<td><code>ConfirmarAsync</code> com <code>Acs</code> e <code>AusenciaConfirmada</code></td>
+<td>Atende só o alerta de silêncio, e só na janela atual. Nunca é sinal de vida.</td>
+</tr>
+<tr>
+<td><code>NaoAbriu</code></td>
+<td>Não</td>
+<td>Nenhuma</td>
+<td>A casa continua vermelha e pendente. O app mostra &quot;SAMU chamado&quot;.</td>
+</tr>
+</tbody></table>
+</div>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Evento</th>
+<th>Política</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>RegistrarVisita(id, idoso, acs, desfecho, observacao, ocorridaEm, agora)</code></td>
+<td><code>VisitaRegistrada</code></td>
+<td>P11</td>
+<td><code>Visita.Id</code></td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="agregado-mensagemsaida">Agregado <code>MensagemSaida</code> <a class="ancora" href="#agregado-mensagemsaida" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>MensagemSaida</code>, identificada por <code>Guid</code>.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>Canal</code>, <code>Veredito</code>, a lista de <code>TipoDeDado</code> achados.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td><code>Id</code>, canal, <code>AcsId</code>, texto mascarado, veredito, tipos de dado achados, <code>VerificadaEm</code>.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li>A mensagem nasce com o veredito. Não existe mensagem pendente.</li>
+<li>O veredito é <code>Bloqueada</code> se, e somente se, a <code>SaidaSegura</code> achou um tipo de dado que o canal não aceita.</li>
+<li>O texto original nunca é gravado. O agregado guarda só o texto que <code>TextoRotulado.ToString()</code> devolve mascarado.</li>
+<li>O veredito não muda. Uma nova tentativa é uma nova <code>MensagemSaida</code>.</li>
+<li>A resposta de uma mensagem bloqueada traz a frase fixa do tipo de dado e a versão segura: &quot;Preciso de ajuda para uma visita agora. Quem puder, me chame no privado.&quot;</li>
+</ol>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Evento</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>VerificarMensagem(texto, canal, saidaSegura, agora)</code></td>
+<td><code>MensagemLiberada</code> ou <code>MensagemBloqueada</code></td>
+<td>nenhuma. Cada verificação é uma tentativa.</td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="agregado-avisoaovizinho">Agregado <code>AvisoAoVizinho</code> <a class="ancora" href="#agregado-avisoaovizinho" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>AvisoAoVizinho</code>, identificado por <code>Guid</code>.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>MotivoDoAlerta</code>, <code>RespostaDoVizinho {EstaBem, PrecisaDeAjuda}</code>.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td><code>Id</code>, <code>CasaToken</code>, <code>MicroareaId</code>, motivo, <code>Desde</code>, <code>RegistradoEm</code>, resposta e <code>RespondidoEm</code>.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li>Existe no máximo um aviso por <code>(CasaToken, Motivo, Desde)</code>. Esse trio é o episódio.</li>
+<li>O aviso só existe se <code>Idoso.PodeAvisarVizinho</code>: autorização <code>AvisarVizinho</code> e vizinho indicado.</li>
+<li>O aviso recebe uma resposta. A mesma resposta repetida não muda nada. Uma resposta diferente é recusada com <code>AVISO_JA_RESPONDIDO</code>.</li>
+<li>O texto que sai é fixo e neutro, sem nome, sem endereço e sem motivo de saúde: &quot;A UBS pede que você veja agora se está tudo bem com a pessoa que você acompanha. Depois, responda aqui.&quot; Ele passa pela <code>SaidaSegura</code> com o canal <code>Vizinho</code>.</li>
+</ol>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Evento</th>
+<th>Política</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>RegistrarAviso(idoso, pedido, agora)</code></td>
+<td><code>AvisoAoVizinhoRegistrado</code></td>
+<td>P19</td>
+<td><code>(casaToken, motivo, desde)</code></td>
+</tr>
+<tr>
+<td><code>RegistrarResposta(resposta, agora)</code></td>
+<td><code>VizinhoRespondeu</code></td>
+<td>P20</td>
+<td><code>AvisoAoVizinho.Id</code></td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="referência-políticas-e-leitura-do-cadastro">Referência, políticas e leitura do Cadastro <a class="ancora" href="#referência-políticas-e-leitura-do-cadastro" aria-label="Link para esta seção">#</a></h4>
+<p><code>Microarea</code> tem <code>Id</code>, <code>Nome</code> e <code>AcsResponsavel</code>. Ela entra por carga inicial e não tem comando na entrega.</p>
+<p><code>AcsId</code> é um código de texto no formato <code>^[a-z0-9-]{3,40}$</code>, como <code>acs-demo-01</code>, que vem da autenticação. Não existe tabela de ACS, e o banco não guarda credencial.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Tipo</th>
+<th>Faz</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>P1</td>
+<td>Política</td>
+<td>Depois de <code>ConsentimentoRegistrado</code>, chama <code>AtivarCasaAsync</code> com token, microárea e perfil.</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>Política</td>
+<td>Depois de <code>ConsentimentoRevogado</code>, chama <code>DesativarCasaAsync</code>.</td>
+</tr>
+<tr>
+<td>P11</td>
+<td>Política</td>
+<td>Depois de <code>VisitaRegistrada</code>, consulta o <code>TradutorDeDesfecho</code> e chama <code>ConfirmarAsync</code> quando a tabela manda. O <code>Id</code> da confirmação é o <code>Id</code> da visita. <code>Quando</code> é <code>OcorridaEm</code>.</td>
+</tr>
+<tr>
+<td>P19</td>
+<td>Política, em <code>ReceptorDeContato</code></td>
+<td>Implementa <code>IReceptorDeContato</code>. Acha o idoso pelo token. Se ele pode avisar o vizinho e o episódio é novo, cria o <code>AvisoAoVizinho</code> e grava o envio simulado. O envio simulado é a própria linha do aviso e uma linha de log sem telefone. Se o episódio já existe, não faz nada.</td>
+</tr>
+<tr>
+<td>P20</td>
+<td>Política</td>
+<td>Depois de <code>VizinhoRespondeu</code> com <code>EstaBem</code>, chama <code>ConfirmarAsync</code> com <code>Vizinho</code>, <code>PessoaVista</code> e <code>RespondidoEm</code>. O <code>Id</code> da confirmação é o <code>Id</code> do aviso. <code>PrecisaDeAjuda</code> não chama o Motor.</td>
+</tr>
+<tr>
+<td>P21</td>
+<td>Política</td>
+<td>Depois de <code>PerfilDaCasaAlterado</code> com token ativo, chama <code>DefinirPerfilAsync</code>.</td>
+</tr>
+<tr>
+<td>P22</td>
+<td><code>ReconciliacaoComMotor</code>, <code>IHostedService</code></td>
+<td>Ao iniciar, reenvia <code>AtivarCasaAsync</code> para todo idoso com token.</td>
+</tr>
+<tr>
+<td><code>ListaDeNomes</code></td>
+<td>Modelo de leitura</td>
+<td><code>CasaToken</code>, nome, endereço e o nome e o telefone do vizinho, só de idoso com token ativo. Passa pela <code>SaidaSegura</code> com o canal <code>AppAutenticado</code>. Condições e medicamentos não vão.</td>
+</tr>
+<tr>
+<td><code>AvisosDoDia</code></td>
+<td>Modelo de leitura</td>
+<td>Os avisos das últimas 24 horas da microárea, com token, motivo, <code>Desde</code>, resposta e hora da resposta. O app junta com o radar pelo token.</td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="o-que-o-cadastro-grava-e-o-que-calcula">O que o Cadastro grava e o que calcula <a class="ancora" href="#o-que-o-cadastro-grava-e-o-que-calcula" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Gravado</th>
+<th>Calculado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>microarea</code>, <code>idoso</code> com as colunas da casa, <code>consentimento</code>, <code>vizinho_de_confianca</code></td>
+<td>Token ativo, consentimento vigente, destinatários do aviso</td>
+</tr>
+<tr>
+<td><code>visita</code>, sem prazo</td>
+<td><code>ListaDeNomes</code>, <code>AvisosDoDia</code></td>
+</tr>
+<tr>
+<td><code>mensagem_saida</code>, só com texto mascarado</td>
+<td></td>
+</tr>
+<tr>
+<td><code>aviso_ao_vizinho</code></td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="44-guarda">4.4 Guarda <a class="ancora" href="#44-guarda" aria-label="Link para esta seção">#</a></h3>
+<p>A Guarda segue a tabela de arquivos de <a href="arquitetura.html">arquitetura.md</a>. Esta seção dá os nomes de domínio e as invariantes.</p>
+<h4 id="agregado-eventodeseguranca">Agregado <code>EventoDeSeguranca</code> <a class="ancora" href="#agregado-eventodeseguranca" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Raiz</td>
+<td><code>EventoDeSeguranca</code>, identificado por <code>Guid</code>.</td>
+</tr>
+<tr>
+<td>Objetos de valor</td>
+<td><code>TipoDeEventoDeSeguranca {MascaramentoNaEntrada, BloqueioDeSaida}</code>, <code>TipoDeDado</code>, <code>Canal</code>, <code>MensagemAoCidadao(Texto, Origem {Llm, FraseFixa})</code>.</td>
+</tr>
+<tr>
+<td>Gravado</td>
+<td><code>Id</code>, <code>OcorridoEm</code>, tipo, tipos de dado, canal, módulo, rota, severidade e a mensagem ao cidadão. A rota é o modelo, como <code>/api/idosos/{id}/vizinho</code>, nunca o caminho com valores, e fica nula fora de uma requisição.</td>
+</tr>
+<tr>
+<td>Calculado</td>
+<td><code>Pontuacao</code>, que é severidade vezes a exposição do canal.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Invariantes:</p>
+<ol>
+<li>O evento nunca guarda o valor original nem um trecho do texto. Ele guarda o tipo de dado, o canal e o módulo.</li>
+<li>A lista de tipos de dado não é vazia. A severidade é a maior entre os tipos achados, de 1 a 5.</li>
+<li>A mensagem ao cidadão é anexada uma vez. Sem resposta do LLM em 5 segundos, entra a frase fixa do tipo de evento.</li>
+<li>O evento não identifica a ACS.</li>
+<li>A aplicação não altera nem apaga o evento.</li>
+</ol>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Comando</th>
+<th>Evento</th>
+<th>Chave de idempotência</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Registrar(tipo, canal, achados, modulo, rota, agora)</code></td>
+<td><code>PiiMascaradaNaEntrada</code> ou <code>SaidaBloqueada</code></td>
+<td>nenhuma. Cada evento de segurança é um fato novo.</td>
+</tr>
+<tr>
+<td><code>AnexarMensagem(texto, origem)</code></td>
+<td><code>BloqueioTraduzido</code></td>
+<td>a mensagem preenchida</td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="objetos-de-valor-e-tabelas-da-guarda">Objetos de valor e tabelas da Guarda <a class="ancora" href="#objetos-de-valor-e-tabelas-da-guarda" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>O que é</th>
+<th>Regra</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>TipoDeDado</code></td>
+<td>Enum: <code>Cpf</code>, <code>Rg</code>, <code>Cns</code>, <code>Saude</code>, <code>MoraSozinho</code>, <code>Endereco</code>, <code>Telefone</code>, <code>Nome</code>, <code>Credencial</code>.</td>
+<td>É o rótulo do taint. <code>Saude</code> cobre CID-10, laudo e nome de remédio.</td>
+</tr>
+<tr>
+<td><code>RegraDePii</code></td>
+<td>Tipo, padrão, validador, máscara e severidade de 1 a 5.</td>
+<td>Vem de <code>Regras/pii.json</code>. A regra de CPF mascara pelo formato. O dígito verificador válido só sobe a severidade. O exemplo <code>123.456.789-00</code> tem dígito inválido e é mascarado.</td>
+</tr>
+<tr>
+<td><code>Achado</code></td>
+<td>Tipo, campo, valor mascarado e severidade.</td>
+<td>Nunca tem o valor em claro.</td>
+</tr>
+<tr>
+<td><code>TextoRotulado</code></td>
+<td>Um texto e o conjunto de <code>TipoDeDado</code> que ele carrega.</td>
+<td>O valor é <code>internal</code>. Ele só sai pela <code>SaidaSegura</code> ou pelo conversor do EF Core, que é a <code>SaidaSegura</code> com o canal <code>Banco</code>. Juntar dois textos une os rótulos. <code>ToString()</code> devolve a máscara.</td>
+</tr>
+<tr>
+<td><code>Canal</code></td>
+<td>Enum: <code>Log</code>, <code>RespostaSemAutenticacao</code>, <code>MensagemDeErro</code>, <code>Mqtt</code>, <code>GrupoDoBairro</code>, <code>PromptDoLlm</code>, <code>Vizinho</code>, <code>AppAutenticado</code>, <code>Banco</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>PoliticaDeCanal</code></td>
+<td>Para cada canal, os tipos de dado aceitos e a exposição de 1 a 3.</td>
+<td>Fica num dicionário, não numa sequência de <code>if</code>.</td>
+</tr>
+<tr>
+<td><code>Veredito</code></td>
+<td><code>Liberada</code> com o texto, ou <code>Bloqueada</code> com os achados.</td>
+<td>É o retorno da <code>SaidaSegura</code>.</td>
+</tr>
+<tr>
+<td><code>CorDoFarol</code></td>
+<td>Enum: <code>Verde</code>, <code>Amarelo</code>, <code>Vermelho</code>.</td>
+<td>Calculado.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Severidades em <code>pii.json</code>: CPF 5 com dígito válido e 4 só no formato, CNS 5, credencial 5, saúde 4, mora sozinho 4, RG 4, endereço 3, telefone 3, nome 3.</p>
+<p><code>PoliticaDeCanal</code> na entrega:</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Canal</th>
+<th>Aceita</th>
+<th>Exposição</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GrupoDoBairro</code></td>
+<td>nenhum rótulo</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>PromptDoLlm</code></td>
+<td>nenhum rótulo</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>Mqtt</code></td>
+<td>nenhum rótulo</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>MensagemDeErro</code></td>
+<td>nenhum rótulo</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>RespostaSemAutenticacao</code></td>
+<td>nenhum rótulo</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>Vizinho</code></td>
+<td>nenhum rótulo</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>Log</code></td>
+<td>nenhum rótulo</td>
+<td>2</td>
+</tr>
+<tr>
+<td><code>AppAutenticado</code></td>
+<td><code>Nome</code>, <code>Endereco</code>, <code>Telefone</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td><code>Banco</code></td>
+<td>todos</td>
+<td>1</td>
+</tr>
+</tbody></table>
+</div>
+<h4 id="serviços-da-guarda">Serviços da Guarda <a class="ancora" href="#serviços-da-guarda" aria-label="Link para esta seção">#</a></h4>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Nome</th>
+<th>Faz</th>
+<th>Invariante</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>MotorDeParsing</code></td>
+<td>Aplica as <code>RegraDePii</code> a um texto ou a um JSON e devolve os achados e o <code>TextoRotulado</code>.</td>
+<td>Puro. Não grava nada.</td>
+</tr>
+<tr>
+<td><code>InterceptadorDeEntrada</code></td>
+<td>Middleware. Lê o corpo de toda requisição.</td>
+<td>Mascara CPF, RG, CNS e credencial em qualquer campo, antes do log e do banco, e registra <code>PiiMascaradaNaEntrada</code> com o canal <code>Banco</code>. A regra de credencial casa com o nome inteiro da chave, como <code>senha</code> ou <code>apiKey</code>, e nunca mascara <code>casaToken</code>. Os outros tipos de dado não mudam o corpo. Eles viram rótulo no <code>TextoRotulado</code>. Nome e endereço do <code>POST /api/idosos</code> são gravados inteiros.</td>
+</tr>
+<tr>
+<td><code>SaidaSegura</code></td>
+<td>Recebe um <code>TextoRotulado</code> e um <code>Canal</code>, consulta a <code>PoliticaDeCanal</code> e devolve o <code>Veredito</code>.</td>
+<td>Todo bloqueio registra <code>SaidaBloqueada</code>.</td>
+</tr>
+<tr>
+<td><code>ProvedorDeLogSeguro</code></td>
+<td>Decorador de <code>ILoggerProvider</code>.</td>
+<td>Um argumento <code>TextoRotulado</code> com rótulo vai ao log como máscara e registra <code>SaidaBloqueada</code> no canal <code>Log</code>.</td>
+</tr>
+<tr>
+<td><code>FiltroDeResposta</code></td>
+<td>Filtro de endpoint.</td>
+<td>Bloqueia <code>TextoRotulado</code> com rótulo em rota sem autenticação.</td>
+</tr>
+<tr>
+<td><code>TratadorDeErros</code></td>
+<td>Middleware.</td>
+<td>Troca a mensagem de exceção com dado pessoal por texto neutro e converte <code>RegraDeDominioViolada</code> em 422 ou 409.</td>
+</tr>
+<tr>
+<td><code>Tradutor</code></td>
+<td>Monta o prompt com tipo de dado, canal e módulo e chama o LLM.</td>
+<td>O prompt passa pela <code>SaidaSegura</code> com o canal <code>PromptDoLlm</code>. Roda depois da resposta HTTP, numa fila em memória lida por um <code>BackgroundService</code>. Com falha, anexa a frase fixa.</td>
+</tr>
+<tr>
+<td><code>Farol</code></td>
+<td>Calcula a <code>CorDoFarol</code> sobre os eventos das últimas 24 horas.</td>
+<td>Função pura.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Regra do farol: <code>Vermelho</code> se existe uma <code>SaidaBloqueada</code> de severidade 4 ou 5 nas últimas 24 horas. <code>Amarelo</code> se existe qualquer outro evento. <code>Verde</code> se não existe evento. Só uma saída bloqueada deixa o farol vermelho. Um mascaramento na entrada vai até amarelo, porque mostra o sistema funcionando, não uma tentativa de saída.</p>
+<p>Na Guarda, os eventos de segurança e o <code>pii.json</code> são gravados. Achados, rótulos, veredito, pontuação e cor do farol são calculados.</p>
+<h3 id="45-chave-de-idempotência-de-cada-comando">4.5 Chave de idempotência de cada comando <a class="ancora" href="#45-chave-de-idempotência-de-cada-comando" aria-label="Link para esta seção">#</a></h3>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Contexto</th>
+<th>Comando</th>
+<th>Chave que torna a repetição inofensiva</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Motor</td>
+<td><code>RegistrarPacote</code></td>
+<td><code>(casaToken, seq, ts)</code></td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>AtivarCasa</code></td>
+<td><code>casaToken</code>. Ativa: atualiza o perfil. Desativada: recusa.</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>DefinirPerfil</code></td>
+<td><code>casaToken</code>, o último valor vale</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>Confirmar</code></td>
+<td><code>Confirmacao.Id</code></td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>DesativarCasa</code></td>
+<td><code>casaToken</code></td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>DeclararDiaCritico</code></td>
+<td><code>data</code></td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>PedirToque</code></td>
+<td><code>ToquePedidoEm</code> preenchido</td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>EncerrarTurno</code></td>
+<td><code>data</code></td>
+</tr>
+<tr>
+<td>Motor</td>
+<td><code>Expurgo</code></td>
+<td>apaga por data. Rodar duas vezes não muda nada.</td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td><code>RegistrarConsentimento</code></td>
+<td><code>IdosoId</code>, com o consentimento vigente</td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td><code>RevogarConsentimento</code></td>
+<td><code>IdosoId</code></td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td><code>IndicarVizinho</code>, <code>AlterarPerfil</code></td>
+<td><code>IdosoId</code>, o último valor vale</td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td><code>RegistrarVisita</code></td>
+<td><code>Visita.Id</code>, gerado no celular</td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td>Pedido de contato recebido</td>
+<td><code>(casaToken, motivo, desde)</code></td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td><code>RegistrarResposta</code></td>
+<td><code>AvisoAoVizinho.Id</code></td>
+</tr>
+<tr>
+<td>Cadastro</td>
+<td><code>CadastrarIdoso</code>, <code>VerificarMensagem</code></td>
+<td>nenhuma. Cada chamada é um fato novo.</td>
+</tr>
+<tr>
+<td>Guarda</td>
+<td><code>Registrar</code> evento de segurança</td>
+<td>nenhuma. Cada evento de segurança é um fato novo.</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="5-regras-da-situação-da-casa">5. Regras da situação da casa <a class="ancora" href="#5-regras-da-situação-da-casa" aria-label="Link para esta seção">#</a></h2>
+<p>A situação da casa não é uma coluna. Ela muda com a passagem do tempo, sem evento, e uma coluna velha poderia mostrar um verde que ninguém provou. O <code>AvaliadorDeCasas</code> calcula a situação a cada leitura.</p>
+<h3 id="51-entradas-da-avaliação">5.1 Entradas da avaliação <a class="ancora" href="#51-entradas-da-avaliação" aria-label="Link para esta seção">#</a></h3>
+<p><code>AvaliadorDeCasas.Avaliar(casa, historico, turno, agora, parametros)</code> é uma função pura. Ela recebe:</p>
+<ul>
+<li>A <code>CasaMonitorada</code>: perfil, <code>AtivadaEm</code>, <code>UltimoPacoteEm</code> e confirmações.</li>
+<li>O <code>HistoricoDaCasa</code>: os eventos do sensor e as confirmações das últimas 24 horas, mais as leituras de tensão baixa de qualquer idade, pelo mesmo critério do <code>Expurgo</code>. Ele responde a <code>TemSinalDeVidaDesde(instante)</code>, <code>UltimaTensao</code>, <code>InicioDaSequenciaBaixa</code>, <code>PrimeiraLeituraBaixaSemConfirmacao</code> e <code>InicioDaSequenciaQuente</code>.</li>
+<li>O <code>TurnoRadar</code> de hoje, que pode não existir.</li>
+<li>O instante <code>agora</code>.</li>
+<li>Os <code>ParametrosDoMotor</code>.</li>
+</ul>
+<h3 id="52-janelas-de-contato">5.2 Janelas de contato <a class="ancora" href="#52-janelas-de-contato" aria-label="Link para esta seção">#</a></h3>
+<p>O Motor corta o dia de São Paulo em janelas. Os cortes são 00h, a abertura do turno quando existe turno hoje, 10h e 15h. Cada pedaço entre dois cortes é uma <code>JanelaDeContato</code>. A janela atual é a que contém <code>agora</code>.</p>
+<p>Dentro do turno, duas janelas têm prazo:</p>
+<ul>
+<li>A janela da manhã vai da abertura às 10h. O prazo é 10h. Ela só existe se a abertura vem antes das 10h.</li>
+<li>A janela da tarde vai das 10h, ou da abertura se ela vem depois, às 15h. O prazo é 15h. Ela só existe se a abertura vem antes das 15h.</li>
+</ul>
+<p>As outras janelas não têm prazo. Elas só limitam a validade de um sinal de vida e de uma confirmação. Num dia crítico aberto às 05h, as janelas são de 00h a 05h, a manhã de 05h a 10h, a tarde de 10h a 15h e de 15h a 24h. Num dia comum, as janelas são de 00h a 10h, de 10h a 15h e de 15h a 24h.</p>
+<p>Uma janela com prazo vence quando <code>agora</code> chega ao prazo. Para o perfil <code>Acamado</code>, a janela vence no início, porque ele não passa no corredor e entra direto na lista.</p>
+<h3 id="53-sinal-de-vida-por-perfil-de-contato">5.3 Sinal de vida por perfil de contato <a class="ancora" href="#53-sinal-de-vida-por-perfil-de-contato" aria-label="Link para esta seção">#</a></h3>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Perfil de contato</th>
+<th>Conta como sinal de vida</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Sozinho</code></td>
+<td>Evento <code>Movimento</code>, <code>BotaoBem</code> ou <code>BotaoSair</code>, e confirmação com <code>PessoaVista</code></td>
+</tr>
+<tr>
+<td><code>Acamado</code></td>
+<td>Só confirmação com <code>PessoaVista</code></td>
+</tr>
+<tr>
+<td><code>Coabitado</code></td>
+<td>Só confirmação com <code>PessoaVista</code></td>
+</tr>
+</tbody></table>
+</div>
+<p>O evento do sensor conta pelo <code>OcorridoEm</code>. A confirmação conta pelo <code>Quando</code>. Só conta o que aconteceu até <code>agora</code>. <code>AusenciaConfirmada</code> nunca é sinal de vida. Na casa <code>Acamado</code> e na casa <code>Coabitado</code>, outra pessoa pode passar no corredor ou apertar o botão, então nenhum evento do sensor conta.</p>
+<h3 id="54-as-regras-em-ordem">5.4 As regras em ordem <a class="ancora" href="#54-as-regras-em-ordem" aria-label="Link para esta seção">#</a></h3>
+<p><code>RegraDeContato</code> é uma classe abstrata. A primeira regra que devolve um alerta define a situação, o motivo e o <code>Desde</code>. A ordem é a da tabela, e o avaliador não conhece nenhuma classe concreta.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ordem</th>
+<th>Classe</th>
+<th>Exige turno aberto</th>
+<th>Devolve alerta quando</th>
+<th>Situação</th>
+<th><code>Desde</code></th>
+<th>Confirmação que atende</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>EnergiaEletrodependente</code></td>
+<td>Não</td>
+<td>A casa é eletrodependente, já mandou um pacote e vale uma destas condições, nesta ordem. (a) A última leitura de tensão está abaixo de <code>TensaoMinima</code>. (b) Existe leitura abaixo de <code>TensaoMinima</code> sem confirmação da ACS com <code>PessoaVista</code> depois dela. (c) Nenhum pacote chegou dentro de <code>SilencioMaximoEletrodependente</code>.</td>
+<td><code>Vermelho</code></td>
+<td>(a) a primeira leitura da sequência baixa atual. (b) a primeira leitura baixa sem confirmação depois dela. (c) <code>UltimoPacoteEm</code>.</td>
+<td>Só <code>Acs</code> com <code>PessoaVista</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>SemHeartbeat</code></td>
+<td>Não</td>
+<td>A casa nunca mandou pacote, ou nenhum pacote chegou dentro de <code>SilencioMaximo</code>.</td>
+<td><code>Cinza</code></td>
+<td><code>UltimoPacoteEm</code>, ou <code>AtivadaEm</code> se nunca chegou pacote</td>
+<td><code>Acs</code> ou <code>Vizinho</code>, com <code>PessoaVista</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>CalorInterno</code></td>
+<td>Sim</td>
+<td>As leituras de temperatura estão em <code>TemperaturaDeCalor</code> ou mais, sem interrupção, há <code>DuracaoDoCalor</code> ou mais.</td>
+<td><code>Vermelho</code></td>
+<td>O início da sequência quente mais <code>DuracaoDoCalor</code></td>
+<td><code>Acs</code> ou <code>Vizinho</code>, com <code>PessoaVista</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>SemMovimentoNaJanela</code></td>
+<td>Sim</td>
+<td>O perfil é <code>Sozinho</code> ou <code>Acamado</code>, não houve saída avisada no turno, e não existe sinal de vida desde o início da última janela vencida.</td>
+<td><code>Vermelho</code></td>
+<td>O prazo da janela vencida, ou o início dela para o <code>Acamado</code></td>
+<td><code>Acs</code> com <code>AusenciaConfirmada</code>. A <code>PessoaVista</code> é sinal de vida e desfaz o alerta.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>IdaNoturnaSemVolta</code></td>
+<td></td>
+<td>Fora da entrega.</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+<p>Detalhes que evitam erro:</p>
+<ul>
+<li>A regra 2 vem antes das regras 3 e 4. Essa ordem impede o aparelho mudo de virar verde. O <code>UltimoPacoteEm</code> é hora do servidor, então um lote do buffer com horas antigas mostra que o aparelho está ligado agora.</li>
+<li>A condição (b) da regra 1 é a trava. A luz pode ter voltado, mas o concentrador ficou parado. A casa fica vermelha até a ACS ver a pessoa depois da última leitura baixa.</li>
+<li>A regra 4 olha a última janela vencida e aceita sinal de vida desde o início dela, mesmo depois do prazo. Às 10h30, um movimento às 10h20 tira o vermelho da manhã.</li>
+<li>A saída avisada vale para o perfil <code>Sozinho</code> e suspende a regra 4 até o fim do turno. Ela não suspende as regras 1, 2 e 3.</li>
+<li>As regras 1 e 3 usam a mesma função, &quot;início da sequência atual em que a condição vale&quot;. Ela é escrita uma vez, em <code>HistoricoDaCasa</code>.</li>
+<li><code>RegraDeContato.AceitaConfirmacao(confirmacao)</code> é virtual. Cada regra sobrescreve com a coluna &quot;Confirmação que atende&quot;.</li>
+</ul>
+<h3 id="55-passos-do-avaliador">5.5 Passos do avaliador <a class="ancora" href="#55-passos-do-avaliador" aria-label="Link para esta seção">#</a></h3>
+<ol>
+<li>Percorrer as regras na ordem. A primeira que devolve um alerta define situação, motivo e <code>Desde</code>.</li>
+<li>Com alerta, a casa fica atendida se existe uma confirmação que a regra aceita, com <code>Quando</code> igual ou posterior ao <code>Desde</code> e igual ou posterior ao início da janela atual. A situação não muda.</li>
+<li>Sem alerta, com turno aberto e com sinal de vida desde o início da janela atual, a situação é <code>Verde</code>.</li>
+<li>Sem alerta, em qualquer outro caso, a situação é <code>Aguardando</code>. Isso inclui o dia comum, o turno encerrado, a casa <code>Coabitado</code> sem confirmação e a casa que ainda está no prazo.</li>
+</ol>
+<p>A janela atual limita a confirmação. Uma visita às 09h atende só até as 10h. Na janela seguinte, a casa volta à lista se a condição continua. Isso vale para o silêncio, o cinza, o calor, a energia e o acamado. Uma visita não cobre o turno inteiro.</p>
+<h3 id="56-tabela-verdade-da-situação">5.6 Tabela verdade da situação <a class="ancora" href="#56-tabela-verdade-da-situação" aria-label="Link para esta seção">#</a></h3>
+<p>R1 a R4 são as regras 1 a 4 da seção 5.4. &quot;Sim&quot; quer dizer que a regra devolve alerta. &quot;Sinal de vida&quot; quer dizer sinal de vida aceito pelo perfil desde o início da janela atual.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Linha</th>
+<th>Turno aberto</th>
+<th>R1</th>
+<th>R2</th>
+<th>R3</th>
+<th>R4</th>
+<th>Sinal de vida na janela atual</th>
+<th>Situação</th>
+<th>Motivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>qualquer</td>
+<td>sim</td>
+<td>qualquer</td>
+<td>qualquer</td>
+<td>qualquer</td>
+<td>qualquer</td>
+<td><code>Vermelho</code></td>
+<td><code>EnergiaEletrodependente</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>qualquer</td>
+<td>não</td>
+<td>sim</td>
+<td>qualquer</td>
+<td>qualquer</td>
+<td>qualquer</td>
+<td><code>Cinza</code></td>
+<td><code>SemHeartbeat</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>sim</td>
+<td>não</td>
+<td>não</td>
+<td>sim</td>
+<td>qualquer</td>
+<td>qualquer</td>
+<td><code>Vermelho</code></td>
+<td><code>CalorInterno</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td>sim</td>
+<td>não</td>
+<td>não</td>
+<td>não</td>
+<td>sim</td>
+<td>não, sempre</td>
+<td><code>Vermelho</code></td>
+<td><code>SemMovimentoNaJanela</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>sim</td>
+<td>não</td>
+<td>não</td>
+<td>não</td>
+<td>não</td>
+<td>sim</td>
+<td><code>Verde</code></td>
+<td>nenhum</td>
+</tr>
+<tr>
+<td>6</td>
+<td>sim</td>
+<td>não</td>
+<td>não</td>
+<td>não</td>
+<td>não</td>
+<td>não</td>
+<td><code>Aguardando</code></td>
+<td>nenhum</td>
+</tr>
+<tr>
+<td>7</td>
+<td>não</td>
+<td>não</td>
+<td>não</td>
+<td>não se aplica</td>
+<td>não se aplica</td>
+<td>qualquer</td>
+<td><code>Aguardando</code></td>
+<td>nenhum</td>
+</tr>
+</tbody></table>
+</div>
+<p>Na linha 4, o sinal de vida é sempre &quot;não&quot;. A janela atual começa no início da última janela vencida ou depois dele. Se existisse sinal de vida na janela atual, ele estaria também depois do início da janela vencida, e a regra 4 não devolveria alerta.</p>
+<p>Na linha 7, as regras 3 e 4 exigem turno aberto, então não devolvem alerta. Fora do turno não existe <code>Verde</code>.</p>
+<p><code>Verde</code> aparece só na linha 5, que exige turno aberto, nenhuma regra com alerta e sinal de vida na janela atual.</p>
+<h3 id="57-tabela-verdade-do-atendimento">5.7 Tabela verdade do atendimento <a class="ancora" href="#57-tabela-verdade-do-atendimento" aria-label="Link para esta seção">#</a></h3>
+<p>A confirmação só conta se o <code>Quando</code> vem igual ou depois do <code>Desde</code> e igual ou depois do início da janela atual. Fora disso, a casa fica pendente.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Motivo</th>
+<th>Origem</th>
+<th>Resultado</th>
+<th>Atendida</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>EnergiaEletrodependente</code></td>
+<td><code>Acs</code></td>
+<td><code>PessoaVista</code></td>
+<td>sim</td>
+</tr>
+<tr>
+<td><code>EnergiaEletrodependente</code></td>
+<td><code>Vizinho</code></td>
+<td><code>PessoaVista</code></td>
+<td>não</td>
+</tr>
+<tr>
+<td><code>EnergiaEletrodependente</code></td>
+<td><code>Acs</code></td>
+<td><code>AusenciaConfirmada</code></td>
+<td>não</td>
+</tr>
+<tr>
+<td><code>SemHeartbeat</code></td>
+<td><code>Acs</code> ou <code>Vizinho</code></td>
+<td><code>PessoaVista</code></td>
+<td>sim</td>
+</tr>
+<tr>
+<td><code>SemHeartbeat</code></td>
+<td><code>Acs</code></td>
+<td><code>AusenciaConfirmada</code></td>
+<td>não</td>
+</tr>
+<tr>
+<td><code>CalorInterno</code></td>
+<td><code>Acs</code> ou <code>Vizinho</code></td>
+<td><code>PessoaVista</code></td>
+<td>sim</td>
+</tr>
+<tr>
+<td><code>CalorInterno</code></td>
+<td><code>Acs</code></td>
+<td><code>AusenciaConfirmada</code></td>
+<td>não</td>
+</tr>
+<tr>
+<td><code>SemMovimentoNaJanela</code></td>
+<td><code>Acs</code></td>
+<td><code>AusenciaConfirmada</code></td>
+<td>sim</td>
+</tr>
+<tr>
+<td><code>SemMovimentoNaJanela</code></td>
+<td><code>Acs</code> ou <code>Vizinho</code></td>
+<td><code>PessoaVista</code></td>
+<td>não se aplica. É sinal de vida, e a regra deixa de devolver alerta.</td>
+</tr>
+</tbody></table>
+</div>
+<p>O vizinho nunca manda <code>AusenciaConfirmada</code>. A resposta <code>PrecisaDeAjuda</code> não chama o Motor. Uma casa atendida continua <code>Vermelho</code> ou <code>Cinza</code>. Ela sai de <code>Pendentes</code>, entra em <code>Atendidas</code> e nunca conta como verde.</p>
+<h3 id="58-exemplos">5.8 Exemplos <a class="ancora" href="#58-exemplos" aria-label="Link para esta seção">#</a></h3>
+<p>Casa <code>Sozinho</code>, turno aberto às 05h:</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Agora</th>
+<th>Último sinal de vida</th>
+<th>Situação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>08h00</td>
+<td>nenhum</td>
+<td><code>Aguardando</code></td>
+</tr>
+<tr>
+<td>08h00</td>
+<td>06h12</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>10h00</td>
+<td>nenhum</td>
+<td><code>Vermelho</code> desde 10h00</td>
+</tr>
+<tr>
+<td>10h01</td>
+<td>09h50</td>
+<td><code>Aguardando</code></td>
+</tr>
+<tr>
+<td>10h31</td>
+<td>10h30</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>12h00</td>
+<td>06h12</td>
+<td><code>Aguardando</code></td>
+</tr>
+<tr>
+<td>15h00</td>
+<td>06h12</td>
+<td><code>Vermelho</code> desde 15h00</td>
+</tr>
+<tr>
+<td>15h01</td>
+<td>10h30</td>
+<td><code>Aguardando</code></td>
+</tr>
+<tr>
+<td>15h21</td>
+<td>15h20</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>18h30</td>
+<td>15h20</td>
+<td><code>Aguardando</code>, turno encerrado</td>
+</tr>
+</tbody></table>
+</div>
+<p>Casa <code>Acamado</code>, turno aberto às 05h:</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Agora</th>
+<th>Confirmação com <code>PessoaVista</code></th>
+<th>Situação</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>05h01</td>
+<td>nenhuma</td>
+<td><code>Vermelho</code> desde 05h00</td>
+</tr>
+<tr>
+<td>09h01</td>
+<td>09h00</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>10h00</td>
+<td>09h00</td>
+<td><code>Vermelho</code> desde 10h00</td>
+</tr>
+<tr>
+<td>11h01</td>
+<td>11h00</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>15h01</td>
+<td>11h00</td>
+<td><code>Aguardando</code></td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="59-parâmetros-e-relógio-de-demo">5.9 Parâmetros e relógio de demo <a class="ancora" href="#59-parâmetros-e-relógio-de-demo" aria-label="Link para esta seção">#</a></h3>
+<p><code>ParametrosDoMotor</code> vem do <code>appsettings.json</code> por <code>IOptions</code>. Ele é o único lugar dos números das regras.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Parâmetro</th>
+<th>Produção</th>
+<th>Demo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>IntervaloDoHeartbeat</code></td>
+<td>20 s</td>
+<td>20 s</td>
+</tr>
+<tr>
+<td><code>SilencioMaximo</code></td>
+<td>30 min</td>
+<td>1 min</td>
+</tr>
+<tr>
+<td><code>SilencioMaximoEletrodependente</code></td>
+<td>60 s</td>
+<td>60 s</td>
+</tr>
+<tr>
+<td><code>TensaoMinima</code></td>
+<td>100 V</td>
+<td>100 V</td>
+</tr>
+<tr>
+<td><code>TemperaturaDeCalor</code></td>
+<td>34 °C</td>
+<td>34 °C</td>
+</tr>
+<tr>
+<td><code>DuracaoDoCalor</code></td>
+<td>2 h</td>
+<td>2 min</td>
+</tr>
+<tr>
+<td><code>FimDaManha</code></td>
+<td>10h00</td>
+<td>10h00</td>
+</tr>
+<tr>
+<td><code>FimDaTarde</code></td>
+<td>15h00</td>
+<td>15h00</td>
+</tr>
+<tr>
+<td><code>HoraDoPedidoDeToque</code></td>
+<td>14h30</td>
+<td>14h30</td>
+</tr>
+<tr>
+<td><code>FimDoTurno</code></td>
+<td>18h00</td>
+<td>18h00</td>
+</tr>
+<tr>
+<td><code>Retencao</code></td>
+<td>24 h</td>
+<td>24 h</td>
+</tr>
+<tr>
+<td><code>ToleranciaDoRelogio</code>, em <code>ParametrosDoRelogio</code></td>
+<td>2 min</td>
+<td>2 min</td>
+</tr>
+<tr>
+<td><code>IntervaloDoVigia</code></td>
+<td>15 s</td>
+<td>5 s</td>
+</tr>
+<tr>
+<td><code>IntervaloDoExpurgo</code></td>
+<td>1 h</td>
+<td>1 h</td>
+</tr>
+</tbody></table>
+</div>
+<p><code>IntervaloDoHeartbeat</code> é a cadência do nó. O Motor só usa esse valor para conferir, ao iniciar, que <code>SilencioMaximoEletrodependente</code> é pelo menos o dobro dele.</p>
+<p>Os horários das janelas não mudam na demo. Quem grava o vídeo move a hora do Motor com o <code>RelogioDeDemo</code>. <code>PUT /api/demo/relogio</code> recebe a hora desejada e guarda o deslocamento. O <code>TradutorDePacote</code> soma o mesmo deslocamento ao <code>ts</code> de cada pacote, então o nó do Wokwi e o simulador continuam coerentes com o Motor. O <code>POST /visitas</code> soma o mesmo deslocamento a <code>ocorridaEm</code>, então a visita registrada com o relógio movido cai na janela certa. O Cadastro lê o deslocamento por <code>IDeslocamentoDoRelogio</code>, de <code>Corredor.Contratos</code>. Para mover o relógio para trás, rode o reinício da seção 8.4 de <a href="04-modelo-de-dados.html">04-modelo-de-dados.md</a>, porque <code>UltimoPacoteEm</code> só anda para frente. A rota só existe no ambiente <code>Development</code>.</p>
+<p>Com esses valores, o eletrodependente mudo fica vermelho no radar 60 segundos depois do último pacote. O pedido de contato sai em até 60 segundos mais <code>IntervaloDoVigia</code>.</p>
+<h2 id="6-contratos-públicos">6. Contratos públicos <a class="ancora" href="#6-contratos-públicos" aria-label="Link para esta seção">#</a></h2>
+<h3 id="61-corredorcontratos">6.1 <code>Corredor.Contratos</code> <a class="ancora" href="#61-corredorcontratos" aria-label="Link para esta seção">#</a></h3>
+<pre><code class="language-csharp">namespace Corredor.Contratos;
+
+public readonly record struct CasaToken
+{
+	public string Valor { get; }
+	public static bool TryParse(string? texto, out CasaToken token);
+	public static CasaToken Novo();
+}
+
+public readonly record struct MicroareaId(int Valor);
+
+public enum PerfilDeContato { Sozinho, Acamado, Coabitado }
+
+public sealed record PerfilDaCasa(PerfilDeContato Contato, bool Eletrodependente);
+
+public enum OrigemDaConfirmacao { Acs, Vizinho }
+
+public enum ResultadoDaConfirmacao { PessoaVista, AusenciaConfirmada }
+
+public sealed record Confirmacao(
+	Guid Id,
+	OrigemDaConfirmacao Origem,
+	ResultadoDaConfirmacao Resultado,
+	DateTimeOffset Quando);
+
+public enum MotivoDoAlerta { EnergiaEletrodependente, SemHeartbeat, CalorInterno, SemMovimentoNaJanela }
+
+public sealed record PedidoDeContato(CasaToken Token, MotivoDoAlerta Motivo, DateTimeOffset Desde);
+
+public interface IMotorDeCasas
+{
+	Task AtivarCasaAsync(CasaToken token, MicroareaId microarea, PerfilDaCasa perfil, CancellationToken ct);
+	Task DefinirPerfilAsync(CasaToken token, PerfilDaCasa perfil, CancellationToken ct);
+	Task ConfirmarAsync(CasaToken token, Confirmacao confirmacao, CancellationToken ct);
+	Task DesativarCasaAsync(CasaToken token, CancellationToken ct);
+}
+
+public interface IReceptorDeContato
+{
+	Task PedirContatoAsync(PedidoDeContato pedido, CancellationToken ct);
+}
+
+public sealed record ParametrosDoRelogio(TimeSpan ToleranciaDoRelogio);
+
+public interface IDeslocamentoDoRelogio
+{
+	TimeSpan Deslocamento { get; }
+}
+</code></pre>
+<ul>
+<li><code>CasaToken.TryParse</code> aceita 32 caracteres hexadecimais minúsculos. <code>CasaToken.Novo</code> usa 128 bits de <code>RandomNumberGenerator</code>.</li>
+<li><code>AtivarCasaAsync</code> cria a casa. Com a casa ativa, atualiza o perfil. Com a casa desativada, recusa com <code>CASA_DESATIVADA</code>.</li>
+<li><code>DefinirPerfilAsync</code> exige casa ativa. Casa desconhecida recusa com <code>CASA_DESCONHECIDA</code>.</li>
+<li><code>ConfirmarAsync</code> ignora <code>Id</code> repetido. O <code>Id</code> da ACS é o <code>Id</code> da visita. O <code>Id</code> do vizinho é o <code>Id</code> do aviso.</li>
+<li><code>DesativarCasaAsync</code> grava a desativação e apaga eventos e confirmações. Chamar duas vezes dá o mesmo resultado.</li>
+<li><code>IReceptorDeContato</code> é declarado pelo Motor e implementado pelo Cadastro. O Motor chama a porta a cada ciclo do <code>VigiaDoRadar</code>, para cada alerta pendente. O Cadastro descarta a repetição pela chave <code>(casaToken, motivo, desde)</code>.</li>
+<li><code>ParametrosDoRelogio</code> vem da seção <code>Relogio</code> do <code>appsettings.json</code>. O Motor e o Cadastro leem o mesmo valor.</li>
+<li><code>IDeslocamentoDoRelogio</code> é implementado pelo <code>RelogioDeDemo</code> em <code>Development</code>. Em produção, o host registra uma implementação que devolve zero. O Cadastro soma o deslocamento a <code>ocorridaEm</code> em <code>POST /visitas</code>.</li>
+<li>Nenhum tipo carrega nome, endereço ou texto livre.</li>
+</ul>
+<h3 id="62-mqtt">6.2 MQTT <a class="ancora" href="#62-mqtt" aria-label="Link para esta seção">#</a></h3>
+<p>O contrato v1 não muda. Tópico de evento: <code>corredor/v1/{casaToken}/evento</code>. Tópico de comando: <code>corredor/v1/{casaToken}/comando</code>.</p>
+<pre><code class="language-json">{
+	&quot;seq&quot;: 1842,
+	&quot;ts&quot;: &quot;2026-11-18T09:12:40Z&quot;,
+	&quot;tipo&quot;: &quot;MOVIMENTO&quot;,
+	&quot;tempC&quot;: 31.5,
+	&quot;tensaoV&quot;: 126.8,
+	&quot;bufferizado&quot;: false
+}
+</code></pre>
+<ul>
+<li><code>tipo</code> aceita <code>MOVIMENTO</code>, <code>BOTAO_BEM</code>, <code>BOTAO_SAIR</code>, <code>TELEMETRIA</code> e <code>HEARTBEAT</code>.</li>
+<li>A chave única é <code>(casaToken, seq, ts)</code>. Um reenvio depois da queda do broker não duplica nada. Um <code>seq</code> que volta a 1 depois do reinício do ESP32 chega com outro <code>ts</code> e é aceito.</li>
+<li><code>ts</code> é a hora do fato, em UTC. O Motor recusa <code>ts</code> mais de 2 minutos à frente da chegada ou com mais de 24 horas. <code>bufferizado: true</code> marca o evento que ficou guardado no nó.</li>
+<li>O Motor lê <code>tempC</code> e <code>tensaoV</code> dos eventos <code>TELEMETRIA</code>. O <code>HEARTBEAT</code> só avança <code>UltimoPacoteEm</code>.</li>
+<li>Cadência do nó: <code>HEARTBEAT</code> a cada 20 segundos. <code>TELEMETRIA</code> a cada 5 minutos e na hora em que a tensão cruza 100 V. As duas usam os tipos e os campos que o contrato já tem.</li>
+<li>Comandos: <code>{&quot;tipo&quot;: &quot;DIA_CRITICO&quot;}</code> acende o LED âmbar e sai quando o dia crítico é declarado. <code>{&quot;tipo&quot;: &quot;PEDIR_TOQUE&quot;}</code> toca o buzzer e sai às 14h30. Os comandos não são retidos no broker.</li>
+</ul>
+<h3 id="63-rotas-http">6.3 Rotas HTTP <a class="ancora" href="#63-rotas-http" aria-label="Link para esta seção">#</a></h3>
+<p>Todas as rotas ficam sob <code>/api</code> e aparecem no Swagger. As horas saem em ISO 8601 com o fuso de São Paulo, <code>-03:00</code>. O host confere se a microárea da rota é a da ACS autenticada. Erros de domínio saem com <code>{&quot;codigo&quot;: &quot;...&quot;, &quot;mensagem&quot;: &quot;...&quot;}</code>, sem dado pessoal.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Rota</th>
+<th>Módulo</th>
+<th>Quem chama</th>
+<th>Sucesso</th>
+<th>Erros</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>PUT /dias-criticos/{data}</code></td>
+<td>Motor</td>
+<td>job de ML</td>
+<td>200</td>
+<td>422 <code>DATA_NAO_E_HOJE</code>, 422 <code>PROBABILIDADE_FORA_DA_FAIXA</code>, 409 <code>TURNO_ENCERRADO</code></td>
+</tr>
+<tr>
+<td><code>POST /dias-criticos/{data}/encerramento</code></td>
+<td>Motor</td>
+<td>app</td>
+<td>200</td>
+<td>404 <code>DIA_CRITICO_DESCONHECIDO</code></td>
+</tr>
+<tr>
+<td><code>GET /radar?microarea={id}</code></td>
+<td>Motor</td>
+<td>app</td>
+<td>200</td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /casas/{token}/linha-do-tempo</code></td>
+<td>Motor</td>
+<td>app</td>
+<td>200</td>
+<td>404 <code>CASA_DESCONHECIDA</code>, também para casa desativada</td>
+</tr>
+<tr>
+<td><code>PUT /demo/relogio</code></td>
+<td>Motor</td>
+<td>equipe, só em <code>Development</code></td>
+<td>200</td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /idosos</code></td>
+<td>Cadastro</td>
+<td>Swagger</td>
+<td>201</td>
+<td>422 <code>NOME_OBRIGATORIO</code>, 422 <code>ENDERECO_OBRIGATORIO</code></td>
+</tr>
+<tr>
+<td><code>POST /idosos/{id}/consentimento</code></td>
+<td>Cadastro</td>
+<td>Swagger</td>
+<td>200</td>
+<td>503 <code>MOTOR_INDISPONIVEL</code></td>
+</tr>
+<tr>
+<td><code>DELETE /idosos/{id}/consentimento</code></td>
+<td>Cadastro</td>
+<td>Swagger</td>
+<td>204</td>
+<td></td>
+</tr>
+<tr>
+<td><code>PUT /idosos/{id}/vizinho</code></td>
+<td>Cadastro</td>
+<td>Swagger</td>
+<td>204</td>
+<td>422 <code>AUTORIZACAO_AUSENTE</code></td>
+</tr>
+<tr>
+<td><code>PUT /idosos/{id}/perfil</code></td>
+<td>Cadastro</td>
+<td>Swagger</td>
+<td>204</td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /lista-de-nomes?microarea={id}</code></td>
+<td>Cadastro</td>
+<td>app</td>
+<td>200</td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /visitas</code></td>
+<td>Cadastro</td>
+<td>app</td>
+<td>201, ou 200 na repetição</td>
+<td>422 <code>TOKEN_INATIVO</code>, 422 <code>VISITA_NO_FUTURO</code>, 503 <code>MOTOR_INDISPONIVEL</code></td>
+</tr>
+<tr>
+<td><code>POST /mensagens/verificar</code></td>
+<td>Cadastro</td>
+<td>app</td>
+<td>200</td>
+<td></td>
+</tr>
+<tr>
+<td><code>GET /avisos?microarea={id}</code></td>
+<td>Cadastro</td>
+<td>app</td>
+<td>200</td>
+<td></td>
+</tr>
+<tr>
+<td><code>POST /avisos/{id}/resposta</code></td>
+<td>Cadastro</td>
+<td>canal simulado do vizinho, pelo Swagger</td>
+<td>200</td>
+<td>409 <code>AVISO_JA_RESPONDIDO</code></td>
+</tr>
+<tr>
+<td><code>GET /painel</code></td>
+<td>Guarda</td>
+<td>painel Risco Cidadão</td>
+<td>200</td>
+<td></td>
+</tr>
+</tbody></table>
+</div>
+<p>A página HTML do painel fica em <code>/painel</code>, servida pelo Nginx, e lê <code>GET /api/painel</code>.</p>
+<p><code>PUT /api/dias-criticos/2026-11-18</code>. Repetir a chamada não abre outro turno nem muda <code>abertoEm</code>.</p>
+<pre><code class="language-json">{ &quot;probabilidade&quot;: 0.81, &quot;motivo&quot;: &quot;mínima de 24 °C pela segunda noite&quot;, &quot;origem&quot;: &quot;MODELO&quot; }
+</code></pre>
+<pre><code class="language-json">{ &quot;data&quot;: &quot;2026-11-18&quot;, &quot;abertoEm&quot;: &quot;2026-11-18T05:00:03-03:00&quot;, &quot;probabilidade&quot;: 0.81, &quot;motivo&quot;: &quot;mínima de 24 °C pela segunda noite&quot;, &quot;origem&quot;: &quot;MODELO&quot;, &quot;encerradoEm&quot;: null }
+</code></pre>
+<p><code>origem</code> aceita <code>MODELO</code>, <code>REGRA_BASE</code> e <code>MANUAL</code>.</p>
+<p><code>POST /api/dias-criticos/2026-11-18/encerramento</code>, sem corpo. Repetir devolve o mesmo resumo.</p>
+<pre><code class="language-json">{ &quot;data&quot;: &quot;2026-11-18&quot;, &quot;encerradoEm&quot;: &quot;2026-11-18T17:30:00-03:00&quot;, &quot;resumo&quot;: { &quot;casasAtivas&quot;: 40, &quot;comSinalDeVidaAte10h&quot;: 34, &quot;atendidas&quot;: 4, &quot;vermelhasPendentes&quot;: 1, &quot;cinzasPendentes&quot;: 1 } }
+</code></pre>
+<p><code>GET /api/radar?microarea=3</code></p>
+<pre><code class="language-json">{
+	&quot;turnoAberto&quot;: true,
+	&quot;agora&quot;: &quot;2026-11-18T10:31:00-03:00&quot;,
+	&quot;pendentes&quot;: [
+		{ &quot;casaToken&quot;: &quot;3f9a1c0e5b7d4a2e8c6f1b0d9e7a5c3b&quot;, &quot;situacao&quot;: &quot;Vermelho&quot;, &quot;motivo&quot;: &quot;SemMovimentoNaJanela&quot;, &quot;desde&quot;: &quot;2026-11-18T10:00:00-03:00&quot;, &quot;atendida&quot;: false, &quot;perfil&quot;: { &quot;contato&quot;: &quot;Sozinho&quot;, &quot;eletrodependente&quot;: false }, &quot;ultimoPacoteEm&quot;: &quot;2026-11-18T10:30:52-03:00&quot; }
+	],
+	&quot;atendidas&quot;: [
+		{ &quot;casaToken&quot;: &quot;a07d5e2c9b1f4c8e6d3a0b7f2e9c4d1a&quot;, &quot;situacao&quot;: &quot;Cinza&quot;, &quot;motivo&quot;: &quot;SemHeartbeat&quot;, &quot;desde&quot;: &quot;2026-11-18T09:10:00-03:00&quot;, &quot;atendida&quot;: true, &quot;perfil&quot;: { &quot;contato&quot;: &quot;Sozinho&quot;, &quot;eletrodependente&quot;: false }, &quot;ultimoPacoteEm&quot;: &quot;2026-11-18T09:10:00-03:00&quot; }
+	],
+	&quot;aguardando&quot;: [
+		{ &quot;casaToken&quot;: &quot;c51e8b3d0f6a4d2c9e7b1a5f3c8d0e6b&quot;, &quot;saidaAvisada&quot;: false }
+	],
+	&quot;verdes&quot;: 27
+}
+</code></pre>
+<p><code>GET /api/casas/{token}/linha-do-tempo</code></p>
+<pre><code class="language-json">{
+	&quot;casaToken&quot;: &quot;3f9a1c0e5b7d4a2e8c6f1b0d9e7a5c3b&quot;,
+	&quot;ultimoPacoteEm&quot;: &quot;2026-11-18T10:30:52-03:00&quot;,
+	&quot;eventos&quot;: [ { &quot;seq&quot;: 1842, &quot;tipo&quot;: &quot;MOVIMENTO&quot;, &quot;ocorridoEm&quot;: &quot;2026-11-18T06:12:40-03:00&quot;, &quot;recebidoEm&quot;: &quot;2026-11-18T06:12:41-03:00&quot;, &quot;tempC&quot;: null, &quot;tensaoV&quot;: null, &quot;bufferizado&quot;: false } ],
+	&quot;confirmacoes&quot;: [ { &quot;origem&quot;: &quot;Acs&quot;, &quot;resultado&quot;: &quot;PessoaVista&quot;, &quot;quando&quot;: &quot;2026-11-18T10:12:00-03:00&quot; } ]
+}
+</code></pre>
+<p><code>PUT /api/demo/relogio</code></p>
+<pre><code class="language-json">{ &quot;agora&quot;: &quot;2026-11-18T09:58:00-03:00&quot; }
+</code></pre>
+<pre><code class="language-json">{ &quot;agora&quot;: &quot;2026-11-18T09:58:00-03:00&quot;, &quot;deslocamentoEmSegundos&quot;: -36120 }
+</code></pre>
+<p><code>POST /api/idosos</code>. O interceptador mascara CPF, RG, CNS e credencial em qualquer campo. Nome e endereço são gravados inteiros.</p>
+<pre><code class="language-json">{ &quot;microareaId&quot;: 3, &quot;nome&quot;: &quot;Aparecida Souza&quot;, &quot;endereco&quot;: &quot;Rua das Flores, 12&quot;, &quot;perfil&quot;: { &quot;contato&quot;: &quot;Sozinho&quot;, &quot;eletrodependente&quot;: true }, &quot;condicoes&quot;: &quot;usa concentrador de oxigênio&quot;, &quot;medicamentos&quot;: &quot;diurético&quot; }
+</code></pre>
+<pre><code class="language-json">{ &quot;id&quot;: &quot;6c1f0b7e-2d4a-4e8b-9f3c-1a5d7e9b0c2f&quot; }
+</code></pre>
+<p><code>POST /api/idosos/{id}/consentimento</code>. A ACS vem da autenticação. Repetir com consentimento vigente devolve o mesmo token.</p>
+<pre><code class="language-json">{ &quot;versaoDoTermo&quot;: &quot;2026-11&quot;, &quot;autorizacoes&quot;: { &quot;avisarVizinho&quot;: true, &quot;avisarFamilia&quot;: false } }
+</code></pre>
+<pre><code class="language-json">{ &quot;casaToken&quot;: &quot;3f9a1c0e5b7d4a2e8c6f1b0d9e7a5c3b&quot; }
+</code></pre>
+<p><code>PUT /api/idosos/{id}/vizinho</code></p>
+<pre><code class="language-json">{ &quot;nome&quot;: &quot;Rosa Lima&quot;, &quot;telefone&quot;: &quot;(00) 98888-0000&quot;, &quot;aceitouEm&quot;: &quot;2026-11-16T14:00:00-03:00&quot; }
+</code></pre>
+<p><code>PUT /api/idosos/{id}/perfil</code></p>
+<pre><code class="language-json">{ &quot;contato&quot;: &quot;Acamado&quot;, &quot;eletrodependente&quot;: true }
+</code></pre>
+<p><code>GET /api/lista-de-nomes?microarea=3</code></p>
+<pre><code class="language-json">[ { &quot;casaToken&quot;: &quot;3f9a1c0e5b7d4a2e8c6f1b0d9e7a5c3b&quot;, &quot;nome&quot;: &quot;Aparecida Souza&quot;, &quot;endereco&quot;: &quot;Rua das Flores, 12&quot;, &quot;vizinho&quot;: { &quot;nome&quot;: &quot;Rosa Lima&quot;, &quot;telefone&quot;: &quot;(00) 98888-0000&quot; } } ]
+</code></pre>
+<p><code>POST /api/visitas</code>. O <code>id</code> nasce no celular. A ACS vem da autenticação. Com 503, a visita já está gravada e o app repete o mesmo <code>id</code>. Com o relógio de demo deslocado, o servidor soma o deslocamento a <code>ocorridaEm</code>.</p>
+<pre><code class="language-json">{ &quot;id&quot;: &quot;0b2d4f6a-8c1e-4a3b-9d5f-7e1c3a5b9d0f&quot;, &quot;casaToken&quot;: &quot;3f9a1c0e5b7d4a2e8c6f1b0d9e7a5c3b&quot;, &quot;ocorridaEm&quot;: &quot;2026-11-18T10:40:00-03:00&quot;, &quot;desfecho&quot;: &quot;EstavaFora&quot;, &quot;observacao&quot;: &quot;vizinha disse que foi à feira&quot; }
+</code></pre>
+<pre><code class="language-json">{ &quot;id&quot;: &quot;0b2d4f6a-8c1e-4a3b-9d5f-7e1c3a5b9d0f&quot;, &quot;registradaEm&quot;: &quot;2026-11-18T11:30:00-03:00&quot; }
+</code></pre>
+<p><code>desfecho</code> aceita <code>EstavaBem</code>, <code>EstavaFora</code>, <code>NaoAbriu</code> e <code>Encaminhada</code>.</p>
+<p><code>POST /api/mensagens/verificar</code>. A mensagem bloqueada é um resultado normal, então a resposta é 200.</p>
+<pre><code class="language-json">{ &quot;canal&quot;: &quot;GrupoDoBairro&quot;, &quot;texto&quot;: &quot;ele mora sozinho e toma diurético&quot; }
+</code></pre>
+<pre><code class="language-json">{ &quot;id&quot;: &quot;9e7c5a3b-1d0f-4b2e-8c6a-4f2d0b8e6c4a&quot;, &quot;veredito&quot;: &quot;Bloqueada&quot;, &quot;textoMascarado&quot;: &quot;ele [MORA_SOZINHO] e toma [SAUDE]&quot;, &quot;tiposDeDado&quot;: [&quot;MoraSozinho&quot;, &quot;Saude&quot;], &quot;explicacao&quot;: &quot;Essa mensagem diz que a pessoa mora sozinha e fala da saúde dela. No grupo do bairro, qualquer um lê.&quot;, &quot;versaoSegura&quot;: &quot;Preciso de ajuda para uma visita agora. Quem puder, me chame no privado.&quot; }
+</code></pre>
+<p>Com <code>veredito</code> <code>Liberada</code>, <code>explicacao</code> e <code>versaoSegura</code> saem <code>null</code>. A <code>explicacao</code> é a frase fixa do tipo de dado. A mensagem do LLM vai para o painel, depois da resposta.</p>
+<p><code>GET /api/avisos?microarea=3</code></p>
+<pre><code class="language-json">[ { &quot;id&quot;: &quot;5a3c1e9b-7d2f-4c0a-8e6b-2f4d6a8c0e1b&quot;, &quot;casaToken&quot;: &quot;3f9a1c0e5b7d4a2e8c6f1b0d9e7a5c3b&quot;, &quot;motivo&quot;: &quot;SemMovimentoNaJanela&quot;, &quot;desde&quot;: &quot;2026-11-18T10:00:00-03:00&quot;, &quot;registradoEm&quot;: &quot;2026-11-18T10:00:12-03:00&quot;, &quot;resposta&quot;: &quot;EstaBem&quot;, &quot;respondidoEm&quot;: &quot;2026-11-18T10:05:00-03:00&quot; } ]
+</code></pre>
+<p><code>POST /api/avisos/{id}/resposta</code></p>
+<pre><code class="language-json">{ &quot;resposta&quot;: &quot;EstaBem&quot; }
+</code></pre>
+<pre><code class="language-json">{ &quot;id&quot;: &quot;5a3c1e9b-7d2f-4c0a-8e6b-2f4d6a8c0e1b&quot;, &quot;resposta&quot;: &quot;EstaBem&quot;, &quot;respondidoEm&quot;: &quot;2026-11-18T10:05:00-03:00&quot; }
+</code></pre>
+<p><code>GET /api/painel</code>, sem autenticação. Nenhum campo carrega o valor de um dado pessoal.</p>
+<pre><code class="language-json">{ &quot;cor&quot;: &quot;Vermelho&quot;, &quot;pontos24h&quot;: 12, &quot;eventos&quot;: [ { &quot;ocorridoEm&quot;: &quot;2026-11-18T17:10:00-03:00&quot;, &quot;tipo&quot;: &quot;BloqueioDeSaida&quot;, &quot;canal&quot;: &quot;GrupoDoBairro&quot;, &quot;modulo&quot;: &quot;Cadastro&quot;, &quot;tiposDeDado&quot;: [&quot;MoraSozinho&quot;, &quot;Saude&quot;], &quot;severidade&quot;: 4, &quot;mensagemAoCidadao&quot;: &quot;Uma mensagem com dados de saúde de um idoso foi barrada antes de ir para o grupo do bairro.&quot; } ] }
+</code></pre>
+<h2 id="7-casos-de-teste">7. Casos de teste <a class="ancora" href="#7-casos-de-teste" aria-label="Link para esta seção">#</a></h2>
+<p>Os casos 1 a 20 são do <code>AvaliadorDeCasas</code>. Todos são de 18/11, com turno das 05h às 18h, salvo quando a linha diz &quot;dia comum&quot;. Cada caso vira um <code>[Theory]</code> do xUnit e um Test Case do Azure Boards.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Casa e fatos</th>
+<th>Agora</th>
+<th>Resultado esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>Sozinho</code>, sem sinal de vida, aparelho ligado</td>
+<td>09h00</td>
+<td><code>Aguardando</code>. Nunca <code>Verde</code>.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>Sozinho</code>, movimento às 07h00</td>
+<td>09h00</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Sozinho</code>, sem sinal de vida</td>
+<td>10h00</td>
+<td><code>Vermelho</code>, <code>SemMovimentoNaJanela</code>, pendente, desde 10h00</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>Sozinho</code>, só um movimento, às 10h30</td>
+<td>10h31</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>Sozinho</code>, só um movimento, às 03h12</td>
+<td>10h00</td>
+<td><code>Vermelho</code>. O movimento de antes da abertura não vale.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>Sozinho</code>, movimento às 07h00</td>
+<td>12h30</td>
+<td><code>Aguardando</code>. A janela da tarde pede sinal de vida novo e ainda não venceu.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>Sozinho</code>, movimento às 07h00</td>
+<td>15h30</td>
+<td><code>Vermelho</code>, <code>SemMovimentoNaJanela</code>, desde 15h00</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>Sozinho</code>, sem sinal de vida, visita <code>EstavaBem</code> às 10h12</td>
+<td>10h15</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>Sozinho</code>, sem sinal de vida, visita <code>EstavaBem</code> às 09h00</td>
+<td>09h30, 10h00 e 15h00</td>
+<td><code>Verde</code> às 09h30. <code>Aguardando</code> às 10h00. <code>Vermelho</code> desde 15h00 às 15h00.</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>Sozinho</code>, movimento às 09h00, último pacote às 09h10</td>
+<td>10h00</td>
+<td><code>Cinza</code>, pendente, desde 09h10. Não é <code>Verde</code>.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Caso 10 com visita <code>EstavaBem</code> às 10h30</td>
+<td>10h31 e 15h00</td>
+<td><code>Cinza</code>, atendida, às 10h31. <code>Cinza</code>, pendente, às 15h00.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Caso 10 com visita <code>EstavaBem</code> às 09h05, antes de o aparelho calar</td>
+<td>10h00</td>
+<td><code>Cinza</code>, pendente</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Caso 10. O nó volta às 11h00 e reenvia um movimento bufferizado das 10h20.</td>
+<td>11h00</td>
+<td><code>Verde</code>. O <code>OcorridoEm</code> conta. Com o movimento bufferizado das 09h50, <code>Aguardando</code>.</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>Sozinho</code> sem sinal de vida desde a abertura. Aparelho mudo volta às 11h00 sem movimento.</td>
+<td>11h00</td>
+<td><code>Vermelho</code>, <code>SemMovimentoNaJanela</code>, desde 10h00</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Casa ativada que nunca mandou pacote</td>
+<td>09h00</td>
+<td><code>Cinza</code></td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>Acamado</code>, aparelho ligado, movimento às 05h00</td>
+<td>05h01, 09h01 com visita às 09h00, 10h00</td>
+<td><code>Vermelho</code> desde 05h00 às 05h01. <code>Verde</code> às 09h01. <code>Vermelho</code> desde 10h00 às 10h00.</td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>Sozinho</code>, saída avisada às 08h40</td>
+<td>09h00, 10h00 e 16h00</td>
+<td><code>Verde</code> às 09h00. <code>Aguardando</code> às 10h00 e às 16h00. Nunca <code>Vermelho</code> no turno.</td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>Sozinho</code>, 35 °C das 11h00 às 15h10, movimento às 13h00, visita <code>EstavaBem</code> às 13h30</td>
+<td>13h05, 13h31 e 15h00</td>
+<td><code>Vermelho</code>, <code>CalorInterno</code>, desde 13h00, pendente às 13h05. Atendida às 13h31. Pendente às 15h00.</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Eletrodependente, dia comum. Tensão 0 V das 14h20 às 15h05, 127 V às 15h10. Vizinho responde <code>EstaBem</code> às 14h30. ACS visita às 14h40 e às 15h30.</td>
+<td>14h21, 14h31, 14h41, 15h00, 15h11 e 15h31</td>
+<td><code>Vermelho</code>, pendente, às 14h21 e às 14h31. Atendida às 14h41. Pendente às 15h00. Pendente às 15h11, pela trava. <code>Aguardando</code> às 15h31.</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Eletrodependente, dia comum, último pacote às 14h00 em ponto</td>
+<td>61 s e 59 s depois</td>
+<td><code>Vermelho</code> com 61 segundos sem pacote. <code>Aguardando</code> com 59 segundos.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Casos que cobrem os desfechos, os perfis e a ingestão:</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Casa e fatos</th>
+<th>Agora</th>
+<th>Resultado esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>21</td>
+<td><code>Sozinho</code>, sem sinal de vida, visita <code>NaoAbriu</code> às 10h40</td>
+<td>10h41</td>
+<td><code>Vermelho</code>, pendente. O Cadastro não chama o Motor.</td>
+</tr>
+<tr>
+<td>22</td>
+<td><code>Sozinho</code>, sem sinal de vida, visita <code>EstavaFora</code> às 10h40</td>
+<td>10h41 e 15h00</td>
+<td><code>Vermelho</code>, atendida, às 10h41. <code>Vermelho</code>, pendente, desde 15h00, às 15h00. Nunca <code>Verde</code>.</td>
+</tr>
+<tr>
+<td>23</td>
+<td>Caso 10 com vizinho <code>EstaBem</code> às 10h30</td>
+<td>10h31</td>
+<td><code>Cinza</code>, atendida</td>
+</tr>
+<tr>
+<td>24</td>
+<td><code>Coabitado</code>, movimento às 07h00 e <code>BotaoBem</code> às 08h00</td>
+<td>09h00 e 10h00</td>
+<td><code>Aguardando</code> nas duas horas. Nenhum evento do sensor conta.</td>
+</tr>
+<tr>
+<td>25</td>
+<td><code>Coabitado</code>, visita <code>EstavaBem</code> às 10h30</td>
+<td>10h31</td>
+<td><code>Verde</code></td>
+</tr>
+<tr>
+<td>26</td>
+<td>Mesmo pacote <code>(casaToken, seq, ts)</code> recebido duas vezes</td>
+<td></td>
+<td>Um <code>EventoSensor</code>.</td>
+</tr>
+<tr>
+<td>27</td>
+<td>Nó reinicia e manda <code>seq</code> 1 com <code>ts</code> novo</td>
+<td></td>
+<td>Evento aceito.</td>
+</tr>
+<tr>
+<td>28</td>
+<td>Pacote com <code>ts</code> 3 minutos à frente da chegada</td>
+<td></td>
+<td>Pacote recusado. <code>UltimoPacoteEm</code> não muda.</td>
+</tr>
+<tr>
+<td>29</td>
+<td><code>PUT /dias-criticos/{data}</code> duas vezes, a segunda às 05h01</td>
+<td></td>
+<td>Um turno. <code>abertoEm</code> continua 05h00.</td>
+</tr>
+<tr>
+<td>30</td>
+<td><code>Sozinho</code>, sem sinal de vida desde 10h00</td>
+<td>14h30</td>
+<td>Um <code>PEDIR_TOQUE</code> para a casa. Nenhum segundo pedido no dia.</td>
+</tr>
+<tr>
+<td>31</td>
+<td>Casa eletrodependente ativa. Leitura baixa às 02h40, sem confirmação, com 25 horas</td>
+<td></td>
+<td>O <code>Expurgo</code> não apaga a leitura. A casa continua <code>Vermelho</code>.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Casos do Cadastro e da Guarda:</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Situação</th>
+<th>Resultado esperado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>32</td>
+<td><code>Idoso</code> sem consentimento</td>
+<td>Sem token. <code>GET /lista-de-nomes</code> não traz a pessoa.</td>
+</tr>
+<tr>
+<td>33</td>
+<td>Revogar o consentimento</td>
+<td>Token apagado da <code>Casa</code>, avisos do token apagados, <code>DesativarCasaAsync</code> chamado, visitas ficam.</td>
+</tr>
+<tr>
+<td>34</td>
+<td><code>DestinatariosDoAviso()</code> sem <code>AvisarFamilia</code></td>
+<td>A família não aparece.</td>
+</tr>
+<tr>
+<td>35</td>
+<td>Pedido de contato repetido com o mesmo <code>(casaToken, motivo, desde)</code></td>
+<td>Um <code>AvisoAoVizinho</code>.</td>
+</tr>
+<tr>
+<td>36</td>
+<td>Pedido de contato sem <code>AvisarVizinho</code></td>
+<td>Nenhum aviso.</td>
+</tr>
+<tr>
+<td>37</td>
+<td><code>POST /visitas</code> repetido com o mesmo <code>id</code></td>
+<td>Uma visita. Uma confirmação no Motor.</td>
+</tr>
+<tr>
+<td>38</td>
+<td><code>POST /idosos</code> com CPF em <code>condicoes</code></td>
+<td>CPF gravado e logado como <code>***.456.***-00</code>. Nome e endereço inteiros. Farol amarelo.</td>
+</tr>
+<tr>
+<td>39</td>
+<td>Mensagem &quot;ele mora sozinho e toma diurético&quot; para <code>GrupoDoBairro</code></td>
+<td><code>Bloqueada</code>. <code>MensagemSaida</code> só com o texto mascarado. <code>SaidaBloqueada</code> de severidade 4. Farol vermelho.</td>
+</tr>
+<tr>
+<td>40</td>
+<td>Gravar <code>Idoso.Nome</code> no log</td>
+<td>O log recebe <code>[NOME]</code> e o painel ganha um evento.</td>
+</tr>
+<tr>
+<td>41</td>
+<td>Rota sem autenticação que tentaria devolver <code>Idoso.Condicoes</code></td>
+<td>Resposta bloqueada pelo <code>FiltroDeResposta</code>.</td>
+</tr>
+<tr>
+<td>42</td>
+<td>LLM fora do ar</td>
+<td>A mensagem ao cidadão é a frase fixa.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Os mesmos casos entram no Azure Boards. Os negativos da arquitetura estão cobertos: silêncio nunca vira verde pelos casos 1, 10, 11 e 15. Família sem autorização não recebe aviso pelo caso 34. Mensagem com &quot;mora sozinho&quot; é bloqueada pelo caso 39. Reenvio não duplica evento pelo caso 26.</p>
+<h2 id="8-o-que-entra-em-1911">8. O que entra em 19/11 <a class="ancora" href="#8-o-que-entra-em-1911" aria-label="Link para esta seção">#</a></h2>
+<h3 id="81-ordem-de-construção">8.1 Ordem de construção <a class="ancora" href="#81-ordem-de-construção" aria-label="Link para esta seção">#</a></h3>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Passo</th>
+<th>Quando</th>
+<th>Contratos e Motor</th>
+<th>Cadastro</th>
+<th>Guarda</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>16/11, noite</td>
+<td>A solução com os cinco projetos e os três de teste, com as referências da seção 2. <code>Corredor.Contratos</code> fechado. <code>ParametrosDoMotor</code> e <code>RelogioDeDemo</code>.</td>
+<td><code>Idoso</code> vazio, com a migração. <code>Microarea</code> por carga inicial.</td>
+<td><code>TipoDeDado</code>, <code>Canal</code>, <code>TextoRotulado</code>, <code>Veredito</code>.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>17/11</td>
+<td><code>CasaMonitorada</code> com <code>AtivarCasa</code> e <code>RegistrarPacote</code>. <code>EventoSensor</code> com a chave única e a recusa de <code>ts</code>. <code>TradutorDePacote</code> e <code>ConsumidorMqtt</code>. <code>DiaCritico</code> com <code>DeclararDiaCritico</code>, <code>TurnoRadar</code> e as janelas. <code>AvaliadorDeCasas</code> com <code>SemHeartbeat</code>, <code>SemMovimentoNaJanela</code>, sinal de vida por perfil, <code>Verde</code> e <code>Aguardando</code>. <code>Radar</code>.</td>
+<td><code>RegistrarConsentimento</code> gera o token e chama <code>AtivarCasaAsync</code>. <code>ListaDeNomes</code>. <code>ReconciliacaoComMotor</code>.</td>
+<td><code>MotorDeParsing</code>, <code>PoliticaDeCanal</code>, <code>SaidaSegura</code>, <code>InterceptadorDeEntrada</code>.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>18/11</td>
+<td><code>EnergiaEletrodependente</code> com a trava. <code>Confirmar</code>, atendimento e a tabela da seção 5.7. <code>CalorInterno</code>. <code>LinhaDoTempo</code>.</td>
+<td><code>Visita</code> com <code>TradutorDeDesfecho</code>. <code>MensagemSaida</code>.</td>
+<td><code>EventoDeSeguranca</code>, <code>Tradutor</code>, <code>Farol</code>, painel, <code>ProvedorDeLogSeguro</code>, <code>FiltroDeResposta</code>, <code>TratadorDeErros</code>.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>18/11, se sobrar tempo, nesta ordem</td>
+<td><code>Expurgo</code>. <code>EncerrarTurno</code> com o resumo. Saída avisada e <code>AusenciaConfirmada</code>. <code>VigiaDoRadar</code> com o pedido de toque e o encerramento das 18h. Pedido de contato pela porta.</td>
+<td>Rotas de revogação e de perfil. <code>AvisoAoVizinho</code> e <code>ReceptorDeContato</code>. Resposta do vizinho e <code>GET /avisos</code>.</td>
+<td>Schema <code>guarda</code>, se a lista em memória entrou primeiro.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Três pessoas escrevem no mesmo <code>api/</code>. Cada uma fica dentro do projeto do próprio módulo. Só uma pessoa mexe em <code>Corredor.Api/Program.cs</code>.</p>
+<h3 id="82-ordem-de-corte">8.2 Ordem de corte <a class="ancora" href="#82-ordem-de-corte" aria-label="Link para esta seção">#</a></h3>
+<p>Se o prazo apertar, a equipe corta nesta ordem, do primeiro ao último. Cada item diz o que sobra quando ele sai.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Corta</th>
+<th>O que sobra</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>IdaNoturnaSemVolta</code> e o aviso à família</td>
+<td>A autorização <code>AvisarFamilia</code> e o caso 34.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Agrupamento de apagão por rua</td>
+<td>Nada. O Motor não tem a rua.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Envio simulado ao vizinho, resposta do vizinho e <code>GET /avisos</code></td>
+<td>O <code>VigiaDoRadar</code>, a porta e o registro <code>AvisoAoVizinho</code>. A origem <code>Vizinho</code> fica coberta pelo caso 23.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Timer das 05h</td>
+<td>O script de ML roda à mão.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Pedido de toque</td>
+<td>O turno sem o buzzer das 14h30.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Saída avisada e <code>AusenciaConfirmada</code></td>
+<td>O <code>BOTAO_SAIR</code> vira só sinal de vida, sem suspender a regra 4. <code>EstavaFora</code> deixa de chamar o Motor, e a casa fica vermelha e pendente.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>EncerrarTurno</code> e <code>ResumoDoTurno</code></td>
+<td>O turno fecha às 18h. O indicador sai de uma consulta feita na gravação.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Rotas de revogação e de perfil</td>
+<td>Os métodos na raiz e os testes deles.</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>Expurgo</code></td>
+<td>O README declara que a retenção de 24 horas não foi construída.</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>VigiaDoRadar</code>, <code>IReceptorDeContato</code> e <code>AvisoAoVizinho</code></td>
+<td>O card no topo do radar. Ninguém é chamado de madrugada, e o vídeo diz isso.</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>CalorInterno</code></td>
+<td>Três classes concretas de regra, que ainda sustentam a herança.</td>
+</tr>
+</tbody></table>
+</div>
+<h3 id="83-nunca-corta">8.3 Nunca corta <a class="ancora" href="#83-nunca-corta" aria-label="Link para esta seção">#</a></h3>
+<p>Estas regras são o produto. Sem uma delas, a demo mostra um verde sem sinal de vida ou um vazamento.</p>
+<ol>
+<li>A chave única <code>(casaToken, seq, ts)</code> e a recusa de <code>ts</code> adiantado.</li>
+<li><code>SemHeartbeat</code> antes de qualquer regra que olhe sinal de vida, medido por <code>UltimoPacoteEm</code>.</li>
+<li><code>EnergiaEletrodependente</code> com a trava.</li>
+<li><code>Aguardando</code>, e <code>Verde</code> só com turno aberto e sinal de vida na janela atual.</li>
+<li>O sinal de vida por perfil de contato. No <code>Acamado</code> e no <code>Coabitado</code>, só confirmação com <code>PessoaVista</code>.</li>
+<li>O token só depois do consentimento.</li>
+<li><code>NaoAbriu</code> não confirma a casa, e <code>AusenciaConfirmada</code> nunca é sinal de vida.</li>
+<li>O canal <code>GrupoDoBairro</code> não aceita rótulo.</li>
+<li><code>EventoDeSeguranca</code> sem o valor, e <code>MensagemSaida</code> só com o texto mascarado.</li>
+<li>O <code>RelogioDeDemo</code>. Sem ele, não há vídeo das janelas de 10h e de 15h.</li>
+</ol>
+<h3 id="84-fora-da-entrega">8.4 Fora da entrega <a class="ancora" href="#84-fora-da-entrega" aria-label="Link para esta seção">#</a></h3>
+<ul>
+<li>Casa com dois idosos.</li>
+<li>Responsável legal no consentimento.</li>
+<li>Troca de nó com o mesmo token.</li>
+<li>Mais de uma microárea e encerramento do turno por microárea.</li>
+<li>Autenticação com mais de uma ACS por microárea.</li>
+<li>Envio real ao vizinho e à família.</li>
+<li>Assinatura do pacote MQTT contra movimento forjado.</li>
+<li>Integração com o e-SUS e com a distribuidora de energia.</li>
+<li>Tratamento da visita depois da revogação.</li>
+</ul>
+<p>O token viaja no nome do tópico por um broker público. Quem assina <code>corredor/v1/#</code> lê o token e pode publicar um <code>MOVIMENTO</code> falso, que o Motor trataria como sinal de vida. Só a casa do Wokwi passa por esse caminho. O modelo reduz o dano: token de 128 bits, pacote de token desconhecido descartado, e nenhum pacote muda perfil ou cadastro. A correção é assinar o pacote com um segredo por casa. O vídeo de Physical Computing e o PDF de Cyber dizem essa limitação.</p>
+<h2 id="9-mudanças-em-relação-a-docsarquiteturamd">9. Mudanças em relação a <code>docs/arquitetura.md</code> <a class="ancora" href="#9-mudanças-em-relação-a-docsarquiteturamd" aria-label="Link para esta seção">#</a></h2>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>A arquitetura diz</th>
+<th>Este modelo diz</th>
+<th>Motivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Cinco projetos. <code>Corredor.Cadastro</code> referencia a interface <code>IMotorDeCasas</code>.</td>
+<td>Seis projetos. <code>IMotorDeCasas</code>, <code>IReceptorDeContato</code> e os tipos compartilhados ficam em <code>Corredor.Contratos</code>. Motor e Cadastro referenciam esse projeto e nenhum referencia o outro.</td>
+<td>A barreira fica no compilador mesmo com tudo <code>public</code>.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Três situações. O radar devolve vermelhos, cinzas e a contagem de verdes.</td>
+<td>Quatro situações, com <code>Aguardando</code>. <code>Verde</code> exige sinal de vida na janela atual e só existe com turno aberto. O radar devolve pendentes, atendidas, aguardando e a contagem de verdes.</td>
+<td>Antes do prazo, a casa sem sinal de vida seria verde sem ninguém saber dela.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>PerfilDaCasa</code> é um enum com <code>Sozinho</code>, <code>Acamado</code>, <code>Eletrodependente</code> e <code>Coabitado</code>.</td>
+<td><code>PerfilDaCasa(PerfilDeContato, bool Eletrodependente)</code>.</td>
+<td>A eletrodependente que mora sozinha, ou acamada, não cabe num valor só.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>A seta &quot;aviso neutro&quot; sai do Motor para o vizinho.</td>
+<td>O aviso mora no Cadastro. O Motor manda um <code>PedidoDeContato</code> pela porta <code>IReceptorDeContato</code>. O Cadastro descarta a repetição por episódio. O Motor não guarda alerta.</td>
+<td>O Motor não tem o telefone do vizinho e não pode ter.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Chave única <code>(casaToken, seq)</code>.</td>
+<td>Chave única <code>(casaToken, seq, ts)</code>. O firmware não muda.</td>
+<td>O <code>seq</code> volta a 1 quando o ESP32 reinicia.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Todo pacote vira evento. O payload tem só <code>ts</code>.</td>
+<td>O <code>HEARTBEAT</code> só avança <code>UltimoPacoteEm</code>. <code>EventoSensor</code> grava <code>OcorridoEm</code> e <code>RecebidoEm</code>. <code>ts</code> adiantado ou velho é recusado.</td>
+<td>Volume, e o silêncio mede a chegada enquanto a janela mede o fato. Um relógio adiantado criaria um verde falso.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>IMotorDeCasas</code> com <code>DefinirPerfilAsync(token, perfil)</code> e <code>ConfirmarAsync(token, origem)</code>. <code>OrigemDaConfirmacao</code> com <code>Acs</code> e <code>Vizinho</code>.</td>
+<td>Quatro métodos: <code>AtivarCasaAsync</code> com microárea, <code>DefinirPerfilAsync</code>, <code>ConfirmarAsync(token, Confirmacao)</code> e <code>DesativarCasaAsync</code>. <code>Confirmacao</code> tem <code>Id</code>, <code>Origem</code>, <code>Resultado</code> e <code>Quando</code>.</td>
+<td>O radar filtra por microárea. A revogação desliga a casa. Sem <code>Quando</code>, a hora seria a do envio. Sem <code>Id</code>, o reenvio duplicaria. Sem <code>Resultado</code>, &quot;estava fora&quot; viraria sinal de vida.</td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>POST /visitas</code> grava o desfecho e confirma a casa no Motor.</td>
+<td>Só <code>EstavaBem</code> e <code>Encaminhada</code> são sinal de vida. <code>EstavaFora</code> vira <code>AusenciaConfirmada</code>. <code>NaoAbriu</code> não chama o Motor. O corpo leva <code>id</code> e <code>ocorridaEm</code>.</td>
+<td>&quot;Não abriu, chamei SAMU&quot; deixaria a casa verde.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>A arquitetura não diz quanto tempo vale uma confirmação.</td>
+<td>A confirmação vale só na janela atual, para todas as regras e para o acamado.</td>
+<td>Uma visita às 09h deixaria a tarde de um dia de 36 °C sem checagem.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Janelas &quot;das 10h ou das 15h&quot;. <code>PEDIR_TOQUE</code> às 15h.</td>
+<td>A manhã vai da abertura às 10h. A tarde vai das 10h às 15h. O pedido de toque sai às 14h30.</td>
+<td>Às 15h a janela já fechou.</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>SemHeartbeat</code> com 30 minutos. Regra 1 com &quot;sem heartbeat&quot;, sem número.</td>
+<td>Heartbeat a cada 20 segundos. Eletrodependente com 60 segundos sem pacote fica vermelho. Todo número fica em <code>ParametrosDoMotor</code>, com valor de demo, e existe o <code>RelogioDeDemo</code>.</td>
+<td>O critério de teste pede alerta rápido para o eletrodependente, e o vídeo não pode esperar as 10h.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Regra 1 com &quot;tensão caindo&quot;.</td>
+<td>Depois de uma leitura baixa, a casa fica vermelha até a ACS ver a pessoa depois da leitura. O <code>Expurgo</code> não apaga leitura baixa sem confirmação depois dela.</td>
+<td>A luz voltar não mostra que a pessoa está bem.</td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>OrigemDaConfirmacao</code> sem efeito por regra.</td>
+<td>Cada regra lista as origens e os resultados que aceita. A regra de energia aceita só a ACS.</td>
+<td>O vizinho não pode resolver um alerta de energia.</td>
+</tr>
+<tr>
+<td>14</td>
+<td>O interceptador troca o valor pela máscara antes do log e do banco.</td>
+<td>Ele mascara CPF, RG, CNS e credencial em qualquer campo. Os outros tipos de dado só ganham rótulo.</td>
+<td>Mascarar nome e endereço apagaria o dado da lista de nomes, e a <code>SaidaSegura</code> não veria o que bloquear.</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>MensagemSaida</code> é dado do Cadastro, sem regra sobre o texto.</td>
+<td><code>MensagemSaida</code> guarda só o texto mascarado.</td>
+<td>O texto bloqueado é o próprio vazamento.</td>
+</tr>
+<tr>
+<td>16</td>
+<td>&quot;Qualquer bloqueio de severidade 4 ou 5 dá vermelho.&quot;</td>
+<td>Só uma saída bloqueada deixa o farol vermelho. O mascaramento na entrada vai até amarelo.</td>
+<td>O mascaramento mostra o sistema funcionando, não uma tentativa de saída.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Um Postgres, dois schemas.</td>
+<td>Três schemas, com <code>guarda</code>.</td>
+<td>O painel precisa dos eventos de segurança depois de um reinício.</td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>TurnoRadar</code> é entidade do Motor ao lado de <code>DiaCritico</code>.</td>
+<td><code>TurnoRadar</code> é objeto de valor de <code>DiaCritico</code>. Um encerramento por data.</td>
+<td>O turno não existe sem o dia crítico e tem a mesma chave.</td>
+</tr>
+<tr>
+<td>19</td>
+<td>A tabela de rotas não tem encerramento, revogação, perfil, avisos nem relógio de demo.</td>
+<td>Entram <code>POST /dias-criticos/{data}/encerramento</code>, <code>DELETE /idosos/{id}/consentimento</code>, <code>PUT /idosos/{id}/perfil</code>, <code>GET /avisos</code>, <code>POST /avisos/{id}/resposta</code>, <code>PUT /demo/relogio</code> e <code>GET /painel</code>.</td>
+<td>O app tem a tela de encerramento. As outras rotas fecham fluxos que a própria arquitetura descreve.</td>
+</tr>
+<tr>
+<td>20</td>
+<td>O script de ML roda na demo com uma data histórica.</td>
+<td><code>DiaCritico</code> só aceita a data de hoje. O script usa as variáveis da data histórica e envia a data de hoje.</td>
+<td>Um dia crítico com data passada nunca tem turno aberto.</td>
+</tr>
+<tr>
+<td>21</td>
+<td>&quot;O módulo Motor não guarda dado pessoal.&quot;</td>
+<td>&quot;O Motor guarda só dado pseudonimizado.&quot;</td>
+<td><code>Acamado</code> e <code>Eletrodependente</code> são dado de saúde ligado a um token que o Cadastro sabe reverter. A frase exata resiste à pergunta da banca sobre LGPD.</td>
+</tr>
+<tr>
+<td>22</td>
+<td>O objetivo do protótipo diz que o aparelho mudo deixa o card cinza.</td>
+<td>Vale para toda casa, menos a do eletrodependente, que fica vermelha.</td>
+<td>A regra 1 da arquitetura já diz vermelho. O pitch mostra o cinza em outra casa.</td>
+</tr>
+<tr>
+<td>23</td>
+<td>&quot;Perfil Acamado entra aqui direto.&quot;</td>
+<td>O acamado fica vermelho no início de cada janela sem confirmação com <code>PessoaVista</code>. A casa <code>Coabitado</code> só fica verde com confirmação humana.</td>
+<td>Na casa com outra pessoa, o movimento não é sinal de vida da idosa.</td>
+</tr>
+<tr>
+<td>24</td>
+<td>Ordem de corte: <code>IdaNoturnaSemVolta</code>, agrupamento por rua, aviso ao vizinho com o registro, timer das 05h.</td>
+<td>A ordem da seção 8.2. O envio ao vizinho é o terceiro corte, mas o registro do pedido de contato só sai no décimo.</td>
+<td>Sem o registro, o fluxo da madrugada do eletrodependente perde a trilha.</td>
+</tr>
+</tbody></table>
+</div>
+<p>Em três pontos este modelo concorda com a arquitetura por um motivo que vale registrar. A situação calculada por função pura é a decisão que mais protege contra o verde falso. O <code>DiaCritico</code> dentro do Motor evita uma chamada entre módulos às 05h. O Motor sem referência ao Cadastro transforma a regra de privacidade em erro de compilação.</p>
+<h3 id="91-mudanças-pedidas-pelo-modelo-de-dados">9.1 Mudanças pedidas pelo modelo de dados <a class="ancora" href="#91-mudanças-pedidas-pelo-modelo-de-dados" aria-label="Link para esta seção">#</a></h3>
+<p>O <a href="04-modelo-de-dados.html">04-modelo-de-dados.md</a> pediu estas mudanças para gravar o modelo. Cada linha diz onde o texto mudou neste arquivo ou em <a href="02-event-storming.html">02-event-storming.md</a>. O resto dos dois arquivos não mudou.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Mudança</th>
+<th>Onde</th>
+<th>Motivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td><code>AvisoAoVizinho</code> grava <code>MicroareaId</code>.</td>
+<td>4.3, agregado <code>AvisoAoVizinho</code>, linha &quot;Gravado&quot;</td>
+<td><code>GET /avisos</code> filtra por microárea, e o token some na revogação.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>O <code>Expurgo</code> guarda a leitura baixa só de casa ativa e eletrodependente, só uma confirmação <code>Acs</code> com <code>PessoaVista</code> solta a leitura, e os eventos saem antes das confirmações.</td>
+<td>4.2, tabela de serviços, <code>Expurgo</code>. Caso 31. Política P7 e hotspot H23 do event storming.</td>
+<td>Sem o recorte, um apagão deixa leituras de 0 V para sempre nas casas comuns. Sem a ordem, a trava nunca solta.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>A avaliação lê as leituras baixas de qualquer idade, pelo critério do <code>Expurgo</code>, e não pelo que sobrou na tabela.</td>
+<td>4.2, modelo de leitura <code>Radar</code>. 5.1, <code>HistoricoDaCasa</code>.</td>
+<td>O radar acerta com o expurgo atrasado ou cortado.</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>POST /visitas</code> soma a <code>ocorridaEm</code> o deslocamento do relógio de demo.</td>
+<td>4.3, invariante 3 de <code>Visita</code>. 5.9. 6.3, exemplo de <code>POST /api/visitas</code>. Hotspot H36 do event storming.</td>
+<td>Com o relógio deslocado, a visita caía fora da janela ou recebia <code>VISITA_NO_FUTURO</code>.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Depois de mover o relógio para trás, roda o reinício da seção 8.4 de 04-modelo-de-dados.md.</td>
+<td>5.9</td>
+<td><code>UltimoPacoteEm</code> só anda para frente, e a casa nunca ficaria cinza nem vermelha por silêncio.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>ToleranciaDoRelogio</code> sai de <code>ParametrosDoMotor</code> para <code>ParametrosDoRelogio</code>, e o deslocamento do relógio de demo ganha a interface <code>IDeslocamentoDoRelogio</code>. Os dois ficam em <code>Corredor.Contratos</code>.</td>
+<td>4.1, &quot;Parâmetros&quot;. 5.9. 6.1, código e lista.</td>
+<td>A invariante 3 da <code>Visita</code> e a mudança 4 rodam no Cadastro, que não referencia o Motor. A mudança em <code>Corredor.Contratos</code> pede o acordo das duas pessoas.</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>AvisosDoDia</code> lê as últimas 24 horas, não o dia de hoje.</td>
+<td>4.3, tabela de leitura do Cadastro</td>
+<td>&quot;Hoje&quot; poria o fuso de São Paulo no Cadastro. O fuso fica no corte das janelas.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Revogar o consentimento apaga os avisos ao vizinho daquele token.</td>
+<td>4.3, invariante 8 de <code>Idoso</code>. Caso 33. Fluxo 1, passo 8, do event storming.</td>
+<td>O aviso guarda o token que a revogação promete apagar.</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>CadastrarIdoso</code> aceita um <code>id</code> opcional, que só a carga da demo informa.</td>
+<td>4.3, comandos de <code>Idoso</code></td>
+<td>A carga passa pelos casos de uso e precisa ser repetível. O token nasce na carga e não entra no Git.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>A regra de CPF mascara pelo formato. O dígito verificador válido só sobe a severidade de 4 para 5.</td>
+<td>4.4, <code>RegraDePii</code> e severidades</td>
+<td>O exemplo <code>123.456.789-00</code>, do professor e do caso 38, tem dígito inválido e precisa ser mascarado.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>A regra de credencial casa com o nome inteiro da chave e nunca mascara <code>casaToken</code>. O mascaramento na entrada registra o canal <code>Banco</code>.</td>
+<td>4.4, <code>InterceptadorDeEntrada</code></td>
+<td>Um token de 32 hexadecimais parece credencial, e <code>POST /visitas</code> pararia. O canal é obrigatório e entra na pontuação.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>A observação da visita leva o rótulo <code>Saude</code> pelo campo, mais os rótulos do conteúdo. Lida do banco, volta com todos os rótulos de texto livre.</td>
+<td>4.3, invariante 5 de <code>Visita</code></td>
+<td>Uma frase em que as regras não acham nada sairia sem rótulo e poderia ir ao log. O banco não guarda rótulo.</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Se o Motor recusa a confirmação por ter mais de 24 horas, o Cadastro mantém a visita e responde 201.</td>
+<td>4.3, invariante 7 de <code>Visita</code></td>
+<td>A fila do app trataria um 422 como recusa, com a visita já gravada.</td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>EventoDeSeguranca</code> grava o modelo da rota, nulo fora de uma requisição.</td>
+<td>4.4, agregado <code>EventoDeSeguranca</code>, linha &quot;Gravado&quot;</td>
+<td>O caminho real leva o token e o <code>IdosoId</code> ao painel aberto.</td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>AcsId</code> é texto no formato <code>^[a-z0-9-]{3,40}$</code>. Não existe tabela de ACS.</td>
+<td>4.3, parágrafo depois de <code>Microarea</code></td>
+<td>Quatro colunas guardam o valor.</td>
+</tr>
+<tr>
+<td>16</td>
+<td>O envio simulado é a própria linha do aviso e uma linha de log sem telefone.</td>
+<td>4.3, política P19</td>
+<td>O modelo não dizia onde o envio simulado fica gravado.</td>
+</tr>
+<tr>
+<td>17</td>
+<td>A linha do tempo de casa desativada responde 404 <code>CASA_DESCONHECIDA</code>.</td>
+<td>6.3, tabela de rotas</td>
+<td>A linha vazia confirmaria que o token existiu.</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Com conflito de versão ou chave repetida, o caso de uso recarrega e repete o comando uma vez.</td>
+<td>4.1, &quot;Concorrência&quot;</td>
+<td>O modelo dizia como repetir sem efeito, não o que fazer com duas escritas ao mesmo tempo.</td>
+</tr>
+<tr>
+<td>19</td>
+<td>Cada módulo conecta com um papel próprio do Postgres.</td>
+<td>2, último parágrafo</td>
+<td>O Postgres passa a impedir que um módulo leia o schema de outro.</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Os telefones de exemplo usam o DDD 00.</td>
+<td>6.3, exemplos de <code>PUT /api/idosos/{id}/vizinho</code> e de <code>GET /api/lista-de-nomes</code></td>
+<td>A varredura do repositório falha com DDD que existe.</td>
+</tr>
+</tbody></table>
+</div>
+<p>As propostas recusadas e as que ficaram para a equipe estão na seção 11 de 04-modelo-de-dados.md.</p>
+
+</main>
+<script src="js/pele.global.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

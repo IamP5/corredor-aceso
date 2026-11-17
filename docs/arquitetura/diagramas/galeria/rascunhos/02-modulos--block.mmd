@@ -1,0 +1,11 @@
+block
+  columns 3
+  api["Corredor.Api: host, rotas, DI"]:3
+  cad["Corredor.Cadastro"] guarda["Corredor.Guarda"] motor["Corredor.Motor"]
+  imotor["IMotorDeCasas"]:3
+  api --> cad
+  api --> guarda
+  api --> motor
+  cad --> guarda
+  cad --> imotor
+  motor --> imotor

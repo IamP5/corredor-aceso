@@ -1,0 +1,13 @@
+flowchart LR
+  NO["Nó"] -- "linguagem publicada: MQTT v1" --> MOTOR["Motor"]
+  ML["Job de previsão"] -- "conformista" --> MOTOR
+  CT["Corredor.Contratos<br/>núcleo compartilhado"]
+  CT --- MOTOR
+  CT --- CAD["Cadastro"]
+  MOTOR -- "fornecedor: IMotorDeCasas e IReceptorDeContato" --> CAD
+  GUARDA["Guarda"] -- "Cadastro conformista" --> CAD
+  MOTOR -. "caminhos separados" .- GUARDA
+  MOTOR -- "serviço aberto" --> APP["App da ACS"]
+  CAD -- "serviço aberto" --> APP
+  GUARDA -- "camada anticorrupção" --> LLM["LLM"]
+  CAD -- "camada anticorrupção" --> VIZ["Canal do vizinho"]

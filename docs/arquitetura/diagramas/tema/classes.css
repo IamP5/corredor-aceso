@@ -1,0 +1,23 @@
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.pele .luz text, .pele .luz tspan { fill: var(--ca-luz-texto); }
+.pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.pele .cinza text, .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+/* Gantt: o Pele pinta toda tarefa com o acento. Aqui a tarefa comum fica na série 1 (cinza-azulada),
+   e o âmbar e o vermelho ficam para o marco e para o caminho crítico (crit). */
+.pele.pele-gantt .pele-task:not(.pele-crit):not(.pele-milestone) rect { fill: var(--pele-series-1); stroke: var(--pele-series-1); }

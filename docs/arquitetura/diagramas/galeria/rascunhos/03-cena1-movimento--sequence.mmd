@@ -1,0 +1,17 @@
+sequenceDiagram
+  autonumber
+  participant no as Nó ESP32
+  participant pub as Broker público
+  participant mq as Mosquitto
+  participant motor as Motor
+  participant pg as Postgres
+  actor acs as App da ACS
+  Note over motor: dia crítico, turno aberto, casa vermelha
+  no->>pub: corredor/v1/{casaToken}/evento MOVIMENTO
+  pub->>mq: bridge
+  mq->>motor: evento {seq, ts, tipo}
+  motor->>pg: grava (casaToken, seq) único
+  motor->>motor: Avaliar(casa, eventos, turno, agora)
+  acs->>motor: GET /api/radar?microarea=7
+  motor-->>acs: vermelhos e cinzas, sem esta casa
+  Note over acs: o card sai da tela

@@ -1,0 +1,38 @@
+# .NET
+bin/
+obj/
+dist/
+# Node e Expo
+node_modules/
+.expo/
+app/dist/
+# Python
+__pycache__/
+.venv/
+.ipynb_checkpoints/
+# Terraform: o state tem IP e identificadores da assinatura
+.terraform/
+*.tfstate
+*.tfstate.*
+# Segredos e ajustes locais
+.env
+.env.local
+*.local.tfvars
+# Chaves privadas nunca entram. Só os .pub de infra/chaves/ são versionados.
+infra/chaves/**
+!infra/chaves/**/
+!infra/chaves/**/*.pub
+!infra/chaves/README.md
+
+# O padrão bin/ acima é do .NET. Os comandos de operação da VM ficam versionados.
+!infra/bin/
+!infra/bin/**
+# macOS
+.DS_Store
+# Material de produção do vídeo de pitch e ferramentas internas da descoberta.
+# Ficam fora do repositório de entrega: 750 MB de vídeo e repositórios aninhados.
+pitch/
+kit/
+# Saída bruta e script da ferramenta de descoberta: uso interno, com caminhos da máquina local.
+docs/discovery/raw.json
+docs/discovery/workflow-discovery.js

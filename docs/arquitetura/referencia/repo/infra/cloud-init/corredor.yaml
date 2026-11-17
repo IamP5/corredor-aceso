@@ -1,0 +1,14 @@
+#cloud-config
+# Mesmo arquivo para a VM do Azure (custom_data do Terraform) e para a VM local
+# (multipass launch --cloud-init). Ele só busca o repositório e chama o Bash.
+# Todo o provisionamento acontece dentro da VM, em infra/provisionar.sh.
+# Este arquivo não tem segredo nem variável: o ambiente é detectado na VM.
+preserve_hostname: true
+manage_etc_hosts: false
+package_update: true
+packages:
+  - git
+  - ca-certificates
+runcmd:
+  - [git, clone, --depth, "1", --branch, main, "https://github.com/SUA-ORG/corredor-aceso.git", /opt/corredor/repo]
+  - [bash, /opt/corredor/repo/infra/provisionar.sh]

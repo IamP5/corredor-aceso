@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquitetura · Corredor Aceso</title>
+<script>(function(){var t;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='claro'&&t!=='escuro')t=matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro';document.documentElement.setAttribute('data-tema',t)})()</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="topo">
+<a class="marca" href="index.html">Corredor Aceso · Arquitetura</a>
+<nav class="paginas" aria-label="Páginas"><a href="arquitetura.html">Arquitetura técnica</a><a href="02-event-storming.html">Event storming</a><a href="03-modelo-de-dominio.html">Modelo de domínio</a><a href="04-modelo-de-dados.html">Modelo de dados</a><a href="05-infra-e-entrega.html">Infraestrutura, CI/CD, releases e repositório</a><a href="guia.html">Guia de diagramas</a></nav>
+<button type="button" class="tema-botao">Tema</button>
+</header>
+<main>
+<h1>Arquitetura do Corredor Aceso</h1>
+<p>Documentos de arquitetura gerados dos arquivos Markdown em <code>docs/</code>. Para mudar o texto, edite o Markdown e rode <code>npm run site</code> em <code>docs/arquitetura/diagramas</code>.</p>
+<ul class="indice">
+<li><a href="arquitetura.html">Arquitetura técnica do Corredor Aceso</a><p>Este documento define as partes da solução, o dono de cada dado e os contratos entre as partes. Ele também mostra onde cada disciplina pontua. A ficha, as seis perguntas e a pergunta de ML continuam em 01-ideia-vencedora.md.</p></li>
+<li><a href="02-event-storming.html">Event storming do Corredor Aceso</a><p>Este documento registra as três sessões de event storming do Corredor Aceso. A sessão 1 dá a visão geral e fecha os hotspots. A sessão 2 percorre cada fluxo no nível de processo. A sessão 3 decide os agregados. Os nomes de código seguem o glossário de 03-modelo-de-dominio.md.</p></li>
+<li><a href="03-modelo-de-dominio.html">Modelo de domínio do Corredor Aceso</a><p>Este documento define o modelo de domínio que a equipe constrói até 19/11/2026, 23h55. Ele parte das sessões de 02-event-storming.md e chega aos contextos, aos projetos .NET, aos nomes de código, às regras da situação da casa, aos contratos e aos casos de teste.</p></li>
+<li><a href="04-modelo-de-dados.html">Modelo de dados do Corredor Aceso</a><p>Este documento define onde cada dado do Corredor Aceso fica gravado, com que forma, por quanto tempo e quem pode ver. Ele cobre o Postgres, o mapeamento do EF Core, as consultas, a retenção, a classificação dos dados, o SQLite do app, as mensagens, os arquivos de ML e a carga da demo.</p></li>
+<li><a href="05-infra-e-entrega.html">Infraestrutura, CI/CD, releases e repositório do Corredor Aceso</a><p>Este documento fecha onde a VM roda, como ela nasce e é provisionada, como o código vira release, como a release chega à VM e como a equipe opera o que está no ar até a entrega de 19/11/2026 às 23h55. Ele vale junto com arquitetura.md e com o modelo de domínio. A seção 10 lista cada ponto em que este documento muda um dos dois.</p></li>
+<li><a href="guia.html">Guia de diagramas do Corredor Aceso</a><p>Este guia diz qual tipo de diagrama Pele usar em cada vista do projeto, como escrever o .mmd, qual tema aplicar, como renderizar e como gerar o site da arquitetura. Ele vale para todo diagrama em docs/arquitetura/diagramas/.</p></li>
+</ul>
+</main>
+<script src="js/site.js"></script>
+</body>
+</html>

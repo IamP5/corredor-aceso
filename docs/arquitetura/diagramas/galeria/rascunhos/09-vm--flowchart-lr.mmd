@@ -1,0 +1,24 @@
+flowchart LR
+  app["App da ACS"]:::externo
+  pub["Broker MQTT público"]:::externo
+  llm["LLM"]:::externo
+  subgraph vm["VM corredor-ubs"]
+    nginx["nginx :443<br/>api.corredor.local<br/>painel.corredor.local"]
+    api["corredor-api.service<br/>.NET 8 :5000"]:::luz
+    painel["painel estático"]
+    mq["mosquitto :1883<br/>bridge"]
+    pg[("postgresql :5432<br/>motor, cadastro, guarda")]
+    job["corredor-previsao.timer<br/>05h"]
+    mon["corredor-monitor.service<br/>Restart=always"]
+    log[("/var/log/corredor<br/>auditoria.log")]
+  end
+  app -- HTTPS --> nginx
+  nginx -- "/api" --> api
+  nginx -- "/painel" --> painel
+  pub -- bridge --> mq -- eventos --> api
+  api -- "EF Core" --> pg
+  job -- "PUT /api/dias-criticos" --> nginx
+  api -- "achado sem dado pessoal" --> llm
+  mon -- alertas --> log
+  classDef luz stroke-width:2px
+  classDef externo stroke-width:1px

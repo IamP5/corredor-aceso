@@ -1,0 +1,19 @@
+# Gerado por infra/02-app.sh. Rotas comuns aos servidores HTTP e HTTPS.
+# /healthz fica só no loopback, para o deploy e o monitor.
+# /painel/ é a página estática do painel Risco Cidadão, que vem no pacote da release.
+location /healthz { return 404; }
+location = / { return 302 /painel/; }
+location = /painel { return 301 /painel/; }
+location /painel/ {
+  alias ${CORREDOR_RAIZ}/current/painel/;
+  index index.html;
+}
+location / {
+  proxy_pass http://127.0.0.1:${API_PORTA};
+  proxy_http_version 1.1;
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_read_timeout 60s;
+}

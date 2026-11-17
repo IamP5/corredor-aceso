@@ -1,0 +1,88 @@
+%% Modelo erDiagram. Vista: modelo de dados, os três schemas num diagrama só, um subgraph por schema.
+%% Regras: tabela e coluna em snake_case como no banco, PK/FK/UK na coluna, "TextoRotulado" no comentário do campo pessoal.
+%% Nenhuma relação cruza schemas: entre schemas a ligação é só o casa_token, sem FK.
+erDiagram
+  direction LR
+  subgraph motor["schema motor"]
+    CASA_MONITORADA {
+      uuid casa_token PK
+      int microarea_id
+      text perfil
+      timestamptz ativada_em
+      timestamptz desativada_em
+      timestamptz ultimo_pacote_em
+    }
+    CONFIRMACAO {
+      uuid id PK
+      uuid casa_token FK
+      text origem
+      text resultado
+      timestamptz quando
+    }
+    EVENTO_SENSOR {
+      uuid casa_token PK, FK
+      bigint seq PK
+      timestamptz ocorrido_em PK
+      text tipo
+      timestamptz recebido_em
+      numeric temp_c
+      numeric tensao_v
+      bool bufferizado
+    }
+    DIA_CRITICO {
+      date data PK
+      numeric probabilidade
+      text motivo
+      text origem
+      timestamptz aberto_em
+      timestamptz encerrado_em
+      jsonb resumo
+    }
+  end
+  subgraph cadastro["schema cadastro"]
+    MICROAREA {
+      int id PK
+      text nome
+    }
+    IDOSO {
+      uuid id PK
+      int microarea_id FK
+      text nome "TextoRotulado"
+      text endereco "TextoRotulado"
+      uuid casa_token UK
+      text perfil
+    }
+    CONSENTIMENTO {
+      uuid id PK
+      uuid idoso_id FK
+      text versao_do_termo
+      timestamptz registrado_em
+      timestamptz revogado_em
+    }
+    VISITA {
+      uuid id PK
+      uuid casa_token
+      text desfecho
+      timestamptz quando
+    }
+    MENSAGEM_SAIDA {
+      uuid id PK
+      text texto_mascarado
+      text veredito
+    }
+  end
+  subgraph guarda["schema guarda"]
+    EVENTO_DE_SEGURANCA {
+      uuid id PK
+      timestamptz ocorrido_em
+      text tipo
+      text canal
+      text tipos_de_dado
+      int severidade
+      text mensagem_ao_cidadao
+    }
+  end
+  CASA_MONITORADA ||--o{ CONFIRMACAO : recebe
+  CASA_MONITORADA ||--o{ EVENTO_SENSOR : recebe
+  MICROAREA ||--o{ IDOSO : agrupa
+  IDOSO ||--|{ CONSENTIMENTO : registra

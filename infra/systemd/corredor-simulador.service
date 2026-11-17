@@ -1,0 +1,11 @@
+[Unit]
+Description=Corredor Aceso - simulador de 39 casas (ligado à mão, só na demo)
+After=mosquitto.service
+
+[Service]
+User=corredor
+WorkingDirectory=/opt/corredor/repo/iot/simulador
+ExecStart=/opt/corredor/venv/bin/python simulador.py --host 127.0.0.1 --porta 1883
+Restart=on-failure
+RestartSec=5
+SyslogIdentifier=corredor-simulador

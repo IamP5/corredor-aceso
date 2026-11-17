@@ -1,0 +1,86 @@
+ok  aceita  casa ativa
+ok  recusa  Motor: token repetido (AtivarCasa, chave casaToken)
+ok  recusa  Motor: token fora de 32 hex minusculos
+ok  recusa  Motor: perfil de contato desconhecido
+ok  aceita  evento de movimento
+ok  recusa  EventoSensor inv. 1: (token, seq, ts) repetido
+ok  aceita  caso 26: o mesmo pacote com ON CONFLICT DO NOTHING conta como sucesso
+ok  aceita  caso 27: seq 1 de novo com outro ts
+ok  confere um evento por chave
+ok  recusa  EventoSensor inv. 2: heartbeat nunca vira linha
+ok  recusa  EventoSensor inv. 4: evento de token desconhecido
+ok  recusa  EventoSensor inv. 5: temperatura fora de -10 a 60
+ok  recusa  EventoSensor inv. 5: tensao fora de 0 a 260
+ok  recusa  contrato 6.2: leitura so em TELEMETRIA
+ok  recusa  EventoSensor imutavel: UPDATE
+ok  recusa  casa com evento nao pode ser apagada
+ok  aceita  confirmacao da ACS
+ok  recusa  CasaMonitorada inv. 4: Confirmacao.Id repetido
+ok  recusa  secao 5.7: vizinho nunca manda AusenciaConfirmada
+ok  aceita  dia critico
+ok  recusa  DiaCritico inv. 1: segundo dia critico na mesma data
+ok  recusa  DiaCritico inv. 3: probabilidade fora de 0 a 1
+ok  recusa  DiaCritico inv. 3: probabilidade negativa
+ok  recusa  DiaCritico inv. 3: motivo vazio
+ok  recusa  DiaCritico inv. 3: motivo com 201 caracteres
+ok  recusa  DiaCritico inv. 7: encerramento sem resumo
+ok  recusa  DiaCritico inv. 7: resumo sem encerramento
+ok  recusa  resumo com mais casas com sinal de vida do que casas ativas
+ok  aceita  encerramento com o resumo inteiro
+ok  aceita  idoso sem consentimento e sem token (caso 32)
+ok  aceita  segundo idoso
+ok  recusa  Idoso inv. 9: nome vazio
+ok  recusa  Idoso inv. 9: endereco ausente
+ok  recusa  microarea desconhecida
+ok  recusa  caso 38: CPF em claro em condicoes nao entra no banco
+ok  aceita  caso 38: CPF mascarado entra
+ok  aceita  consentimento vigente e token
+ok  recusa  Idoso inv. 2: segundo consentimento vigente
+ok  recusa  o mesmo token em dois idosos
+ok  aceita  Idoso inv. 2: revogado fica guardado e um novo vigente entra
+ok  aceita  vizinho com a data em que aceitou
+ok  recusa  Idoso: no maximo um vizinho
+ok  recusa  Idoso inv. 6: vizinho sem a data em que aceitou
+ok  aceita  visita
+ok  recusa  Visita inv. 2 e caso 37: Visita.Id repetido
+ok  recusa  Visita inv. 1: UPDATE
+ok  recusa  Visita inv. 1: DELETE
+ok  recusa  Visita inv. 6: apagar o idoso nao leva a visita junto
+ok  recusa  desfecho desconhecido
+ok  recusa  CPF em claro na observacao
+ok  aceita  caso 39: mensagem bloqueada so com o texto mascarado
+ok  recusa  MensagemSaida inv. 2: bloqueada sem tipo de dado
+ok  recusa  tipo de dado fora do enum
+ok  recusa  MensagemSaida inv. 4: veredito nao muda
+ok  aceita  aviso ao vizinho
+ok  recusa  AvisoAoVizinho inv. 1 e caso 35: episodio repetido
+ok  aceita  fluxo 8 passo 7: mesmo motivo com outro Desde e outro episodio
+ok  recusa  resposta sem a hora
+ok  recusa  Idoso inv. 1: token sem consentimento vigente, conferido no COMMIT
+ok  recusa  Idoso inv. 1: consentimento vigente sem token
+ok  recusa  Idoso inv. 8: revogar e deixar o token
+ok  aceita  Idoso inv. 8: revogar e apagar o token na mesma transacao
+ok  confere toda coluna dos tres schemas tem a classificacao no comentario
+ok  aceita  evento de seguranca
+ok  recusa  EventoDeSeguranca inv. 2: lista de tipos vazia
+ok  recusa  EventoDeSeguranca inv. 2: severidade 6
+ok  recusa  EventoDeSeguranca inv. 1: rota com o id do idoso
+ok  recusa  EventoDeSeguranca inv. 1: rota com o token
+ok  aceita  rota como modelo
+ok  recusa  mensagem sem origem
+ok  aceita  EventoDeSeguranca inv. 3: anexar a mensagem
+ok  recusa  EventoDeSeguranca inv. 3: anexar de novo
+ok  recusa  EventoDeSeguranca inv. 5: mudar a severidade
+ok  recusa  EventoDeSeguranca inv. 5: DELETE
+ok  confere caso 31: leitura baixa de 25 h sem confirmacao da ACS fica
+ok  confere leitura normal e movimento com mais de 24 h somem
+ok  confere evento com menos de 24 h fica
+ok  confere leitura baixa com confirmacao da ACS depois dela some, mesmo com a confirmacao vencendo na mesma rodada
+ok  confere confirmacao com mais de 24 h some
+ok  confere vizinho e AusenciaConfirmada nao soltam a trava: a leitura fica
+ok  confere leitura baixa de casa que nao e eletrodependente some
+ok  confere casa desativada fica sem evento e sem confirmacao
+ok  confere rodar duas vezes deixa 3 eventos e 1 confirmacao
+ok  confere reinicio da demo: sem eventos, confirmacoes, dia critico, avisos e eventos de seguranca, ultimo pacote vazio
+ok  confere reinicio da demo: nenhuma casa ativa fica com ativada_em depois do agora novo
+ok  confere reinicio da demo: visitas, idosos e mensagens ficam

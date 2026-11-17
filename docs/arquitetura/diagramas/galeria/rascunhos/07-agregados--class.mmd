@@ -1,0 +1,67 @@
+classDiagram
+  direction LR
+  namespace Motor {
+    class CasaMonitorada {
+      <<raiz>>
+      CasaToken Token
+      MicroareaId Microarea
+      PerfilDaCasa Perfil
+      DateTimeOffset UltimoPacoteEm
+      Confirmar(confirmacao, agora) ConfirmacaoRegistrada
+      Desativar(agora) CasaDesativada
+    }
+    class Confirmacao {
+      <<entidade>>
+      Guid Id
+      OrigemDaConfirmacao Origem
+      Resultado Resultado
+      DateTimeOffset Quando
+    }
+    class EventoSensor {
+      <<raiz>>
+      CasaToken Token
+      long Seq
+      TipoDePacote Tipo
+      DateTimeOffset OcorridoEm
+    }
+    class DiaCritico {
+      <<raiz>>
+      DateOnly Data
+      Probabilidade Probabilidade
+      Declarar(data, previsao, agora)
+      EncerrarTurno(resumo, agora)
+    }
+  }
+  namespace Cadastro {
+    class Idoso {
+      <<raiz>>
+      TextoRotulado Nome
+      Casa Casa
+      RegistrarConsentimento(acs, termo, autorizacoes, agora)
+      RevogarConsentimento(agora)
+    }
+    class Visita {
+      <<raiz>>
+      CasaToken Token
+      Desfecho Desfecho
+    }
+    class MensagemSaida {
+      <<raiz>>
+      Canal Canal
+      Veredito Veredito
+    }
+  }
+  namespace Guarda {
+    class EventoDeSeguranca {
+      <<raiz>>
+      TipoDeDado[] Tipos
+      Canal Canal
+      int Severidade
+      AnexarMensagem(texto, origem)
+    }
+  }
+  CasaMonitorada "1" *-- "*" Confirmacao
+  EventoSensor ..> CasaMonitorada : por CasaToken
+  Visita ..> CasaMonitorada : confirma por CasaToken
+  Idoso ..> CasaMonitorada : ativa por CasaToken
+  MensagemSaida ..> EventoDeSeguranca : bloqueio gera

@@ -1,0 +1,11 @@
+flowchart TB
+  req["requisição HTTP"] --> inter["InterceptadorDeEntrada<br/>mascara PII antes do log e do banco"]
+  inter --> rot["TextoRotulado<br/>texto + rótulos"]
+  rot --> saida{"SaidaSegura:<br/>canal aceita o rótulo?"}
+  saida -- sim --> envia["envia"]:::verde
+  saida -- não --> bloq["bloqueia + evento"]:::alerta
+  bloq --> trad["Tradutor<br/>LLM recebe só tipo e canal"]
+  trad --> painel["Painel<br/>farol + mensagem"]:::luz
+  classDef verde stroke-width:2px
+  classDef alerta stroke-width:2px
+  classDef luz stroke-width:2px

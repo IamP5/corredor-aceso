@@ -1,0 +1,16 @@
+# Pede revisão a quem responde por cada parte. Troque pelo usuário de cada integrante quando a equipe entrar no repositório.
+/infra/                          @IamP5
+/.github/                        @IamP5
+/tools/                          @IamP5
+/package.json                    @IamP5
+/api/src/Corredor.Api/           @IamP5
+/api/src/Corredor.Contratos/     @IamP5
+/api/src/Corredor.Motor/         @IamP5
+/api/tests/Corredor.Motor.Testes/      @IamP5
+/api/src/Corredor.Cadastro/      @IamP5
+/api/tests/Corredor.Cadastro.Testes/   @IamP5
+/api/src/Corredor.Guarda/        @IamP5
+/api/tests/Corredor.Guarda.Testes/     @IamP5
+/app/                            @IamP5
+/ml/                             @IamP5
+/iot/                            @IamP5

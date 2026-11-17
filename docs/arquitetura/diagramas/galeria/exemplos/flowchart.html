@@ -1,0 +1,1933 @@
+<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Pele: flowchart (175)</title>
+<style>
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:400;src:url(../../tema/fontes/atkinson-hyperlegible-latin-400-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible";font-weight:700;src:url(../../tema/fontes/atkinson-hyperlegible-latin-700-normal.woff2)}
+@font-face{font-family:"Atkinson Hyperlegible Mono";src:url(../../tema/fontes/atkinson-hyperlegible-mono-latin-400-normal.woff2)}
+@font-face{font-family:Fraunces;font-weight:600;src:url(../../tema/fontes/fraunces-latin-600-normal.woff2)}
+body{margin:0;font:15px "Atkinson Hyperlegible",sans-serif;background:#efe9de;color:#0b1220}
+header{position:sticky;top:0;z-index:2;background:#0b1220;color:#f3ecdf;padding:10px 20px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font:600 20px Fraunces,serif;margin:0}header a{color:#ffb13b}
+main{padding:16px 20px;display:grid;gap:16px}
+.cartao{background:#fff;border:1px solid #d8cfbf;border-radius:8px;padding:10px 14px}
+.cartao h2{font-size:15px;margin:0 0 8px}.cartao small{font-weight:400;color:#545d6e}
+.lado{display:grid;grid-template-columns:minmax(260px,1fr) minmax(0,2.2fr);gap:14px;align-items:start}
+pre{margin:0;font:12px/1.45 "Atkinson Hyperlegible Mono",monospace;background:#f6f2ea;padding:8px;border-radius:6px;overflow:auto;max-height:520px}
+.desenho{overflow:auto;padding:12px;border-radius:6px}
+.tema-claro .desenho{background:#fbf7ef}.tema-escuro .desenho{background:#0b1220}
+.desenho .erro{color:#b3262d;white-space:pre-wrap;font:12px monospace}.medida{font-size:12px;color:#545d6e}
+/* Tema claro do Corredor Aceso para diagramas Pele: documentos, README e GitHub no modo claro.
+   Papel quente, tinta da noite, uma única luz âmbar para o que importa.
+   O render.mjs injeta este arquivo dentro de cada SVG. Contraste medido por tema/contraste.mjs. */
+.tema-claro .pele {
+  --pele-bg: #fbf7ef;
+  --pele-fg: #0b1220;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #fbf7ef;
+  --pele-muted: #545d6e;
+  --pele-line: #3a4255;
+  --pele-surface: #f3ecdf;
+  --pele-surface-alt: #e9dfcc;
+  --pele-border: #968767;
+  --pele-accent: #9a5800;
+  --pele-critical: #b3262d;
+  --pele-error: #b3262d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #4a566e;
+  --pele-series-2: #9a5800;
+  --pele-series-3: #1d7350;
+  --pele-series-4: #b3262d;
+  --pele-series-5: #2d5f8b;
+  --pele-series-6: #6a4c93;
+  --pele-series-7: #2b7176;
+  --pele-series-8: #7a5c2e;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #b86e00;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #fbe3e3;
+  --ca-alerta-borda: #b3262d;
+  --ca-cinza: #ecebe8;
+  --ca-cinza-borda: #6b7385;
+  --ca-cinza-texto: #464e5e;
+  --ca-verde: #dff1e8;
+  --ca-verde-borda: #1d7350;
+}
+/* Tema escuro do Corredor Aceso para diagramas Pele: pitch, vídeo e GitHub no modo escuro.
+   A casa às 3 da manhã: fundo noite, texto papel, a lâmpada âmbar como única luz quente.
+   Cores de pitch/corredor-aceso/video/src/theme.ts. Contraste medido por tema/contraste.mjs. */
+.tema-escuro .pele {
+  --pele-bg: #0b1220;
+  --pele-fg: #f3ecdf;
+  --pele-fg-on-light: #0b1220;
+  --pele-fg-on-dark: #f3ecdf;
+  --pele-muted: #a3acbd;
+  --pele-line: #b8b0a2;
+  --pele-surface: #17223a;
+  --pele-surface-alt: #111a2d;
+  --pele-border: #56688c;
+  --pele-accent: #ffb13b;
+  --pele-critical: #e5484d;
+  --pele-error: #e5484d;
+  --pele-font: "Atkinson Hyperlegible", sans-serif;
+  --pele-font-mono: "Atkinson Hyperlegible Mono", monospace;
+  --pele-title-weight: 600;
+  --pele-heading-weight: bold;
+  --pele-bold-weight: bold;
+  --pele-radius: 6px;
+  --pele-series-1: #8b95a7;
+  --pele-series-2: #ffb13b;
+  --pele-series-3: #3dbe8b;
+  --pele-series-4: #e5484d;
+  --pele-series-5: #7fa7d9;
+  --pele-series-6: #c4a6e6;
+  --pele-series-7: #5cc8c8;
+  --pele-series-8: #d9c3a0;
+  /* Classes do projeto (use com :::luz, :::alerta, :::cinza, :::verde, :::externo). */
+  --ca-luz: #ffb13b;
+  --ca-luz-borda: #ffd08a;
+  --ca-luz-texto: #0b1220;
+  --ca-alerta: #3a161c;
+  --ca-alerta-borda: #e5484d;
+  --ca-cinza: #1a2233;
+  --ca-cinza-borda: #8b95a7;
+  --ca-cinza-texto: #a3acbd;
+  --ca-verde: #0f2a22;
+  --ca-verde-borda: #3dbe8b;
+  /* Brilho da lâmpada no topo do fundo (só no tema escuro). */
+  --ca-brilho: #ffb13b;
+  --ca-brilho-opacidade: 0.09;
+}
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-claro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-claro .pele .luz text, .tema-claro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-claro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-claro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-claro .pele .cinza text, .tema-claro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-claro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-claro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-claro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-claro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-claro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-claro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-claro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-claro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+/* Classes do projeto, iguais nos dois temas; as cores vêm das variáveis --ca-* de claro.css e escuro.css.
+   No diagrama: A[Motor]:::luz  e uma linha  classDef luz stroke-width:2px  (o Pele exige o classDef).
+   luz: a única coisa que importa no diagrama (no máximo uma por diagrama).
+   alerta: vermelho do radar, bloqueio.   cinza: sem sinal.   verde: casa confirmada.
+   externo: fora do sistema (broker público, LLM, dados públicos). */
+.tema-escuro .pele .luz :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-luz); stroke: var(--ca-luz-borda); }
+.tema-escuro .pele .luz text, .tema-escuro .pele .luz tspan { fill: var(--ca-luz-texto); }
+.tema-escuro .pele .alerta :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-alerta); stroke: var(--ca-alerta-borda); stroke-width: 2px; }
+.tema-escuro .pele .cinza :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-cinza); stroke: var(--ca-cinza-borda); stroke-dasharray: 5 4; }
+.tema-escuro .pele .cinza text, .tema-escuro .pele .cinza tspan { fill: var(--ca-cinza-texto); }
+.tema-escuro .pele .verde :is(rect, path, polygon, circle, ellipse) { fill: var(--ca-verde); stroke: var(--ca-verde-borda); stroke-width: 2px; }
+.tema-escuro .pele .externo :is(rect, path, polygon, circle, ellipse) { fill: var(--pele-bg); stroke: var(--pele-muted); stroke-dasharray: 6 4; }
+.tema-escuro .pele .pele-title { font-family: Fraunces, Georgia, serif; }
+/* Event storming: cores de série tingidas, seguem o tema. evento laranja, comando azul, política lilás,
+   agregado areia, leitura verde. */
+.tema-escuro .pele .evento :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-2) 22%, var(--pele-bg)); stroke: var(--pele-series-2); }
+.tema-escuro .pele .comando :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-5) 22%, var(--pele-bg)); stroke: var(--pele-series-5); }
+.tema-escuro .pele .politica :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-6) 22%, var(--pele-bg)); stroke: var(--pele-series-6); }
+.tema-escuro .pele .agregado :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-8) 22%, var(--pele-bg)); stroke: var(--pele-series-8); }
+.tema-escuro .pele .leitura :is(rect, path, polygon) { fill: color-mix(in srgb, var(--pele-series-3) 22%, var(--pele-bg)); stroke: var(--pele-series-3); }
+
+</style>
+<body class="tema-claro">
+<header><h1>Pele: flowchart (175)</h1><a href="../../galeria/index.html">índice</a>
+<label>tema <select id="tema"><option value="tema-claro">claro do projeto</option><option value="tema-escuro">escuro do projeto</option><option value="padrao">padrão do Pele</option></select></label>
+<label><input type="checkbox" id="largura" checked> largura do README (820 px)</label>
+<span>exemplos de pele.run/examples</span></header>
+<main><section class="cartao" id="d0">
+<h2>01-two-way-pair.mmd</h2>
+<div class="lado"><pre>flowchart TD
+  A --&gt; B
+  B --&gt; A
+</pre><div class="desenho" data-i="0"></div></div></section>
+<section class="cartao" id="d1">
+<h2>02-two-way-pairs-in-a-triangle.mmd <small>Edges on one side of a node &gt; Two-way pairs in a triangle</small></h2>
+<div class="lado"><pre>flowchart TD
+  A --&gt; B
+  B --&gt; A
+  B --&gt; C
+  C --&gt; B
+  C --&gt; A
+</pre><div class="desenho" data-i="1"></div></div></section>
+<section class="cartao" id="d2">
+<h2>03-diamond-with-an-edge-back-to-it.mmd</h2>
+<div class="lado"><pre>flowchart TD
+  D{Data, settings or context changed} --&gt;|Yes| F
+  F --&gt; D
+  D --&gt;|Container removed| G
+</pre><div class="desenho" data-i="2"></div></div></section>
+<section class="cartao" id="d3">
+<h2>04-decision-with-loops.mmd <small>Edges on one side of a node &gt; Decision with loops</small></h2>
+<div class="lado"><pre>flowchart TD
+  A[Christmas] --&gt;|Get money| B(Go shopping)
+  B --&gt; C{Let me think}
+  C --&gt;|One| D[Laptop]
+  C --&gt;|Two| E[iPhone]
+  C --&gt;|Three| F[Car]
+  D --&gt; B
+  E --&gt; A
+</pre><div class="desenho" data-i="3"></div></div></section>
+<section class="cartao" id="d4">
+<h2>05-tree.mmd <small>Edges on one side of a node &gt; Tree</small></h2>
+<div class="lado"><pre>flowchart TD
+  A[Start] --&gt; B[Parse]
+  A --&gt; C[Measure]
+  B --&gt; D[Layout]
+  C --&gt; D
+  D --&gt; E[Draw]
+  D --&gt; F[Export]
+  D --&gt; G[Cache]
+</pre><div class="desenho" data-i="4"></div></div></section>
+<section class="cartao" id="d5">
+<h2>06-fan-out-3.mmd <small>Edges on one side of a node &gt; Fan out, 3</small></h2>
+<div class="lado"><pre>flowchart TD
+  hub[Hub] --&gt; n1[Note 1]
+  hub[Hub] --&gt; n2[Note 2]
+  hub[Hub] --&gt; n3[Note 3]
+</pre><div class="desenho" data-i="5"></div></div></section>
+<section class="cartao" id="d6">
+<h2>07-fan-out-7.mmd</h2>
+<div class="lado"><pre>flowchart TD
+  hub[Hub] --&gt; n1[Note 1]
+  hub[Hub] --&gt; n2[Note 2]
+  hub[Hub] --&gt; n3[Note 3]
+  hub[Hub] --&gt; n4[Note 4]
+  hub[Hub] --&gt; n5[Note 5]
+  hub[Hub] --&gt; n6[Note 6]
+  hub[Hub] --&gt; n7[Note 7]
+</pre><div class="desenho" data-i="6"></div></div></section>
+<section class="cartao" id="d7">
+<h2>08-fan-in-3.mmd <small>Edges on one side of a node &gt; Fan in, 3</small></h2>
+<div class="lado"><pre>flowchart TD
+  n1[Note 1] --&gt; hub[Hub]
+  n2[Note 2] --&gt; hub[Hub]
+  n3[Note 3] --&gt; hub[Hub]
+</pre><div class="desenho" data-i="7"></div></div></section>
+<section class="cartao" id="d8">
+<h2>09-fan-in-7.mmd <small>Edges on one side of a node &gt; Fan in, 7</small></h2>
+<div class="lado"><pre>flowchart TD
+  n1[Note 1] --&gt; hub[Hub]
+  n2[Note 2] --&gt; hub[Hub]
+  n3[Note 3] --&gt; hub[Hub]
+  n4[Note 4] --&gt; hub[Hub]
+  n5[Note 5] --&gt; hub[Hub]
+  n6[Note 6] --&gt; hub[Hub]
+  n7[Note 7] --&gt; hub[Hub]
+</pre><div class="desenho" data-i="8"></div></div></section>
+<section class="cartao" id="d9">
+<h2>10-hub-with-edges-both-ways.mmd <small>Edges on one side of a node &gt; Hub with edges both ways</small></h2>
+<div class="lado"><pre>flowchart TD
+  a --&gt; hub[A wide hub with room]
+  b --&gt; hub
+  hub --&gt; a
+  c --&gt; hub
+  hub --&gt; d
+  hub --&gt; e
+  e --&gt; hub
+  f --&gt; hub
+  hub --&gt; f
+</pre><div class="desenho" data-i="9"></div></div></section>
+<section class="cartao" id="d10">
+<h2>100-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: notch-rect, label: "Card" }
+</pre><div class="desenho" data-i="10"></div></div></section>
+<section class="cartao" id="d11">
+<h2>101-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: lin-rect, label: "Lined process" }
+</pre><div class="desenho" data-i="11"></div></div></section>
+<section class="cartao" id="d12">
+<h2>102-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: sm-circ, label: "Small start" }
+</pre><div class="desenho" data-i="12"></div></div></section>
+<section class="cartao" id="d13">
+<h2>103-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: framed-circle, label: "Stop" }
+</pre><div class="desenho" data-i="13"></div></div></section>
+<section class="cartao" id="d14">
+<h2>104-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: fork, label: "Fork or Join" }
+</pre><div class="desenho" data-i="14"></div></div></section>
+<section class="cartao" id="d15">
+<h2>105-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: hourglass, label: "Collate" }
+</pre><div class="desenho" data-i="15"></div></div></section>
+<section class="cartao" id="d16">
+<h2>106-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: comment, label: "Comment" }
+</pre><div class="desenho" data-i="16"></div></div></section>
+<section class="cartao" id="d17">
+<h2>107-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: brace-r, label: "Comment" }
+</pre><div class="desenho" data-i="17"></div></div></section>
+<section class="cartao" id="d18">
+<h2>108-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: braces, label: "Comment" }
+</pre><div class="desenho" data-i="18"></div></div></section>
+<section class="cartao" id="d19">
+<h2>109-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: bolt, label: "Communication link" }
+</pre><div class="desenho" data-i="19"></div></div></section>
+<section class="cartao" id="d20">
+<h2>11-parallel-edges.mmd <small>Edges on one side of a node &gt; Parallel edges</small></h2>
+<div class="lado"><pre>flowchart TD
+  A --&gt;|first| B
+  A --&gt;|second| B
+  A --&gt; B
+  B --&gt; C
+  B --&gt; C
+</pre><div class="desenho" data-i="20"></div></div></section>
+<section class="cartao" id="d21">
+<h2>110-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: doc, label: "Document" }
+</pre><div class="desenho" data-i="21"></div></div></section>
+<section class="cartao" id="d22">
+<h2>111-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: delay, label: "Delay" }
+</pre><div class="desenho" data-i="22"></div></div></section>
+<section class="cartao" id="d23">
+<h2>112-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: das, label: "Direct access storage" }
+</pre><div class="desenho" data-i="23"></div></div></section>
+<section class="cartao" id="d24">
+<h2>113-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: lin-cyl, label: "Disk storage" }
+</pre><div class="desenho" data-i="24"></div></div></section>
+<section class="cartao" id="d25">
+<h2>114-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: curv-trap, label: "Display" }
+</pre><div class="desenho" data-i="25"></div></div></section>
+<section class="cartao" id="d26">
+<h2>115-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: div-rect, label: "Divided process" }
+</pre><div class="desenho" data-i="26"></div></div></section>
+<section class="cartao" id="d27">
+<h2>116-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: tri, label: "Extract" }
+</pre><div class="desenho" data-i="27"></div></div></section>
+<section class="cartao" id="d28">
+<h2>117-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: win-pane, label: "Internal storage" }
+</pre><div class="desenho" data-i="28"></div></div></section>
+<section class="cartao" id="d29">
+<h2>118-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: f-circ, label: "Junction" }
+</pre><div class="desenho" data-i="29"></div></div></section>
+<section class="cartao" id="d30">
+<h2>119-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: lin-doc, label: "Lined document" }
+</pre><div class="desenho" data-i="30"></div></div></section>
+<section class="cartao" id="d31">
+<h2>12-self-loops-with-other-edges.mmd <small>Edges on one side of a node &gt; Self-loops with other edges</small></h2>
+<div class="lado"><pre>flowchart TD
+  A --&gt; A
+  A --&gt; B
+  B --&gt; B
+  B --&gt;|again| B
+  B --&gt; A
+  B --&gt; C
+</pre><div class="desenho" data-i="31"></div></div></section>
+<section class="cartao" id="d32">
+<h2>120-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: notch-pent, label: "Loop limit" }
+</pre><div class="desenho" data-i="32"></div></div></section>
+<section class="cartao" id="d33">
+<h2>121-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: flip-tri, label: "Manual file" }
+</pre><div class="desenho" data-i="33"></div></div></section>
+<section class="cartao" id="d34">
+<h2>122-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: sl-rect, label: "Manual input" }
+</pre><div class="desenho" data-i="34"></div></div></section>
+<section class="cartao" id="d35">
+<h2>123-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: docs, label: "Multiple documents" }
+</pre><div class="desenho" data-i="35"></div></div></section>
+<section class="cartao" id="d36">
+<h2>124-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: processes, label: "Multiple processes" }
+</pre><div class="desenho" data-i="36"></div></div></section>
+<section class="cartao" id="d37">
+<h2>125-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: flag, label: "Paper tape" }
+</pre><div class="desenho" data-i="37"></div></div></section>
+<section class="cartao" id="d38">
+<h2>126-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: bow-rect, label: "Stored data" }
+</pre><div class="desenho" data-i="38"></div></div></section>
+<section class="cartao" id="d39">
+<h2>127-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: cross-circ, label: "Summary" }
+</pre><div class="desenho" data-i="39"></div></div></section>
+<section class="cartao" id="d40">
+<h2>128-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: tag-doc, label: "Tagged document" }
+</pre><div class="desenho" data-i="40"></div></div></section>
+<section class="cartao" id="d41">
+<h2>129-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: tag-rect, label: "Tagged process" }
+</pre><div class="desenho" data-i="41"></div></div></section>
+<section class="cartao" id="d42">
+<h2>13-arrow-types-and-line-styles.mmd <small>Edges on one side of a node &gt; Arrow types and line styles</small></h2>
+<div class="lado"><pre>flowchart TD
+  A &lt;--&gt; B
+  A --o C
+  A --x D
+  B -.-&gt; E
+  C ==&gt; E
+  D --- E
+  E o--o A
+</pre><div class="desenho" data-i="42"></div></div></section>
+<section class="cartao" id="d43">
+<h2>130-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ icon: "fa:user", form: "square", label: "User Icon", pos: "t", h: 60 }
+</pre><div class="desenho" data-i="43"></div></div></section>
+<section class="cartao" id="d44">
+<h2>131-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+  %% My image with a constrained aspect ratio
+  A@{ img: "https://mermaid.js.org/favicon.svg", label: "My example image label", pos: "t", h: 60, constraint: "on" }
+</pre><div class="desenho" data-i="44"></div></div></section>
+<section class="cartao" id="d45">
+<h2>132-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A--&gt;B
+</pre><div class="desenho" data-i="45"></div></div></section>
+<section class="cartao" id="d46">
+<h2>133-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A --- B
+</pre><div class="desenho" data-i="46"></div></div></section>
+<section class="cartao" id="d47">
+<h2>134-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A-- This is the text! ---B
+</pre><div class="desenho" data-i="47"></div></div></section>
+<section class="cartao" id="d48">
+<h2>135-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A---|This is the text|B
+</pre><div class="desenho" data-i="48"></div></div></section>
+<section class="cartao" id="d49">
+<h2>136-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A--&gt;|text|B
+</pre><div class="desenho" data-i="49"></div></div></section>
+<section class="cartao" id="d50">
+<h2>137-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A-- text --&gt;B
+</pre><div class="desenho" data-i="50"></div></div></section>
+<section class="cartao" id="d51">
+<h2>138-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+   A-.-&gt;B;
+</pre><div class="desenho" data-i="51"></div></div></section>
+<section class="cartao" id="d52">
+<h2>139-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+   A-. text .-&gt; B
+</pre><div class="desenho" data-i="52"></div></div></section>
+<section class="cartao" id="d53">
+<h2>14-td.mmd <small>Directions &gt; TD</small></h2>
+<div class="lado"><pre>flowchart TD
+  A[Start] --&gt; B{Ready?}
+  B --&gt;|Yes| C[Ship]
+  B --&gt;|No| D[Fix]
+  D --&gt; B
+  C --&gt; E([Done])
+  D --&gt;|Give up| E
+</pre><div class="desenho" data-i="53"></div></div></section>
+<section class="cartao" id="d54">
+<h2>140-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+   A ==&gt; B
+</pre><div class="desenho" data-i="54"></div></div></section>
+<section class="cartao" id="d55">
+<h2>141-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+   A == text ==&gt; B
+</pre><div class="desenho" data-i="55"></div></div></section>
+<section class="cartao" id="d56">
+<h2>142-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A ~~~ B
+</pre><div class="desenho" data-i="56"></div></div></section>
+<section class="cartao" id="d57">
+<h2>143-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+   A -- text --&gt; B -- text2 --&gt; C
+</pre><div class="desenho" data-i="57"></div></div></section>
+<section class="cartao" id="d58">
+<h2>144-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+   a --&gt; b &amp; c--&gt; d
+</pre><div class="desenho" data-i="58"></div></div></section>
+<section class="cartao" id="d59">
+<h2>145-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TB
+    A &amp; B--&gt; C &amp; D
+</pre><div class="desenho" data-i="59"></div></div></section>
+<section class="cartao" id="d60">
+<h2>146-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TB
+    A --&gt; C
+    A --&gt; D
+    B --&gt; C
+    B --&gt; D
+</pre><div class="desenho" data-i="60"></div></div></section>
+<section class="cartao" id="d61">
+<h2>147-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+  A e1@--&gt; B
+</pre><div class="desenho" data-i="61"></div></div></section>
+<section class="cartao" id="d62">
+<h2>148-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+  A e1@==&gt; B
+  e1@{ animate: true }
+</pre><div class="desenho" data-i="62"></div></div></section>
+<section class="cartao" id="d63">
+<h2>149-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+  A e1@--&gt; B
+  e1@{ animation: fast }
+</pre><div class="desenho" data-i="63"></div></div></section>
+<section class="cartao" id="d64">
+<h2>15-bt.mmd <small>Directions &gt; BT</small></h2>
+<div class="lado"><pre>flowchart BT
+  A[Start] --&gt; B{Ready?}
+  B --&gt;|Yes| C[Ship]
+  B --&gt;|No| D[Fix]
+  D --&gt; B
+  C --&gt; E([Done])
+  D --&gt;|Give up| E
+</pre><div class="desenho" data-i="64"></div></div></section>
+<section class="cartao" id="d65">
+<h2>150-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+  A e1@--&gt; B
+  classDef animate stroke-dasharray: 9,5,stroke-dashoffset: 900,animation: dash 25s linear infinite;
+  class e1 animate
+</pre><div class="desenho" data-i="65"></div></div></section>
+<section class="cartao" id="d66">
+<h2>151-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A --o B
+</pre><div class="desenho" data-i="66"></div></div></section>
+<section class="cartao" id="d67">
+<h2>152-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A --x B
+</pre><div class="desenho" data-i="67"></div></div></section>
+<section class="cartao" id="d68">
+<h2>153-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A o--o B
+    B &lt;--&gt; C
+    C x--x D
+</pre><div class="desenho" data-i="68"></div></div></section>
+<section class="cartao" id="d69">
+<h2>154-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A[Start] --&gt; B{Is it?}
+    B --&gt;|Yes| C[OK]
+    C --&gt; D[Rethink]
+    D --&gt; B
+    B ----&gt;|No| E[End]
+</pre><div class="desenho" data-i="69"></div></div></section>
+<section class="cartao" id="d70">
+<h2>155-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A[Start] --&gt; B{Is it?}
+    B -- Yes --&gt; C[OK]
+    C --&gt; D[Rethink]
+    D --&gt; B
+    B -- No ----&gt; E[End]
+</pre><div class="desenho" data-i="70"></div></div></section>
+<section class="cartao" id="d71">
+<h2>156-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1["This is the (text) in the box"]
+</pre><div class="desenho" data-i="71"></div></div></section>
+<section class="cartao" id="d72">
+<h2>157-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>    flowchart LR
+        A["A double quote:#quot;"] --&gt; B["A dec char:#9829;"]
+</pre><div class="desenho" data-i="72"></div></div></section>
+<section class="cartao" id="d73">
+<h2>158-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TB
+    c1--&gt;a2
+    subgraph one
+    a1--&gt;a2
+    end
+    subgraph two
+    b1--&gt;b2
+    end
+    subgraph three
+    c1--&gt;c2
+    end
+</pre><div class="desenho" data-i="73"></div></div></section>
+<section class="cartao" id="d74">
+<h2>159-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TB
+    c1--&gt;a2
+    subgraph ide1 [one]
+    a1--&gt;a2
+    end
+</pre><div class="desenho" data-i="74"></div></div></section>
+<section class="cartao" id="d75">
+<h2>16-lr.mmd <small>Directions &gt; LR</small></h2>
+<div class="lado"><pre>flowchart LR
+  A[Start] --&gt; B{Ready?}
+  B --&gt;|Yes| C[Ship]
+  B --&gt;|No| D[Fix]
+  D --&gt; B
+  C --&gt; E([Done])
+  D --&gt;|Give up| E
+</pre><div class="desenho" data-i="75"></div></div></section>
+<section class="cartao" id="d76">
+<h2>160-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TB
+    c1--&gt;a2
+    subgraph one
+    a1--&gt;a2
+    end
+    subgraph two
+    b1--&gt;b2
+    end
+    subgraph three
+    c1--&gt;c2
+    end
+    one --&gt; two
+    three --&gt; two
+    two --&gt; c2
+</pre><div class="desenho" data-i="76"></div></div></section>
+<section class="cartao" id="d77">
+<h2>161-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+  subgraph TOP
+    direction TB
+    subgraph B1
+        direction RL
+        i1 --&gt;f1
+    end
+    subgraph B2
+        direction BT
+        i2 --&gt;f2
+    end
+  end
+  A --&gt; TOP --&gt; B
+  B1 --&gt; B2
+</pre><div class="desenho" data-i="77"></div></div></section>
+<section class="cartao" id="d78">
+<h2>162-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    subgraph subgraph1
+        direction TB
+        top1[top] --&gt; bottom1[bottom]
+    end
+    subgraph subgraph2
+        direction TB
+        top2[top] --&gt; bottom2[bottom]
+    end
+    %% ^ These subgraphs are identical, except for the links to them:
+
+    %% Link *to* subgraph1: subgraph1 direction is maintained
+    outside --&gt; subgraph1
+    %% Link *within* subgraph2:
+    %% subgraph2 inherits the direction of the top-level graph (LR)
+    outside ---&gt; top2
+</pre><div class="desenho" data-i="78"></div></div></section>
+<section class="cartao" id="d79">
+<h2>163-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    Start --&gt; one
+    subgraph one [My Group]
+        A --&gt; B
+        B --&gt; C
+    end
+    one --&gt; End
+    one@{ view: collapsed }
+</pre><div class="desenho" data-i="79"></div></div></section>
+<section class="cartao" id="d80">
+<h2>164-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+config:
+  htmlLabels: false
+---
+flowchart LR
+subgraph "One"
+  a("`The **cat**
+  in the hat`") -- "edge label" --&gt; b{{"`The **dog** in the hog`"}}
+end
+subgraph "`**Two**`"
+  c("`The **cat**
+  in the hat`") -- "`Bold **edge label**`" --&gt; d("The dog in the hog")
+end
+</pre><div class="desenho" data-i="80"></div></div></section>
+<section class="cartao" id="d81">
+<h2>165-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A--&gt;B
+    B--&gt;C
+    C--&gt;D
+    click A callback "Tooltip for a callback"
+    click B "https://www.github.com" "This is a tooltip for a link"
+    click C call callback() "Tooltip for a callback"
+    click D href "https://www.github.com" "This is a tooltip for a link"
+</pre><div class="desenho" data-i="81"></div></div></section>
+<section class="cartao" id="d82">
+<h2>166-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A--&gt;B
+    B--&gt;C
+    C--&gt;D
+    D--&gt;E
+    click A "https://www.github.com" _blank
+    click B "https://www.github.com" "Open this in a new tab" _blank
+    click C href "https://www.github.com" _blank
+    click D href "https://www.github.com" "Open this in a new tab" _blank
+</pre><div class="desenho" data-i="82"></div></div></section>
+<section class="cartao" id="d83">
+<h2>167-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+%% this is a comment A -- text --&gt; B{node}
+   A -- text --&gt; B -- text2 --&gt; C
+</pre><div class="desenho" data-i="83"></div></div></section>
+<section class="cartao" id="d84">
+<h2>168-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A e1@==&gt; B
+    A e2@--&gt; C
+    e1@{ curve: linear }
+    e2@{ curve: natural }
+</pre><div class="desenho" data-i="84"></div></div></section>
+<section class="cartao" id="d85">
+<h2>169-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1(Start)--&gt;id2(Stop)
+    style id1 fill:#f9f,stroke:#333,stroke-width:4px
+    style id2 fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5
+</pre><div class="desenho" data-i="85"></div></div></section>
+<section class="cartao" id="d86">
+<h2>17-rl.mmd <small>Directions &gt; RL</small></h2>
+<div class="lado"><pre>flowchart RL
+  A[Start] --&gt; B{Ready?}
+  B --&gt;|Yes| C[Ship]
+  B --&gt;|No| D[Fix]
+  D --&gt; B
+  C --&gt; E([Done])
+  D --&gt;|Give up| E
+</pre><div class="desenho" data-i="86"></div></div></section>
+<section class="cartao" id="d87">
+<h2>170-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A:::someclass --&gt; B
+    classDef someclass fill:#f96
+</pre><div class="desenho" data-i="87"></div></div></section>
+<section class="cartao" id="d88">
+<h2>171-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A:::foo &amp; B:::bar --&gt; C:::foobar
+    classDef foo stroke:#f00
+    classDef bar stroke:#0f0
+    classDef foobar stroke:#00f
+</pre><div class="desenho" data-i="88"></div></div></section>
+<section class="cartao" id="d89">
+<h2>172-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A:::myStyle --&gt; B
+    classDef myStyle fill:#ff0000,stroke:#ffff00,stroke-width:4px
+</pre><div class="desenho" data-i="89"></div></div></section>
+<section class="cartao" id="d90">
+<h2>173-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    B["fa:fa-twitter for peace"]
+    B--&gt;C[fa:fa-ban forbidden]
+    B--&gt;D(fa:fa-spinner)
+    B--&gt;E(A fa:fa-camera-retro perhaps?)
+</pre><div class="desenho" data-i="90"></div></div></section>
+<section class="cartao" id="d91">
+<h2>174-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    B["fa:fa-twitter for peace"]
+    B--&gt;C["fab:fa-truck-bold a custom icon"]
+</pre><div class="desenho" data-i="91"></div></div></section>
+<section class="cartao" id="d92">
+<h2>175-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    A[Hard edge] --&gt;|Link text| B(Round edge)
+    B --&gt; C{Decision}
+    C --&gt;|One| D[Result one]
+    C --&gt;|Two| E[Result two]
+</pre><div class="desenho" data-i="92"></div></div></section>
+<section class="cartao" id="d93">
+<h2>18-sheet-1-top-to-bottom.mmd</h2>
+<div class="lado"><pre>flowchart TD
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: rect, label: "rect" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: rounded, label: "rounded" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: stadium, label: "stadium" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: fr-rect, label: "fr-rect" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: cyl, label: "cyl" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: circle, label: "circle" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: dbl-circ, label: "dbl-circ" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: diam, label: "diam" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="93"></div></div></section>
+<section class="cartao" id="d94">
+<h2>19-sheet-2-top-to-bottom.mmd <small>Shapes &gt; Sheet 2, top to bottom</small></h2>
+<div class="lado"><pre>flowchart TD
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: hex, label: "hex" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: odd, label: "odd" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: lean-r, label: "lean-r" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: lean-l, label: "lean-l" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: trap-b, label: "trap-b" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: trap-t, label: "trap-t" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: text, label: "text" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: bow-rect, label: "bow-rect" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="94"></div></div></section>
+<section class="cartao" id="d95">
+<h2>20-sheet-3-top-to-bottom.mmd <small>Shapes &gt; Sheet 3, top to bottom</small></h2>
+<div class="lado"><pre>flowchart TD
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: sm-circ, label: "sm-circ" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: f-circ, label: "f-circ" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: fr-circ, label: "fr-circ" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: fork, label: "fork" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: notch-rect, label: "notch-rect" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: lin-rect, label: "lin-rect" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: div-rect, label: "div-rect" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: win-pane, label: "win-pane" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="95"></div></div></section>
+<section class="cartao" id="d96">
+<h2>21-sheet-4-top-to-bottom.mmd <small>Shapes &gt; Sheet 4, top to bottom</small></h2>
+<div class="lado"><pre>flowchart TD
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: notch-pent, label: "notch-pent" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: cross-circ, label: "cross-circ" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: st-rect, label: "st-rect" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: datastore, label: "datastore" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: lin-cyl, label: "lin-cyl" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: tag-rect, label: "tag-rect" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: doc, label: "doc" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: tri, label: "tri" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="96"></div></div></section>
+<section class="cartao" id="d97">
+<h2>22-sheet-5-top-to-bottom.mmd <small>Shapes &gt; Sheet 5, top to bottom</small></h2>
+<div class="lado"><pre>flowchart TD
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: flip-tri, label: "flip-tri" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: sl-rect, label: "sl-rect" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: hourglass, label: "hourglass" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: delay, label: "delay" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: h-cyl, label: "h-cyl" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: curv-trap, label: "curv-trap" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: docs, label: "docs" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: flag, label: "flag" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="97"></div></div></section>
+<section class="cartao" id="d98">
+<h2>23-sheet-6-top-to-bottom.mmd <small>Shapes &gt; Sheet 6, top to bottom</small></h2>
+<div class="lado"><pre>flowchart TD
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: bolt, label: "bolt" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: bang, label: "bang" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: cloud, label: "cloud" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: brace, label: "brace" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: brace-r, label: "brace-r" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: braces, label: "braces" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: tag-doc, label: "tag-doc" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: lin-doc, label: "lin-doc" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="98"></div></div></section>
+<section class="cartao" id="d99">
+<h2>24-sheet-1-left-to-right.mmd <small>Shapes &gt; Sheet 1, left to right</small></h2>
+<div class="lado"><pre>flowchart LR
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: rect, label: "rect" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: rounded, label: "rounded" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: stadium, label: "stadium" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: fr-rect, label: "fr-rect" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: cyl, label: "cyl" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: circle, label: "circle" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: dbl-circ, label: "dbl-circ" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: diam, label: "diam" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="99"></div></div></section>
+<section class="cartao" id="d100">
+<h2>25-sheet-2-left-to-right.mmd <small>Shapes &gt; Sheet 2, left to right</small></h2>
+<div class="lado"><pre>flowchart LR
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: hex, label: "hex" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: odd, label: "odd" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: lean-r, label: "lean-r" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: lean-l, label: "lean-l" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: trap-b, label: "trap-b" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: trap-t, label: "trap-t" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: text, label: "text" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: bow-rect, label: "bow-rect" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="100"></div></div></section>
+<section class="cartao" id="d101">
+<h2>26-sheet-3-left-to-right.mmd <small>Shapes &gt; Sheet 3, left to right</small></h2>
+<div class="lado"><pre>flowchart LR
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: sm-circ, label: "sm-circ" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: f-circ, label: "f-circ" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: fr-circ, label: "fr-circ" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: fork, label: "fork" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: notch-rect, label: "notch-rect" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: lin-rect, label: "lin-rect" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: div-rect, label: "div-rect" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: win-pane, label: "win-pane" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="101"></div></div></section>
+<section class="cartao" id="d102">
+<h2>27-sheet-4-left-to-right.mmd <small>Shapes &gt; Sheet 4, left to right</small></h2>
+<div class="lado"><pre>flowchart LR
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: notch-pent, label: "notch-pent" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: cross-circ, label: "cross-circ" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: st-rect, label: "st-rect" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: datastore, label: "datastore" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: lin-cyl, label: "lin-cyl" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: tag-rect, label: "tag-rect" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: doc, label: "doc" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: tri, label: "tri" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="102"></div></div></section>
+<section class="cartao" id="d103">
+<h2>28-sheet-5-left-to-right.mmd <small>Shapes &gt; Sheet 5, left to right</small></h2>
+<div class="lado"><pre>flowchart LR
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: flip-tri, label: "flip-tri" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: sl-rect, label: "sl-rect" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: hourglass, label: "hourglass" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: delay, label: "delay" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: h-cyl, label: "h-cyl" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: curv-trap, label: "curv-trap" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: docs, label: "docs" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: flag, label: "flag" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="103"></div></div></section>
+<section class="cartao" id="d104">
+<h2>29-sheet-6-left-to-right.mmd <small>Shapes &gt; Sheet 6, left to right</small></h2>
+<div class="lado"><pre>flowchart LR
+  a0[a] &amp; b0[b] &amp; c0[c] --&gt; n0@{ shape: bolt, label: "bolt" } --&gt; x0[x] &amp; y0[y] &amp; z0[z]
+  x0 --&gt; n0
+  a1[a] &amp; b1[b] &amp; c1[c] --&gt; n1@{ shape: bang, label: "bang" } --&gt; x1[x] &amp; y1[y] &amp; z1[z]
+  x1 --&gt; n1
+  a2[a] &amp; b2[b] &amp; c2[c] --&gt; n2@{ shape: cloud, label: "cloud" } --&gt; x2[x] &amp; y2[y] &amp; z2[z]
+  x2 --&gt; n2
+  a3[a] &amp; b3[b] &amp; c3[c] --&gt; n3@{ shape: brace, label: "brace" } --&gt; x3[x] &amp; y3[y] &amp; z3[z]
+  x3 --&gt; n3
+  a4[a] &amp; b4[b] &amp; c4[c] --&gt; n4@{ shape: brace-r, label: "brace-r" } --&gt; x4[x] &amp; y4[y] &amp; z4[z]
+  x4 --&gt; n4
+  a5[a] &amp; b5[b] &amp; c5[c] --&gt; n5@{ shape: braces, label: "braces" } --&gt; x5[x] &amp; y5[y] &amp; z5[z]
+  x5 --&gt; n5
+  a6[a] &amp; b6[b] &amp; c6[c] --&gt; n6@{ shape: tag-doc, label: "tag-doc" } --&gt; x6[x] &amp; y6[y] &amp; z6[z]
+  x6 --&gt; n6
+  a7[a] &amp; b7[b] &amp; c7[c] --&gt; n7@{ shape: lin-doc, label: "lin-doc" } --&gt; x7[x] &amp; y7[y] &amp; z7[z]
+  x7 --&gt; n7
+</pre><div class="desenho" data-i="104"></div></div></section>
+<section class="cartao" id="d105">
+<h2>30-edges-across-and-onto-groups.mmd</h2>
+<div class="lado"><pre>flowchart TD
+  subgraph one [Group one]
+    a1 --&gt; a2
+    a1 --&gt; a3
+  end
+  subgraph two [Group two]
+    b1 --&gt; b2
+  end
+  a2 --&gt; b1
+  a3 --&gt; b1
+  b2 --&gt; a1
+  c --&gt; one
+  c --&gt; two
+  one --&gt; d
+  two --&gt; d
+</pre><div class="desenho" data-i="105"></div></div></section>
+<section class="cartao" id="d106">
+<h2>31-two-way-between-groups.mmd <small>Subgraphs &gt; Two-way between groups</small></h2>
+<div class="lado"><pre>flowchart LR
+  subgraph Client
+    UI[Web app]
+    Cache[(Local cache)]
+  end
+  subgraph Services
+    API[API gateway] --&gt; Orders[Order service]
+    API --&gt; Auth[Auth service]
+  end
+  UI --&gt; Cache
+  UI --&gt; API
+  API --&gt; UI
+  Auth -.-&gt;|token| UI
+  Orders --&gt; DB[(Orders DB)]
+</pre><div class="desenho" data-i="106"></div></div></section>
+<section class="cartao" id="d107">
+<h2>32-nested-groups.mmd <small>Subgraphs &gt; Nested groups</small></h2>
+<div class="lado"><pre>flowchart TD
+  subgraph outer [Outer]
+    subgraph inner [Inner]
+      a --&gt; b
+      b --&gt; a
+    end
+    c --&gt; a
+    b --&gt; d
+  end
+  start --&gt; c
+  start --&gt; a
+  d --&gt; finish
+  b --&gt; finish
+  finish --&gt; start
+</pre><div class="desenho" data-i="107"></div></div></section>
+<section class="cartao" id="d108">
+<h2>33-groups-with-their-own-direction.mmd <small>Subgraphs &gt; Groups with their own direction</small></h2>
+<div class="lado"><pre>flowchart LR
+  subgraph top [Runs down]
+    direction TB
+    t1 --&gt; t2 --&gt; t3
+  end
+  subgraph side [Runs across]
+    direction LR
+    s1 --&gt; s2 --&gt; s3
+  end
+  outside --&gt; top
+  outside --&gt; s1
+</pre><div class="desenho" data-i="108"></div></div></section>
+<section class="cartao" id="d109">
+<h2>34-group-to-group-both-ways.mmd <small>Subgraphs &gt; Group to group, both ways</small></h2>
+<div class="lado"><pre>flowchart TD
+  subgraph A [First]
+    a1
+    a2
+  end
+  subgraph B [Second]
+    b1
+    b2
+  end
+  A --&gt; B
+  B --&gt; A
+  a1 --&gt; b1
+  b2 --&gt; a2
+</pre><div class="desenho" data-i="109"></div></div></section>
+<section class="cartao" id="d110">
+<h2>35-notes-into-two-hubs.mmd</h2>
+<div class="lado"><pre>flowchart TD
+  a0["Flex layout"] --&gt; MOC[_MOC]
+  a1["New home page and PARA design"] --&gt; MOC[_MOC]
+  a2["2024-07-15"] --&gt; MOC[_MOC]
+  a3["2024-06-13"] --&gt; MOC[_MOC]
+  a4["2025-04-17"] --&gt; MOC[_MOC]
+  a5["Test note"] --&gt; MOC[_MOC]
+  a6["Medium draft"] --&gt; MOC[_MOC]
+  a7["Reading list"] --&gt; MOC[_MOC]
+  a8["Garden"] --&gt; MOC[_MOC]
+  a9["Inbox"] --&gt; MOC[_MOC]
+  a10["Archive"] --&gt; MOC[_MOC]
+  a11["Ideas"] --&gt; MOC[_MOC]
+  a0 --&gt; Weekly
+  a1 --&gt; Weekly
+  a2 --&gt; Weekly
+  a3 --&gt; Weekly
+  a9 --&gt; Weekly
+  a11 --&gt; Weekly
+</pre><div class="desenho" data-i="110"></div></div></section>
+<section class="cartao" id="d111">
+<h2>36-wide-graph-with-a-repeated-edge.mmd</h2>
+<div class="lado"><pre>graph TD
+  hub["Hub"]
+  index["Index"]
+  Plugins["Plugins"] --&gt; hub
+  Medium_draft["Medium draft"] --&gt; hub
+  Medium_draft["Medium draft"] --&gt; hub
+  Test_note["Test note"] --&gt; hub
+  2025_04_17["2025-04-17"] --&gt; hub
+  2024_06_13["2024-06-13"] --&gt; hub
+  2024_07_15["2024-07-15"] --&gt; hub
+  PARA_design["PARA design"] --&gt; hub
+  index --&gt; Notes["Notes"]
+  index --&gt; Obsidian["Obsidian"]
+  index --&gt; Reading["Reading"]
+  index --&gt; Reading["Reading"]
+  index --&gt; Clippings["Clippings"]
+  index --&gt; Daily["Daily"]
+  index --&gt; Weekly["Weekly"]
+  index --&gt; Monthly["Monthly"]
+  index --&gt; Projects["Projects"]
+  index --&gt; Project_log["Project log"]
+</pre><div class="desenho" data-i="111"></div></div></section>
+<section class="cartao" id="d112">
+<h2>37-fan-in-30.mmd <small>Wide and dense &gt; Fan in, 30</small></h2>
+<div class="lado"><pre>flowchart TD
+  n1[Note 1] --&gt; hub[Hub]
+  n2[Note 2] --&gt; hub[Hub]
+  n3[Note 3] --&gt; hub[Hub]
+  n4[Note 4] --&gt; hub[Hub]
+  n5[Note 5] --&gt; hub[Hub]
+  n6[Note 6] --&gt; hub[Hub]
+  n7[Note 7] --&gt; hub[Hub]
+  n8[Note 8] --&gt; hub[Hub]
+  n9[Note 9] --&gt; hub[Hub]
+  n10[Note 10] --&gt; hub[Hub]
+  n11[Note 11] --&gt; hub[Hub]
+  n12[Note 12] --&gt; hub[Hub]
+  n13[Note 13] --&gt; hub[Hub]
+  n14[Note 14] --&gt; hub[Hub]
+  n15[Note 15] --&gt; hub[Hub]
+  n16[Note 16] --&gt; hub[Hub]
+  n17[Note 17] --&gt; hub[Hub]
+  n18[Note 18] --&gt; hub[Hub]
+  n19[Note 19] --&gt; hub[Hub]
+  n20[Note 20] --&gt; hub[Hub]
+  n21[Note 21] --&gt; hub[Hub]
+  n22[Note 22] --&gt; hub[Hub]
+  n23[Note 23] --&gt; hub[Hub]
+  n24[Note 24] --&gt; hub[Hub]
+  n25[Note 25] --&gt; hub[Hub]
+  n26[Note 26] --&gt; hub[Hub]
+  n27[Note 27] --&gt; hub[Hub]
+  n28[Note 28] --&gt; hub[Hub]
+  n29[Note 29] --&gt; hub[Hub]
+  n30[Note 30] --&gt; hub[Hub]
+</pre><div class="desenho" data-i="112"></div></div></section>
+<section class="cartao" id="d113">
+<h2>38-fan-out-30-left-to-right.mmd <small>Wide and dense &gt; Fan out, 30, left to right</small></h2>
+<div class="lado"><pre>flowchart LR
+  hub[Hub] --&gt; n1[Note 1]
+  hub[Hub] --&gt; n2[Note 2]
+  hub[Hub] --&gt; n3[Note 3]
+  hub[Hub] --&gt; n4[Note 4]
+  hub[Hub] --&gt; n5[Note 5]
+  hub[Hub] --&gt; n6[Note 6]
+  hub[Hub] --&gt; n7[Note 7]
+  hub[Hub] --&gt; n8[Note 8]
+  hub[Hub] --&gt; n9[Note 9]
+  hub[Hub] --&gt; n10[Note 10]
+  hub[Hub] --&gt; n11[Note 11]
+  hub[Hub] --&gt; n12[Note 12]
+  hub[Hub] --&gt; n13[Note 13]
+  hub[Hub] --&gt; n14[Note 14]
+  hub[Hub] --&gt; n15[Note 15]
+  hub[Hub] --&gt; n16[Note 16]
+  hub[Hub] --&gt; n17[Note 17]
+  hub[Hub] --&gt; n18[Note 18]
+  hub[Hub] --&gt; n19[Note 19]
+  hub[Hub] --&gt; n20[Note 20]
+  hub[Hub] --&gt; n21[Note 21]
+  hub[Hub] --&gt; n22[Note 22]
+  hub[Hub] --&gt; n23[Note 23]
+  hub[Hub] --&gt; n24[Note 24]
+  hub[Hub] --&gt; n25[Note 25]
+  hub[Hub] --&gt; n26[Note 26]
+  hub[Hub] --&gt; n27[Note 27]
+  hub[Hub] --&gt; n28[Note 28]
+  hub[Hub] --&gt; n29[Note 29]
+  hub[Hub] --&gt; n30[Note 30]
+</pre><div class="desenho" data-i="113"></div></div></section>
+<section class="cartao" id="d114">
+<h2>39-two-dense-ranks.mmd <small>Wide and dense &gt; Two dense ranks</small></h2>
+<div class="lado"><pre>flowchart TD
+  top1 --&gt; low1
+  top1 --&gt; low3
+  top1 --&gt; low4
+  top1 --&gt; low6
+  top2 --&gt; low1
+  top2 --&gt; low3
+  top2 --&gt; low4
+  top2 --&gt; low6
+  top4 --&gt; low1
+  top4 --&gt; low3
+  top4 --&gt; low4
+  top4 --&gt; low6
+  top5 --&gt; low1
+  top5 --&gt; low3
+  top5 --&gt; low4
+  top5 --&gt; low6
+</pre><div class="desenho" data-i="114"></div></div></section>
+<section class="cartao" id="d115">
+<h2>40-chain-with-edges-that-skip-ranks.mmd <small>Wide and dense &gt; Chain with edges that skip ranks</small></h2>
+<div class="lado"><pre>flowchart TD
+  s1[Step 1] --&gt; s2[Step 2]
+  s2[Step 2] --&gt; s3[Step 3]
+  s3[Step 3] --&gt; s4[Step 4]
+  s4[Step 4] --&gt; s5[Step 5]
+  s5[Step 5] --&gt; s6[Step 6]
+  s6[Step 6] --&gt; s7[Step 7]
+  s7[Step 7] --&gt; s8[Step 8]
+  s1 --&gt; s4
+  s1 --&gt; s8
+  s2 --&gt; s6
+  s3 --&gt; s7
+  s7 --&gt; s2
+  s8 --&gt; s1
+</pre><div class="desenho" data-i="115"></div></div></section>
+<section class="cartao" id="d116">
+<h2>41-short-nodes-beside-a-tall-one.mmd <small>Wide and dense &gt; Short nodes beside a tall one</small></h2>
+<div class="lado"><pre>flowchart TD
+  a[Short] --&gt; far[Far away]
+  b["A tall node&lt;br&gt;with four&lt;br&gt;lines of&lt;br&gt;text"] --&gt; near
+  c[Short] --&gt; near
+  d[One] --&gt; near
+  e[Two] --&gt; near
+  f[Three] --&gt; near
+  g[Four] --&gt; far
+  a --&gt; near
+</pre><div class="desenho" data-i="116"></div></div></section>
+<section class="cartao" id="d117">
+<h2>42-wide-rank-over-a-narrow-one.mmd <small>Wide and dense &gt; Wide rank over a narrow one</small></h2>
+<div class="lado"><pre>flowchart TD
+  root --&gt; a[A fairly long label here] &amp; b[Another long label] &amp; c[Third long label] &amp; d[Fourth long label] &amp; e[Fifth long label]
+  a &amp; e --&gt; x
+  b &amp; d --&gt; y
+  a --&gt; y
+  e --&gt; y
+  c --&gt; x
+</pre><div class="desenho" data-i="117"></div></div></section>
+<section class="cartao" id="d118">
+<h2>43-labels-on-a-fan.mmd <small>Labels &gt; Labels on a fan</small></h2>
+<div class="lado"><pre>flowchart TD
+  A{Which way?} --&gt;|The first and longest of the answers| B
+  A --&gt;|Second| C
+  A --&gt;|A third answer| D
+  A --&gt;|Fourth| E
+  B --&gt;|Back| A
+</pre><div class="desenho" data-i="118"></div></div></section>
+<section class="cartao" id="d119">
+<h2>44-labels-on-a-two-way-pair.mmd <small>Labels &gt; Labels on a two-way pair</small></h2>
+<div class="lado"><pre>flowchart LR
+  A[Client] --&gt;|request| B[Server]
+  B --&gt;|response| A
+  B --&gt;|query| C[(Database)]
+  C --&gt;|rows| B
+</pre><div class="desenho" data-i="119"></div></div></section>
+<section class="cartao" id="d120">
+<h2>45-tall-and-wide-nodes.mmd <small>Labels &gt; Tall and wide nodes</small></h2>
+<div class="lado"><pre>flowchart TD
+  A["One line"] --&gt; B["A node whose label is long enough that it wraps onto several lines of text"]
+  A --&gt; C["Short"]
+  B --&gt; D["Line one&lt;br&gt;line two&lt;br&gt;line three&lt;br&gt;line four"]
+  C --&gt; D
+  D --&gt; A
+  D --&gt; B
+</pre><div class="desenho" data-i="120"></div></div></section>
+<section class="cartao" id="d121">
+<h2>46-decision-with-a-way-back.mmd</h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  A[Start] --&gt; B[Parse]
+  A --&gt; C[Measure]
+  A --&gt; D[Theme]
+  B --&gt; E{Fits?}
+  C --&gt; E
+  D --&gt; E
+  E --&gt;|Yes| F[Draw]
+  E --&gt;|No| A
+</pre><div class="desenho" data-i="121"></div></div></section>
+<section class="cartao" id="d122">
+<h2>47-tall-and-wide-nodes.mmd <small>Right angles &gt; Tall and wide nodes</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  A["One line"] --&gt; B["A node whose label is long enough that it wraps onto several lines of text"]
+  A --&gt; C["Short"]
+  B --&gt; D["Line one&lt;br&gt;line two&lt;br&gt;line three&lt;br&gt;line four"]
+  C --&gt; D
+  D --&gt; A
+  D --&gt; B
+</pre><div class="desenho" data-i="122"></div></div></section>
+<section class="cartao" id="d123">
+<h2>48-decision-with-loops.mmd <small>Right angles &gt; Decision with loops</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  A[Christmas] --&gt;|Get money| B(Go shopping)
+  B --&gt; C{Let me think}
+  C --&gt;|One| D[Laptop]
+  C --&gt;|Two| E[iPhone]
+  C --&gt;|Three| F[Car]
+  D --&gt; B
+  E --&gt; A
+</pre><div class="desenho" data-i="123"></div></div></section>
+<section class="cartao" id="d124">
+<h2>49-left-to-right.mmd <small>Right angles &gt; Left to right</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart LR
+  A[Start] --&gt; B{Ready?}
+  B --&gt;|Yes| C[Ship]
+  B --&gt;|No| D[Fix]
+  D --&gt; B
+  C --&gt; E([Done])
+  D --&gt;|Give up| E
+</pre><div class="desenho" data-i="124"></div></div></section>
+<section class="cartao" id="d125">
+<h2>50-hub-with-edges-both-ways.mmd <small>Right angles &gt; Hub with edges both ways</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  a --&gt; hub[A wide hub with room]
+  b --&gt; hub
+  hub --&gt; a
+  c --&gt; hub
+  hub --&gt; d
+  hub --&gt; e
+  e --&gt; hub
+  f --&gt; hub
+  hub --&gt; f
+</pre><div class="desenho" data-i="125"></div></div></section>
+<section class="cartao" id="d126">
+<h2>51-edges-across-and-onto-groups.mmd <small>Right angles &gt; Edges across and onto groups</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  subgraph one [Group one]
+    a1 --&gt; a2
+    a1 --&gt; a3
+  end
+  subgraph two [Group two]
+    b1 --&gt; b2
+  end
+  a2 --&gt; b1
+  a3 --&gt; b1
+  b2 --&gt; a1
+  c --&gt; one
+  c --&gt; two
+  one --&gt; d
+  two --&gt; d
+</pre><div class="desenho" data-i="126"></div></div></section>
+<section class="cartao" id="d127">
+<h2>52-notes-into-two-hubs.mmd <small>Right angles &gt; Notes into two hubs</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  a0["Flex layout"] --&gt; MOC[_MOC]
+  a1["New home page and PARA design"] --&gt; MOC[_MOC]
+  a2["2024-07-15"] --&gt; MOC[_MOC]
+  a3["2024-06-13"] --&gt; MOC[_MOC]
+  a4["2025-04-17"] --&gt; MOC[_MOC]
+  a5["Test note"] --&gt; MOC[_MOC]
+  a6["Medium draft"] --&gt; MOC[_MOC]
+  a7["Reading list"] --&gt; MOC[_MOC]
+  a8["Garden"] --&gt; MOC[_MOC]
+  a9["Inbox"] --&gt; MOC[_MOC]
+  a10["Archive"] --&gt; MOC[_MOC]
+  a11["Ideas"] --&gt; MOC[_MOC]
+  a0 --&gt; Weekly
+  a1 --&gt; Weekly
+  a2 --&gt; Weekly
+  a3 --&gt; Weekly
+  a9 --&gt; Weekly
+  a11 --&gt; Weekly
+</pre><div class="desenho" data-i="127"></div></div></section>
+<section class="cartao" id="d128">
+<h2>53-wide-graph-with-a-repeated-edge.mmd <small>Right angles &gt; Wide graph with a repeated edge</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+graph TD
+  hub["Hub"]
+  index["Index"]
+  Plugins["Plugins"] --&gt; hub
+  Medium_draft["Medium draft"] --&gt; hub
+  Medium_draft["Medium draft"] --&gt; hub
+  Test_note["Test note"] --&gt; hub
+  2025_04_17["2025-04-17"] --&gt; hub
+  2024_06_13["2024-06-13"] --&gt; hub
+  2024_07_15["2024-07-15"] --&gt; hub
+  PARA_design["PARA design"] --&gt; hub
+  index --&gt; Notes["Notes"]
+  index --&gt; Obsidian["Obsidian"]
+  index --&gt; Reading["Reading"]
+  index --&gt; Reading["Reading"]
+  index --&gt; Clippings["Clippings"]
+  index --&gt; Daily["Daily"]
+  index --&gt; Weekly["Weekly"]
+  index --&gt; Monthly["Monthly"]
+  index --&gt; Projects["Projects"]
+  index --&gt; Project_log["Project log"]
+</pre><div class="desenho" data-i="128"></div></div></section>
+<section class="cartao" id="d129">
+<h2>54-two-dense-ranks.mmd <small>Right angles &gt; Two dense ranks</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  top1 --&gt; low1
+  top1 --&gt; low3
+  top1 --&gt; low4
+  top1 --&gt; low6
+  top2 --&gt; low1
+  top2 --&gt; low3
+  top2 --&gt; low4
+  top2 --&gt; low6
+  top4 --&gt; low1
+  top4 --&gt; low3
+  top4 --&gt; low4
+  top4 --&gt; low6
+  top5 --&gt; low1
+  top5 --&gt; low3
+  top5 --&gt; low4
+  top5 --&gt; low6
+</pre><div class="desenho" data-i="129"></div></div></section>
+<section class="cartao" id="d130">
+<h2>55-chain-with-edges-that-skip-ranks.mmd <small>Right angles &gt; Chain with edges that skip ranks</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  s1[Step 1] --&gt; s2[Step 2]
+  s2[Step 2] --&gt; s3[Step 3]
+  s3[Step 3] --&gt; s4[Step 4]
+  s4[Step 4] --&gt; s5[Step 5]
+  s5[Step 5] --&gt; s6[Step 6]
+  s6[Step 6] --&gt; s7[Step 7]
+  s7[Step 7] --&gt; s8[Step 8]
+  s1 --&gt; s4
+  s1 --&gt; s8
+  s2 --&gt; s6
+  s3 --&gt; s7
+  s7 --&gt; s2
+  s8 --&gt; s1
+</pre><div class="desenho" data-i="130"></div></div></section>
+<section class="cartao" id="d131">
+<h2>56-fan-in-30.mmd <small>Right angles &gt; Fan in, 30</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  n1[Note 1] --&gt; hub[Hub]
+  n2[Note 2] --&gt; hub[Hub]
+  n3[Note 3] --&gt; hub[Hub]
+  n4[Note 4] --&gt; hub[Hub]
+  n5[Note 5] --&gt; hub[Hub]
+  n6[Note 6] --&gt; hub[Hub]
+  n7[Note 7] --&gt; hub[Hub]
+  n8[Note 8] --&gt; hub[Hub]
+  n9[Note 9] --&gt; hub[Hub]
+  n10[Note 10] --&gt; hub[Hub]
+  n11[Note 11] --&gt; hub[Hub]
+  n12[Note 12] --&gt; hub[Hub]
+  n13[Note 13] --&gt; hub[Hub]
+  n14[Note 14] --&gt; hub[Hub]
+  n15[Note 15] --&gt; hub[Hub]
+  n16[Note 16] --&gt; hub[Hub]
+  n17[Note 17] --&gt; hub[Hub]
+  n18[Note 18] --&gt; hub[Hub]
+  n19[Note 19] --&gt; hub[Hub]
+  n20[Note 20] --&gt; hub[Hub]
+  n21[Note 21] --&gt; hub[Hub]
+  n22[Note 22] --&gt; hub[Hub]
+  n23[Note 23] --&gt; hub[Hub]
+  n24[Note 24] --&gt; hub[Hub]
+  n25[Note 25] --&gt; hub[Hub]
+  n26[Note 26] --&gt; hub[Hub]
+  n27[Note 27] --&gt; hub[Hub]
+  n28[Note 28] --&gt; hub[Hub]
+  n29[Note 29] --&gt; hub[Hub]
+  n30[Note 30] --&gt; hub[Hub]
+</pre><div class="desenho" data-i="131"></div></div></section>
+<section class="cartao" id="d132">
+<h2>57-basis.mmd <small>Curves &gt; basis</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: basis
+---
+flowchart TD
+  A[Start] --&gt; B[Parse]
+  A --&gt; C[Measure]
+  A --&gt; D[Theme]
+  B --&gt; E{Fits?}
+  C --&gt; E
+  D --&gt; E
+  E --&gt;|Yes| F[Draw]
+  E --&gt;|No| A
+</pre><div class="desenho" data-i="132"></div></div></section>
+<section class="cartao" id="d133">
+<h2>58-linear.mmd <small>Curves &gt; linear</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: linear
+---
+flowchart TD
+  A[Start] --&gt; B[Parse]
+  A --&gt; C[Measure]
+  A --&gt; D[Theme]
+  B --&gt; E{Fits?}
+  C --&gt; E
+  D --&gt; E
+  E --&gt;|Yes| F[Draw]
+  E --&gt;|No| A
+</pre><div class="desenho" data-i="133"></div></div></section>
+<section class="cartao" id="d134">
+<h2>59-step.mmd <small>Curves &gt; step</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: step
+---
+flowchart TD
+  A[Start] --&gt; B[Parse]
+  A --&gt; C[Measure]
+  A --&gt; D[Theme]
+  B --&gt; E{Fits?}
+  C --&gt; E
+  D --&gt; E
+  E --&gt;|Yes| F[Draw]
+  E --&gt;|No| A
+</pre><div class="desenho" data-i="134"></div></div></section>
+<section class="cartao" id="d135">
+<h2>60-stepbefore.mmd <small>Curves &gt; stepBefore</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: stepBefore
+---
+flowchart TD
+  A[Start] --&gt; B[Parse]
+  A --&gt; C[Measure]
+  A --&gt; D[Theme]
+  B --&gt; E{Fits?}
+  C --&gt; E
+  D --&gt; E
+  E --&gt;|Yes| F[Draw]
+  E --&gt;|No| A
+</pre><div class="desenho" data-i="135"></div></div></section>
+<section class="cartao" id="d136">
+<h2>61-stepafter.mmd <small>Curves &gt; stepAfter</small></h2>
+<div class="lado"><pre>---
+config:
+  flowchart:
+    curve: stepAfter
+---
+flowchart TD
+  A[Start] --&gt; B[Parse]
+  A --&gt; C[Measure]
+  A --&gt; D[Theme]
+  B --&gt; E{Fits?}
+  C --&gt; E
+  D --&gt; E
+  E --&gt;|Yes| F[Draw]
+  E --&gt;|No| A
+</pre><div class="desenho" data-i="136"></div></div></section>
+<section class="cartao" id="d137">
+<h2>62-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+title: Node
+---
+flowchart LR
+    id
+</pre><div class="desenho" data-i="137"></div></div></section>
+<section class="cartao" id="d138">
+<h2>63-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+title: Node with text
+---
+flowchart LR
+    id1[This is the text in the box]
+</pre><div class="desenho" data-i="138"></div></div></section>
+<section class="cartao" id="d139">
+<h2>64-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id["This ❤ Unicode"]
+</pre><div class="desenho" data-i="139"></div></div></section>
+<section class="cartao" id="d140">
+<h2>65-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+config:
+  htmlLabels: false
+---
+flowchart LR
+    markdown["`This **is** _Markdown_`"]
+    newLines["`Line1
+    Line 2
+    Line 3`"]
+    markdown --&gt; newLines
+</pre><div class="desenho" data-i="140"></div></div></section>
+<section class="cartao" id="d141">
+<h2>66-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    Start --&gt; Stop
+</pre><div class="desenho" data-i="141"></div></div></section>
+<section class="cartao" id="d142">
+<h2>67-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    Start --&gt; Stop
+</pre><div class="desenho" data-i="142"></div></div></section>
+<section class="cartao" id="d143">
+<h2>68-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+  subgraph Client
+    UI[Web app]
+    Cache[(Local cache)]
+  end
+  subgraph Services
+    API[API gateway]
+    Auth[Auth service]
+    Orders[Order service]
+  end
+  subgraph Storage
+    DB[(Orders DB)]
+  end
+  UI --&gt; API
+  UI --&gt; Cache
+  API --&gt; Auth
+  API --&gt; Orders
+  Orders --&gt; DB
+  Auth -. token .-&gt; UI
+</pre><div class="desenho" data-i="143"></div></div></section>
+<section class="cartao" id="d144">
+<h2>69-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>---
+config:
+  theme: default
+  look: classic
+  layout: dagre
+---
+flowchart LR
+  subgraph Client
+    UI[Web app]
+    Cache[(Local cache)]
+  end
+  subgraph Services
+    API[API gateway]
+    Auth[Auth service]
+    Orders[Order service]
+  end
+  subgraph Storage
+    DB[(Orders DB)]
+  end
+  UI --&gt; API
+  UI --&gt; Cache
+  API --&gt; Auth
+  API --&gt; Orders
+  Orders --&gt; DB
+  Auth -. token .-&gt; UI
+</pre><div class="desenho" data-i="144"></div></div></section>
+<section class="cartao" id="d145">
+<h2>70-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1(This is the text in the box)
+</pre><div class="desenho" data-i="145"></div></div></section>
+<section class="cartao" id="d146">
+<h2>71-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1([This is the text in the box])
+</pre><div class="desenho" data-i="146"></div></div></section>
+<section class="cartao" id="d147">
+<h2>72-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1[[This is the text in the box]]
+</pre><div class="desenho" data-i="147"></div></div></section>
+<section class="cartao" id="d148">
+<h2>73-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1[(Database)]
+</pre><div class="desenho" data-i="148"></div></div></section>
+<section class="cartao" id="d149">
+<h2>74-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1((This is the text in the circle))
+</pre><div class="desenho" data-i="149"></div></div></section>
+<section class="cartao" id="d150">
+<h2>75-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1&gt;This is the text in the box]
+</pre><div class="desenho" data-i="150"></div></div></section>
+<section class="cartao" id="d151">
+<h2>76-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1{This is the text in the box}
+</pre><div class="desenho" data-i="151"></div></div></section>
+<section class="cartao" id="d152">
+<h2>77-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart LR
+    id1{{This is the text in the box}}
+</pre><div class="desenho" data-i="152"></div></div></section>
+<section class="cartao" id="d153">
+<h2>78-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    id1[/This is the text in the box/]
+</pre><div class="desenho" data-i="153"></div></div></section>
+<section class="cartao" id="d154">
+<h2>79-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    id1[\This is the text in the box\]
+</pre><div class="desenho" data-i="154"></div></div></section>
+<section class="cartao" id="d155">
+<h2>80-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A[/Christmas\]
+</pre><div class="desenho" data-i="155"></div></div></section>
+<section class="cartao" id="d156">
+<h2>81-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    B[\Go shopping/]
+</pre><div class="desenho" data-i="156"></div></div></section>
+<section class="cartao" id="d157">
+<h2>82-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    id1(((This is the text in the circle)))
+</pre><div class="desenho" data-i="157"></div></div></section>
+<section class="cartao" id="d158">
+<h2>83-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart RL
+    A@{ shape: manual-file, label: "File Handling"}
+    B@{ shape: manual-input, label: "User Input"}
+    C@{ shape: docs, label: "Multiple Documents"}
+    D@{ shape: procs, label: "Process Automation"}
+    E@{ shape: paper-tape, label: "Paper Records"}
+</pre><div class="desenho" data-i="158"></div></div></section>
+<section class="cartao" id="d159">
+<h2>84-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: rect, label: "This is a process" }
+</pre><div class="desenho" data-i="159"></div></div></section>
+<section class="cartao" id="d160">
+<h2>85-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: rounded, label: "This is an event" }
+</pre><div class="desenho" data-i="160"></div></div></section>
+<section class="cartao" id="d161">
+<h2>86-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: stadium, label: "Terminal point" }
+</pre><div class="desenho" data-i="161"></div></div></section>
+<section class="cartao" id="d162">
+<h2>87-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: subproc, label: "This is a subprocess" }
+</pre><div class="desenho" data-i="162"></div></div></section>
+<section class="cartao" id="d163">
+<h2>88-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: cyl, label: "Database" }
+</pre><div class="desenho" data-i="163"></div></div></section>
+<section class="cartao" id="d164">
+<h2>89-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: circle, label: "Start" }
+</pre><div class="desenho" data-i="164"></div></div></section>
+<section class="cartao" id="d165">
+<h2>90-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: odd, label: "Odd shape" }
+</pre><div class="desenho" data-i="165"></div></div></section>
+<section class="cartao" id="d166">
+<h2>91-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: diamond, label: "Decision" }
+</pre><div class="desenho" data-i="166"></div></div></section>
+<section class="cartao" id="d167">
+<h2>92-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: hex, label: "Prepare conditional" }
+</pre><div class="desenho" data-i="167"></div></div></section>
+<section class="cartao" id="d168">
+<h2>93-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: lean-r, label: "Input/Output" }
+</pre><div class="desenho" data-i="168"></div></div></section>
+<section class="cartao" id="d169">
+<h2>94-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: lean-l, label: "Output/Input" }
+</pre><div class="desenho" data-i="169"></div></div></section>
+<section class="cartao" id="d170">
+<h2>95-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: datastore, label: "Datastore" }
+</pre><div class="desenho" data-i="170"></div></div></section>
+<section class="cartao" id="d171">
+<h2>96-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: trap-b, label: "Priority action" }
+</pre><div class="desenho" data-i="171"></div></div></section>
+<section class="cartao" id="d172">
+<h2>97-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: trap-t, label: "Manual operation" }
+</pre><div class="desenho" data-i="172"></div></div></section>
+<section class="cartao" id="d173">
+<h2>98-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: dbl-circ, label: "Stop" }
+</pre><div class="desenho" data-i="173"></div></div></section>
+<section class="cartao" id="d174">
+<h2>99-documentation-examples.mmd <small>Documentation examples</small></h2>
+<div class="lado"><pre>flowchart TD
+    A@{ shape: text, label: "This is a text block" }
+</pre><div class="desenho" data-i="174"></div></div></section></main>
+<script src="../../node_modules/pele/dist/pele.global.js"></script>
+<script>
+const fontes = ["flowchart TD\n  A --> B\n  B --> A\n","flowchart TD\n  A --> B\n  B --> A\n  B --> C\n  C --> B\n  C --> A\n","flowchart TD\n  D{Data, settings or context changed} -->|Yes| F\n  F --> D\n  D -->|Container removed| G\n","flowchart TD\n  A[Christmas] -->|Get money| B(Go shopping)\n  B --> C{Let me think}\n  C -->|One| D[Laptop]\n  C -->|Two| E[iPhone]\n  C -->|Three| F[Car]\n  D --> B\n  E --> A\n","flowchart TD\n  A[Start] --> B[Parse]\n  A --> C[Measure]\n  B --> D[Layout]\n  C --> D\n  D --> E[Draw]\n  D --> F[Export]\n  D --> G[Cache]\n","flowchart TD\n  hub[Hub] --> n1[Note 1]\n  hub[Hub] --> n2[Note 2]\n  hub[Hub] --> n3[Note 3]\n","flowchart TD\n  hub[Hub] --> n1[Note 1]\n  hub[Hub] --> n2[Note 2]\n  hub[Hub] --> n3[Note 3]\n  hub[Hub] --> n4[Note 4]\n  hub[Hub] --> n5[Note 5]\n  hub[Hub] --> n6[Note 6]\n  hub[Hub] --> n7[Note 7]\n","flowchart TD\n  n1[Note 1] --> hub[Hub]\n  n2[Note 2] --> hub[Hub]\n  n3[Note 3] --> hub[Hub]\n","flowchart TD\n  n1[Note 1] --> hub[Hub]\n  n2[Note 2] --> hub[Hub]\n  n3[Note 3] --> hub[Hub]\n  n4[Note 4] --> hub[Hub]\n  n5[Note 5] --> hub[Hub]\n  n6[Note 6] --> hub[Hub]\n  n7[Note 7] --> hub[Hub]\n","flowchart TD\n  a --> hub[A wide hub with room]\n  b --> hub\n  hub --> a\n  c --> hub\n  hub --> d\n  hub --> e\n  e --> hub\n  f --> hub\n  hub --> f\n","flowchart TD\n    A@{ shape: notch-rect, label: \"Card\" }\n","flowchart TD\n    A@{ shape: lin-rect, label: \"Lined process\" }\n","flowchart TD\n    A@{ shape: sm-circ, label: \"Small start\" }\n","flowchart TD\n    A@{ shape: framed-circle, label: \"Stop\" }\n","flowchart TD\n    A@{ shape: fork, label: \"Fork or Join\" }\n","flowchart TD\n    A@{ shape: hourglass, label: \"Collate\" }\n","flowchart TD\n    A@{ shape: comment, label: \"Comment\" }\n","flowchart TD\n    A@{ shape: brace-r, label: \"Comment\" }\n","flowchart TD\n    A@{ shape: braces, label: \"Comment\" }\n","flowchart TD\n    A@{ shape: bolt, label: \"Communication link\" }\n","flowchart TD\n  A -->|first| B\n  A -->|second| B\n  A --> B\n  B --> C\n  B --> C\n","flowchart TD\n    A@{ shape: doc, label: \"Document\" }\n","flowchart TD\n    A@{ shape: delay, label: \"Delay\" }\n","flowchart TD\n    A@{ shape: das, label: \"Direct access storage\" }\n","flowchart TD\n    A@{ shape: lin-cyl, label: \"Disk storage\" }\n","flowchart TD\n    A@{ shape: curv-trap, label: \"Display\" }\n","flowchart TD\n    A@{ shape: div-rect, label: \"Divided process\" }\n","flowchart TD\n    A@{ shape: tri, label: \"Extract\" }\n","flowchart TD\n    A@{ shape: win-pane, label: \"Internal storage\" }\n","flowchart TD\n    A@{ shape: f-circ, label: \"Junction\" }\n","flowchart TD\n    A@{ shape: lin-doc, label: \"Lined document\" }\n","flowchart TD\n  A --> A\n  A --> B\n  B --> B\n  B -->|again| B\n  B --> A\n  B --> C\n","flowchart TD\n    A@{ shape: notch-pent, label: \"Loop limit\" }\n","flowchart TD\n    A@{ shape: flip-tri, label: \"Manual file\" }\n","flowchart TD\n    A@{ shape: sl-rect, label: \"Manual input\" }\n","flowchart TD\n    A@{ shape: docs, label: \"Multiple documents\" }\n","flowchart TD\n    A@{ shape: processes, label: \"Multiple processes\" }\n","flowchart TD\n    A@{ shape: flag, label: \"Paper tape\" }\n","flowchart TD\n    A@{ shape: bow-rect, label: \"Stored data\" }\n","flowchart TD\n    A@{ shape: cross-circ, label: \"Summary\" }\n","flowchart TD\n    A@{ shape: tag-doc, label: \"Tagged document\" }\n","flowchart TD\n    A@{ shape: tag-rect, label: \"Tagged process\" }\n","flowchart TD\n  A <--> B\n  A --o C\n  A --x D\n  B -.-> E\n  C ==> E\n  D --- E\n  E o--o A\n","flowchart TD\n    A@{ icon: \"fa:user\", form: \"square\", label: \"User Icon\", pos: \"t\", h: 60 }\n","flowchart TD\n  %% My image with a constrained aspect ratio\n  A@{ img: \"https://mermaid.js.org/favicon.svg\", label: \"My example image label\", pos: \"t\", h: 60, constraint: \"on\" }\n","flowchart LR\n    A-->B\n","flowchart LR\n    A --- B\n","flowchart LR\n    A-- This is the text! ---B\n","flowchart LR\n    A---|This is the text|B\n","flowchart LR\n    A-->|text|B\n","flowchart LR\n    A-- text -->B\n","flowchart LR\n   A-.->B;\n","flowchart LR\n   A-. text .-> B\n","flowchart TD\n  A[Start] --> B{Ready?}\n  B -->|Yes| C[Ship]\n  B -->|No| D[Fix]\n  D --> B\n  C --> E([Done])\n  D -->|Give up| E\n","flowchart LR\n   A ==> B\n","flowchart LR\n   A == text ==> B\n","flowchart LR\n    A ~~~ B\n","flowchart LR\n   A -- text --> B -- text2 --> C\n","flowchart LR\n   a --> b & c--> d\n","flowchart TB\n    A & B--> C & D\n","flowchart TB\n    A --> C\n    A --> D\n    B --> C\n    B --> D\n","flowchart LR\n  A e1@--> B\n","flowchart LR\n  A e1@==> B\n  e1@{ animate: true }\n","flowchart LR\n  A e1@--> B\n  e1@{ animation: fast }\n","flowchart BT\n  A[Start] --> B{Ready?}\n  B -->|Yes| C[Ship]\n  B -->|No| D[Fix]\n  D --> B\n  C --> E([Done])\n  D -->|Give up| E\n","flowchart LR\n  A e1@--> B\n  classDef animate stroke-dasharray: 9,5,stroke-dashoffset: 900,animation: dash 25s linear infinite;\n  class e1 animate\n","flowchart LR\n    A --o B\n","flowchart LR\n    A --x B\n","flowchart LR\n    A o--o B\n    B <--> C\n    C x--x D\n","flowchart TD\n    A[Start] --> B{Is it?}\n    B -->|Yes| C[OK]\n    C --> D[Rethink]\n    D --> B\n    B ---->|No| E[End]\n","flowchart TD\n    A[Start] --> B{Is it?}\n    B -- Yes --> C[OK]\n    C --> D[Rethink]\n    D --> B\n    B -- No ----> E[End]\n","flowchart LR\n    id1[\"This is the (text) in the box\"]\n","    flowchart LR\n        A[\"A double quote:#quot;\"] --> B[\"A dec char:#9829;\"]\n","flowchart TB\n    c1-->a2\n    subgraph one\n    a1-->a2\n    end\n    subgraph two\n    b1-->b2\n    end\n    subgraph three\n    c1-->c2\n    end\n","flowchart TB\n    c1-->a2\n    subgraph ide1 [one]\n    a1-->a2\n    end\n","flowchart LR\n  A[Start] --> B{Ready?}\n  B -->|Yes| C[Ship]\n  B -->|No| D[Fix]\n  D --> B\n  C --> E([Done])\n  D -->|Give up| E\n","flowchart TB\n    c1-->a2\n    subgraph one\n    a1-->a2\n    end\n    subgraph two\n    b1-->b2\n    end\n    subgraph three\n    c1-->c2\n    end\n    one --> two\n    three --> two\n    two --> c2\n","flowchart LR\n  subgraph TOP\n    direction TB\n    subgraph B1\n        direction RL\n        i1 -->f1\n    end\n    subgraph B2\n        direction BT\n        i2 -->f2\n    end\n  end\n  A --> TOP --> B\n  B1 --> B2\n","flowchart LR\n    subgraph subgraph1\n        direction TB\n        top1[top] --> bottom1[bottom]\n    end\n    subgraph subgraph2\n        direction TB\n        top2[top] --> bottom2[bottom]\n    end\n    %% ^ These subgraphs are identical, except for the links to them:\n\n    %% Link *to* subgraph1: subgraph1 direction is maintained\n    outside --> subgraph1\n    %% Link *within* subgraph2:\n    %% subgraph2 inherits the direction of the top-level graph (LR)\n    outside ---> top2\n","flowchart TD\n    Start --> one\n    subgraph one [My Group]\n        A --> B\n        B --> C\n    end\n    one --> End\n    one@{ view: collapsed }\n","---\nconfig:\n  htmlLabels: false\n---\nflowchart LR\nsubgraph \"One\"\n  a(\"`The **cat**\n  in the hat`\") -- \"edge label\" --> b{{\"`The **dog** in the hog`\"}}\nend\nsubgraph \"`**Two**`\"\n  c(\"`The **cat**\n  in the hat`\") -- \"`Bold **edge label**`\" --> d(\"The dog in the hog\")\nend\n","flowchart LR\n    A-->B\n    B-->C\n    C-->D\n    click A callback \"Tooltip for a callback\"\n    click B \"https://www.github.com\" \"This is a tooltip for a link\"\n    click C call callback() \"Tooltip for a callback\"\n    click D href \"https://www.github.com\" \"This is a tooltip for a link\"\n","flowchart LR\n    A-->B\n    B-->C\n    C-->D\n    D-->E\n    click A \"https://www.github.com\" _blank\n    click B \"https://www.github.com\" \"Open this in a new tab\" _blank\n    click C href \"https://www.github.com\" _blank\n    click D href \"https://www.github.com\" \"Open this in a new tab\" _blank\n","flowchart LR\n%% this is a comment A -- text --> B{node}\n   A -- text --> B -- text2 --> C\n","flowchart LR\n    A e1@==> B\n    A e2@--> C\n    e1@{ curve: linear }\n    e2@{ curve: natural }\n","flowchart LR\n    id1(Start)-->id2(Stop)\n    style id1 fill:#f9f,stroke:#333,stroke-width:4px\n    style id2 fill:#bbf,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5\n","flowchart RL\n  A[Start] --> B{Ready?}\n  B -->|Yes| C[Ship]\n  B -->|No| D[Fix]\n  D --> B\n  C --> E([Done])\n  D -->|Give up| E\n","flowchart LR\n    A:::someclass --> B\n    classDef someclass fill:#f96\n","flowchart LR\n    A:::foo & B:::bar --> C:::foobar\n    classDef foo stroke:#f00\n    classDef bar stroke:#0f0\n    classDef foobar stroke:#00f\n","flowchart LR\n    A:::myStyle --> B\n    classDef myStyle fill:#ff0000,stroke:#ffff00,stroke-width:4px\n","flowchart TD\n    B[\"fa:fa-twitter for peace\"]\n    B-->C[fa:fa-ban forbidden]\n    B-->D(fa:fa-spinner)\n    B-->E(A fa:fa-camera-retro perhaps?)\n","flowchart TD\n    B[\"fa:fa-twitter for peace\"]\n    B-->C[\"fab:fa-truck-bold a custom icon\"]\n","flowchart LR\n    A[Hard edge] -->|Link text| B(Round edge)\n    B --> C{Decision}\n    C -->|One| D[Result one]\n    C -->|Two| E[Result two]\n","flowchart TD\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: rect, label: \"rect\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: rounded, label: \"rounded\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: stadium, label: \"stadium\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: fr-rect, label: \"fr-rect\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: cyl, label: \"cyl\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: circle, label: \"circle\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: dbl-circ, label: \"dbl-circ\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: diam, label: \"diam\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart TD\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: hex, label: \"hex\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: odd, label: \"odd\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: lean-r, label: \"lean-r\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: lean-l, label: \"lean-l\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: trap-b, label: \"trap-b\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: trap-t, label: \"trap-t\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: text, label: \"text\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: bow-rect, label: \"bow-rect\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart TD\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: sm-circ, label: \"sm-circ\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: f-circ, label: \"f-circ\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: fr-circ, label: \"fr-circ\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: fork, label: \"fork\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: notch-rect, label: \"notch-rect\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: lin-rect, label: \"lin-rect\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: div-rect, label: \"div-rect\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: win-pane, label: \"win-pane\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart TD\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: notch-pent, label: \"notch-pent\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: cross-circ, label: \"cross-circ\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: st-rect, label: \"st-rect\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: datastore, label: \"datastore\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: lin-cyl, label: \"lin-cyl\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: tag-rect, label: \"tag-rect\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: doc, label: \"doc\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: tri, label: \"tri\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart TD\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: flip-tri, label: \"flip-tri\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: sl-rect, label: \"sl-rect\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: hourglass, label: \"hourglass\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: delay, label: \"delay\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: h-cyl, label: \"h-cyl\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: curv-trap, label: \"curv-trap\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: docs, label: \"docs\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: flag, label: \"flag\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart TD\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: bolt, label: \"bolt\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: bang, label: \"bang\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: cloud, label: \"cloud\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: brace, label: \"brace\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: brace-r, label: \"brace-r\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: braces, label: \"braces\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: tag-doc, label: \"tag-doc\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: lin-doc, label: \"lin-doc\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart LR\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: rect, label: \"rect\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: rounded, label: \"rounded\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: stadium, label: \"stadium\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: fr-rect, label: \"fr-rect\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: cyl, label: \"cyl\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: circle, label: \"circle\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: dbl-circ, label: \"dbl-circ\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: diam, label: \"diam\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart LR\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: hex, label: \"hex\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: odd, label: \"odd\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: lean-r, label: \"lean-r\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: lean-l, label: \"lean-l\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: trap-b, label: \"trap-b\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: trap-t, label: \"trap-t\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: text, label: \"text\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: bow-rect, label: \"bow-rect\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart LR\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: sm-circ, label: \"sm-circ\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: f-circ, label: \"f-circ\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: fr-circ, label: \"fr-circ\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: fork, label: \"fork\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: notch-rect, label: \"notch-rect\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: lin-rect, label: \"lin-rect\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: div-rect, label: \"div-rect\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: win-pane, label: \"win-pane\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart LR\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: notch-pent, label: \"notch-pent\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: cross-circ, label: \"cross-circ\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: st-rect, label: \"st-rect\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: datastore, label: \"datastore\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: lin-cyl, label: \"lin-cyl\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: tag-rect, label: \"tag-rect\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: doc, label: \"doc\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: tri, label: \"tri\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart LR\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: flip-tri, label: \"flip-tri\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: sl-rect, label: \"sl-rect\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: hourglass, label: \"hourglass\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: delay, label: \"delay\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: h-cyl, label: \"h-cyl\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: curv-trap, label: \"curv-trap\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: docs, label: \"docs\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: flag, label: \"flag\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart LR\n  a0[a] & b0[b] & c0[c] --> n0@{ shape: bolt, label: \"bolt\" } --> x0[x] & y0[y] & z0[z]\n  x0 --> n0\n  a1[a] & b1[b] & c1[c] --> n1@{ shape: bang, label: \"bang\" } --> x1[x] & y1[y] & z1[z]\n  x1 --> n1\n  a2[a] & b2[b] & c2[c] --> n2@{ shape: cloud, label: \"cloud\" } --> x2[x] & y2[y] & z2[z]\n  x2 --> n2\n  a3[a] & b3[b] & c3[c] --> n3@{ shape: brace, label: \"brace\" } --> x3[x] & y3[y] & z3[z]\n  x3 --> n3\n  a4[a] & b4[b] & c4[c] --> n4@{ shape: brace-r, label: \"brace-r\" } --> x4[x] & y4[y] & z4[z]\n  x4 --> n4\n  a5[a] & b5[b] & c5[c] --> n5@{ shape: braces, label: \"braces\" } --> x5[x] & y5[y] & z5[z]\n  x5 --> n5\n  a6[a] & b6[b] & c6[c] --> n6@{ shape: tag-doc, label: \"tag-doc\" } --> x6[x] & y6[y] & z6[z]\n  x6 --> n6\n  a7[a] & b7[b] & c7[c] --> n7@{ shape: lin-doc, label: \"lin-doc\" } --> x7[x] & y7[y] & z7[z]\n  x7 --> n7\n","flowchart TD\n  subgraph one [Group one]\n    a1 --> a2\n    a1 --> a3\n  end\n  subgraph two [Group two]\n    b1 --> b2\n  end\n  a2 --> b1\n  a3 --> b1\n  b2 --> a1\n  c --> one\n  c --> two\n  one --> d\n  two --> d\n","flowchart LR\n  subgraph Client\n    UI[Web app]\n    Cache[(Local cache)]\n  end\n  subgraph Services\n    API[API gateway] --> Orders[Order service]\n    API --> Auth[Auth service]\n  end\n  UI --> Cache\n  UI --> API\n  API --> UI\n  Auth -.->|token| UI\n  Orders --> DB[(Orders DB)]\n","flowchart TD\n  subgraph outer [Outer]\n    subgraph inner [Inner]\n      a --> b\n      b --> a\n    end\n    c --> a\n    b --> d\n  end\n  start --> c\n  start --> a\n  d --> finish\n  b --> finish\n  finish --> start\n","flowchart LR\n  subgraph top [Runs down]\n    direction TB\n    t1 --> t2 --> t3\n  end\n  subgraph side [Runs across]\n    direction LR\n    s1 --> s2 --> s3\n  end\n  outside --> top\n  outside --> s1\n","flowchart TD\n  subgraph A [First]\n    a1\n    a2\n  end\n  subgraph B [Second]\n    b1\n    b2\n  end\n  A --> B\n  B --> A\n  a1 --> b1\n  b2 --> a2\n","flowchart TD\n  a0[\"Flex layout\"] --> MOC[_MOC]\n  a1[\"New home page and PARA design\"] --> MOC[_MOC]\n  a2[\"2024-07-15\"] --> MOC[_MOC]\n  a3[\"2024-06-13\"] --> MOC[_MOC]\n  a4[\"2025-04-17\"] --> MOC[_MOC]\n  a5[\"Test note\"] --> MOC[_MOC]\n  a6[\"Medium draft\"] --> MOC[_MOC]\n  a7[\"Reading list\"] --> MOC[_MOC]\n  a8[\"Garden\"] --> MOC[_MOC]\n  a9[\"Inbox\"] --> MOC[_MOC]\n  a10[\"Archive\"] --> MOC[_MOC]\n  a11[\"Ideas\"] --> MOC[_MOC]\n  a0 --> Weekly\n  a1 --> Weekly\n  a2 --> Weekly\n  a3 --> Weekly\n  a9 --> Weekly\n  a11 --> Weekly\n","graph TD\n  hub[\"Hub\"]\n  index[\"Index\"]\n  Plugins[\"Plugins\"] --> hub\n  Medium_draft[\"Medium draft\"] --> hub\n  Medium_draft[\"Medium draft\"] --> hub\n  Test_note[\"Test note\"] --> hub\n  2025_04_17[\"2025-04-17\"] --> hub\n  2024_06_13[\"2024-06-13\"] --> hub\n  2024_07_15[\"2024-07-15\"] --> hub\n  PARA_design[\"PARA design\"] --> hub\n  index --> Notes[\"Notes\"]\n  index --> Obsidian[\"Obsidian\"]\n  index --> Reading[\"Reading\"]\n  index --> Reading[\"Reading\"]\n  index --> Clippings[\"Clippings\"]\n  index --> Daily[\"Daily\"]\n  index --> Weekly[\"Weekly\"]\n  index --> Monthly[\"Monthly\"]\n  index --> Projects[\"Projects\"]\n  index --> Project_log[\"Project log\"]\n","flowchart TD\n  n1[Note 1] --> hub[Hub]\n  n2[Note 2] --> hub[Hub]\n  n3[Note 3] --> hub[Hub]\n  n4[Note 4] --> hub[Hub]\n  n5[Note 5] --> hub[Hub]\n  n6[Note 6] --> hub[Hub]\n  n7[Note 7] --> hub[Hub]\n  n8[Note 8] --> hub[Hub]\n  n9[Note 9] --> hub[Hub]\n  n10[Note 10] --> hub[Hub]\n  n11[Note 11] --> hub[Hub]\n  n12[Note 12] --> hub[Hub]\n  n13[Note 13] --> hub[Hub]\n  n14[Note 14] --> hub[Hub]\n  n15[Note 15] --> hub[Hub]\n  n16[Note 16] --> hub[Hub]\n  n17[Note 17] --> hub[Hub]\n  n18[Note 18] --> hub[Hub]\n  n19[Note 19] --> hub[Hub]\n  n20[Note 20] --> hub[Hub]\n  n21[Note 21] --> hub[Hub]\n  n22[Note 22] --> hub[Hub]\n  n23[Note 23] --> hub[Hub]\n  n24[Note 24] --> hub[Hub]\n  n25[Note 25] --> hub[Hub]\n  n26[Note 26] --> hub[Hub]\n  n27[Note 27] --> hub[Hub]\n  n28[Note 28] --> hub[Hub]\n  n29[Note 29] --> hub[Hub]\n  n30[Note 30] --> hub[Hub]\n","flowchart LR\n  hub[Hub] --> n1[Note 1]\n  hub[Hub] --> n2[Note 2]\n  hub[Hub] --> n3[Note 3]\n  hub[Hub] --> n4[Note 4]\n  hub[Hub] --> n5[Note 5]\n  hub[Hub] --> n6[Note 6]\n  hub[Hub] --> n7[Note 7]\n  hub[Hub] --> n8[Note 8]\n  hub[Hub] --> n9[Note 9]\n  hub[Hub] --> n10[Note 10]\n  hub[Hub] --> n11[Note 11]\n  hub[Hub] --> n12[Note 12]\n  hub[Hub] --> n13[Note 13]\n  hub[Hub] --> n14[Note 14]\n  hub[Hub] --> n15[Note 15]\n  hub[Hub] --> n16[Note 16]\n  hub[Hub] --> n17[Note 17]\n  hub[Hub] --> n18[Note 18]\n  hub[Hub] --> n19[Note 19]\n  hub[Hub] --> n20[Note 20]\n  hub[Hub] --> n21[Note 21]\n  hub[Hub] --> n22[Note 22]\n  hub[Hub] --> n23[Note 23]\n  hub[Hub] --> n24[Note 24]\n  hub[Hub] --> n25[Note 25]\n  hub[Hub] --> n26[Note 26]\n  hub[Hub] --> n27[Note 27]\n  hub[Hub] --> n28[Note 28]\n  hub[Hub] --> n29[Note 29]\n  hub[Hub] --> n30[Note 30]\n","flowchart TD\n  top1 --> low1\n  top1 --> low3\n  top1 --> low4\n  top1 --> low6\n  top2 --> low1\n  top2 --> low3\n  top2 --> low4\n  top2 --> low6\n  top4 --> low1\n  top4 --> low3\n  top4 --> low4\n  top4 --> low6\n  top5 --> low1\n  top5 --> low3\n  top5 --> low4\n  top5 --> low6\n","flowchart TD\n  s1[Step 1] --> s2[Step 2]\n  s2[Step 2] --> s3[Step 3]\n  s3[Step 3] --> s4[Step 4]\n  s4[Step 4] --> s5[Step 5]\n  s5[Step 5] --> s6[Step 6]\n  s6[Step 6] --> s7[Step 7]\n  s7[Step 7] --> s8[Step 8]\n  s1 --> s4\n  s1 --> s8\n  s2 --> s6\n  s3 --> s7\n  s7 --> s2\n  s8 --> s1\n","flowchart TD\n  a[Short] --> far[Far away]\n  b[\"A tall node<br>with four<br>lines of<br>text\"] --> near\n  c[Short] --> near\n  d[One] --> near\n  e[Two] --> near\n  f[Three] --> near\n  g[Four] --> far\n  a --> near\n","flowchart TD\n  root --> a[A fairly long label here] & b[Another long label] & c[Third long label] & d[Fourth long label] & e[Fifth long label]\n  a & e --> x\n  b & d --> y\n  a --> y\n  e --> y\n  c --> x\n","flowchart TD\n  A{Which way?} -->|The first and longest of the answers| B\n  A -->|Second| C\n  A -->|A third answer| D\n  A -->|Fourth| E\n  B -->|Back| A\n","flowchart LR\n  A[Client] -->|request| B[Server]\n  B -->|response| A\n  B -->|query| C[(Database)]\n  C -->|rows| B\n","flowchart TD\n  A[\"One line\"] --> B[\"A node whose label is long enough that it wraps onto several lines of text\"]\n  A --> C[\"Short\"]\n  B --> D[\"Line one<br>line two<br>line three<br>line four\"]\n  C --> D\n  D --> A\n  D --> B\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  A[Start] --> B[Parse]\n  A --> C[Measure]\n  A --> D[Theme]\n  B --> E{Fits?}\n  C --> E\n  D --> E\n  E -->|Yes| F[Draw]\n  E -->|No| A\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  A[\"One line\"] --> B[\"A node whose label is long enough that it wraps onto several lines of text\"]\n  A --> C[\"Short\"]\n  B --> D[\"Line one<br>line two<br>line three<br>line four\"]\n  C --> D\n  D --> A\n  D --> B\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  A[Christmas] -->|Get money| B(Go shopping)\n  B --> C{Let me think}\n  C -->|One| D[Laptop]\n  C -->|Two| E[iPhone]\n  C -->|Three| F[Car]\n  D --> B\n  E --> A\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart LR\n  A[Start] --> B{Ready?}\n  B -->|Yes| C[Ship]\n  B -->|No| D[Fix]\n  D --> B\n  C --> E([Done])\n  D -->|Give up| E\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  a --> hub[A wide hub with room]\n  b --> hub\n  hub --> a\n  c --> hub\n  hub --> d\n  hub --> e\n  e --> hub\n  f --> hub\n  hub --> f\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  subgraph one [Group one]\n    a1 --> a2\n    a1 --> a3\n  end\n  subgraph two [Group two]\n    b1 --> b2\n  end\n  a2 --> b1\n  a3 --> b1\n  b2 --> a1\n  c --> one\n  c --> two\n  one --> d\n  two --> d\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  a0[\"Flex layout\"] --> MOC[_MOC]\n  a1[\"New home page and PARA design\"] --> MOC[_MOC]\n  a2[\"2024-07-15\"] --> MOC[_MOC]\n  a3[\"2024-06-13\"] --> MOC[_MOC]\n  a4[\"2025-04-17\"] --> MOC[_MOC]\n  a5[\"Test note\"] --> MOC[_MOC]\n  a6[\"Medium draft\"] --> MOC[_MOC]\n  a7[\"Reading list\"] --> MOC[_MOC]\n  a8[\"Garden\"] --> MOC[_MOC]\n  a9[\"Inbox\"] --> MOC[_MOC]\n  a10[\"Archive\"] --> MOC[_MOC]\n  a11[\"Ideas\"] --> MOC[_MOC]\n  a0 --> Weekly\n  a1 --> Weekly\n  a2 --> Weekly\n  a3 --> Weekly\n  a9 --> Weekly\n  a11 --> Weekly\n","---\nconfig:\n  flowchart:\n    curve: step\n---\ngraph TD\n  hub[\"Hub\"]\n  index[\"Index\"]\n  Plugins[\"Plugins\"] --> hub\n  Medium_draft[\"Medium draft\"] --> hub\n  Medium_draft[\"Medium draft\"] --> hub\n  Test_note[\"Test note\"] --> hub\n  2025_04_17[\"2025-04-17\"] --> hub\n  2024_06_13[\"2024-06-13\"] --> hub\n  2024_07_15[\"2024-07-15\"] --> hub\n  PARA_design[\"PARA design\"] --> hub\n  index --> Notes[\"Notes\"]\n  index --> Obsidian[\"Obsidian\"]\n  index --> Reading[\"Reading\"]\n  index --> Reading[\"Reading\"]\n  index --> Clippings[\"Clippings\"]\n  index --> Daily[\"Daily\"]\n  index --> Weekly[\"Weekly\"]\n  index --> Monthly[\"Monthly\"]\n  index --> Projects[\"Projects\"]\n  index --> Project_log[\"Project log\"]\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  top1 --> low1\n  top1 --> low3\n  top1 --> low4\n  top1 --> low6\n  top2 --> low1\n  top2 --> low3\n  top2 --> low4\n  top2 --> low6\n  top4 --> low1\n  top4 --> low3\n  top4 --> low4\n  top4 --> low6\n  top5 --> low1\n  top5 --> low3\n  top5 --> low4\n  top5 --> low6\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  s1[Step 1] --> s2[Step 2]\n  s2[Step 2] --> s3[Step 3]\n  s3[Step 3] --> s4[Step 4]\n  s4[Step 4] --> s5[Step 5]\n  s5[Step 5] --> s6[Step 6]\n  s6[Step 6] --> s7[Step 7]\n  s7[Step 7] --> s8[Step 8]\n  s1 --> s4\n  s1 --> s8\n  s2 --> s6\n  s3 --> s7\n  s7 --> s2\n  s8 --> s1\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  n1[Note 1] --> hub[Hub]\n  n2[Note 2] --> hub[Hub]\n  n3[Note 3] --> hub[Hub]\n  n4[Note 4] --> hub[Hub]\n  n5[Note 5] --> hub[Hub]\n  n6[Note 6] --> hub[Hub]\n  n7[Note 7] --> hub[Hub]\n  n8[Note 8] --> hub[Hub]\n  n9[Note 9] --> hub[Hub]\n  n10[Note 10] --> hub[Hub]\n  n11[Note 11] --> hub[Hub]\n  n12[Note 12] --> hub[Hub]\n  n13[Note 13] --> hub[Hub]\n  n14[Note 14] --> hub[Hub]\n  n15[Note 15] --> hub[Hub]\n  n16[Note 16] --> hub[Hub]\n  n17[Note 17] --> hub[Hub]\n  n18[Note 18] --> hub[Hub]\n  n19[Note 19] --> hub[Hub]\n  n20[Note 20] --> hub[Hub]\n  n21[Note 21] --> hub[Hub]\n  n22[Note 22] --> hub[Hub]\n  n23[Note 23] --> hub[Hub]\n  n24[Note 24] --> hub[Hub]\n  n25[Note 25] --> hub[Hub]\n  n26[Note 26] --> hub[Hub]\n  n27[Note 27] --> hub[Hub]\n  n28[Note 28] --> hub[Hub]\n  n29[Note 29] --> hub[Hub]\n  n30[Note 30] --> hub[Hub]\n","---\nconfig:\n  flowchart:\n    curve: basis\n---\nflowchart TD\n  A[Start] --> B[Parse]\n  A --> C[Measure]\n  A --> D[Theme]\n  B --> E{Fits?}\n  C --> E\n  D --> E\n  E -->|Yes| F[Draw]\n  E -->|No| A\n","---\nconfig:\n  flowchart:\n    curve: linear\n---\nflowchart TD\n  A[Start] --> B[Parse]\n  A --> C[Measure]\n  A --> D[Theme]\n  B --> E{Fits?}\n  C --> E\n  D --> E\n  E -->|Yes| F[Draw]\n  E -->|No| A\n","---\nconfig:\n  flowchart:\n    curve: step\n---\nflowchart TD\n  A[Start] --> B[Parse]\n  A --> C[Measure]\n  A --> D[Theme]\n  B --> E{Fits?}\n  C --> E\n  D --> E\n  E -->|Yes| F[Draw]\n  E -->|No| A\n","---\nconfig:\n  flowchart:\n    curve: stepBefore\n---\nflowchart TD\n  A[Start] --> B[Parse]\n  A --> C[Measure]\n  A --> D[Theme]\n  B --> E{Fits?}\n  C --> E\n  D --> E\n  E -->|Yes| F[Draw]\n  E -->|No| A\n","---\nconfig:\n  flowchart:\n    curve: stepAfter\n---\nflowchart TD\n  A[Start] --> B[Parse]\n  A --> C[Measure]\n  A --> D[Theme]\n  B --> E{Fits?}\n  C --> E\n  D --> E\n  E -->|Yes| F[Draw]\n  E -->|No| A\n","---\ntitle: Node\n---\nflowchart LR\n    id\n","---\ntitle: Node with text\n---\nflowchart LR\n    id1[This is the text in the box]\n","flowchart LR\n    id[\"This ❤ Unicode\"]\n","---\nconfig:\n  htmlLabels: false\n---\nflowchart LR\n    markdown[\"`This **is** _Markdown_`\"]\n    newLines[\"`Line1\n    Line 2\n    Line 3`\"]\n    markdown --> newLines\n","flowchart TD\n    Start --> Stop\n","flowchart LR\n    Start --> Stop\n","flowchart LR\n  subgraph Client\n    UI[Web app]\n    Cache[(Local cache)]\n  end\n  subgraph Services\n    API[API gateway]\n    Auth[Auth service]\n    Orders[Order service]\n  end\n  subgraph Storage\n    DB[(Orders DB)]\n  end\n  UI --> API\n  UI --> Cache\n  API --> Auth\n  API --> Orders\n  Orders --> DB\n  Auth -. token .-> UI\n","---\nconfig:\n  theme: default\n  look: classic\n  layout: dagre\n---\nflowchart LR\n  subgraph Client\n    UI[Web app]\n    Cache[(Local cache)]\n  end\n  subgraph Services\n    API[API gateway]\n    Auth[Auth service]\n    Orders[Order service]\n  end\n  subgraph Storage\n    DB[(Orders DB)]\n  end\n  UI --> API\n  UI --> Cache\n  API --> Auth\n  API --> Orders\n  Orders --> DB\n  Auth -. token .-> UI\n","flowchart LR\n    id1(This is the text in the box)\n","flowchart LR\n    id1([This is the text in the box])\n","flowchart LR\n    id1[[This is the text in the box]]\n","flowchart LR\n    id1[(Database)]\n","flowchart LR\n    id1((This is the text in the circle))\n","flowchart LR\n    id1>This is the text in the box]\n","flowchart LR\n    id1{This is the text in the box}\n","flowchart LR\n    id1{{This is the text in the box}}\n","flowchart TD\n    id1[/This is the text in the box/]\n","flowchart TD\n    id1[\\This is the text in the box\\]\n","flowchart TD\n    A[/Christmas\\]\n","flowchart TD\n    B[\\Go shopping/]\n","flowchart TD\n    id1(((This is the text in the circle)))\n","flowchart RL\n    A@{ shape: manual-file, label: \"File Handling\"}\n    B@{ shape: manual-input, label: \"User Input\"}\n    C@{ shape: docs, label: \"Multiple Documents\"}\n    D@{ shape: procs, label: \"Process Automation\"}\n    E@{ shape: paper-tape, label: \"Paper Records\"}\n","flowchart TD\n    A@{ shape: rect, label: \"This is a process\" }\n","flowchart TD\n    A@{ shape: rounded, label: \"This is an event\" }\n","flowchart TD\n    A@{ shape: stadium, label: \"Terminal point\" }\n","flowchart TD\n    A@{ shape: subproc, label: \"This is a subprocess\" }\n","flowchart TD\n    A@{ shape: cyl, label: \"Database\" }\n","flowchart TD\n    A@{ shape: circle, label: \"Start\" }\n","flowchart TD\n    A@{ shape: odd, label: \"Odd shape\" }\n","flowchart TD\n    A@{ shape: diamond, label: \"Decision\" }\n","flowchart TD\n    A@{ shape: hex, label: \"Prepare conditional\" }\n","flowchart TD\n    A@{ shape: lean-r, label: \"Input/Output\" }\n","flowchart TD\n    A@{ shape: lean-l, label: \"Output/Input\" }\n","flowchart TD\n    A@{ shape: datastore, label: \"Datastore\" }\n","flowchart TD\n    A@{ shape: trap-b, label: \"Priority action\" }\n","flowchart TD\n    A@{ shape: trap-t, label: \"Manual operation\" }\n","flowchart TD\n    A@{ shape: dbl-circ, label: \"Stop\" }\n","flowchart TD\n    A@{ shape: text, label: \"This is a text block\" }\n"];
+const medidas = ["Node, tema padrão: 64x160","Node, tema padrão: 92x256","Node, tema padrão: 291x305","Node, tema padrão: 329x451","Node, tema padrão: 334x352","Node, tema padrão: 346x160","Node, tema padrão: 838x192","Node, tema padrão: 346x160","Node, tema padrão: 838x192","Node, tema padrão: 276x256","Node, tema padrão: 87x64","Node, tema padrão: 160x64","Node, tema padrão: 30x30","Node, tema padrão: 34x34","Node, tema padrão: 88x24","Node, tema padrão: 48x56","Node, tema padrão: 134x64","Node, tema padrão: 134x64","Node, tema padrão: 146x64","Node, tema padrão: 52x72","Node, tema padrão: 132x281","Node, tema padrão: 125x74","Node, tema padrão: 105x64","Node, tema padrão: 230x64","Node, tema padrão: 141x90","Node, tema padrão: 134x64","Node, tema padrão: 166x72","Node, tema padrão: 136x82","Node, tema padrão: 172x72","Node, tema padrão: 30x30","Node, tema padrão: 174x74","Node, tema padrão: 261x256","Node, tema padrão: 121x64","Node, tema padrão: 180x88","Node, tema padrão: 144x74","Node, tema padrão: 198x82","Node, tema padrão: 193x72","Node, tema padrão: 131x80","Node, tema padrão: 154x64","Node, tema padrão: 60x60","Node, tema padrão: 181x74","Node, tema padrão: 167x64","Node, tema padrão: 268x296","Node, tema padrão: 93x106","Node, tema padrão: 197x106","Node, tema padrão: 160x64","Node, tema padrão: 160x64","Node, tema padrão: 267x64","Node, tema padrão: 263x64","Node, tema padrão: 195x64","Node, tema padrão: 195x64","Node, tema padrão: 160x64","Node, tema padrão: 195x64","Node, tema padrão: 183x431","Node, tema padrão: 160x64","Node, tema padrão: 195x64","Node, tema padrão: 160x64","Node, tema padrão: 333x64","Node, tema padrão: 256x152","Node, tema padrão: 152x160","Node, tema padrão: 152x160","Node, tema padrão: 160x64","Node, tema padrão: 160x64","Node, tema padrão: 160x64","Node, tema padrão: 183x431","Node, tema padrão: 160x64","Node, tema padrão: 160x64","Node, tema padrão: 160x64","Node, tema padrão: 352x64","Node, tema padrão: 184x489","Node, tema padrão: 184x489","Node, tema padrão: 240x64","Node, tema padrão: 344x64","Node, tema padrão: 271x512","Node, tema padrão: 145x336","Node, tema padrão: 607x152","Node, tema padrão: 229x764","Node, tema padrão: 434x436","Node, tema padrão: 576x292","Node, tema padrão: 131x264","Node, tema padrão: 488x308","Node, tema padrão: 352x64","Node, tema padrão: 448x64","Node, tema padrão: 333x64","Node, tema padrão: 160x152","Node, tema padrão: 203x64","Node, tema padrão: 607x152","Node, tema padrão: 160x64","Node, tema padrão: 160x152","Node, tema padrão: 160x64","Node, tema padrão: 365x160","Node, tema padrão: 151x160","Node, tema padrão: 738x152","Node, tema padrão: 2092x311","Node, tema padrão: 2100x276","Node, tema padrão: 2093x296","Node, tema padrão: 2112x296","Node, tema padrão: 2098x274","Node, tema padrão: 2088x280","Node, tema padrão: 337x2092","Node, tema padrão: 357x2098","Node, tema padrão: 349x2095","Node, tema padrão: 340x2096","Node, tema padrão: 336x2088","Node, tema padrão: 317x2088","Node, tema padrão: 288x736","Node, tema padrão: 986x254","Node, tema padrão: 206x724","Node, tema padrão: 467x464","Node, tema padrão: 204x320","Node, tema padrão: 1836x294","Node, tema padrão: 2129x216","Node, tema padrão: 3857x336","Node, tema padrão: 398x2616","Node, tema padrão: 412x254","Node, tema padrão: 308x736","Node, tema padrão: 796x252","Node, tema padrão: 976x296","Node, tema padrão: 521x292","Node, tema padrão: 494x82","Node, tema padrão: 385x375","Node, tema padrão: 416x393","Node, tema padrão: 385x355","Node, tema padrão: 329x475","Node, tema padrão: 653x152","Node, tema padrão: 276x256","Node, tema padrão: 288x712","Node, tema padrão: 1836x256","Node, tema padrão: 2129x188","Node, tema padrão: 412x238","Node, tema padrão: 308x736","Node, tema padrão: 3857x288","Node, tema padrão: 416x433","Node, tema padrão: 416x393","Node, tema padrão: 416x393","Node, tema padrão: 416x393","Node, tema padrão: 416x393","Node, tema padrão: 65x100","Node, tema padrão: 229x100","Node, tema padrão: 160x64","Node, tema padrão: 306x103","Node, tema padrão: 86x160","Node, tema padrão: 203x64","Node, tema padrão: 1046x225","Node, tema padrão: 1046x225","Node, tema padrão: 229x64","Node, tema padrão: 245x64","Node, tema padrão: 245x64","Node, tema padrão: 121x79","Node, tema padrão: 223x223","Node, tema padrão: 241x64","Node, tema padrão: 261x169","Node, tema padrão: 253x64","Node, tema padrão: 253x64","Node, tema padrão: 253x64","Node, tema padrão: 148x64","Node, tema padrão: 167x64","Node, tema padrão: 233x233","Node, tema padrão: 206x494","Node, tema padrão: 173x64","Node, tema padrão: 165x64","Node, tema padrão: 170x64","Node, tema padrão: 214x64","Node, tema padrão: 121x79","Node, tema padrão: 74x74","Node, tema padrão: 143x64","Node, tema padrão: 145x97","Node, tema padrão: 214x64","Node, tema padrão: 165x64","Node, tema padrão: 165x64","Node, tema padrão: 122x64","Node, tema padrão: 173x64","Node, tema padrão: 200x64","Node, tema padrão: 83x83","Node, tema padrão: 156x48"];
+function desenhar() {
+  const t = document.getElementById('tema').value, larg = document.getElementById('largura').checked;
+  document.body.className = t === 'padrao' ? '' : t;
+  document.querySelectorAll('.desenho').forEach((el) => {
+    const i = +el.dataset.i;
+    const op = { idPrefix: 'g' + i };
+    if (t !== 'padrao') Object.assign(op, { fontFamily: '"Atkinson Hyperlegible", sans-serif', fontFamilyMono: '"Atkinson Hyperlegible Mono", monospace' });
+    if (larg) Object.assign(op, { maxWidth: 820, directionBreakpoint: 821 });
+    try {
+      const r = pele.render(fontes[i], op);
+      el.innerHTML = r.svg + '<div class="medida">navegador: ' + Math.round(r.width) + 'x' + Math.round(r.height) + (medidas[i] ? ' · ' + medidas[i] : '') + '</div>';
+    } catch (e) { el.innerHTML = '<div class="erro"></div>'; el.firstChild.textContent = e.message; }
+  });
+}
+document.getElementById('tema').onchange = desenhar;
+document.getElementById('largura').onchange = desenhar;
+Promise.all(['400 16px "Atkinson Hyperlegible"', '700 16px "Atkinson Hyperlegible"', '16px "Atkinson Hyperlegible Mono"', '600 16px Fraunces'].map((f) => document.fonts.load(f))).then(desenhar, desenhar);
+</script></html>

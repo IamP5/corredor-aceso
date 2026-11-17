@@ -1,0 +1,15 @@
+ok  confere o radar mostra os 3 cards, na ordem do servidor
+ok  confere card sem nome na lista aparece mesmo assim, com o desfecho local
+ok  confere card junta nome, vizinho e resposta do aviso do mesmo episodio
+ok  recusa  desfecho com o mesmo id (chave de idempotencia)
+ok  recusa  desfecho fora do enum
+ok  recusa  enviado sem registradaEm
+ok  recusa  enviado que guarda a observacao
+ok  recusa  card pendente sem motivo
+ok  recusa  card aguardando com cor de alerta
+ok  recusa  segundo cabecalho de radar
+ok  confere a fila devolve o desfecho pendente mais antigo
+ok  confere depois do 201 a fila fica vazia e a observacao sai do celular
+ok  confere troca completa da lista tira do celular a casa que revogou e grava a hora
+ok  confere user_version = 1
+ok  confere a fila usa ix_desfecho_pendente

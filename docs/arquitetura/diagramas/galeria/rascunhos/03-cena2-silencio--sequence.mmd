@@ -1,0 +1,15 @@
+sequenceDiagram
+  participant no as Nó ESP32
+  participant mq as Mosquitto
+  participant motor as Motor
+  actor acs as App da ACS
+  no->>mq: HEARTBEAT
+  mq->>motor: evento HEARTBEAT
+  Note over no: o aparelho fica mudo
+  loop a cada minuto
+    motor->>motor: Avaliar: 30 min sem pacote?
+  end
+  Note over motor: regra SemHeartbeat vem antes de qualquer sinal de vida
+  acs->>motor: GET /api/radar?microarea=7
+  motor-->>acs: casa CINZA, nunca verde
+  Note over acs: card cinza com o texto "sem sinal"

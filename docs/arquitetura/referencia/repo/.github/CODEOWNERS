@@ -1,0 +1,16 @@
+# Pede revisão a quem responde por cada parte. Troque pelos usuários do GitHub.
+/infra/                          @dono-da-infra
+/.github/                        @dono-da-infra
+/tools/                          @dono-da-infra
+/package.json                    @dono-da-infra
+/api/src/Corredor.Api/           @dono-do-host
+/api/src/Corredor.Contratos/     @dono-do-motor @dono-do-cadastro
+/api/src/Corredor.Motor/         @dono-do-motor
+/api/tests/Corredor.Motor.Testes/      @dono-do-motor
+/api/src/Corredor.Cadastro/      @dono-do-cadastro
+/api/tests/Corredor.Cadastro.Testes/   @dono-do-cadastro
+/api/src/Corredor.Guarda/        @dono-da-guarda
+/api/tests/Corredor.Guarda.Testes/     @dono-da-guarda
+/app/                            @dono-do-app
+/ml/                             @dono-do-ml
+/iot/                            @dono-do-iot

@@ -1,0 +1,17 @@
+agentflow-beta TB
+  connector llm["LLM"]
+  flow guarda["Corredor.Guarda"]
+    entrada["requisição HTTP"]@{ shape: input }
+    flow intercepta["Entrada"]
+      parse["MotorDeParsing"]@{ shape: tool, returns: "achados" }
+      regras["Regras/pii.json"]@{ shape: refdoc }
+      parse -.- regras
+    end
+    flow saida["Saída"]
+      segura["SaidaSegura"]@{ shape: decision }
+      traduz["Tradutor"]@{ shape: tool, connectorRef: "llm.chat", returns: "2 frases" }
+      painel["Painel"]@{ shape: action }
+      segura -- bloqueia --> traduz --> painel
+    end
+    entrada --> intercepta --> saida
+  end

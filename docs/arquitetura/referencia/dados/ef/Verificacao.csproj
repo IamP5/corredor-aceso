@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.15" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+		<PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="../ddl/motor_gatilhos.sql" LogicalName="motor_gatilhos.sql" />
+		<EmbeddedResource Include="../ddl/cadastro_gatilhos.sql" LogicalName="cadastro_gatilhos.sql" />
+		<EmbeddedResource Include="../ddl/guarda_gatilhos.sql" LogicalName="guarda_gatilhos.sql" />
+	</ItemGroup>
+</Project>

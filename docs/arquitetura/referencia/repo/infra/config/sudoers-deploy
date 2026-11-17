@@ -1,0 +1,3 @@
+# O usuário do CI só pode chamar estes quatro comandos como root, e nada mais.
+# O deploy aceita só uma tag vX.Y.Z ou vX.Y.Z-rc.N: nada de --arquivo, --ultima ou outra opção.
+deploy ALL=(root) NOPASSWD: /usr/local/sbin/corredor ^deploy v[0-9]+[.][0-9]+[.][0-9]+(-[0-9A-Za-z.]+)?$, /usr/local/sbin/corredor voltar, /usr/local/sbin/corredor status, /usr/local/sbin/corredor reiniciar api

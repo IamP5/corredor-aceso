@@ -1,0 +1,14 @@
+flowchart LR
+  job["Job de previsão"]:::politica --> c1["DeclararDiaCritico"]:::comando --> e1["DiaCriticoDeclarado"]:::evento --> e2["TurnoAberto"]:::evento
+  e1 --> p8["P8 AoDeclararDiaCritico"]:::politica --> e3["ComandoDiaCriticoPublicado"]:::evento
+  no["Nó do corredor"]:::politica --> c2["RegistrarPacote"]:::comando --> e4["MovimentoDetectado"]:::evento
+  e2 & e4 --> radar["Radar"]:::leitura
+  rel["Relógio"]:::politica --> e5["JanelaEncerrada"]:::evento --> e6["CasaFicouVermelha"]:::evento
+  e6 --> vigia["P10 VigiaDoRadar"]:::politica --> c3["PedirContato"]:::comando --> e7["AvisoAoVizinhoRegistrado"]:::evento
+  c4["RegistrarVisita"]:::comando --> e8["VisitaRegistrada"]:::evento --> p11["P11 TradutorDeDesfecho"]:::politica --> c5["Confirmar"]:::comando --> e9["ConfirmacaoRegistrada"]:::evento
+  e6 & e9 --> radar
+  c6["EncerrarTurno"]:::comando --> e10["TurnoEncerrado"]:::evento
+  classDef evento stroke-width:1px
+  classDef comando stroke-width:1px
+  classDef politica stroke-width:1px
+  classDef leitura stroke-width:1px
