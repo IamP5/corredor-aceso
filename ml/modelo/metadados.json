@@ -1,0 +1,61 @@
+{
+  "origem": "REGRA_BASE",
+  "variaveis": [
+    "tmin_noite",
+    "tmin_noite_anterior",
+    "tmax_ontem",
+    "umidade_media",
+    "noites_quentes_seguidas",
+    "mes",
+    "dia_da_semana"
+  ],
+  "limiar_decisao": 0.558,
+  "orcamento_alertas": 0.15,
+  "hiperparametros": {
+    "learning_rate": 0.03,
+    "max_depth": 3,
+    "n_estimators": 100
+  },
+  "scale_pos_weight": 6.1313,
+  "periodo_treino": [
+    "2015-01-29",
+    "2023-12-31"
+  ],
+  "periodo_teste": [
+    "2024-01-01",
+    "2026-05-31"
+  ],
+  "metricas_teste": {
+    "modelo": {
+      "recall": 0.1217,
+      "precisão": 0.14,
+      "F1": 0.1302,
+      "PR-AUC": 0.1496,
+      "ROC-AUC": 0.5489,
+      "% dias com radar": 0.1134,
+      "% dias de excesso": 0.1304
+    },
+    "regra_base": {
+      "recall": 0.087,
+      "precisão": 0.0595,
+      "F1": 0.0707,
+      "PR-AUC": 0.1156,
+      "ROC-AUC": 0.4405,
+      "% dias com radar": 0.1905,
+      "% dias de excesso": 0.1304
+    }
+  },
+  "regra_base": {
+    "limite_tmin": 19.9,
+    "noites": 2,
+    "prob_excesso_se_dispara": 0.1098,
+    "prob_excesso_se_nao_dispara": 0.1446
+  },
+  "sha256_base_modelo": "5afb9a9cbde30a7571de754e7c3746c83345f89efa1ee0f078190b861a428f76",
+  "versoes": {
+    "python": "3.12.8",
+    "xgboost": "3.4.1",
+    "scikit-learn": "1.9.1",
+    "pandas": "3.1.1"
+  }
+}
