@@ -8,15 +8,16 @@ import { useCorredor } from '../estado/corredor';
 import { Botao, estilo, Faixa, Paragrafo, Subtitulo, Titulo } from '../ui/componentes';
 
 export default function Encerrar() {
-  const { api, sincronizar, pendentes } = useCorredor();
+  const { api, sessao, sincronizar, pendentes } = useCorredor();
   const [resultado, setResultado] = useState<Encerramento | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [encerrando, setEncerrando] = useState(false);
 
   async function encerrar() {
+    if (!sessao) return;
     setEncerrando(true);
     try {
-      setResultado(await api.encerrarTurno(dataDeSp(new Date())));
+      setResultado(await api.encerrarTurno(dataDeSp(new Date()), sessao.microarea));
       setErro(null);
       void sincronizar();
     } catch (e) {

@@ -28,6 +28,23 @@ describe('cliente HTTP contra a API real', () => {
     expect((pedidos[0].init.headers as Record<string, string>).Authorization).toBe('Bearer Dev-ACS-Token-01');
   });
 
+  it('encerra o turno pedindo o resumo da microárea da ACS, como o radar', async () => {
+    global.fetch = jest.fn(async (url: string, init: RequestInit) => {
+      pedidos.push({ url, init });
+      return new Response(JSON.stringify({
+        data: '2026-11-18',
+        encerradoEm: '2026-11-18T17:30:00-03:00',
+        resumo: { casasAtivas: 40, comSinalDeVidaAte10h: 24, atendidas: 4, vermelhasPendentes: 1, cinzasPendentes: 1 },
+      }));
+    }) as unknown as typeof fetch;
+    const api = criarApiHttp('http://localhost:5080', () => 'Dev-ACS-Token-01');
+
+    const encerramento = await api.encerrarTurno('2026-11-18', 3);
+
+    expect(pedidos[0].url).toBe('http://localhost:5080/api/dias-criticos/2026-11-18/encerramento?microarea=3');
+    expect(encerramento.resumo.casasAtivas).toBe(40);
+  });
+
   it('sem sessão não manda cabeçalho, e o 401 chega como ErroHttp', async () => {
     global.fetch = jest.fn(async () => new Response('', { status: 401 })) as unknown as typeof fetch;
     const api = criarApiHttp('http://localhost:5080', () => null);

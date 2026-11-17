@@ -55,10 +55,12 @@ public static class RotasDoMotor
             Resposta(await caso.ExecutarAsync(data, Previsao(corpo), ct)))
             .AllowAnonymous();
 
-        motor.MapPost("/dias-criticos/{data}/encerramento", async (DateOnly data, EncerrarTurno caso, CancellationToken ct) =>
+        // Com ?microarea=, o resumo da resposta conta so as casas da microarea, como o radar. Sem, o resumo gravado do dia.
+        motor.MapPost("/dias-criticos/{data}/encerramento", async (DateOnly data, int? microarea, EncerrarTurno caso, CancellationToken ct) =>
         {
             var dia = await caso.ExecutarAsync(data, ct);
-            return new EncerramentoResposta(dia.Data, Local(dia.EncerradoEm!.Value), dia.Resumo!);
+            var resumo = microarea is { } m ? await caso.ResumirMicroareaAsync(dia, Microarea(m), ct) : dia.Resumo!;
+            return new EncerramentoResposta(dia.Data, Local(dia.EncerradoEm!.Value), resumo);
         });
 
         motor.MapGet("/radar", async (int microarea, ConsultarRadar caso, CancellationToken ct) =>

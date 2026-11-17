@@ -13,7 +13,7 @@ public sealed record FotoDasCasas(DateTimeOffset Agora, DiaCritico? Dia, TurnoRa
 }
 
 // Carrega as casas ativas, os eventos da avaliacao e o dia critico de hoje, e avalia cada casa (secao 3.3 do modelo de dados).
-// O radar filtra por microarea. O VigiaDoRadar e o encerramento leem todas.
+// O radar e o resumo devolvido a ACS filtram por microarea. O VigiaDoRadar e o resumo gravado leem todas.
 public sealed class AvaliacaoDasCasas(MotorDbContext bd, AvaliadorDeCasas avaliador, ParametrosDoMotor parametros)
 {
     public async Task<FotoDasCasas> FotografarAsync(DateTimeOffset agora, MicroareaId? microarea, CancellationToken ct)

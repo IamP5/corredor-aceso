@@ -200,6 +200,31 @@ public sealed class CasosDeUsoTestes(PostgresDoMotor postgres)
     }
 
     [Fact]
+    public async Task ResumoDaMicroarea_ContaSoAsCasasDelaEOGravadoContaTodas()
+    {
+        await using var motor = await postgres.NovoMotorAsync(H(5));
+        var comSinal = CasaToken.Novo();
+        var semSinal = CasaToken.Novo();
+        var casaDeTeste = CasaToken.Novo();
+        await Ativar(motor, comSinal, Sozinha);
+        await Ativar(motor, semSinal, Sozinha);
+        await motor.Executar<IMotorDeCasas>(m => m.AtivarCasaAsync(casaDeTeste, new MicroareaId(999), Sozinha, CancellationToken.None));
+        await Declarar(motor);
+        motor.Relogio.Agora = H(9);
+        await Pacote(motor, comSinal, 1, TipoDePacote.Movimento, H(9));
+        await Pacote(motor, casaDeTeste, 1, TipoDePacote.Movimento, H(9));
+
+        motor.Relogio.Agora = H(17);
+        var dia = await motor.Executar<EncerrarTurno, DiaCritico>(e => e.ExecutarAsync(Dia, CancellationToken.None));
+        motor.Relogio.Agora = H(17, 30);
+        var daMicroarea = await motor.Executar<EncerrarTurno, ResumoDoTurno>(e => e.ResumirMicroareaAsync(dia, Microarea, CancellationToken.None));
+
+        Assert.Equal(new ResumoDoTurno(CasasAtivas: 2, ComSinalDeVidaAte10h: 1, Atendidas: 0, VermelhasPendentes: 0, CinzasPendentes: 2), daMicroarea);
+        Assert.Equal(3, dia.Resumo!.CasasAtivas);
+        Assert.Equal(2, dia.Resumo.ComSinalDeVidaAte10h);
+    }
+
+    [Fact]
     public async Task EncerrarDiaQueNaoExiste_E404()
     {
         await using var motor = await postgres.NovoMotorAsync(H(9));

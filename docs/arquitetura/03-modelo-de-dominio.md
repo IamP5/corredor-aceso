@@ -260,7 +260,7 @@ Invariantes:
 4. Declarar de novo a mesma data atualiza probabilidade, motivo e origem. `AbertoEm` não muda, então a janela da manhã não se desloca.
 5. Depois do encerramento, declarar de novo é recusado com `TURNO_ENCERRADO`. O turno encerrado não reabre.
 6. O toque é pedido no máximo uma vez por dia.
-7. Existe um encerramento por data. O resumo é gravado no encerramento e não muda. Encerrar de novo devolve o mesmo resumo.
+7. Existe um encerramento por data. O resumo gravado conta as casas de todas as microáreas e não muda. Com `?microarea=`, a resposta à ACS conta só as casas da microárea dela, como o radar, no instante do encerramento.
 
 | Comando | Efeito | Evento | Chave de idempotência |
 |---|---|---|---|

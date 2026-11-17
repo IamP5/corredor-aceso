@@ -27,7 +27,7 @@ export interface ApiCorredor {
   listaDeNomes(microarea: number): Promise<ItemDaListaDeNomes[]>;
   registrarVisita(visita: NovaVisita): Promise<VisitaRegistrada>;
   verificarMensagem(canal: Canal, texto: string): Promise<VerificacaoDeMensagem>;
-  encerrarTurno(data: string): Promise<Encerramento>;
+  encerrarTurno(data: string, microarea: number): Promise<Encerramento>;
   avisos(microarea: number): Promise<Aviso[]>;
 }
 
@@ -94,7 +94,8 @@ export function criarApiHttp(urlBase: string, token: () => string | null): ApiCo
     registrarVisita: (visita) => pedir('POST', '/visitas', visitaRegistrada, visita),
     verificarMensagem: (canal, texto) =>
       pedir('POST', '/mensagens/verificar', verificacaoDeMensagem, { canal, texto }),
-    encerrarTurno: (data) => pedir('POST', `/dias-criticos/${data}/encerramento`, encerramento),
+    encerrarTurno: (data, microarea) =>
+      pedir('POST', `/dias-criticos/${data}/encerramento?microarea=${microarea}`, encerramento),
     avisos: (microarea) => pedir('GET', `/avisos?microarea=${microarea}`, avisos),
   };
 }

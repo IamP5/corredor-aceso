@@ -290,8 +290,9 @@ export function criarApiMock(opcoes: OpcoesDoMock = {}): ApiCorredor {
         return avisosDoDia;
       }),
 
-    encerrarTurno: (data) =>
+    encerrarTurno: (data, microarea) =>
       chamada((): Encerramento => {
+        if (microarea !== MICROAREA_DO_MOCK) throw new ErroHttp(403, 'MICROAREA_DE_OUTRA_ACS');
         if (data !== dataDeSp(agoraDemo())) throw new ErroHttp(404, 'DIA_CRITICO_DESCONHECIDO');
         if (encerramento) return encerramento;
         const pendentes = listar('pendente').map((c) => c.card as CardComAlerta);

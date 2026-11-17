@@ -82,18 +82,23 @@ public sealed class EncerrarTurno(MotorDbContext bd, AvaliacaoDasCasas avaliacao
         }
 
         var agora = relogio.GetUtcNow();
-        dia.Encerrar(await ResumirAsync(dia, agora, ct), agora);
+        dia.Encerrar(await ResumirAsync(dia, agora, microarea: null, ct), agora);
         await bd.SaveChangesAsync(ct);
         return dia;
     }
 
+    // O resumo gravado conta todas as microareas. A ACS recebe o da microarea dela, como no radar,
+    // avaliado no mesmo instante do encerramento.
+    public Task<ResumoDoTurno> ResumirMicroareaAsync(DiaCritico dia, MicroareaId microarea, CancellationToken ct) =>
+        ResumirAsync(dia, dia.EncerradoEm ?? throw new InvalidOperationException("o turno ainda nao foi encerrado"), microarea, ct);
+
     // O resumo olha o turno ainda aberto. Depois do FimDoTurno, avalia no ultimo instante do turno.
-    private async Task<ResumoDoTurno> ResumirAsync(DiaCritico dia, DateTimeOffset agora, CancellationToken ct)
+    private async Task<ResumoDoTurno> ResumirAsync(DiaCritico dia, DateTimeOffset agora, MicroareaId? microarea, CancellationToken ct)
     {
         var turno = dia.Turno(parametros);
         var ultimoInstante = turno.FimPrevisto.AddTicks(-TimeSpan.TicksPerMillisecond);
         var instante = agora < ultimoInstante ? agora : ultimoInstante;
-        var foto = await avaliacao.FotografarAsync(instante, turno, dia, microarea: null, ct);
+        var foto = await avaliacao.FotografarAsync(instante, turno, dia, microarea, ct);
         var dezHoras = HorarioDeSaoPaulo.Em(dia.Data, parametros.FimDaManha);
         return new ResumoDoTurno(
             CasasAtivas: foto.Casas.Count,

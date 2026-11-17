@@ -40,7 +40,7 @@ createServer(async (req, res) => {
       const { canal, texto } = (await lerCorpo(req)) as { canal: 'GrupoDoBairro'; texto: string };
       corpo = await api.verificarMensagem(canal, texto);
     } else if ((m = rota.match(/^POST \/api\/dias-criticos\/(\d{4}-\d{2}-\d{2})\/encerramento$/))) {
-      corpo = await api.encerrarTurno(m[1]);
+      corpo = await api.encerrarTurno(m[1], microarea);
     } else throw new ErroHttp(404, 'ROTA_DESCONHECIDA');
     console.log(`${new Date().toISOString()} ${rota} ${status}`);
     res.writeHead(status, { 'Content-Type': 'application/json' }).end(JSON.stringify(corpo));
