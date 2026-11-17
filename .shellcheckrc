@@ -1,2 +1,6 @@
 source-path=SCRIPTDIR
 external-sources=true
+# SC2317 acusa "comando inalcançável" em funções chamadas por nome ou por trap,
+# como os cenários de infra/teste-de-falha.sh. O shellcheck do runner do GitHub
+# é mais antigo que o local e dispara esse aviso onde o novo não dispara.
+disable=SC2317
