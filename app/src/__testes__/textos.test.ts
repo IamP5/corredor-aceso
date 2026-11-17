@@ -35,7 +35,7 @@ describe('situação em texto', () => {
   it('o desfecho NaoAbriu aparece como SAMU chamado', () => {
     expect(textoDoDesfechoNoCard('NaoAbriu', '2026-11-18T13:40:00Z', 'enviado')).toBe('SAMU chamado às 10h40. Enviado.');
     expect(textoDoDesfechoNoCard('EstavaBem', '2026-11-18T13:12:00Z', 'pendente')).toBe(
-      'Estava bem às 10h12. Ainda não enviado, sai quando a internet voltar.',
+      'Estava bem às 10h12. Ainda não enviado, sai sozinho quando a conexão voltar.',
     );
   });
 

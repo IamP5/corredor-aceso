@@ -18,7 +18,7 @@ export interface RotuloDaSituacao {
 export const ROTULO_DA_SITUACAO: Record<SituacaoNaTela, RotuloDaSituacao> = {
   Vermelho: { nome: 'Urgente', simbolo: '!', acao: 'Precisa de visita agora.' },
   Cinza: { nome: 'Aparelho sem sinal', simbolo: '?', acao: 'Não dá para saber como a pessoa está. Precisa de visita.' },
-  Aguardando: { nome: 'Aguardando', simbolo: '…', acao: 'Ainda no prazo. Não precisa ir agora.' },
+  Aguardando: { nome: 'Aguardando', simbolo: '…', acao: 'Sem alerta agora. Não precisa ir.' },
   Verde: { nome: 'Deu sinal hoje', simbolo: '✓', acao: 'A pessoa deu sinal de vida nesta parte do dia.' },
 };
 
@@ -38,7 +38,7 @@ export function textoDoMotivo(motivo: MotivoDoAlerta, desde: string, ultimoPacot
 }
 
 export function textoDoPerfil(perfil: PerfilDaCasa): string {
-  const contato = { Sozinho: 'Mora sozinha', Acamado: 'Acamada', Coabitado: 'Mora com outra pessoa' }[perfil.contato];
+  const contato = { Sozinho: 'A pessoa mora só', Acamado: 'A pessoa está acamada', Coabitado: 'A pessoa mora com mais alguém' }[perfil.contato];
   return perfil.eletrodependente ? `${contato}. Usa aparelho de saúde na tomada.` : `${contato}.`;
 }
 
@@ -52,7 +52,7 @@ export const TEXTO_DO_DESFECHO: Record<Desfecho, { nome: string; explicacao: str
 /** O que aparece no card depois de a ACS registrar um desfecho. */
 export function textoDoDesfechoNoCard(desfecho: Desfecho, em: string, estado: EstadoDoDesfecho): string {
   const base = desfecho === 'NaoAbriu' ? `SAMU chamado às ${horaCurta(em)}` : `${TEXTO_DO_DESFECHO[desfecho].nome} às ${horaCurta(em)}`;
-  const envio = { pendente: 'Ainda não enviado, sai quando a internet voltar.', enviado: 'Enviado.', recusado: 'Não enviado.' }[estado];
+  const envio = { pendente: 'Ainda não enviado, sai sozinho quando a conexão voltar.', enviado: 'Enviado.', recusado: 'Não enviado.' }[estado];
   return `${base}. ${envio}`;
 }
 
@@ -64,7 +64,7 @@ export function textoDoErro(codigo: string | null): string {
     case 'VISITA_NO_FUTURO':
       return 'A hora do celular está errada. Acerte o relógio e registre de novo.';
     case 'SEM_CONEXAO':
-      return 'Sem internet. O app tenta de novo sozinho.';
+      return 'Sem conexão com o sistema. O app tenta de novo sozinho.';
     case 'MOTOR_INDISPONIVEL':
       return 'O sistema está fora do ar. O app tenta de novo sozinho.';
     case 'CAMPO_INVALIDO':
@@ -80,7 +80,11 @@ export function textoDoAviso(card: Extract<CardNaTela, { lista: 'pendente' | 'at
   if (!card.aviso) return null;
   const nome = card.pessoa?.vizinho?.nome;
   const avisado = `Vizinho de confiança${nome ? ` (${nome})` : ''} avisado às ${horaCurta(card.aviso.em)}`;
-  if (card.aviso.resposta === 'EstaBem') return `${avisado} e respondeu que a pessoa está bem.`;
+  if (card.aviso.resposta === 'EstaBem') {
+    // A regra de energia só aceita a visita da ACS (5.7 do modelo de domínio).
+    const soAcs = card.motivo === 'EnergiaEletrodependente' && card.lista === 'pendente' ? ' Mesmo assim, só a sua visita tira este alerta.' : '';
+    return `${avisado} e respondeu que a pessoa está bem.${soAcs}`;
+  }
   if (card.aviso.resposta === 'PrecisaDeAjuda') return `${avisado} e pediu ajuda.`;
   return `${avisado} e ainda não respondeu.`;
 }

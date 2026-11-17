@@ -23,7 +23,9 @@ export default function Visita() {
     setSalvando(true);
     await registrarVisita(token, escolha, observacao);
     setSalvando(false);
-    router.back();
+    // Quem abriu a visita por um link não tem para onde voltar: vai para a casa.
+    if (router.canGoBack()) router.back();
+    else router.replace({ pathname: '/casa/[token]', params: { token } });
   }
 
   return (

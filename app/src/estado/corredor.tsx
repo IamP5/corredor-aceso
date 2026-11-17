@@ -127,12 +127,13 @@ export function ProvedorDoCorredor({ children }: { children: ReactNode }) {
     [sincronizar],
   );
 
-  // A rede pode estar ligada e a API fora do ar. Enquanto houver fila, tenta de novo.
+  // A rede pode estar ligada e a API fora do ar. Enquanto houver fila, tenta de novo,
+  // e baixa o radar junto, para o card sair da lista assim que a API aceitar.
   useEffect(() => {
     if (pendentes === 0) return;
-    const relogio = setInterval(() => void enviar(), INTERVALO_DE_REENVIO_MS);
+    const relogio = setInterval(() => void sincronizar(), INTERVALO_DE_REENVIO_MS);
     return () => clearInterval(relogio);
-  }, [pendentes, enviar]);
+  }, [pendentes, sincronizar]);
 
   const valor: Corredor = {
     banco,

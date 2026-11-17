@@ -113,7 +113,9 @@ export default function Casa() {
           </Paragrafo>
           {itensDaLinha(linha).map((i) => (
             <View key={`${i.quando}-${i.texto}`} style={{ flexDirection: 'row', gap: 12 }} accessible accessibilityLabel={`${horaCurta(i.quando)}. ${i.texto}`}>
-              <Paragrafo>{horaCurta(i.quando)}</Paragrafo>
+              <View style={{ width: 72 }}>
+                <Paragrafo>{horaCurta(i.quando)}</Paragrafo>
+              </View>
               <View style={{ flex: 1 }}>
                 <Paragrafo>{i.texto}</Paragrafo>
               </View>
@@ -122,7 +124,7 @@ export default function Casa() {
         </>
       ) : erroDaLinha ? (
         <Faixa tipo="aviso" titulo="Linha do tempo indisponível">
-          {erroDaLinha === 'SEM_CONEXAO' ? 'A linha do tempo precisa de internet. O resto da tela funciona sem ela.' : textoDoErro(erroDaLinha)}
+          {erroDaLinha === 'SEM_CONEXAO' ? 'A linha do tempo precisa de conexão com o sistema. O resto da tela funciona sem ela.' : textoDoErro(erroDaLinha)}
         </Faixa>
       ) : (
         <Paragrafo secundario>Carregando a linha do tempo.</Paragrafo>

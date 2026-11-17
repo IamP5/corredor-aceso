@@ -37,8 +37,8 @@ export default function Encerrar() {
           <Paragrafo>{`${r.comSinalDeVidaAte10h} de ${r.casasAtivas} casas. A meta é 100%.`}</Paragrafo>
         </View>
         <Paragrafo>{`${r.atendidas} ${r.atendidas === 1 ? 'casa atendida' : 'casas atendidas'} com alerta.`}</Paragrafo>
-        <Paragrafo>{`! ${r.vermelhasPendentes} urgentes ficaram sem atendimento.`}</Paragrafo>
-        <Paragrafo>{`? ${r.cinzasPendentes} com aparelho sem sinal ficaram sem atendimento.`}</Paragrafo>
+        <Paragrafo>{r.vermelhasPendentes === 1 ? '! 1 casa urgente ficou sem atendimento.' : `! ${r.vermelhasPendentes} casas urgentes ficaram sem atendimento.`}</Paragrafo>
+        <Paragrafo>{r.cinzasPendentes === 1 ? '? 1 casa com aparelho sem sinal ficou sem atendimento.' : `? ${r.cinzasPendentes} casas com aparelho sem sinal ficaram sem atendimento.`}</Paragrafo>
         {r.vermelhasPendentes + r.cinzasPendentes > 0 ? (
           <Faixa tipo="aviso" titulo="Ainda tem casa sem resposta">
             Avise a UBS. Fora do turno, só os alertas de energia e de aparelho mudo continuam no radar.
