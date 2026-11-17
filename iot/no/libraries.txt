@@ -1,0 +1,3 @@
+# Bibliotecas do projeto no wokwi.com (mesmas da compilação com arduino-cli).
+PubSubClient
+DHT sensor library for ESPx

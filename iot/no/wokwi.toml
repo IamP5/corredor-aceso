@@ -1,0 +1,6 @@
+# Wokwi CLI e extensão do VS Code. Compile antes com:
+#   arduino-cli compile --fqbn esp32:esp32:esp32 --output-dir build iot/no
+[wokwi]
+version = 1
+firmware = "build/no.ino.merged.bin"
+elf = "build/no.ino.elf"
