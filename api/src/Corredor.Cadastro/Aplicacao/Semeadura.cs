@@ -17,6 +17,10 @@ public static class Semeadura
     // A casa do teste de falha (05-infra-e-entrega.md, seção 5, item 8). Não tem pessoa: só o Motor a conhece.
     public const string CasaDeTestePadrao = "fa11fa11fa11fa11fa11fa11fa11fa11";
 
+    // A casa de teste fica numa microárea sem ACS. Na microárea da demo ela aparecia no radar como um card
+    // cinza sem nome, que a ACS não tem como visitar, e entrava no resumo do turno como a 41ª casa.
+    public const int MicroareaDaCasaDeTeste = 999;
+
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web)
     {
         Converters = { new System.Text.Json.Serialization.JsonStringEnumConverter() },
@@ -60,7 +64,7 @@ public static class Semeadura
             tokens.Add(new { n = casa.N, casaToken = token.Valor, papelNaDemo = casa.PapelNaDemo });
         }
 
-        await AtivarCasaDeTesteAsync(servicos, microarea, ct);
+        await AtivarCasaDeTesteAsync(servicos, ct);
 
         // Fica ao lado da semente, fora do Git pelo .gitignore da pasta. O simulador das 39 casas lê este arquivo.
         var arquivoDeTokens = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(arquivo))!, "tokens.local.json");
@@ -75,7 +79,7 @@ public static class Semeadura
     }
 
     // O teste de falha publica na casa CASA_TESTE_TOKEN e lê a linha do tempo dela. AtivarCasa converge.
-    private static async Task AtivarCasaDeTesteAsync(IServiceProvider servicos, MicroareaId microarea, CancellationToken ct)
+    private static async Task AtivarCasaDeTesteAsync(IServiceProvider servicos, CancellationToken ct)
     {
         var texto = servicos.GetRequiredService<IConfiguration>()["CASA_TESTE_TOKEN"] ?? CasaDeTestePadrao;
         if (!CasaToken.TryParse(texto, out var token))
@@ -85,7 +89,7 @@ public static class Semeadura
 
         await using var escopo = servicos.CreateAsyncScope();
         var motor = escopo.ServiceProvider.GetRequiredService<IMotorDeCasas>();
-        await motor.AtivarCasaAsync(token, microarea, new PerfilDaCasa(PerfilDeContato.Sozinho, false), ct);
+        await motor.AtivarCasaAsync(token, new MicroareaId(MicroareaDaCasaDeTeste), new PerfilDaCasa(PerfilDeContato.Sozinho, false), ct);
     }
 
     private sealed record ArquivoDaSemente(int MicroareaId, string VersaoDoTermo, IReadOnlyList<CasaDaSemente> Casas);

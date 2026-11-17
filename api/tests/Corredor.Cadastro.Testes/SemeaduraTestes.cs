@@ -68,6 +68,9 @@ public sealed class SemeaduraNoMotorTestes(BancoDeTeste banco) : IClassFixture<B
         Assert.True(CasaToken.TryParse(Semeadura.CasaDeTestePadrao, out var casaDeTeste));
         Assert.True(api.Motor.Ativas.ContainsKey(casaDeTeste));
         Assert.Equal(41, api.Motor.Ativas.Count);
+        // O radar da ACS mostra só as 40 casas de idosos: a casa de teste fica fora da microárea dela.
+        Assert.Equal(new MicroareaId(Semeadura.MicroareaDaCasaDeTeste), api.Motor.Microareas[casaDeTeste]);
+        Assert.Equal(40, api.Motor.Microareas.Values.Count(m => m == new MicroareaId(3)));
         var tokens = await File.ReadAllTextAsync(resultado.ArquivoDeTokens, TestContext.Current.CancellationToken);
         using var json = JsonDocument.Parse(tokens);
         Assert.Equal(40, json.RootElement.GetArrayLength());

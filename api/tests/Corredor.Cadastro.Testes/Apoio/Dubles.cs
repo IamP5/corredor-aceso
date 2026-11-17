@@ -9,6 +9,7 @@ public sealed class MotorFalso : IMotorDeCasas
 {
     public ConcurrentQueue<string> Chamadas { get; } = new();
     public ConcurrentDictionary<CasaToken, PerfilDaCasa> Ativas { get; } = new();
+    public ConcurrentDictionary<CasaToken, MicroareaId> Microareas { get; } = new();
     public ConcurrentDictionary<CasaToken, byte> Desativadas { get; } = new();
     public ConcurrentDictionary<Guid, (CasaToken Token, Confirmacao Confirmacao)> Confirmacoes { get; } = new();
 
@@ -27,6 +28,7 @@ public sealed class MotorFalso : IMotorDeCasas
         }
 
         Ativas[token] = perfil;
+        Microareas[token] = microarea;
         return Task.CompletedTask;
     }
 
