@@ -64,6 +64,9 @@ public sealed class ApiDeTeste : IAsyncDisposable
         builder.Services.AddAuthentication("Teste").AddScheme<AuthenticationSchemeOptions, AutenticacaoDeTeste>("Teste", null);
 
         builder.AddGuarda();
+        // O parser provisório do esqueleto rotula todo texto. Este dublê acha só as palavras da tabela,
+        // para o teste ver os dois vereditos. A política de canal é a SaidaSegura real da Guarda.
+        builder.Services.AddSingleton<IMotorDeParsing, ParsingPorPalavra>();
         builder.AddCadastro();
         if (!comReconciliacao)
         {
@@ -146,6 +149,22 @@ public sealed class ApiDeTeste : IAsyncDisposable
             var identidade = new ClaimsIdentity([new Claim("acs", cabecalho["Bearer ".Length..])], Scheme.Name);
             return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(identidade), Scheme.Name)));
         }
+    }
+}
+
+public sealed class ParsingPorPalavra : IMotorDeParsing
+{
+    private static readonly (string Palavra, TipoDeDado Tipo)[] Tabela =
+    [
+        ("mora sozinho", TipoDeDado.MoraSozinho),
+        ("diurético", TipoDeDado.Saude),
+        ("Aparecida", TipoDeDado.Nome),
+    ];
+
+    public TextoAnalisado Rotular(string texto, params TipoDeDado[] rotulosDoCampo)
+    {
+        var achados = Tabela.Where(t => texto.Contains(t.Palavra, StringComparison.OrdinalIgnoreCase)).Select(t => t.Tipo);
+        return new TextoAnalisado(TextoRotulado.Do(texto, rotulosDoCampo.Union(achados).ToArray()), []);
     }
 }
 

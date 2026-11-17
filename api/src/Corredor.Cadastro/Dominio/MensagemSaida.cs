@@ -22,7 +22,7 @@ public sealed class MensagemSaida
     {
         var (tipos, mascarado) = saidaSegura.Liberar(texto, canal) switch
         {
-            Veredito.Bloqueada b => (b.TiposDeDado.Order().ToList(), b.TextoMascarado),
+            Veredito.Bloqueada b => (b.TiposDeDado.OrderBy(t => t.ToString(), StringComparer.Ordinal).ToList(), b.TextoMascarado),
             _ => (new List<TipoDeDado>(), texto.ToString()),
         };
         return new MensagemSaida

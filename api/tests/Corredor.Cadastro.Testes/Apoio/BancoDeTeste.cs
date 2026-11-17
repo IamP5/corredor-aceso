@@ -15,6 +15,8 @@ public sealed class BancoDeTeste : IAsyncLifetime
     private const string SenhaDosPapeis = "ci";
 
     private static readonly Lazy<Task<NpgsqlConnectionStringBuilder>> Servidor = new(SubirServidorAsync);
+    private static readonly SemaphoreSlim Papeis = new(1, 1);
+    private static bool _papeisCriados;
 
     private NpgsqlConnectionStringBuilder? _admin;
     private string _banco = "";
@@ -30,13 +32,8 @@ public sealed class BancoDeTeste : IAsyncLifetime
         await ExecutarAsync(_admin.ConnectionString, $"CREATE DATABASE {_banco}");
         var noBanco = new NpgsqlConnectionStringBuilder(_admin.ConnectionString) { Database = _banco }.ConnectionString;
         // O mesmo efeito de infra/config/bd-modulo.sql, sem o psql.
+        await CriarPapeisAsync(noBanco);
         await ExecutarAsync(noBanco, $"""
-            DO $$ BEGIN
-              IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'corredor_cadastro_migra') THEN CREATE ROLE corredor_cadastro_migra LOGIN; END IF;
-              IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'corredor_cadastro') THEN CREATE ROLE corredor_cadastro LOGIN; END IF;
-            END $$;
-            ALTER ROLE corredor_cadastro_migra NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD '{SenhaDosPapeis}';
-            ALTER ROLE corredor_cadastro NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD '{SenhaDosPapeis}';
             REVOKE ALL ON DATABASE {_banco} FROM PUBLIC;
             GRANT CONNECT ON DATABASE {_banco} TO corredor_cadastro_migra, corredor_cadastro;
             CREATE SCHEMA cadastro AUTHORIZATION corredor_cadastro_migra;
@@ -62,6 +59,33 @@ public sealed class BancoDeTeste : IAsyncLifetime
 
         NpgsqlConnection.ClearAllPools();
         await ExecutarAsync(_admin.ConnectionString, $"DROP DATABASE IF EXISTS {_banco} WITH (FORCE)");
+    }
+
+    // Os papéis valem para o servidor inteiro. Criar ou alterar em paralelo dá "tuple concurrently updated".
+    private static async Task CriarPapeisAsync(string conexao)
+    {
+        await Papeis.WaitAsync();
+        try
+        {
+            if (_papeisCriados)
+            {
+                return;
+            }
+
+            await ExecutarAsync(conexao, $"""
+                DO $$ BEGIN
+                  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'corredor_cadastro_migra') THEN CREATE ROLE corredor_cadastro_migra LOGIN; END IF;
+                  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'corredor_cadastro') THEN CREATE ROLE corredor_cadastro LOGIN; END IF;
+                END $$;
+                ALTER ROLE corredor_cadastro_migra NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD '{SenhaDosPapeis}';
+                ALTER ROLE corredor_cadastro NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD '{SenhaDosPapeis}';
+                """);
+            _papeisCriados = true;
+        }
+        finally
+        {
+            Papeis.Release();
+        }
     }
 
     private static async Task<NpgsqlConnectionStringBuilder> SubirServidorAsync()

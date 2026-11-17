@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Corredor.Cadastro;
@@ -21,6 +22,8 @@ public static class CadastroModulo
         // Toda verificação registrada entra no /healthz/ready do host.
         builder.Services.AddHealthChecks().AddDbContextCheck<CadastroDbContext>("bd-cadastro");
 
+        // O Motor registra IMotorDeCasas em AddMotor, antes deste método. Sem ele, o Cadastro responde MOTOR_INDISPONIVEL.
+        builder.Services.TryAddSingleton<IMotorDeCasas, MotorAusente>();
         builder.Services.AddScoped<CasosDoIdoso>();
         builder.Services.AddScoped<CasosDaVisita>();
         builder.Services.AddScoped<CasosDoAviso>();

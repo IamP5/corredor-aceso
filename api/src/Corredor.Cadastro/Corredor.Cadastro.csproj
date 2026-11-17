@@ -11,4 +11,8 @@
     <ProjectReference Include="../Corredor.Contratos/Corredor.Contratos.csproj" />
     <ProjectReference Include="../Corredor.Guarda/Corredor.Guarda.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- A migração Gatilhos lê o SQL daqui. É a cópia de docs/arquitetura/referencia/dados/ddl/cadastro_gatilhos.sql. -->
+    <EmbeddedResource Include="Infra/Sql/cadastro_gatilhos.sql" LogicalName="cadastro_gatilhos.sql" />
+  </ItemGroup>
 </Project>
