@@ -1,0 +1,4 @@
+# Só o que prever_hoje.py usa na VM (infra/02-app.sh instala este arquivo).
+# Com origem REGRA_BASE o job usa só a biblioteca padrão; com MODELO ele carrega o XGBoost.
+numpy==2.5.5
+xgboost==3.4.1
