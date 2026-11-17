@@ -21,6 +21,13 @@ grep -q "github.com/$CORREDOR_REPO_GH.git" infra/cloud-init/corredor.yaml || {
 }
 echo "ok: o cloud-init clona $CORREDOR_REPO_GH"
 
+dia="$(sed -n 's/^Environment=CORREDOR_DIA_DAS_VARIAVEIS=//p' infra/systemd/corredor-ml.service)"
+if [[ -z $dia ]] || ! grep -q "^$dia," ml/dados/processados/clima_diario.csv; then
+  echo "infra/systemd/corredor-ml.service precisa de CORREDOR_DIA_DAS_VARIAVEIS com um dia de ml/dados/processados/clima_diario.csv" >&2
+  exit 1
+fi
+echo "ok: o job de ML da VM usa o clima de $dia, que existe nos dados processados"
+
 if grep -rIl $'\r' infra tools >/dev/null; then
   echo "há arquivo com fim de linha CRLF em infra/ ou tools/:" >&2
   grep -rIl $'\r' infra tools >&2

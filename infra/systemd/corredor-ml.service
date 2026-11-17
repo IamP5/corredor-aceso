@@ -7,6 +7,9 @@ OnFailure=corredor-alerta@%n.service
 Type=oneshot
 User=corredor
 Environment=CORREDOR_API_URL=http://127.0.0.1:5000
+# O INMET publica o ano corrente com atraso, então não há clima de hoje em ml/dados/processados/.
+# Sem esta variável o job sai com 2 todo dia e dispara o OnFailure. A demo usa o clima de 29/12/2025.
+Environment=CORREDOR_DIA_DAS_VARIAVEIS=2025-12-29
 WorkingDirectory=/opt/corredor/repo/ml
 ExecStart=/opt/corredor/venv/bin/python prever_hoje.py
 SyslogIdentifier=corredor-ml
