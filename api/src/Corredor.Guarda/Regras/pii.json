@@ -1,0 +1,119 @@
+{
+  "versao": 1,
+  "chavesDeCredencial": [
+    "senha", "password", "passwd", "pwd", "token", "accessToken", "refreshToken", "idToken",
+    "apiKey", "api_key", "chave", "chaveDeApi", "segredo", "secret", "clientSecret", "authorization"
+  ],
+  "regras": [
+    {
+      "nome": "cpf",
+      "tipo": "Cpf",
+      "padrao": "(?<!\\d)(?<!\\d[.-])\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}(?!\\d)(?![.-]\\d)|(?<!\\d)(?<!\\d[.-])\\d{11}(?!\\d)(?![.-]\\d)",
+      "validador": "Cpf",
+      "mascara": "Cpf",
+      "severidade": 4,
+      "severidadeComValidadorValido": 5,
+      "naEntrada": "Mascarar"
+    },
+    {
+      "nome": "cns",
+      "tipo": "Cns",
+      "padrao": "(?<!\\d)[12789]\\d{2} \\d{4} \\d{4} \\d{4}(?![\\d])|(?<!\\d)(?<!\\d[.-])[12789]\\d{14}(?!\\d)(?![.-]\\d)",
+      "validador": "Cns",
+      "mascara": "UltimosQuatro",
+      "severidade": 5,
+      "severidadeComValidadorValido": 5,
+      "naEntrada": "Mascarar"
+    },
+    {
+      "nome": "rg",
+      "tipo": "Rg",
+      "padrao": "(?<!\\d)(?<!\\d[.-])\\d{1,2}\\.\\d{3}\\.\\d{3}-[\\dXx](?![\\d])",
+      "validador": null,
+      "mascara": "Rg",
+      "severidade": 4,
+      "severidadeComValidadorValido": 4,
+      "naEntrada": "Mascarar"
+    },
+    {
+      "nome": "credencial-no-texto",
+      "tipo": "Credencial",
+      "padrao": "(?i)\\b(?:senha|password|token|api[_-]?key|secret|segredo)\\s*[:=]\\s*\\S+|\\bBearer\\s+[A-Za-z0-9._~+/-]{8,}=*|\\bsk-[A-Za-z0-9_-]{16,}",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 5,
+      "severidadeComValidadorValido": 5,
+      "naEntrada": "Mascarar"
+    },
+    {
+      "nome": "cid-10",
+      "tipo": "Saude",
+      "padrao": "(?i:\\bCID(?:-?10)?\\s*:?\\s*)?\\b[A-TV-Z]\\d{2}(?:\\.\\d{1,2})?\\b",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 4,
+      "severidadeComValidadorValido": 4,
+      "naEntrada": "Rotular"
+    },
+    {
+      "nome": "termo-de-laudo",
+      "tipo": "Saude",
+      "padrao": "(?i)\\b(?:laudo|diagn[oó]stico|internad[oa]|interna[cç][aã]o|diabetes|diab[eé]tic[oa]|hipertens[aã]o|hipertens[oa]|press[aã]o alta|insufici[eê]ncia card[ií]aca|insufici[eê]ncia renal|cardiopatia|avc|derrame|c[aâ]ncer|tumor|dem[eê]ncia|alzheimer|parkinson|dpoc|enfisema|asma|depress[aã]o|hiv|hemodi[aá]lise|di[aá]lise|marca-?passo|acamad[oa]|concentrador de oxig[eê]nio|oxig[eê]nio|epilepsia|esquizofrenia|tuberculose)\\b",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 4,
+      "severidadeComValidadorValido": 4,
+      "naEntrada": "Rotular"
+    },
+    {
+      "nome": "medicamento",
+      "tipo": "Saude",
+      "padrao": "(?i)\\b(?:diur[eé]tic[oa]s?|furosemida|lasix|hidroclorotiazida|espironolactona|losartana|captopril|enalapril|anlodipino|amlodipina|atenolol|propranolol|metformina|glibenclamida|insulina|sinvastatina|atorvastatina|aas|varfarina|marevan|clopidogrel|digoxina|omeprazol|levotiroxina|puran|clonazepam|rivotril|diazepam|fluoxetina|sertralina|haloperidol|risperidona|morfina|tramadol)\\b",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 4,
+      "severidadeComValidadorValido": 4,
+      "naEntrada": "Rotular"
+    },
+    {
+      "nome": "mora-sozinho",
+      "tipo": "MoraSozinho",
+      "padrao": "(?i)\\b(?:mora(?:m)?|vive(?:m)?|fica(?:m)?)\\s+s[oó]zinh[oa]s?\\b|\\bsem\\s+ningu[eé]m\\s+em\\s+casa\\b|\\bn[aã]o\\s+tem\\s+ningu[eé]m\\b",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 4,
+      "severidadeComValidadorValido": 4,
+      "naEntrada": "Rotular"
+    },
+    {
+      "nome": "endereco",
+      "tipo": "Endereco",
+      "padrao": "(?i)\\b(?:rua|r\\.|avenida|av\\.|travessa|tv\\.|alameda|al\\.|estrada|rodovia|pra[cç]a|largo|viela|beco)\\s+[^,;\\n]{2,60}(?:,\\s*(?:n[º°o]\\.?\\s*)?\\d{1,5})?|\\b\\d{5}-\\d{3}\\b",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 3,
+      "severidadeComValidadorValido": 3,
+      "naEntrada": "Rotular"
+    },
+    {
+      "nome": "telefone",
+      "tipo": "Telefone",
+      "padrao": "(?:\\+55\\s?)?\\(\\d{2}\\)\\s?9?\\d{4}-?\\d{4}\\b|(?<!\\d)(?<!\\d[.-])\\d{2}\\s9?\\d{4}-\\d{4}\\b|(?<!\\d)(?<!\\d[.-])9\\d{4}-\\d{4}\\b",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 3,
+      "severidadeComValidadorValido": 3,
+      "naEntrada": "Rotular"
+    },
+    {
+      "nome": "nome-com-tratamento",
+      "tipo": "Nome",
+      "padrao": "\\b(?i:dona|seu|sr\\.?|sra\\.?|senhor|senhora|tia|tio|v[oó]|vov[oó])\\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]+(?:\\s+(?:d[aeo]s?\\s+)?[A-ZÁÉÍÓÚÂÊÔÃÕÇ][a-záéíóúâêôãõç]+)*",
+      "validador": null,
+      "mascara": "Rotulo",
+      "severidade": 3,
+      "severidadeComValidadorValido": 3,
+      "naEntrada": "Rotular"
+    }
+  ]
+}

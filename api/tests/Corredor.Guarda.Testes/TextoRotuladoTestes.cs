@@ -30,7 +30,7 @@ public class TextoRotuladoTestes
         Assert.Equal(new HashSet<TipoDeDado> { TipoDeDado.Nome }, frase.Rotulos);
         Assert.Equal("Visita a [NOME]", frase.ToString());
         Assert.Equal(new HashSet<TipoDeDado> { TipoDeDado.Endereco, TipoDeDado.Telefone }, soma.Rotulos);
-        Assert.Equal("Visita a Aparecida Souza", ((Veredito.Liberada)new SaidaSegura().Liberar(frase, Canal.Banco)).Texto);
+        Assert.Equal("Visita a Aparecida Souza", ((Veredito.Liberada)Fabrica.Saida().Liberar(frase, Canal.Banco)).Texto);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class TextoRotuladoTestes
 
         Assert.Equal("usa oxigênio", gravado);
         Assert.Equal(new HashSet<TipoDeDado> { TipoDeDado.Saude, TipoDeDado.Nome }, lido.Rotulos);
-        Assert.Equal("usa oxigênio", ((Veredito.Liberada)new SaidaSegura().Liberar(lido, Canal.Banco)).Texto);
+        Assert.Equal("usa oxigênio", ((Veredito.Liberada)Fabrica.Saida().Liberar(lido, Canal.Banco)).Texto);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public class TextoRotuladoTestes
 
 public class SaidaSeguraTestes
 {
-    private readonly SaidaSegura _saida = new();
+    private readonly SaidaSegura _saida = Fabrica.Saida();
 
     [Theory]
     [InlineData(Canal.GrupoDoBairro)]
@@ -115,9 +115,9 @@ public class SaidaSeguraTestes
     }
 
     [Fact]
-    public void Motor_de_parsing_provisorio_faz_o_texto_livre_ser_bloqueado_no_grupo_do_bairro()
+    public void Motor_de_parsing_faz_o_texto_livre_ser_bloqueado_no_grupo_do_bairro()
     {
-        var analisado = new MotorDeParsingProvisorio().Rotular("ele mora sozinho e toma diurético", TipoDeDado.Saude);
+        var analisado = new MotorDeParsing().Rotular("ele mora sozinho e toma diurético", TipoDeDado.Saude);
 
         Assert.Contains(TipoDeDado.MoraSozinho, analisado.Texto.Rotulos);
         Assert.IsType<Veredito.Bloqueada>(_saida.Liberar(analisado.Texto, Canal.GrupoDoBairro));
