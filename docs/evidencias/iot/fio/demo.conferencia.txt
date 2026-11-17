@@ -1,0 +1,10 @@
+198 eventos de 39 casas, 40 comandos
+por tipo: MOVIMENTO 26, BOTAO_BEM 1, BOTAO_SAIR 1, TELEMETRIA 39, HEARTBEAT 131
+bufferizado: true em 0, chaves distintas 198
+comando DIA_CRITICO: 39
+comando PEDIR_TOQUE: 1
+  casa 5 silenciosa: 2 heartbeats e 0 sinais de vida depois de 04:01:18
+  casa 6 silenciosa: 2 heartbeats e 0 sinais de vida depois de 04:01:18
+  casa 7 silenciosa: 1 heartbeats e 0 sinais de vida depois de 04:01:18
+  casa 10 muda: 2 pacotes antes, 0 depois de 04:01:18
+PASSOU: todas as mensagens seguem o contrato

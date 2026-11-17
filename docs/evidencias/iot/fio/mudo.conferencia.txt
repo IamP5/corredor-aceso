@@ -1,0 +1,5 @@
+206 eventos de 39 casas, 0 comandos
+por tipo: MOVIMENTO 35, TELEMETRIA 39, HEARTBEAT 132
+bufferizado: true em 0, chaves distintas 206
+  casa 10 muda: 3 pacotes antes, 0 depois de 03:56:54
+PASSOU: todas as mensagens seguem o contrato

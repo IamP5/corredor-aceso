@@ -1,0 +1,6 @@
+209 eventos de 39 casas, 40 comandos
+por tipo: MOVIMENTO 34, BOTAO_BEM 1, TELEMETRIA 39, HEARTBEAT 135
+bufferizado: true em 0, chaves distintas 209
+comando DIA_CRITICO: 39
+comando PEDIR_TOQUE: 1
+PASSOU: todas as mensagens seguem o contrato

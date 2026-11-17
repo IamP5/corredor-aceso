@@ -1,0 +1,5 @@
+237 eventos de 39 casas, 0 comandos
+por tipo: MOVIMENTO 45, TELEMETRIA 39, HEARTBEAT 153
+bufferizado: true em 6, chaves distintas 234
+  reenvio: 3 eventos guardados, 6 chegadas com bufferizado: true, mesmo seq, ts e tipo do momento em que foram guardados, o mais novo com 3 s de atraso
+PASSOU: todas as mensagens seguem o contrato
