@@ -45,7 +45,7 @@ Você precisa do SDK do .NET 10 e do Docker.
 	curl http://localhost:5000/api/versao
 	```
 
-	O Swagger fica em `http://localhost:5000/swagger`.
+	O Swagger fica em `http://localhost:5000/swagger`. Os prints da visão geral e de uma rota do Cadastro e do Motor estão em [docs/evidencias/api/](../docs/evidencias/api/README.md).
 
 	No macOS, o receptor do AirPlay ocupa a porta 5000 e responde 403 no lugar da API. Use outra porta:
 	`dotnet run --project api/src/Corredor.Api --urls http://localhost:5080`.
