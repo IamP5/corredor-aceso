@@ -11,7 +11,7 @@ namespace Corredor.Guarda;
 public sealed class OpcoesDoLlm
 {
     public string? ApiKey { get; set; }
-    public string Modelo { get; set; } = "openrouter/auto";
+    public string Modelo { get; set; } = "openai/gpt-4o-mini";
     public string UrlBase { get; set; } = "https://openrouter.ai/api/v1";
     public TimeSpan Limite { get; set; } = TimeSpan.FromSeconds(5);
 

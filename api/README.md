@@ -120,6 +120,17 @@ Na VM, o `infra/02-app.sh` grava `/etc/corredor/api.env`, e a chave do LLM fica 
 
 A seção `Llm` aceita também os nomes do `.env.example`. A ordem é esta: `Llm__*` no ambiente, `OPENROUTER_*` no ambiente, o `.env` da raiz e o padrão. O `.env` só é lido em `Development`.
 
+O modelo padrão é `openai/gpt-4o-mini`. Com `openrouter/auto`, o OpenRouter escolhia um modelo diferente a cada chamada, e às vezes um que pensa antes e devolvia a resposta cortada. Em 17/11, cinco chamadas pelo `Tradutor` da Guarda, com a chave real, alternando um bloqueio de saída e um documento mascarado, deram estes resultados (medido):
+
+| Modelo | Tradução do LLM | Duas frases | Tempo por chamada |
+|---|---|---|---|
+| `openai/gpt-4o-mini` | 5 de 5 | 5 de 5 | 1,1 a 1,5 s |
+| `openai/gpt-4.1-nano` | 5 de 5 | 5 de 5 | 0,9 a 2,5 s |
+| `mistralai/mistral-small-3.2-24b-instruct` | 5 de 5 | 5 de 5 | 0,9 a 1,5 s |
+| `openrouter/auto` | 5 de 5 | 5 de 5 | 2,5 a 3,0 s |
+
+Os três modelos fixos responderam inteiros. O `gpt-4o-mini` ficou porque foi o único que nunca citou com quem a pessoa mora, que o prompt proíbe. Os outros dois disseram "quem mora com você" em algumas respostas. Cinco chamadas por modelo é pouco para dizer que um modelo nunca falha. Para trocar, mude `OPENROUTER_MODEL` no `.env` ou `Llm__Modelo` no `segredos.env` da VM.
+
 Fora de `Development`, o log sai em JSON numa linha por evento, que o journald guarda. O `dotnet run` usa o formato simples, pelo `launchSettings.json`.
 
 ## Testar
