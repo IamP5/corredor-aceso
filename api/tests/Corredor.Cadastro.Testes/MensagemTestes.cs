@@ -43,17 +43,18 @@ public sealed class MensagemTestes(BancoDeTeste banco) : IClassFixture<BancoDeTe
     }
 
     [Fact]
-    public async Task Nome_vai_ao_app_autenticado_mas_nao_ao_grupo_do_bairro()
+    public async Task Telefone_vai_ao_app_autenticado_mas_nao_ao_grupo_do_bairro()
     {
         await using var api = await ApiDeTeste.IniciarAsync(banco);
+        const string texto = "ligar para (00) 98888-0000";
 
-        var app = await (await api.PostAsync("/api/mensagens/verificar",
-            new { canal = "AppAutenticado", texto = "visitar Aparecida" })).LerAsync<MensagemVerificadaHttp>();
-        var grupo = await (await api.PostAsync("/api/mensagens/verificar",
-            new { canal = "GrupoDoBairro", texto = "visitar Aparecida" })).LerAsync<MensagemVerificadaHttp>();
+        var app = await (await api.PostAsync("/api/mensagens/verificar", new { canal = "AppAutenticado", texto })).LerAsync<MensagemVerificadaHttp>();
+        var grupo = await (await api.PostAsync("/api/mensagens/verificar", new { canal = "GrupoDoBairro", texto })).LerAsync<MensagemVerificadaHttp>();
 
         Assert.Equal("Liberada", app.Veredito);
-        Assert.Equal(("Bloqueada", "[NOME]"), (grupo.Veredito, grupo.TextoMascarado));
+        Assert.Equal("Bloqueada", grupo.Veredito);
+        Assert.Contains("Telefone", grupo.TiposDeDado);
+        Assert.DoesNotContain("98888", grupo.TextoMascarado);
     }
 
     [Fact]

@@ -37,25 +37,7 @@ public sealed class MensagemSaida
         };
     }
 
-    // A frase fixa do tipo de dado, montada só com o tipo, nunca com o valor.
+    // A frase fixa da Guarda para os tipos de dado e o canal, nunca com o valor.
     public string? Explicacao() =>
-        Veredito == VereditoDaMensagem.Liberada
-            ? null
-            : $"Essa mensagem {string.Join(" e ", TiposDeDado.Select(FraseDoTipo).Distinct())}. {FraseDoCanal(Canal)}";
-
-    private static string FraseDoTipo(TipoDeDado tipo) => tipo switch
-    {
-        TipoDeDado.MoraSozinho => "diz que a pessoa mora sozinha",
-        TipoDeDado.Saude => "fala da saúde dela",
-        TipoDeDado.Nome => "diz o nome da pessoa",
-        TipoDeDado.Endereco => "diz onde a pessoa mora",
-        TipoDeDado.Telefone => "traz um telefone",
-        _ => "traz um documento ou uma senha",
-    };
-
-    private static string FraseDoCanal(Canal canal) => canal switch
-    {
-        Canal.GrupoDoBairro => "No grupo do bairro, qualquer um lê.",
-        _ => "Esse canal não aceita dado pessoal.",
-    };
+        Veredito == VereditoDaMensagem.Liberada ? null : FrasesFixas.Explicacao(TiposDeDado, Canal);
 }

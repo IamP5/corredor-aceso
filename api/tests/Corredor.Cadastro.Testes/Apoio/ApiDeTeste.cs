@@ -63,10 +63,10 @@ public sealed class ApiDeTeste : IAsyncDisposable
         builder.Services.AddSingleton<IMotorDeCasas>(s => s.GetRequiredService<MotorFalso>());
         builder.Services.AddAuthentication("Teste").AddScheme<AuthenticationSchemeOptions, AutenticacaoDeTeste>("Teste", null);
 
+        // Antes da Guarda, como no Program.cs: os IExceptionHandler rodam na ordem em que foram registrados.
+        builder.Services.AddProblemDetails();
+        builder.Services.AddExceptionHandler<TratadorDeRegraDeDominio>();
         builder.AddGuarda();
-        // O parser provisório do esqueleto rotula todo texto. Este dublê acha só as palavras da tabela,
-        // para o teste ver os dois vereditos. A política de canal é a SaidaSegura real da Guarda.
-        builder.Services.AddSingleton<IMotorDeParsing, ParsingPorPalavra>();
         builder.AddCadastro();
         if (!comReconciliacao)
         {
@@ -74,7 +74,7 @@ public sealed class ApiDeTeste : IAsyncDisposable
         }
 
         var app = builder.Build();
-        app.UseExceptionHandler(e => e.Run(TratarErroAsync));
+        app.UseExceptionHandler();
         app.UseAuthentication();
         app.UseGuarda();
         app.MapGroup("/api").MapCadastro();
@@ -117,24 +117,27 @@ public sealed class ApiDeTeste : IAsyncDisposable
         await _app.DisposeAsync();
     }
 
-    // O mesmo contrato do TratadorDeRegraDeDominio do host: {"codigo", "mensagem"} com 422, 409, 404 ou 503.
-    private static async Task TratarErroAsync(HttpContext http)
+    // O mesmo contrato do TratadorDeRegraDeDominio do host: {"codigo", "mensagem"} com 422, 409, 404, 403 ou 503.
+    private sealed class TratadorDeRegraDeDominio : IExceptionHandler
     {
-        var excecao = http.Features.Get<IExceptionHandlerFeature>()?.Error;
-        if (excecao is not RegraDeDominioViolada regra)
+        public async ValueTask<bool> TryHandleAsync(HttpContext http, Exception excecao, CancellationToken ct)
         {
-            http.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            return;
-        }
+            if (excecao is not RegraDeDominioViolada regra)
+            {
+                return false;
+            }
 
-        http.Response.StatusCode = regra.Tipo switch
-        {
-            TipoDeViolacao.Conflito => StatusCodes.Status409Conflict,
-            TipoDeViolacao.Desconhecido => StatusCodes.Status404NotFound,
-            TipoDeViolacao.Indisponivel => StatusCodes.Status503ServiceUnavailable,
-            _ => StatusCodes.Status422UnprocessableEntity,
-        };
-        await http.Response.WriteAsJsonAsync(new { codigo = regra.Codigo, mensagem = regra.Message });
+            http.Response.StatusCode = regra.Tipo switch
+            {
+                TipoDeViolacao.Conflito => StatusCodes.Status409Conflict,
+                TipoDeViolacao.Desconhecido => StatusCodes.Status404NotFound,
+                TipoDeViolacao.Proibida => StatusCodes.Status403Forbidden,
+                TipoDeViolacao.Indisponivel => StatusCodes.Status503ServiceUnavailable,
+                _ => StatusCodes.Status422UnprocessableEntity,
+            };
+            await http.Response.WriteAsJsonAsync(new { codigo = regra.Codigo, mensagem = regra.Message }, ct);
+            return true;
+        }
     }
 
     // "Authorization: Bearer <acs>" vira o claim acs, como o handler mínimo do host.
@@ -152,22 +155,6 @@ public sealed class ApiDeTeste : IAsyncDisposable
             var identidade = new ClaimsIdentity([new Claim("acs", cabecalho["Bearer ".Length..])], Scheme.Name);
             return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new ClaimsPrincipal(identidade), Scheme.Name)));
         }
-    }
-}
-
-public sealed class ParsingPorPalavra : IMotorDeParsing
-{
-    private static readonly (string Palavra, TipoDeDado Tipo)[] Tabela =
-    [
-        ("mora sozinho", TipoDeDado.MoraSozinho),
-        ("diurético", TipoDeDado.Saude),
-        ("Aparecida", TipoDeDado.Nome),
-    ];
-
-    public TextoAnalisado Rotular(string texto, params TipoDeDado[] rotulosDoCampo)
-    {
-        var achados = Tabela.Where(t => texto.Contains(t.Palavra, StringComparison.OrdinalIgnoreCase)).Select(t => t.Tipo);
-        return new TextoAnalisado(TextoRotulado.Do(texto, rotulosDoCampo.Union(achados).ToArray()), []);
     }
 }
 
