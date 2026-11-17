@@ -53,6 +53,7 @@ public sealed class MotorDeTeste : IAsyncDisposable
 
     public MotorDeTeste(string conexao, DateTimeOffset agora)
     {
+        Conexao = conexao;
         Relogio = new RelogioParado(agora);
         var builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings { EnvironmentName = Environments.Production });
         builder.Configuration["ConnectionStrings:Motor"] = conexao;
@@ -63,6 +64,8 @@ public sealed class MotorDeTeste : IAsyncDisposable
         builder.Services.AddSingleton<IReceptorDeContato>(Receptor);
         _host = builder.Build();
     }
+
+    public string Conexao { get; }
 
     public RelogioParado Relogio { get; }
     public PublicadorQueGuarda Publicador { get; } = new();
