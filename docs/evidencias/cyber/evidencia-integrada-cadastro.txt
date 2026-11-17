@@ -1,0 +1,49 @@
+# Evidências 1 e 4 pelas rotas reais do Cadastro
+
+Rodada de integração local: a branch da Guarda, a main e as branches do Cadastro e do Motor juntas, só para esta captura.
+Nenhuma dessas junções entrou em Git. Banco Postgres 16 com as migrações dos três módulos aplicadas duas vezes pelo check:api.
+
+## Evidência 1: POST /api/idosos com CPF em condicoes e no campo documento
+
+$ curl -X POST /api/idosos -d '{"microareaId": 3, "nome": "Aparecida Souza", "endereco": "Rua das Flores, 12", "perfil": {"contato": "Sozinho", "eletrodependente": true}, "condicoes": "usa concentrador de oxigênio, documento 123.456.789-00", "medicamentos": "diurético", "documento": "123.456.789-00"}' (com token da ACS)
+{"id":"bff36212-569e-43e2-bd20-54ed90323f9e"}
+HTTP 201
+
+### Linha gravada em cadastro.idoso
+
+      nome       |   casa_endereco    |                       condicoes                        | medicamentos 
+-----------------+--------------------+--------------------------------------------------------+--------------
+ Aparecida Souza | Rua das Flores, 12 | usa concentrador de oxigênio, documento ***.456.***-00 | diurético
+(1 row)
+
+### Log da API
+
+04:06:13 info: Corredor.Guarda.Rotas.InterceptadorDeEntrada[0]
+      PII mascarada na entrada: campo=condicoes tipo=Cpf valor=***.456.***-00 severidade=4 rota=/api/idosos/
+04:06:13 info: Corredor.Guarda.Rotas.InterceptadorDeEntrada[0]
+      PII mascarada na entrada: campo=documento tipo=Cpf valor=***.456.***-00 severidade=4 rota=/api/idosos/
+
+## Evidência 4: POST /api/mensagens/verificar para o GrupoDoBairro
+
+$ curl -X POST /api/mensagens/verificar -d '{"canal": "GrupoDoBairro", "texto": "ele mora sozinho e toma diurético"}' (com token da ACS)
+{"id":"90632528-2133-4d84-a7b3-767f65b0bf5c","veredito":"Bloqueada","textoMascarado":"ele [MORA_SOZINHO] e toma [SAUDE]","tiposDeDado":["MoraSozinho","Saude"],"explicacao":"Essa mensagem diz que a pessoa mora sozinha e fala da saúde dela. No grupo do bairro, qualquer um lê.","versaoSegura":"Preciso de ajuda para uma visita agora. Quem puder, me chame no privado."}
+HTTP 200
+
+### Linha gravada em cadastro.mensagem_saida
+
+     canal     | veredito  |          texto_mascarado          |    tipos_de_dado    
+---------------+-----------+-----------------------------------+---------------------
+ GrupoDoBairro | Bloqueada | ele [MORA_SOZINHO] e toma [SAUDE] | {MoraSozinho,Saude}
+(1 row)
+
+### guarda.evento_de_seguranca
+
+         tipo          |     canal     |    tipos_de_dado    |  modulo  |           rota           | severidade | mensagem_origem |                                                                                                                  mensagem_texto                                                                                                                   
+-----------------------+---------------+---------------------+----------+--------------------------+------------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ MascaramentoNaEntrada | Banco         | {Cpf}               | Cadastro | /api/idosos/             |          4 | Llm             | O sistema escondeu seu número de identificação antes de guardar o cadastro. Assim, esse dado fica protegido contra exposição.
+ BloqueioDeSaida       | GrupoDoBairro | {Saude,MoraSozinho} | Cadastro | /api/mensagens/verificar |          4 | Llm             | O sistema da prefeitura impediu que dados pessoais seus sobre saúde e sobre sua casa fossem enviados para o grupo de conversas do bairro. Assim, essas informações continuam guardadas em segurança, e só quem cuida do seu atendimento pode ver.
+(2 rows)
+
+### Painel
+
+{"cor":"Vermelho","pontos24h":16,"canais":[{"canal":"GrupoDoBairro","eventos":1,"bloqueios":1,"pontos":12},{"canal":"Banco","eventos":1,"bloqueios":0,"pontos":4}],"eventos":[{"ocorridoEm":"2026-11-17T01:06:21.603398-03:00","tipo":"BloqueioDeSaida","canal":"GrupoDoBairro","modulo":"Cadastro","tiposDeDado":["Saude","MoraSozinho"],"severidade":4,"mensagemAoCidadao":"O sistema da prefeitura impediu que dados pessoais seus sobre saúde e sobre sua casa fossem enviados para o grupo de conversas do bairro. Assim, essas informações continuam guardadas em segurança, e só quem cuida do seu atendimento pode ver.","origemDaMensagem":"Llm"},{"ocorridoEm":"2026-11-17T01:06:13.486337-03:00","tipo":"MascaramentoNaEntrada","canal":"Banco","modulo":"Cadastro","tiposDeDado":["Cpf"],"severidade":4,"mensagemAoCidadao":"O sistema escondeu seu número de identificação antes de guardar o cadastro. Assim, esse dado fica protegido contra exposição.","origemDaMensagem":"Llm"}]}

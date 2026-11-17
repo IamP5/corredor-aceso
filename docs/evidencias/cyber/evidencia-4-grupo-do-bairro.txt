@@ -1,0 +1,22 @@
+# Evidência 4: "ele mora sozinho e toma diurético" para o grupo do bairro
+
+## Requisição
+
+$ curl -X POST /api/guarda/demo/grupo-do-bairro -d '{"texto": "ele mora sozinho e toma diurético"}' (com token da ACS)
+{"veredito":"Bloqueada","textoMascarado":"ele [MORA_SOZINHO] e toma [SAUDE]","tiposDeDado":["Saude","MoraSozinho"],"explicacao":"Essa mensagem diz que a pessoa mora sozinha e fala da saúde dela. No grupo do bairro, qualquer um lê."}
+HTTP 200
+
+## guarda.evento_de_seguranca
+
+          ocorrido_em          |         tipo          |    tipos_de_dado    |          canal          |  modulo  |               rota               | severidade | mensagem_origem |                                                                                          mensagem_texto                                                                                           
+-------------------------------+-----------------------+---------------------+-------------------------+----------+----------------------------------+------------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 2026-11-17 04:03:57.82577+00  | MascaramentoNaEntrada | {Cpf}               | Banco                   | Guarda   | /api/guarda/demo/documento       |          4 | Llm             | O sistema escondeu o número do documento antes de guardá-lo. Assim, outras pessoas não conseguem vê-lo, protegendo sua privacidade.
+ 2026-11-17 04:04:06.524095+00 | BloqueioDeSaida       | {Nome}              | Log                     | Cadastro | /api/guarda/demo/log-nome        |          3 | Llm             | O sistema impediu que seu nome saísse do cadastro para outra parte. Isso ajuda a manter suas informações pessoais protegidas.
+ 2026-11-17 04:04:14.69744+00  | BloqueioDeSaida       | {Saude}             | RespostaSemAutenticacao | Guarda   | /api/guarda/demo/condicoes       |          4 | Llm             | O sistema impediu que uma informação de saúde fosse exibida em uma página aberta ao público. Assim, essa informação ficou protegida e não foi vista por pessoas sem acesso autorizado.
+ 2026-11-17 04:04:22.978925+00 | BloqueioDeSaida       | {Saude,MoraSozinho} | GrupoDoBairro           | Guarda   | /api/guarda/demo/grupo-do-bairro |          4 | Llm             | O sistema impediu que uma informação privada fosse enviada ao grupo de mensagens do bairro. Isso ajuda a proteger sua privacidade e evita que outras pessoas vejam algo que deve ficar reservado.
+(4 rows)
+
+
+## Painel: farol, pontos, eventos por canal e mensagem traduzida
+
+{"cor":"Vermelho","pontos24h":34,"canais":[{"canal":"RespostaSemAutenticacao","eventos":1,"bloqueios":1,"pontos":12},{"canal":"GrupoDoBairro","eventos":1,"bloqueios":1,"pontos":12},{"canal":"Log","eventos":1,"bloqueios":1,"pontos":6},{"canal":"Banco","eventos":1,"bloqueios":0,"pontos":4}],"eventos":[{"ocorridoEm":"2026-11-17T01:04:22.978925-03:00","tipo":"BloqueioDeSaida","canal":"GrupoDoBairro","modulo":"Guarda","tiposDeDado":["Saude","MoraSozinho"],"severidade":4,"mensagemAoCidadao":"O sistema impediu que uma informação privada fosse enviada ao grupo de mensagens do bairro. Isso ajuda a proteger sua privacidade e evita que outras pessoas vejam algo que deve ficar reservado.","origemDaMensagem":"Llm"},{"ocorridoEm":"2026-11-17T01:04:14.69744-03:00","tipo":"BloqueioDeSaida","canal":"RespostaSemAutenticacao","modulo":"Guarda","tiposDeDado":["Saude"],"severidade":4,"mensagemAoCidadao":"O sistema impediu que uma informação de saúde fosse exibida em uma página aberta ao público. Assim, essa informação ficou protegida e não foi vista por pessoas sem acesso autorizado.","origemDaMensagem":"Llm"},{"ocorridoEm":"2026-11-17T01:04:06.524095-03:00","tipo":"BloqueioDeSaida","canal":"Log","modulo":"Cadastro","tiposDeDado":["Nome"],"severidade":3,"mensagemAoCidadao":"O sistema impediu que seu nome saísse do cadastro para outra parte. Isso ajuda a manter suas informações pessoais protegidas.","origemDaMensagem":"Llm"},{"ocorridoEm":"2026-11-17T01:03:57.82577-03:00","tipo":"MascaramentoNaEntrada","canal":"Banco","modulo":"Guarda","tiposDeDado":["Cpf"],"severidade":4,"mensagemAoCidadao":"O sistema escondeu o número do documento antes de guardá-lo. Assim, outras pessoas não conseguem vê-lo, protegendo sua privacidade.","origemDaMensagem":"Llm"}]}

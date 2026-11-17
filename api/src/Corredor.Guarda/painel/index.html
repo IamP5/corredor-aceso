@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risco Cidadão</title>
+<style>
+  :root {
+    --fundo: #f6f5f1;
+    --cartao: #ffffff;
+    --texto: #1b1b1b;
+    --suave: #545454;
+    --borda: #d8d6cf;
+    --verde: #1e7a3c;
+    --amarelo: #a86b00;
+    --vermelho: #b3261e;
+    --verde-fundo: #e3f2e7;
+    --amarelo-fundo: #fbf0d9;
+    --vermelho-fundo: #fbe4e2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fundo: #141414;
+      --cartao: #1f1f1f;
+      --texto: #f2f2f2;
+      --suave: #b9b9b9;
+      --borda: #3a3a3a;
+      --verde: #5cc27e;
+      --amarelo: #f0b43c;
+      --vermelho: #ff7a70;
+      --verde-fundo: #16301f;
+      --amarelo-fundo: #33280f;
+      --vermelho-fundo: #3a1714;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--texto);
+    font: 18px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; }
+  h2 { font-size: 1.3rem; margin: 32px 0 12px; }
+  .sub { color: var(--suave); margin: 0 0 24px; }
+  .farol {
+    display: flex; gap: 24px; align-items: center;
+    background: var(--cartao); border: 1px solid var(--borda); border-radius: 16px; padding: 24px;
+  }
+  .luzes { display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #222; border-radius: 40px; }
+  .luz { width: 56px; height: 56px; border-radius: 50%; opacity: .18; }
+  .luz.vermelho { background: #ff3b30; }
+  .luz.amarelo { background: #ffcc00; }
+  .luz.verde { background: #34c759; }
+  .luz.acesa { opacity: 1; box-shadow: 0 0 24px currentColor; }
+  .estado { font-size: 2.2rem; font-weight: 700; margin: 0; }
+  .estado.Verde { color: var(--verde); }
+  .estado.Amarelo { color: var(--amarelo); }
+  .estado.Vermelho { color: var(--vermelho); }
+  .explica { margin: 6px 0 0; font-size: 1.1rem; }
+  .pontos { color: var(--suave); margin: 8px 0 0; }
+  table { width: 100%; border-collapse: collapse; background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--borda); }
+  th { font-size: .95rem; color: var(--suave); font-weight: 600; }
+  th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  ol.eventos { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  .evento { background: var(--cartao); border: 1px solid var(--borda); border-left: 8px solid var(--amarelo); border-radius: 12px; padding: 14px 16px; }
+  .evento.bloqueio.grave { border-left-color: var(--vermelho); }
+  .evento .mensagem { font-size: 1.15rem; margin: 0 0 8px; }
+  .evento .meta { color: var(--suave); font-size: .95rem; margin: 0; }
+  .selo { display: inline-block; font-size: .85rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; margin-right: 6px; }
+  .selo.bloqueio { background: var(--vermelho-fundo); color: var(--vermelho); }
+  .selo.mascaramento { background: var(--amarelo-fundo); color: var(--amarelo); }
+  .selo.ia { background: var(--verde-fundo); color: var(--verde); }
+  .vazio { color: var(--suave); background: var(--cartao); border: 1px dashed var(--borda); border-radius: 12px; padding: 16px; }
+  .erro { color: var(--vermelho); }
+  footer { color: var(--suave); font-size: .9rem; margin-top: 32px; }
+  @media (max-width: 560px) {
+    .farol { flex-direction: column; align-items: flex-start; }
+    .luzes { flex-direction: row; }
+    .luz { width: 44px; height: 44px; }
+    th:nth-child(3), td:nth-child(3) { display: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Risco Cidadão</h1>
+  <p class="sub">Proteção dos dados dos idosos do Corredor Aceso nas últimas 24 horas.</p>
+
+  <section class="farol" aria-live="polite" aria-labelledby="estado">
+    <div class="luzes" aria-hidden="true">
+      <div class="luz vermelho" id="luz-Vermelho"></div>
+      <div class="luz amarelo" id="luz-Amarelo"></div>
+      <div class="luz verde" id="luz-Verde"></div>
+    </div>
+    <div>
+      <p class="estado" id="estado">Carregando…</p>
+      <p class="explica" id="explica"></p>
+      <p class="pontos" id="pontos"></p>
+    </div>
+  </section>
+
+  <h2>Eventos por canal</h2>
+  <div id="canais"></div>
+
+  <h2>O que aconteceu</h2>
+  <div id="eventos"></div>
+
+  <footer>
+    O painel nunca mostra o dado protegido. Ele mostra só o tipo do dado, por onde ele tentou sair e a explicação.
+    <span id="atualizado"></span>
+  </footer>
+</main>
+<script>
+  const API = new URLSearchParams(location.search).get("api") || "/api/painel";
+
+  const ESTADOS = {
+    Verde: { titulo: "Verde: tudo certo", texto: "Nenhum dado pessoal tentou sair do sistema." },
+    Amarelo: { titulo: "Amarelo: atenção", texto: "O sistema escondeu ou barrou dados pessoais, sem risco grave." },
+    Vermelho: { titulo: "Vermelho: tentativa grave barrada", texto: "Um dado sensível tentou sair por um canal aberto e foi barrado." },
+  };
+  const CANAIS = {
+    GrupoDoBairro: "Grupo do bairro", PromptDoLlm: "Inteligência artificial", Mqtt: "Aparelho da casa",
+    MensagemDeErro: "Mensagem de erro", RespostaSemAutenticacao: "Resposta sem login", Vizinho: "Aviso ao vizinho",
+    Log: "Registro do sistema", AppAutenticado: "App da agente", Banco: "Banco de dados",
+  };
+  const TIPOS = {
+    Cpf: "CPF", Rg: "RG", Cns: "cartão do SUS", Saude: "saúde", MoraSozinho: "mora sozinho",
+    Endereco: "endereço", Telefone: "telefone", Nome: "nome", Credencial: "senha",
+  };
+  const hora = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" });
+
+  function el(tag, attrs = {}, ...filhos) {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    for (const f of filhos) e.append(f);
+    return e;
+  }
+
+  function desenhar(p) {
+    const estado = ESTADOS[p.cor] || ESTADOS.Verde;
+    document.body.dataset.cor = p.cor;
+    for (const cor of Object.keys(ESTADOS)) {
+      document.getElementById("luz-" + cor).classList.toggle("acesa", cor === p.cor);
+    }
+    const titulo = document.getElementById("estado");
+    titulo.textContent = estado.titulo;
+    titulo.className = "estado " + p.cor;
+    document.getElementById("explica").textContent = estado.texto;
+    document.getElementById("pontos").textContent =
+      `${p.pontos24h} pontos de risco (gravidade vezes exposição do canal).`;
+
+    const canais = document.getElementById("canais");
+    canais.replaceChildren();
+    if (p.canais.length === 0) {
+      canais.append(el("p", { class: "vazio" }, "Nenhum evento nas últimas 24 horas."));
+    } else {
+      const corpo = el("tbody");
+      for (const c of p.canais) {
+        corpo.append(el("tr", {},
+          el("td", {}, CANAIS[c.canal] || c.canal),
+          el("td", { class: "num" }, String(c.eventos)),
+          el("td", { class: "num" }, String(c.bloqueios)),
+          el("td", { class: "num" }, String(c.pontos))));
+      }
+      canais.append(el("table", {},
+        el("thead", {}, el("tr", {},
+          el("th", { scope: "col" }, "Canal"), el("th", { scope: "col", class: "num" }, "Eventos"),
+          el("th", { scope: "col", class: "num" }, "Barrados"), el("th", { scope: "col", class: "num" }, "Pontos"))),
+        corpo));
+    }
+
+    const eventos = document.getElementById("eventos");
+    eventos.replaceChildren();
+    if (p.eventos.length === 0) {
+      eventos.append(el("p", { class: "vazio" }, "Nada para mostrar."));
+    } else {
+      const lista = el("ol", { class: "eventos" });
+      for (const e of p.eventos) {
+        const bloqueio = e.tipo === "BloqueioDeSaida";
+        const classe = "evento" + (bloqueio ? " bloqueio" : "") + (bloqueio && e.severidade >= 4 ? " grave" : "");
+        const selo = bloqueio
+          ? el("span", { class: "selo bloqueio" }, "Saída barrada")
+          : el("span", { class: "selo mascaramento" }, "Dado escondido na entrada");
+        const origem = e.origemDaMensagem === "Llm"
+          ? el("span", { class: "selo ia" }, "Explicado por IA")
+          : el("span", { class: "selo" }, "Frase padrão");
+        const tipos = e.tiposDeDado.map(t => TIPOS[t] || t).join(", ");
+        lista.append(el("li", { class: classe },
+          el("p", { class: "mensagem" }, e.mensagemAoCidadao),
+          el("p", { class: "meta" }, selo, origem,
+            `${hora.format(new Date(e.ocorridoEm))} · ${CANAIS[e.canal] || e.canal} · ${tipos} · gravidade ${e.severidade} · módulo ${e.modulo}`)));
+      }
+      eventos.append(lista);
+    }
+    document.getElementById("atualizado").textContent = " Atualizado às " + hora.format(new Date()) + ".";
+  }
+
+  async function atualizar() {
+    try {
+      const r = await fetch(API, { headers: { Accept: "application/json" } });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      desenhar(await r.json());
+    } catch (e) {
+      const titulo = document.getElementById("estado");
+      titulo.textContent = "Sem conexão com o servidor";
+      titulo.className = "estado erro";
+      document.getElementById("explica").textContent = "Tentando de novo em 10 segundos.";
+    }
+  }
+
+  atualizar();
+  setInterval(atualizar, 10000);
+</script>
+</body>
+</html>

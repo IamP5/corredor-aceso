@@ -1,0 +1,21 @@
+# Evidência 2: tentar gravar o nome da pessoa no log
+
+## Requisição
+
+$ curl -X POST /api/guarda/demo/log-nome -d '{"nome": "Aparecida Souza"}' (com token da ACS)
+{"logado":"Visita registrada para [NOME]"}
+HTTP 202
+
+## Log da API depois da requisição
+
+04:04:06 info: Corredor.Cadastro.Demonstracao[0]
+      Visita registrada para [NOME]
+
+## guarda.evento_de_seguranca
+
+          ocorrido_em          |         tipo          | tipos_de_dado | canal |  modulo  |            rota            | severidade | mensagem_origem |                                                           mensagem_texto                                                            
+-------------------------------+-----------------------+---------------+-------+----------+----------------------------+------------+-----------------+-------------------------------------------------------------------------------------------------------------------------------------
+ 2026-11-17 04:03:57.82577+00  | MascaramentoNaEntrada | {Cpf}         | Banco | Guarda   | /api/guarda/demo/documento |          4 | Llm             | O sistema escondeu o número do documento antes de guardá-lo. Assim, outras pessoas não conseguem vê-lo, protegendo sua privacidade.
+ 2026-11-17 04:04:06.524095+00 | BloqueioDeSaida       | {Nome}        | Log   | Cadastro | /api/guarda/demo/log-nome  |          3 | Llm             | O sistema impediu que seu nome saísse do cadastro para outra parte. Isso ajuda a manter suas informações pessoais protegidas.
+(2 rows)
+

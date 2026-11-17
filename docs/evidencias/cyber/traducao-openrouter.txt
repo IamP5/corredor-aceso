@@ -1,0 +1,39 @@
+# Tradução real pelo OpenRouter
+
+Rodada de 17/11/2026 contra a API em Development, com a chave lida do .env da raiz (fora do Git).
+Endpoint: POST https://openrouter.ai/api/v1/chat/completions, compatível com o da OpenAI. Modelo: openrouter/auto.
+A chave vai só no cabeçalho Authorization. Ela não aparece no log da API nem neste arquivo.
+
+## Mensagem de sistema (Aplicacao/Tradutor.cs)
+
+Você explica eventos de segurança de um sistema de saúde da prefeitura para um cidadão leigo de 60 anos. Responda em português do Brasil, com exatamente 2 frases curtas e simples, sem termos técnicos, sem siglas, sem nomes de pessoas, sem números de documento, sem nomes de doenças ou remédios e sem dizer com quem a pessoa mora.
+
+## Prompt do evento da evidência 4, montado por Tradutor.Prompt
+
+Só nomes de enum traduzidos. Nenhum trecho do texto bloqueado entra no prompt, e o prompt passa pela SaidaSegura com o canal PromptDoLlm antes de sair.
+
+Evento de segurança: BloqueioDeSaida. O sistema impediu que uma informação saísse pelo canal "grupo de mensagens do bairro". Tipo de informação protegida: informação de saúde, informação sobre com quem a pessoa vive. Parte do sistema: módulo Guarda. Gravidade de 1 a 5: 4. Explique o que aconteceu e por que a pessoa idosa está protegida.
+
+## Log da API: as quatro chamadas responderam 200
+
+Sending HTTP request POST https://openrouter.ai/api/v1/chat/completions
+Received HTTP response headers after 1749.3004ms - 200
+Sending HTTP request POST https://openrouter.ai/api/v1/chat/completions
+Received HTTP response headers after 1931.0763ms - 200
+Sending HTTP request POST https://openrouter.ai/api/v1/chat/completions
+Received HTTP response headers after 1760.8587ms - 200
+Sending HTTP request POST https://openrouter.ai/api/v1/chat/completions
+Received HTTP response headers after 1419.3071ms - 200
+
+## Respostas gravadas em guarda.evento_de_seguranca
+
+Cada resposta passou pelo MotorDeParsing antes de ser gravada. Com qualquer achado, entraria a frase fixa.
+
+         tipo          |          canal          |    tipos_de_dado    | mensagem_origem |                                                                                          mensagem_texto                                                                                           
+-----------------------+-------------------------+---------------------+-----------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ MascaramentoNaEntrada | Banco                   | {Cpf}               | Llm             | O sistema escondeu o número do documento antes de guardá-lo. Assim, outras pessoas não conseguem vê-lo, protegendo sua privacidade.
+ BloqueioDeSaida       | Log                     | {Nome}              | Llm             | O sistema impediu que seu nome saísse do cadastro para outra parte. Isso ajuda a manter suas informações pessoais protegidas.
+ BloqueioDeSaida       | RespostaSemAutenticacao | {Saude}             | Llm             | O sistema impediu que uma informação de saúde fosse exibida em uma página aberta ao público. Assim, essa informação ficou protegida e não foi vista por pessoas sem acesso autorizado.
+ BloqueioDeSaida       | GrupoDoBairro           | {Saude,MoraSozinho} | Llm             | O sistema impediu que uma informação privada fosse enviada ao grupo de mensagens do bairro. Isso ajuda a proteger sua privacidade e evita que outras pessoas vejam algo que deve ficar reservado.
+(4 rows)
+
