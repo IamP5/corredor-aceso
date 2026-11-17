@@ -46,12 +46,14 @@ public static class RotasDoMotor
         [TipoDePacote.Telemetria] = "TELEMETRIA",
     };
 
+    // O job de ML e a equipe da demo chamam sem token de ACS. As outras rotas seguem a politica do host.
     public static IEndpointRouteBuilder MapearRotas(this IEndpointRouteBuilder rotas, bool comRelogioDeDemo)
     {
         var motor = rotas.MapGroup("").WithTags("Motor");
 
         motor.MapPut("/dias-criticos/{data}", async (DateOnly data, DeclaracaoDoDiaCritico corpo, DeclararDiaCritico caso, CancellationToken ct) =>
-            Resposta(await caso.ExecutarAsync(data, Previsao(corpo), ct)));
+            Resposta(await caso.ExecutarAsync(data, Previsao(corpo), ct)))
+            .AllowAnonymous();
 
         motor.MapPost("/dias-criticos/{data}/encerramento", async (DateOnly data, EncerrarTurno caso, CancellationToken ct) =>
         {
@@ -83,7 +85,7 @@ public static class RotasDoMotor
             {
                 var deslocamento = relogio.MoverPara(corpo.Agora);
                 return new RelogioResposta(Local(relogio.GetUtcNow()), (long)Math.Round(deslocamento.TotalSeconds));
-            });
+            }).AllowAnonymous();
         }
 
         return rotas;
