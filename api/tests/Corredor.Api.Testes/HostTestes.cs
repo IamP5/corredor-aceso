@@ -82,6 +82,18 @@ public class HostTestes(WebApplicationFactory<Program> fabrica) : IClassFixture<
         Assert.Equal("O turno de hoje já foi encerrado.", corpo.GetProperty("mensagem").GetString());
     }
 
+    // O Motor registra SemReceptorDeContato com TryAdd, que só loga. No host montado, o pedido de contato
+    // precisa chegar ao Cadastro, senão o vizinho nunca é avisado. Visto funcionando na demo integrada.
+    [Fact]
+    public void No_host_o_pedido_de_contato_do_Motor_chega_ao_Cadastro()
+    {
+        using var escopo = fabrica.Services.CreateScope();
+
+        var receptor = escopo.ServiceProvider.GetRequiredService<IReceptorDeContato>();
+
+        Assert.Equal("Corredor.Cadastro", receptor.GetType().Assembly.GetName().Name);
+    }
+
     // O alvo web do app roda em outra porta e manda Authorization. Sem CORS o navegador barra toda chamada.
     [Fact]
     public async Task Em_development_o_app_web_passa_pelo_preflight_com_authorization()
