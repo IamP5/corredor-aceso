@@ -70,7 +70,8 @@ esperar() {
   return 1
 }
 
-linhas_de_alerta() { wc -l <"$ALERTAS" 2>/dev/null || echo 0; }
+# O 2>/dev/null vem antes do <: numa VM nova o alertas.log ainda não existe.
+linhas_de_alerta() { wc -l 2>/dev/null <"$ALERTAS" || echo 0; }
 alerta_novo() { tail -n +"$(($1 + 1))" "$ALERTAS" 2>/dev/null | grep -q "$2"; }
 primeiro_alerta() { tail -n +"$(($1 + 1))" "$ALERTAS" | grep -m1 "$2"; }
 pid_de() { systemctl show -p MainPID --value "$1"; }

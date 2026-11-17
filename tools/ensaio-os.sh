@@ -25,6 +25,7 @@ case "$(uname -m)" in
   arm64 | aarch64) RID=linux-arm64 ;;
   *) RID=linux-x64 ;;
 esac
+COMMIT="$(git -C "$RAIZ" rev-parse --short HEAD)"
 mkdir -p "$SAIDA"
 
 # Tira da saída o caminho do notebook (os símbolos do .NET guardam o caminho do build) e as senhas do api.env.
@@ -42,7 +43,7 @@ grava() { # grava <arquivo> <comando...>: roda na VM e anexa a saída, com o com
 }
 cabecalho() {
   printf '# %s\n# Ensaio em contêiner %s com systemd, commit %s, %s\n' \
-    "$2" "$IMAGEM" "$(git -C "$RAIZ" rev-parse --short HEAD)" "$(date -Iseconds)" >"$SAIDA/$1"
+    "$2" "$IMAGEM" "$COMMIT" "$(date -Iseconds)" >"$SAIDA/$1"
 }
 
 [[ -z "$(git -C "$RAIZ" status --porcelain -- infra tools api)" ]] ||
@@ -89,7 +90,7 @@ grava 01-provisionamento.txt 'time bash /opt/corredor/repo/infra/provisionar.sh'
 echo "== 2. deploy do pacote e carga da demo"
 cabecalho 02-deploy-e-semente.txt "Deploy do pacote do tools/empacotar.sh e carga da demo"
 grava 02-deploy-e-semente.txt "corredor deploy --arquivo /root/corredor-$RID.tar.gz"
-grava 02-deploy-e-semente.txt 'corredor semear 2>&1 | grep -o "semente: [^\"]*"'
+grava 02-deploy-e-semente.txt 'corredor semear 2>&1 | grep -B1 "semente:"'
 grava 02-deploy-e-semente.txt 'curl -s http://api.corredor.internal/api/versao; echo'
 
 echo "== 3. provisionamento de novo, com a API no ar"
@@ -107,7 +108,9 @@ cabecalho 05-rede.txt "Hostname, IP fixo, nomes, firewall e zona DNS"
 grava 05-rede.txt 'hostnamectl --static; timedatectl show -p Timezone --value'
 grava 05-rede.txt 'ip -4 addr show dev corredor0; cat /etc/systemd/network/10-corredor0.netdev /etc/systemd/network/10-corredor0.network'
 grava 05-rede.txt 'sed -n "/corredor-aceso/,/corredor-aceso/p" /etc/hosts'
-grava 05-rede.txt 'getent hosts api.corredor.internal painel.corredor.internal'
+grava 05-rede.txt 'ip -br -4 addr; ip -4 route'
+grava 05-rede.txt 'getent hosts api.corredor.internal; getent hosts painel.corredor.internal'
+grava 05-rede.txt 'getent hosts github.com; getent hosts broker.hivemq.com'
 grava 05-rede.txt 'ufw status verbose'
 grava 05-rede.txt 'curl -s http://api.corredor.internal/api/versao; echo; curl -s -o /dev/null -w "painel %{http_code}\n" http://painel.corredor.internal/painel/; curl -s -o /dev/null -w "healthz pelo Nginx %{http_code}\n" http://api.corredor.internal/healthz/ready'
 grava 05-rede.txt 'echo CORREDOR_DNS_ZONA=sim > /etc/corredor/corredor.conf; bash /opt/corredor/repo/infra/01-rede.sh'
@@ -145,7 +148,7 @@ echo "== 9. auditoria e logs de execução"
 cabecalho 09-auditoria.txt "Log de auditoria, logs de execução de cada script e registro de deploy"
 grava 09-auditoria.txt 'corredor logs auditoria | tail -n 25'
 grava 09-auditoria.txt 'ls -l /var/log/corredor/execucao'
-grava 09-auditoria.txt 'head -n 12 "$(ls /var/log/corredor/execucao/*-01-rede.log | head -n 1)"'
+grava 09-auditoria.txt 'head -n 12 "$(ls -tr /var/log/corredor/execucao/*-01-rede.log | head -n 1)"'
 grava 09-auditoria.txt 'journalctl -t corredor-auditoria -o short-iso --no-pager | tail -n 5'
 grava 09-auditoria.txt 'corredor logs deploy'
 

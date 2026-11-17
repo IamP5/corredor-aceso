@@ -19,9 +19,14 @@ invocacao() { systemctl show -p InvocationID --value "$1" 2>/dev/null || true; }
 declare -A ANTES=()
 for u in corredor-api corredor-monitor; do ANTES[$u]="$(invocacao "$u")"; done
 
+CORREDOR_MUDANCAS_ARQ="$(mktemp)"
+export CORREDOR_MUDANCAS_ARQ
 for etapa in 01-rede.sh 02-app.sh 03-monitor.sh verificar.sh; do
   bash "$INFRA_DIR/$etapa"
 done
+MUDANCAS="$(awk '{s += $1} END {print s + 0}' "$CORREDOR_MUDANCAS_ARQ")"
+rm -f "$CORREDOR_MUDANCAS_ARQ"
+unset CORREDOR_MUDANCAS_ARQ
 
 echo "== processos antes e depois =="
 for u in corredor-api corredor-monitor; do
@@ -36,4 +41,4 @@ for u in corredor-api corredor-monitor; do
     echo "  $u: reiniciou (InvocationID ${ANTES[$u]} antes, $depois depois)"
   fi
 done
-echo "== provisionamento concluído em $(($(date +%s) - AUD_INICIO)) s =="
+echo "== provisionamento concluído em $(($(date +%s) - AUD_INICIO)) s, $MUDANCAS mudança(s) =="

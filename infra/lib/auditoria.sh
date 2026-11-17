@@ -13,6 +13,8 @@ auditoria_registrar() {
 
 auditoria_fim() {
   local codigo=$1
+  # O provisionar.sh soma as mudanças das etapas, que rodam em processos filhos.
+  if [[ -n ${CORREDOR_MUDANCAS_ARQ:-} ]]; then echo "${MUDANCAS:-0}" >>"$CORREDOR_MUDANCAS_ARQ"; fi
   auditoria_registrar fim "codigo=$codigo duracao_s=$(($(date +%s) - AUD_INICIO)) mudancas=${MUDANCAS:-0}"
 }
 
