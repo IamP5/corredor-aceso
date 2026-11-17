@@ -93,9 +93,14 @@ public sealed class EncerrarTurno(MotorDbContext bd, AvaliacaoDasCasas avaliacao
         ResumirAsync(dia, dia.EncerradoEm ?? throw new InvalidOperationException("o turno ainda nao foi encerrado"), microarea, ct);
 
     // O resumo olha o turno ainda aberto. Depois do FimDoTurno, avalia no ultimo instante do turno.
+    // Depois do encerramento, avalia o turno como estava no ultimo instante antes de encerrar, como o resumo gravado.
     private async Task<ResumoDoTurno> ResumirAsync(DiaCritico dia, DateTimeOffset agora, MicroareaId? microarea, CancellationToken ct)
     {
         var turno = dia.Turno(parametros);
+        if (turno.EncerradoEm is { } encerradoEm)
+        {
+            turno = turno with { EncerradoEm = null, FimPrevisto = encerradoEm < turno.FimPrevisto ? encerradoEm : turno.FimPrevisto };
+        }
         var ultimoInstante = turno.FimPrevisto.AddTicks(-TimeSpan.TicksPerMillisecond);
         var instante = agora < ultimoInstante ? agora : ultimoInstante;
         var foto = await avaliacao.FotografarAsync(instante, turno, dia, microarea, ct);

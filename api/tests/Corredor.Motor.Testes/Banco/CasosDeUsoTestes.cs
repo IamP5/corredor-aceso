@@ -224,6 +224,27 @@ public sealed class CasosDeUsoTestes(PostgresDoMotor postgres)
         Assert.Equal(2, dia.Resumo.ComSinalDeVidaAte10h);
     }
 
+    // O resumo da microárea é avaliado depois do encerramento. Ele precisa ver o turno ainda aberto, como o gravado,
+    // senão as regras que exigem turno não valem e a ACS lê zero vermelhas na tela do turno encerrado.
+    [Fact]
+    public async Task ResumoDaMicroarea_ContaAsVermelhasComoOGravado()
+    {
+        await using var motor = await postgres.NovoMotorAsync(H(5));
+        var silenciosa = CasaToken.Novo();
+        await Ativar(motor, silenciosa, Sozinha);
+        await Declarar(motor);
+        motor.Relogio.Agora = H(16, 50);
+        await Pacote(motor, silenciosa, 1, TipoDePacote.Heartbeat, H(16, 50));
+
+        motor.Relogio.Agora = H(17);
+        var dia = await motor.Executar<EncerrarTurno, DiaCritico>(e => e.ExecutarAsync(Dia, CancellationToken.None));
+        motor.Relogio.Agora = H(17, 5);
+        var daMicroarea = await motor.Executar<EncerrarTurno, ResumoDoTurno>(e => e.ResumirMicroareaAsync(dia, Microarea, CancellationToken.None));
+
+        Assert.Equal(1, dia.Resumo!.VermelhasPendentes);
+        Assert.Equal(dia.Resumo, daMicroarea);
+    }
+
     [Fact]
     public async Task EncerrarDiaQueNaoExiste_E404()
     {
