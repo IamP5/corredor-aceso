@@ -17,6 +17,6 @@
     <ProjectReference Include="../../src/Corredor.Cadastro/Corredor.Cadastro.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="../../src/Corredor.Cadastro/Semente/casas.json" Link="Semente/casas.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../semente/casas.json" Link="Semente/casas.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

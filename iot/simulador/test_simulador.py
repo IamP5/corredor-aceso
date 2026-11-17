@@ -137,6 +137,15 @@ class Semente(unittest.TestCase):
 		casas = carregar_casas(self.escrever({"casas": itens}))
 		self.assertEqual([c.n for c in casas], list(range(2, 41)))
 
+	def test_le_os_tokens_onde_a_carga_os_escreve(self):
+		# Corredor.Api --semear escreve tokens.local.json ao lado da semente, api/semente/casas.json
+		# (seção 8.3 de 04-modelo-de-dados.md). Com a semente em outra pasta, o simulador não achava os tokens.
+		from simulador import TOKENS_PADRAO
+
+		self.assertEqual(TOKENS_PADRAO.name, "tokens.local.json")
+		self.assertTrue((TOKENS_PADRAO.parent / "casas.json").is_file(), TOKENS_PADRAO.parent)
+		self.assertIn("tokens.local.json", (TOKENS_PADRAO.parent / ".gitignore").read_text(encoding="utf-8"))
+
 	def test_recusa_token_fora_do_formato(self):
 		with self.assertRaises(ValueError):
 			carregar_casas(self.escrever([{"n": 2, "casaToken": "ABC", "papelNaDemo": ""}]))
