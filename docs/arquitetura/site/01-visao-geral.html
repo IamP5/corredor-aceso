@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="pt-BR" data-tema="claro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visão geral do Corredor Aceso · Corredor Aceso</title>
+<script>(function(){var t;try{t=localStorage.getItem('tema')}catch(e){}if(t!=='claro'&&t!=='escuro')t=matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro';document.documentElement.setAttribute('data-tema',t)})()</script>
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="topo">
+<a class="marca" href="index.html">Corredor Aceso · Arquitetura</a>
+<nav class="paginas" aria-label="Páginas"><a href="01-visao-geral.html" aria-current="page">Visão geral</a><a href="02-event-storming.html">Event storming</a><a href="03-modelo-de-dominio.html">Modelo de domínio</a><a href="04-modelo-de-dados.html">Modelo de dados</a><a href="05-infra-e-entrega.html">Infraestrutura, CI/CD, releases e repositório</a><a href="readme.html">Arquitetura</a><a href="guia.html">Guia de diagramas</a></nav>
+<button type="button" class="tema-botao">Tema</button>
+</header>
+<main>
+<h1>Visão geral do Corredor Aceso</h1>
+<nav class="sumario" aria-label="Sumário"><details open><summary>Sumário</summary><ol><li><a href="#o-que-o-produto-faz">O que o produto faz</a></li><li><a href="#o-sistema-em-um-desenho">O sistema em um desenho</a></li><li><a href="#partes-e-donos">Partes e donos</a></li><li><a href="#decisões-que-dão-forma-ao-desenho">Decisões que dão forma ao desenho</a></li><li><a href="#as-três-cenas-da-demo">As três cenas da demo</a><ol><li><a href="#cena-1-o-movimento-tira-o-card-da-tela">Cena 1: o movimento tira o card da tela</a></li><li><a href="#cena-2-o-aparelho-mudo-fica-cinza">Cena 2: o aparelho mudo fica cinza</a></li><li><a href="#cena-3-a-mensagem-com-dado-pessoal-é-bloqueada">Cena 3: a mensagem com dado pessoal é bloqueada</a></li></ol></li><li><a href="#app-da-acs">App da ACS</a></li><li><a href="#modelo-de-dia-crítico">Modelo de dia crítico</a></li><li><a href="#arquivos-da-guarda">Arquivos da Guarda</a></li><li><a href="#onde-cada-disciplina-pontua">Onde cada disciplina pontua</a></li><li><a href="#plano-até-1911">Plano até 19/11</a></li><li><a href="#o-que-mudou-desde-a-primeira-versão">O que mudou desde a primeira versão</a></li><li><a href="#onde-os-documentos-ainda-divergem">Onde os documentos ainda divergem</a></li><li><a href="#o-que-a-equipe-precisa-confirmar">O que a equipe precisa confirmar</a></li><li><a href="#outros-documentos">Outros documentos</a></li></ol></details></nav><p>Este documento mostra a solução inteira em uma leitura. Ele diz o que o produto faz, quais são as partes, quem é dono de cada dado, quais decisões dão forma ao desenho e onde cada disciplina da Global Solution pontua. Os detalhes ficam nos documentos 02 a 05, e cada seção aponta para eles.</p>
+<p>Ele substitui a primeira versão da arquitetura, que ficava em <code>docs/arquitetura.md</code>. Onde os dois textos discordam, vale este, porque ele segue os documentos finais. A seção <a href="#o-que-mudou-desde-a-primeira-vers%C3%A3o">O que mudou desde a primeira versão</a> lista as diferenças.</p>
+<h2 id="o-que-o-produto-faz">O que o produto faz <a class="ancora" href="#o-que-o-produto-faz" aria-label="Link para esta seção">#</a></h2>
+<p>O Corredor Aceso é uma luz de corredor que protege a idosa do tropeço à noite. Em dia crítico de calor ou de apagão, a agente comunitária de saúde (ACS) abre o celular e vê só as casas que ficaram em silêncio, não as 40 da microárea.</p>
+<p>O produto funciona em cinco passos:</p>
+<ol>
+<li>Às 05h, um modelo treinado com dados públicos do INMET e do SIH/DATASUS decide se hoje é dia crítico para pessoas de 60 anos ou mais. Se for, ele abre o turno do radar.</li>
+<li>Na casa, um nó ESP32 acende a luz quando a idosa passa no corredor. O mesmo movimento conta como sinal de vida. O nó também mede temperatura e tensão, tem um botão e guarda os eventos quando a rede cai.</li>
+<li>No dia crítico, o app da ACS mostra o radar. Cada casa está em uma de quatro situações: <code>Verde</code>, <code>Aguardando</code>, <code>Vermelho</code> ou <code>Cinza</code>. A casa verde não aparece como card. Ela só entra na contagem.</li>
+<li>Quando uma casa tem alerta pendente, o vizinho de confiança que a idosa escolheu recebe um aviso neutro, sem nome e sem motivo de saúde.</li>
+<li>Todo texto que sai do sistema passa por uma verificação de dado pessoal. Um bloqueio vira um evento no painel Risco Cidadão, explicado em duas frases por um LLM.</li>
+</ol>
+<p>Uma regra o produto nunca quebra. O silêncio do aparelho nunca vira verde. Uma casa só fica <code>Verde</code> com o turno aberto e com sinal de vida na janela atual.</p>
+<p>A ficha da CitizenTech, as seis perguntas do enunciado e a pergunta de ML estão em <a href="../../discovery/01-ideia-vencedora.md">01-ideia-vencedora.md</a>. O produto se liga a quatro Objetivos de Desenvolvimento Sustentável:</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>ODS</th>
+<th>Meta</th>
+<th>Ligação com o produto</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3, saúde e bem-estar</td>
+<td>3.4 e 3.d</td>
+<td>Previne desidratação, queda e descompensação cardiovascular em idosos. Transforma alerta de clima em ação da atenção básica.</td>
+</tr>
+<tr>
+<td>10, redução das desigualdades</td>
+<td>10.2</td>
+<td>A idosa não precisa de smartphone, Wi-Fi, crédito nem leitura.</td>
+</tr>
+<tr>
+<td>11, cidades sustentáveis</td>
+<td>11.5</td>
+<td>Reduz o dano do calor extremo e do apagão a quem é mais vulnerável no território.</td>
+</tr>
+<tr>
+<td>13, ação climática</td>
+<td>13.1</td>
+<td>Adapta o cuidado ao calor extremo com um gatilho que vem de dados de clima.</td>
+</tr>
+</tbody></table>
+</div>
+<p>As entrevistas e os testes da descoberta foram simulados com personas. Nenhuma ACS real participou até aqui, e cada documento da descoberta diz isso no início.</p>
+<h2 id="o-sistema-em-um-desenho">O sistema em um desenho <a class="ancora" href="#o-sistema-em-um-desenho" aria-label="Link para esta seção">#</a></h2>
+<p>No desenho, siga o caminho de um movimento. Ele sai do nó, passa pelo broker público e pela ponte do Mosquitto, chega ao módulo Motor e aparece no app pelo Nginx. O Motor está em âmbar porque é ele que responde quem ficou em silêncio.</p>
+<figure class="diagrama" id="diagrama-1" style="--w:3428px;--h:565px;--r:0.1648"><div class="diagrama-quadro"><svg xmlns="http://www.w3.org/2000/svg" class="pele pele-flowchart" viewBox="0 0 3428 565" width="3428" height="565" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_r:var(--pele-radius,4px);--_fm:var(--pele-font-mono,&quot;Atkinson Hyperlegible Mono&quot;, monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,&quot;Atkinson Hyperlegible&quot;, sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="flowchart"><g class="pele-clusters"><g class="pele-cluster" data-id="dados"><rect x="409.61" y="323" width="199.07" height="233.61" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="477.8" y="348.6" text-anchor="middle">Dados públicos</text></g><g class="pele-cluster" data-id="vm"><rect x="790.25" y="59.5" width="2225.41" height="429" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="1107.22" y="85.1" text-anchor="middle">VM Linux corredor-ubs, provisionada por Bash e vigiada pelo corredor-monitor.service</text></g><g class="pele-cluster" data-id="api"><rect x="1581.14" y="140.17" width="1120.29" height="248.83" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="1743.46" y="165.77" text-anchor="middle">corredor-api.service: um processo .NET 10</text></g><g class="pele-cluster" data-id="casa"><rect x="8" y="8" width="253.01" height="189" fill="var(--_a)" fill-opacity="0.5" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-cluster-label" fill="var(--_m)" x="71.76" y="33.6" text-anchor="middle">Casa da idosa</text></g></g><g class="pele-edges" fill="none" stroke="var(--_l)" stroke-linecap="round"><g class="pele-edge" data-id="L_esp_pub_0"><path d="M221.01,112.5L398.05,112.5"/><path class="pele-marker" d="M405.05,112.5L397.05,115.86L397.05,109.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_pub_mq_0"><path d="M620.24,112.5L1194.44,112.5"/><path class="pele-marker" d="M613.24,112.5L621.24,109.14L621.24,115.86Z" fill="var(--_l)" stroke="none"/><path class="pele-marker" d="M1201.44,112.5L1193.44,115.86L1193.44,109.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_sim_mq_0"><path d="M1054.33,173.5L1194.44,173.5"/><path class="pele-marker" d="M1201.44,173.5L1193.44,176.86L1193.44,170.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_mq_motor_0"><path d="M1362.42,143L1553.64,143C1567.39,143 1567.39,252.5 1581.14,252.5L1614.14,252.5"/><path class="pele-marker" d="M1355.42,143L1363.42,139.64L1363.42,146.36Z" fill="var(--_l)" stroke="none"/><path class="pele-marker" d="M1621.14,252.5L1613.14,255.86L1613.14,249.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_app_nginx_0"><path d="M595.1,239.5C614.42,239.5 614.42,302.5 633.74,302.5L846.53,302.5"/><path class="pele-marker" d="M853.53,302.5L845.53,305.86L845.53,299.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_nginx_api_0"><path d="M1031.05,294.5C1096.83,294.5 1096.83,260.5 1162.61,260.5L1574.14,260.5"/><path class="pele-marker" d="M1581.14,260.5L1573.14,263.86L1573.14,257.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_nginx_painel_0"><path d="M1031.05,310.5C1052.94,310.5 1052.94,344.5 1074.83,344.5L1155.61,344.5"/><path class="pele-marker" d="M1162.61,344.5L1154.61,347.86L1154.61,341.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_cad_motor_0"><path d="M2037.16,222.42L1873.98,222.42C1867.61,222.42 1867.61,247.42 1861.23,247.42L1856.98,247.42"/><path class="pele-marker" d="M1849.98,247.42L1857.98,244.06L1857.98,250.78Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_motor_cad_0"><path d="M1849.98,263.42L2030.16,263.42"/><path class="pele-marker" d="M2037.16,263.42L2029.16,266.78L2029.16,260.06Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_cad_guarda_0"><path d="M2272.65,242C2282.9,242 2282.9,297.5 2293.15,297.5L2444.28,297.5"/><path class="pele-marker" d="M2451.28,297.5L2443.28,300.86L2443.28,294.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_cad_viz_0"><path d="M2272.65,210L2701.43,210C2725.43,210 2725.43,193.92 2749.43,193.92L3208.47,193.92C3216.16,193.92 3216.16,223.32 3223.84,223.32L3228.97,223.32" stroke-dasharray="3 4"/><path class="pele-marker" d="M3235.97,223.32L3227.97,226.68L3227.97,219.96Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_inmet_job_0"><path d="M568.68,395.87L730.5,395.87C760.38,395.87 760.38,431.5 790.25,431.5L837.58,431.5"/><path class="pele-marker" d="M844.58,431.5L836.58,434.86L836.58,428.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_sih_job_0"><path d="M568.68,502.68L608.68,502.68C621.21,502.68 621.21,447.5 633.74,447.5L837.58,447.5" stroke-dasharray="3 4"/><path class="pele-marker" d="M844.58,447.5L836.58,450.86L836.58,444.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_job_motor_0"><path d="M1040.01,435.5L1394.25,435.5C1487.7,435.5 1487.7,268.5 1581.14,268.5L1614.14,268.5"/><path class="pele-marker" d="M1621.14,268.5L1613.14,271.86L1613.14,265.14Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_motor_pg_0"><path d="M1849.98,279.42L1862.98,279.42C1885.88,279.42 1885.88,369 1908.78,369L2701.43,369C2718.93,369 2718.93,288.25 2736.43,288.25L2742.43,288.25"/><path class="pele-marker" d="M2749.43,288.25L2741.43,291.61L2741.43,284.89Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_cad_pg_0"><path d="M2272.65,226L2701.43,226C2718.93,226 2718.93,256.25 2736.43,256.25L2742.43,256.25"/><path class="pele-marker" d="M2749.43,256.25L2741.43,259.61L2741.43,252.89Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_guarda_pg_0"><path d="M2661.43,266L2701.43,266C2718.93,266 2718.93,272.25 2736.43,272.25L2742.43,272.25"/><path class="pele-marker" d="M2749.43,272.25L2741.43,275.61L2741.43,268.89Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_guarda_llm_0"><path d="M2661.43,329L2701.43,329C2725.43,329 2725.43,360.92 2749.43,360.92L3208.47,360.92C3216.16,360.92 3216.16,339.82 3223.84,339.82L3228.97,339.82"/><path class="pele-marker" d="M3235.97,339.82L3227.97,343.18L3227.97,336.46Z" fill="var(--_l)" stroke="none"/></g></g><g class="pele-edge-labels" font-size="14"><g class="pele-edge-label" data-id="L_esp_pub_0"><rect x="283.51" y="102" width="92.04" height="21" rx="3" fill="var(--_bg)"/><text x="329.53" y="117.4" text-anchor="middle">MQTT, QoS 0</text></g><g class="pele-edge-label" data-id="L_pub_mq_0"><rect x="676.56" y="102" width="43.38" height="21" rx="3" fill="var(--_bg)"/><text x="698.25" y="117.4" text-anchor="middle">ponte</text></g><g class="pele-edge-label" data-id="L_sim_mq_0"><rect x="1082.15" y="163" width="45.65" height="21" rx="3" fill="var(--_bg)"/><text x="1104.97" y="178.4" text-anchor="middle">MQTT</text></g><g class="pele-edge-label" data-id="L_mq_motor_0"><rect x="1416.75" y="132.5" width="134.88" height="21" rx="3" fill="var(--_bg)"/><text x="1484.2" y="147.9" text-anchor="middle">eventos e comandos</text></g><g class="pele-edge-label" data-id="L_app_nginx_0"><rect x="640.75" y="292" width="115" height="21" rx="3" fill="var(--_bg)"/><text x="698.25" y="307.4" text-anchor="middle">HTTPS pelo túnel</text></g><g class="pele-edge-label" data-id="L_nginx_api_0"><rect x="1262.2" y="250" width="32.46" height="21" rx="3" fill="var(--_bg)"/><text x="1278.43" y="265.4" text-anchor="middle">/api</text></g><g class="pele-edge-label" data-id="L_nginx_painel_0"><rect x="1076.83" y="334" width="56.27" height="21" rx="3" fill="var(--_bg)"/><text x="1104.97" y="349.4" text-anchor="middle">/painel/</text></g><g class="pele-edge-label" data-id="L_cad_motor_0"><rect x="1891.52" y="211.92" width="104.1" height="21" rx="3" fill="var(--_bg)"/><text x="1943.57" y="227.32" text-anchor="middle">IMotorDeCasas</text></g><g class="pele-edge-label" data-id="L_motor_cad_0"><rect x="1875.98" y="252.92" width="135.18" height="21" rx="3" fill="var(--_bg)"/><text x="1943.57" y="268.32" text-anchor="middle">IReceptorDeContato</text></g><g class="pele-edge-label" data-id="L_cad_guarda_0"><rect x="2295.15" y="287" width="126.64" height="21" rx="3" fill="var(--_bg)"/><text x="2358.47" y="302.4" text-anchor="middle">toda saída de texto</text></g><g class="pele-edge-label" data-id="L_cad_viz_0"><rect x="3080.62" y="183.42" width="83.39" height="21" rx="3" fill="var(--_bg)"/><text x="3122.32" y="198.82" text-anchor="middle">aviso neutro</text></g><g class="pele-edge-label" data-id="L_sih_job_0"><rect x="635.74" y="437" width="125.01" height="21" rx="3" fill="var(--_bg)"/><text x="698.25" y="452.4" text-anchor="middle">treino no notebook</text></g><g class="pele-edge-label" data-id="L_job_motor_0"><rect x="1185.82" y="425" width="185.21" height="21" rx="3" fill="var(--_bg)"/><text x="1278.43" y="440.4" text-anchor="middle">PUT /api/dias-criticos/{data}</text></g><g class="pele-edge-label" data-id="L_guarda_llm_0"><rect x="3038.17" y="350.42" width="168.3" height="21" rx="3" fill="var(--_bg)"/><text x="3122.32" y="365.82" text-anchor="middle">prompt sem dado pessoal</text></g></g><g class="pele-nodes"><g class="pele-node pele-shape-rect" data-id="esp" transform="translate(124.5,112.5)"><rect x="-96.5" y="-64.5" width="193.01" height="129" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-36.4">Nó ESP32 no Wokwi</tspan><tspan x="0" y="-15.4">PIR e luz de caminho,</tspan><tspan x="0" y="5.6">DHT22, tensão,</tspan><tspan x="0" y="26.6">botão, buzzer, buffer e</tspan><tspan x="0" y="47.6">heartbeat</tspan></text></g><g class="pele-node pele-shape-rect externo" data-id="pub" transform="translate(509.15,112.5)"><rect x="-104.1" y="-43.5" width="208.19" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r);stroke-width:1px;"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Broker MQTT público</tspan><tspan x="0" y="5.6">broker.hivemq.com:1883</tspan><tspan x="0" y="26.6">só o token no tópico</tspan></text></g><g class="pele-node pele-shape-rect" data-id="app" transform="translate(509.15,239.5)"><rect x="-85.95" y="-43.5" width="171.9" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">App Expo da ACS</tspan><tspan x="0" y="5.6">radar e SQLite</tspan><tspan x="0" y="26.6">junta token e nome</tspan></text></g><g class="pele-node pele-shape-rect" data-id="mq" transform="translate(1278.43,143)"><rect x="-76.99" y="-43.5" width="153.98" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Mosquitto</tspan><tspan x="0" y="5.6">ponte de saída e</tspan><tspan x="0" y="26.6">broker local</tspan></text></g><g class="pele-node pele-shape-rect" data-id="sim" transform="translate(942.29,173.5)"><rect x="-112.04" y="-33" width="224.08" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">corredor-simulador.service</tspan><tspan x="0" y="16.1">39 casas simuladas</tspan></text></g><g class="pele-node pele-shape-rect" data-id="nginx" transform="translate(942.29,302.5)"><rect x="-88.76" y="-33" width="177.52" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Nginx :80</tspan><tspan x="0" y="16.1">api.corredor.internal</tspan></text></g><g class="pele-node pele-shape-rect" data-id="job" transform="translate(942.29,435.5)"><rect x="-97.71" y="-33" width="195.42" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">corredor-ml.timer, 05h</tspan><tspan x="0" y="16.1">prever_hoje.py</tspan></text></g><g class="pele-node pele-shape-rect luz" data-id="motor" transform="translate(1735.56,260.5)"><rect x="-114.42" y="-43.5" width="228.85" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r);stroke-width:2px;"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Módulo Motor</tspan><tspan x="0" y="5.6">regras de contato e radar</tspan><tspan x="0" y="26.6">só token, microárea e perfil</tspan></text></g><g class="pele-node pele-shape-rect" data-id="cad" transform="translate(2154.9,234.17)"><rect x="-117.74" y="-54" width="235.49" height="108" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-25.9">Módulo Cadastro</tspan><tspan x="0" y="-4.9">idoso, consentimento, visita,</tspan><tspan x="0" y="16.1">aviso</tspan><tspan x="0" y="37.1">único dono de dado pessoal</tspan></text></g><g class="pele-node pele-shape-rect" data-id="guarda" transform="translate(2556.36,297.5)"><rect x="-105.07" y="-43.5" width="210.14" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Módulo Guarda</tspan><tspan x="0" y="5.6">InterceptadorDeEntrada,</tspan><tspan x="0" y="26.6">SaidaSegura, Tradutor</tspan></text></g><g class="pele-node pele-shape-rect" data-id="painel" transform="translate(1278.43,344.5)"><rect x="-115.82" y="-43.5" width="231.65" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Painel Risco Cidadão</tspan><tspan x="0" y="5.6">página estática com o farol,</tspan><tspan x="0" y="26.6">lê GET /api/painel</tspan></text></g><g class="pele-node pele-shape-cyl" data-id="pg" transform="translate(2862.55,277.42)"><path d="M-113.12,-43.5A113.12,12 0 0 1 113.12,-43.5V43.5A113.12,12 0 0 1 -113.12,43.5Z" fill="var(--_s)" stroke="var(--_b)"/><path d="M-113.12,-43.5A113.12,12 0 0 0 113.12,-43.5" fill="none" stroke="var(--_b)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-9.4">Postgres, banco corredor</tspan><tspan x="0" y="11.6">schemas motor, cadastro e</tspan><tspan x="0" y="32.6">guarda</tspan></text></g><g class="pele-node pele-shape-cyl externo" data-id="inmet" transform="translate(506.57,395.87)"><path d="M-62.11,-24A62.11,8.87 0 0 1 62.11,-24V24A62.11,8.87 0 0 1 -62.11,24Z" fill="var(--_s)" stroke="var(--_b)" style="stroke-width:1px;"/><path d="M-62.11,-24A62.11,8.87 0 0 0 62.11,-24" fill="none" stroke="var(--_b)" style="stroke-width:1px;"/><text class="pele-label" x="0" y="10.04" text-anchor="middle">INMET A701</text></g><g class="pele-node pele-shape-cyl externo" data-id="sih" transform="translate(499.15,502.68)"><path d="M-69.54,-24A69.54,9.93 0 0 1 69.54,-24V24A69.54,9.93 0 0 1 -69.54,24Z" fill="var(--_s)" stroke="var(--_b)" style="stroke-width:1px;"/><path d="M-69.54,-24A69.54,9.93 0 0 0 69.54,-24" fill="none" stroke="var(--_b)" style="stroke-width:1px;"/><text class="pele-label" x="0" y="10.57" text-anchor="middle">SIH/DATASUS</text></g><g class="pele-node pele-shape-rect externo" data-id="llm" transform="translate(3326.74,339.82)"><rect x="-90.78" y="-43.5" width="181.55" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r);stroke-width:1px;"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">LLM</tspan><tspan x="0" y="5.6">recebe tipo de dado,</tspan><tspan x="0" y="26.6">canal e módulo</tspan></text></g><g class="pele-node pele-shape-rect externo" data-id="viz" transform="translate(3327.54,223.32)"><rect x="-91.58" y="-33" width="183.15" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r);stroke-width:1px;"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Vizinho de confiança</tspan><tspan x="0" y="16.1">canal simulado</tspan></text></g></g></svg></div><figcaption><span>Visão geral do sistema: casa, broker público, VM, módulos da API, app, dados públicos, vizinho e LLM</span><span class="diagrama-links">3428×565 px · <a href="svg/01-visao-geral-1.svg">SVG claro</a> · <a href="svg/01-visao-geral-1.escuro.svg">SVG escuro</a></span><span class="diagrama-dica">Ctrl ou ⌘ + roda, pinça, duplo clique ou + e − para ampliar; arraste para mover.</span></figcaption></figure>
+<h2 id="partes-e-donos">Partes e donos <a class="ancora" href="#partes-e-donos" aria-label="Link para esta seção">#</a></h2>
+<p>Cada parte tem uma pasta, uma tecnologia e um dado que só ela grava.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Parte</th>
+<th>Pasta</th>
+<th>Tecnologia</th>
+<th>Dona de</th>
+<th>Disciplina</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Nó do corredor</td>
+<td><code>iot/</code></td>
+<td>ESP32 no Wokwi, PubSubClient</td>
+<td>leitura dos sensores, luz de caminho, buffer, heartbeat</td>
+<td>Physical Computing</td>
+</tr>
+<tr>
+<td>Simulador</td>
+<td><code>iot/simulador/</code></td>
+<td>Python</td>
+<td>pacotes das 39 casas simuladas</td>
+<td>Physical Computing</td>
+</tr>
+<tr>
+<td>Contratos</td>
+<td><code>api/src/Corredor.Contratos</code></td>
+<td>.NET 10</td>
+<td><code>CasaToken</code>, <code>PerfilDaCasa</code>, <code>Confirmacao</code>, <code>PedidoDeContato</code>, <code>IMotorDeCasas</code>, <code>IReceptorDeContato</code></td>
+<td>C# e SOA</td>
+</tr>
+<tr>
+<td>Módulo Motor</td>
+<td><code>api/src/Corredor.Motor</code></td>
+<td>.NET 10, EF Core, MQTTnet</td>
+<td><code>CasaMonitorada</code>, <code>EventoSensor</code>, <code>DiaCritico</code>, a situação da casa e o radar</td>
+<td>C#</td>
+</tr>
+<tr>
+<td>Módulo Cadastro</td>
+<td><code>api/src/Corredor.Cadastro</code></td>
+<td>.NET 10, EF Core</td>
+<td><code>Idoso</code> com <code>Casa</code>, <code>Consentimento</code> e <code>VizinhoDeConfianca</code>, <code>Visita</code>, <code>MensagemSaida</code>, <code>AvisoAoVizinho</code>, <code>Microarea</code></td>
+<td>SOA</td>
+</tr>
+<tr>
+<td>Módulo Guarda</td>
+<td><code>api/src/Corredor.Guarda</code></td>
+<td>.NET 10, regras em JSON, LLM por HTTP</td>
+<td><code>RegraDePii</code>, <code>TextoRotulado</code>, <code>PoliticaDeCanal</code>, <code>EventoDeSeguranca</code>, o painel</td>
+<td>Cybersecurity</td>
+</tr>
+<tr>
+<td>Host</td>
+<td><code>api/src/Corredor.Api</code></td>
+<td>ASP.NET Core, Swagger</td>
+<td><code>Program.cs</code>, autenticação, injeção de dependência, <code>/healthz</code> e <code>/api/versao</code></td>
+<td>C# e SOA</td>
+</tr>
+<tr>
+<td>Testes</td>
+<td><code>api/tests/</code></td>
+<td>xUnit</td>
+<td>um projeto de teste por módulo</td>
+<td>C# e SOA</td>
+</tr>
+<tr>
+<td>Modelo de dia crítico</td>
+<td><code>ml/</code></td>
+<td>pandas, XGBoost, scikit-learn</td>
+<td>notebook, relatório, <code>prever_hoje.py</code></td>
+<td>IA e ML</td>
+</tr>
+<tr>
+<td>App da ACS</td>
+<td><code>app/</code></td>
+<td>Expo, React Native, TypeScript, Expo Router, expo-sqlite</td>
+<td>cache da lista de nomes, do radar e dos avisos, fila de desfechos</td>
+<td>Mobile</td>
+</tr>
+<tr>
+<td>Infra</td>
+<td><code>infra/</code> e <code>tools/</code></td>
+<td>Bash, systemd, Nginx, Mosquitto, Postgres, Terraform</td>
+<td>VM, serviços, logs, monitor, deploy</td>
+<td>Operating Systems</td>
+</tr>
+<tr>
+<td>Qualidade</td>
+<td>Azure Boards</td>
+<td>Features e Test Cases</td>
+<td>critérios de aceite</td>
+<td>Testing</td>
+</tr>
+</tbody></table>
+</div>
+<p>Três regras decidem quem enxerga o quê:</p>
+<ul>
+<li><strong>O Motor só guarda dado pseudonimizado.</strong> Ele conhece o token da casa, a microárea e o perfil. <code>Corredor.Motor</code> não referencia <code>Corredor.Cadastro</code>, então o compilador impede o Motor de ler um nome.</li>
+<li><strong>O Cadastro é o único dono de dado pessoal.</strong> Nome, endereço, condições, medicamentos e o telefone do vizinho ficam no schema <code>cadastro</code>, em campos do tipo <code>TextoRotulado</code>.</li>
+<li><strong>O token e o nome só se encontram no celular.</strong> O app baixa a lista de nomes para o SQLite e junta com o radar pelo <code>casaToken</code>.</li>
+</ul>
+<p>O banco repete a separação. Há um Postgres com três schemas, <code>motor</code>, <code>cadastro</code> e <code>guarda</code>. Cada módulo conecta com um papel próprio, que não enxerga o schema dos outros. As referências permitidas entre os projetos estão na seção 2 do <a href="03-modelo-de-dominio.html#2-projetos-net-e-refer%C3%AAncias-permitidas">modelo de domínio</a>, e as tabelas estão no <a href="04-modelo-de-dados.html">modelo de dados</a>.</p>
+<h2 id="decisões-que-dão-forma-ao-desenho">Decisões que dão forma ao desenho <a class="ancora" href="#decisões-que-dão-forma-ao-desenho" aria-label="Link para esta seção">#</a></h2>
+<p>Cada decisão tem o motivo e o documento que a detalha.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Decisão</th>
+<th>Motivo</th>
+<th>Onde está</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Um monólito modular em C#, com três módulos, em vez de duas APIs.</td>
+<td>O enunciado de SOA aceita qualquer linguagem. Um processo cobre as rubricas de SOA e de C# com um deploy só. A separação por processo que se perde volta como separação por projeto.</td>
+<td><a href="03-modelo-de-dominio.html#2-projetos-net-e-refer%C3%AAncias-permitidas">03, seção 2</a></td>
+</tr>
+<tr>
+<td>2</td>
+<td>.NET 10, em pacote self-contained para x64 e arm64.</td>
+<td>O .NET 8 saiu de suporte em 10/11/2026. Com o pacote self-contained, a VM não instala runtime, e o binário que roda é o que foi testado.</td>
+<td><a href="05-infra-e-entrega.html#13-net-10-e-pacote-self-contained-para-x64-e-arm64">05, seção 1.3</a></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>Corredor.Contratos</code> guarda os tipos e as duas interfaces. Motor e Cadastro referenciam esse projeto e nenhum referencia o outro.</td>
+<td>A regra de privacidade vira erro de compilação.</td>
+<td><a href="03-modelo-de-dominio.html#12-mapa-de-contexto">03, seção 1.2</a></td>
+</tr>
+<tr>
+<td>4</td>
+<td>A situação da casa é calculada por uma função pura, o <code>AvaliadorDeCasas</code>. Ela não tem coluna no banco.</td>
+<td>A situação muda com a passagem do tempo, sem evento. Uma coluna velha poderia mostrar um verde que ninguém provou.</td>
+<td><a href="03-modelo-de-dominio.html#5-regras-da-situa%C3%A7%C3%A3o-da-casa">03, seção 5</a></td>
+</tr>
+<tr>
+<td>5</td>
+<td>São quatro situações. <code>Aguardando</code> é a casa sem alerta e sem sinal de vida na janela atual.</td>
+<td>Com três situações, a casa que ainda não deu sinal de vida às 06h seria verde sem ninguém saber dela.</td>
+<td><a href="02-event-storming.html#situa%C3%A7%C3%A3o-da-casa-e-radar">02, hotspot H1</a></td>
+</tr>
+<tr>
+<td>6</td>
+<td>A regra <code>SemHeartbeat</code> vem antes de toda regra que olha sinal de vida, e mede a hora de chegada do último pacote.</td>
+<td>O aparelho mudo nunca vira verde, mesmo com um movimento antigo guardado.</td>
+<td><a href="03-modelo-de-dominio.html#54-as-regras-em-ordem">03, seção 5.4</a></td>
+</tr>
+<tr>
+<td>7</td>
+<td>A chave única do evento é <code>(casaToken, seq, ts)</code>. O <code>HEARTBEAT</code> não vira linha.</td>
+<td>O reenvio depois de uma queda não duplica nada. O <code>seq</code> volta a 1 quando o ESP32 reinicia. O heartbeat daria cerca de 170 mil linhas por dia.</td>
+<td><a href="03-modelo-de-dominio.html#42-motor">03, seção 4.2</a></td>
+</tr>
+<tr>
+<td>8</td>
+<td>O sinal de vida depende do perfil de contato, e uma confirmação humana vale só na janela atual.</td>
+<td>Na casa com outra pessoa, o movimento não é sinal de vida da idosa. Uma visita às 09h não cobre a tarde de um dia de 36 °C.</td>
+<td><a href="03-modelo-de-dominio.html#53-sinal-de-vida-por-perfil-de-contato">03, seções 5.3 e 5.5</a></td>
+</tr>
+<tr>
+<td>9</td>
+<td>O aviso ao vizinho mora no Cadastro. O Motor manda um <code>PedidoDeContato</code> pela porta <code>IReceptorDeContato</code>.</td>
+<td>O Motor não tem o telefone do vizinho e não pode ter.</td>
+<td><a href="02-event-storming.html#fluxo-8-pedido-de-contato-e-aviso-ao-vizinho">02, fluxo 8</a></td>
+</tr>
+<tr>
+<td>10</td>
+<td>O <code>DiaCritico</code> fica dentro do Motor, e o turno é um objeto de valor dele.</td>
+<td>Evita uma chamada entre módulos às 05h. O turno existe porque o dia crítico existe.</td>
+<td><a href="03-modelo-de-dominio.html#42-motor">03, seção 4.2</a></td>
+</tr>
+<tr>
+<td>11</td>
+<td>A Guarda mascara CPF, RG, CNS e credencial na entrada. Os outros tipos de dado ganham rótulo, e a <code>SaidaSegura</code> decide por canal.</td>
+<td>Mascarar nome e endereço apagaria o dado da lista de nomes, e a saída não teria o que bloquear.</td>
+<td><a href="03-modelo-de-dominio.html#44-guarda">03, seção 4.4</a></td>
+</tr>
+<tr>
+<td>12</td>
+<td>O LLM recebe o tipo de dado, o canal e o módulo. Ele nunca recebe o texto.</td>
+<td>O prompt é uma saída como as outras e passa pela <code>SaidaSegura</code> com o canal <code>PromptDoLlm</code>.</td>
+<td><a href="03-modelo-de-dominio.html#44-guarda">03, seção 4.4</a></td>
+</tr>
+<tr>
+<td>13</td>
+<td>O nó do Wokwi publica num broker público, e o Mosquitto da VM abre uma ponte de saída.</td>
+<td>O Wokwi do navegador não alcança a rede local sem o gateway pago. A VM não abre porta MQTT. O tópico leva só o token.</td>
+<td><a href="05-infra-e-entrega.html#111-app-n%C3%B3-do-wokwi-simulador-e-rel%C3%B3gio-de-demo">05, seção 1.11</a></td>
+</tr>
+<tr>
+<td>14</td>
+<td>A VM oficial é a do Multipass, no notebook de quem grava. A VM do Azure é um acréscimo com prazo.</td>
+<td>Nenhum item avaliado depende da nuvem, e um problema de cota na véspera derrubaria a demo.</td>
+<td><a href="05-infra-e-entrega.html#11-local-primeiro-azure-como-acr%C3%A9scimo">05, seção 1.1</a></td>
+</tr>
+<tr>
+<td>15</td>
+<td>Dentro da VM, quem trabalha são scripts Bash. O Terraform só cria a VM, o cloud-init só clona e chama um script, e o GitHub Actions só chama um comando por SSH.</td>
+<td>A rubrica de Operating Systems avalia o provisionamento por script.</td>
+<td><a href="05-infra-e-entrega.html#12-terraform-cloud-init-e-bash-cada-um-no-seu-papel">05, seção 1.2</a></td>
+</tr>
+<tr>
+<td>16</td>
+<td>A release é uma tag <code>vX.Y.Z</code>. O deploy guarda um <code>pg_dump</code>, aplica o SQL gerado pelo EF Core e volta sozinho se a versão nova não fica saudável.</td>
+<td>A tag diz o que foi testado, empacotado e posto no ar. A migração aditiva deixa o rollback sem mexer no banco.</td>
+<td><a href="05-infra-e-entrega.html#15-branches-tags-e-releases">05, seções 1.5 a 1.7</a></td>
+</tr>
+<tr>
+<td>17</td>
+<td>Todo número das regras fica em <code>ParametrosDoMotor</code>, com valor de produção e de demo, e existe o <code>RelogioDeDemo</code>.</td>
+<td>A janela das 10h, a das 15h e os 30 minutos de silêncio não cabem num vídeo.</td>
+<td><a href="03-modelo-de-dominio.html#59-par%C3%A2metros-e-rel%C3%B3gio-de-demo">03, seção 5.9</a></td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="as-três-cenas-da-demo">As três cenas da demo <a class="ancora" href="#as-três-cenas-da-demo" aria-label="Link para esta seção">#</a></h2>
+<p>O pitch mostra três cenas. Cada uma prova uma regra do produto e tem caso de teste no <a href="03-modelo-de-dominio.html#7-casos-de-teste">modelo de domínio</a>. As cenas são gravadas na VM local, com a API em <code>Development</code>. Quem grava move a hora do Motor com <code>PUT /api/demo/relogio</code>, e os valores de demo de <code>ParametrosDoMotor</code> encurtam a espera.</p>
+<h3 id="cena-1-o-movimento-tira-o-card-da-tela">Cena 1: o movimento tira o card da tela <a class="ancora" href="#cena-1-o-movimento-tira-o-card-da-tela" aria-label="Link para esta seção">#</a></h3>
+<p>Às 10h31 de um dia crítico, a casa do nó do Wokwi está em <code>Vermelho</code> por <code>SemMovimentoNaJanela</code>. A idosa passa no corredor. O nó acende a luz e publica um <code>MOVIMENTO</code>. No próximo <code>GET /api/radar</code>, a casa está <code>Verde</code> e o card sai da lista de pendentes. A cena é o caso de teste 4.</p>
+<p>No desenho, veja que o Motor grava duas coisas: a hora de chegada em <code>ultimo_pacote_em</code> e o evento com a chave <code>(casa_token, seq, ocorrido_em)</code>. A situação não é gravada. Ela é calculada no passo 9.</p>
+<figure class="diagrama" id="diagrama-2" style="--w:3475px;--h:664px;--r:0.1911"><div class="diagrama-quadro"><svg xmlns="http://www.w3.org/2000/svg" class="pele pele-sequence" viewBox="0 0 3475 664" width="3475" height="664" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_r:var(--pele-radius,4px);--_fm:var(--pele-font-mono,&quot;Atkinson Hyperlegible Mono&quot;, monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,&quot;Atkinson Hyperlegible&quot;, sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="sequence"><g transform="translate(190.77,8)"><g class="pele-lifelines" fill="none" stroke="var(--_b)"><path class="pele-lifeline" data-id="no" d="M0,62V586"/><path class="pele-lifeline" data-id="pub" d="M482.64,62V586"/><path class="pele-lifeline" data-id="mq" d="M853.14,62V586"/><path class="pele-lifeline" data-id="cons" d="M1044.12,62V586"/><path class="pele-lifeline" data-id="reg" d="M1389.23,62V586"/><path class="pele-lifeline" data-id="pg" d="M1956.36,62V586"/><path class="pele-lifeline" data-id="radar" d="M2430.45,62V586"/><path class="pele-lifeline" data-id="app" d="M3049.89,62V586"/></g><g class="pele-edges" fill="none" stroke="var(--_l)" stroke-linecap="round"><g class="pele-edge pele-message" data-id="i3"><path d="M8,191H475.64"/><path class="pele-marker" d="M482.64,191L474.64,194.36L474.64,187.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="-8" y="183" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="0" y="195.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">1</text></g></g><g class="pele-edge pele-message" data-id="i4"><path d="M490.64,228H846.14"/><path class="pele-marker" d="M853.14,228L845.14,231.36L845.14,224.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="474.64" y="220" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="482.64" y="232.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">2</text></g></g><g class="pele-edge pele-message" data-id="i5"><path d="M861.14,265H1037.12"/><path class="pele-marker" d="M1044.12,265L1036.12,268.36L1036.12,261.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="845.14" y="257" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="853.14" y="269.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">3</text></g></g><g class="pele-edge pele-message" data-id="i6"><path d="M1052.12,302H1382.23"/><path class="pele-marker" d="M1389.23,302L1381.23,305.36L1381.23,298.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1036.12" y="294" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1044.12" y="306.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">4</text></g></g><g class="pele-edge pele-message" data-id="i7"><path d="M1397.23,339H1949.36"/><path class="pele-marker" d="M1956.36,339L1948.36,342.36L1948.36,335.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1381.23" y="331" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1389.23" y="343.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">5</text></g></g><g class="pele-edge pele-message" data-id="i8"><path d="M1397.23,376H1949.36"/><path class="pele-marker" d="M1956.36,376L1948.36,379.36L1948.36,372.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1381.23" y="368" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1389.23" y="380.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">6</text></g></g><g class="pele-edge pele-message" data-id="i9"><path d="M3041.89,413H2437.45"/><path class="pele-marker" d="M2430.45,413L2438.45,409.64L2438.45,416.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="3041.89" y="405" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="3049.89" y="417.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">7</text></g></g><g class="pele-edge pele-message" data-id="i10"><path d="M2422.45,450H1963.36"/><path class="pele-marker" d="M1956.36,450L1964.36,446.64L1964.36,453.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="2422.45" y="442" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="2430.45" y="454.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">8</text></g></g><g class="pele-edge pele-message" data-id="i11"><path d="M2438.45,464H2460.45A6,6 0 0 1 2466.45,470V480A6,6 0 0 1 2460.45,486H2437.45"/><path class="pele-marker" d="M2430.45,486L2438.45,482.64L2438.45,489.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="2422.45" y="456" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="2430.45" y="468.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">9</text></g></g><g class="pele-edge pele-message" data-id="i12"><path d="M2440.75,523H3042.89" stroke-dasharray="4 4"/><path class="pele-marker" d="M3049.89,523L3041.89,526.36L3041.89,519.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="2420.15" y="515" width="20.6" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="2430.45" y="527.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">10</text></g></g></g><g class="pele-edge-labels" font-size="14"><g class="pele-edge-label" data-id="i3"><text x="245.32" y="181.4" text-anchor="middle">&lt;prefixo&gt;/corredor/v1/{casaToken}/evento {seq, ts, tipo: MOVIMENTO}</text></g><g class="pele-edge-label" data-id="i4"><text x="671.89" y="218.4" text-anchor="middle">ponte de saída, vira corredor/v1/{casaToken}/evento</text></g><g class="pele-edge-label" data-id="i5"><text x="952.63" y="255.4" text-anchor="middle">corredor/v1/+/evento</text></g><g class="pele-edge-label" data-id="i6"><text x="1220.67" y="292.4" text-anchor="middle">PacoteDoNo, convertido pelo TradutorDePacote</text></g><g class="pele-edge-label" data-id="i7"><text x="1676.79" y="329.4" text-anchor="middle">casa_monitorada.ultimo_pacote_em recebe a hora do servidor</text></g><g class="pele-edge-label" data-id="i8"><text x="1676.79" y="366.4" text-anchor="middle">INSERT evento_sensor ON CONFLICT DO NOTHING (casa_token, seq, ocorrido_em)</text></g><g class="pele-edge-label" data-id="i9"><text x="2736.17" y="403.4" text-anchor="middle">GET /api/radar?microarea=3</text></g><g class="pele-edge-label" data-id="i10"><text x="2189.4" y="440.4" text-anchor="middle">casas ativas, eventos e confirmações de 24 horas, dia crítico de hoje</text></g><g class="pele-edge-label" data-id="i11"><text x="2680.01" y="479.9" text-anchor="middle">AvaliadorDeCasas.Avaliar(casa, historico, turno, agora, parametros)</text></g><g class="pele-edge-label" data-id="i12"><text x="2745.32" y="513.4" text-anchor="middle">200, pendentes sem esta casa e verdes mais 1</text></g></g><g class="pele-notes" font-size="14" fill="var(--_a)" stroke="var(--_b)"><g class="pele-note" data-id="i1"><rect x="2414.45" y="78" width="651.44" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="2740.17" y="99.4" text-anchor="middle">dia crítico, turno aberto, 10h31. Casa Sozinho em Vermelho por SemMovimentoNaJanela desde 10h00</text></g><g class="pele-note" data-id="i2"><rect x="-182.77" y="121" width="365.55" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="0" y="142.4" text-anchor="middle">a idosa passa. O nó acende a luz sem depender da rede</text></g><g class="pele-note" data-id="i13"><rect x="2823.71" y="533" width="452.36" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="3049.89" y="554.4" text-anchor="middle">o card sai da tela. A casa está Verde, com sinal de vida na janela atual</text></g></g><g class="pele-nodes"><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="no"><rect x="-51.26" y="586" width="102.53" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="613.6" text-anchor="middle">Nó ESP32</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="pub"><rect x="415.47" y="586" width="134.35" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="482.64" y="613.6" text-anchor="middle">Broker público</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="mq"><rect x="777.21" y="586" width="151.87" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="853.14" y="613.6" text-anchor="middle">Mosquitto da VM</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="cons"><rect x="969.08" y="586" width="150.08" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1044.12" y="613.6" text-anchor="middle">ConsumidorMqtt</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="reg"><rect x="1316.92" y="586" width="144.61" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1389.23" y="613.6" text-anchor="middle">RegistrarPacote</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="pg"><rect x="1855.12" y="586" width="202.48" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1956.36" y="613.6" text-anchor="middle">Postgres, schema motor</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="radar"><rect x="2337.58" y="586" width="185.73" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="2430.45" y="613.6" text-anchor="middle">Motor, GET /api/radar</text></g><g class="pele-node pele-actor pele-actor-actor pele-actor-footer" data-id="app"><circle cx="3049.89" cy="593" r="6" fill="var(--_s)" stroke="var(--_b)"/><path d="M3049.89,599V610M3039.89,603H3059.89M3041.89,620L3049.89,610L3057.89,620" fill="none" stroke="var(--_b)"/><text class="pele-label" x="3049.89" y="641.6" text-anchor="middle">App da ACS</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="no"><rect x="-51.26" y="18" width="102.53" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="45.6" text-anchor="middle">Nó ESP32</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="pub"><rect x="415.47" y="18" width="134.35" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="482.64" y="45.6" text-anchor="middle">Broker público</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="mq"><rect x="777.21" y="18" width="151.87" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="853.14" y="45.6" text-anchor="middle">Mosquitto da VM</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="cons"><rect x="969.08" y="18" width="150.08" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1044.12" y="45.6" text-anchor="middle">ConsumidorMqtt</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="reg"><rect x="1316.92" y="18" width="144.61" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1389.23" y="45.6" text-anchor="middle">RegistrarPacote</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="pg"><rect x="1855.12" y="18" width="202.48" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1956.36" y="45.6" text-anchor="middle">Postgres, schema motor</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="radar"><rect x="2337.58" y="18" width="185.73" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="2430.45" y="45.6" text-anchor="middle">Motor, GET /api/radar</text></g><g class="pele-node pele-actor pele-actor-actor" data-id="app"><circle cx="3049.89" cy="7" r="6" fill="var(--_s)" stroke="var(--_b)"/><path d="M3049.89,13V24M3039.89,17H3059.89M3041.89,34L3049.89,24L3057.89,34" fill="none" stroke="var(--_b)"/><text class="pele-label" x="3049.89" y="55.6" text-anchor="middle">App da ACS</text></g></g></g></svg></div><figcaption><span>Cena 1: o movimento no corredor faz o card sair do radar</span><span class="diagrama-links">3475×664 px · <a href="svg/01-visao-geral-2.svg">SVG claro</a> · <a href="svg/01-visao-geral-2.escuro.svg">SVG escuro</a></span><span class="diagrama-dica">Ctrl ou ⌘ + roda, pinça, duplo clique ou + e − para ampliar; arraste para mover.</span></figcaption></figure>
+<h3 id="cena-2-o-aparelho-mudo-fica-cinza">Cena 2: o aparelho mudo fica cinza <a class="ancora" href="#cena-2-o-aparelho-mudo-fica-cinza" aria-label="Link para esta seção">#</a></h3>
+<p>Uma casa <code>Sozinho</code>, que não é eletrodependente, deu sinal de vida às 09h00. Às 09h10 o nó para de publicar. Passado o <code>SilencioMaximo</code>, de 30 minutos em produção e de 1 minuto na demo, a casa fica <code>Cinza</code> por <code>SemHeartbeat</code> e entra nas pendentes. O movimento das 09h00 não a deixa verde. A cena cobre os casos de teste 10 e 13.</p>
+<p>Na casa do eletrodependente o resultado é outro. Com 60 segundos sem pacote, ela fica <code>Vermelho</code> por <code>EnergiaEletrodependente</code>, em qualquer dia. Por isso a cena usa outra casa.</p>
+<p>No desenho, veja o intervalo entre os passos 4 e 5. Nenhuma mensagem chega, e é a falta dela que muda o radar.</p>
+<figure class="diagrama" id="diagrama-3" style="--w:2797px;--h:855px;--r:0.3057"><div class="diagrama-quadro"><svg xmlns="http://www.w3.org/2000/svg" class="pele pele-sequence" viewBox="0 0 2797 855" width="2797" height="855" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_r:var(--pele-radius,4px);--_fm:var(--pele-font-mono,&quot;Atkinson Hyperlegible Mono&quot;, monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,&quot;Atkinson Hyperlegible&quot;, sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="sequence"><g transform="translate(59.26,8)"><g class="pele-lifelines" fill="none" stroke="var(--_b)"><path class="pele-lifeline" data-id="no" d="M0,62V777"/><path class="pele-lifeline" data-id="pub" d="M428.98,62V777"/><path class="pele-lifeline" data-id="mq" d="M612.09,62V777"/><path class="pele-lifeline" data-id="reg" d="M800.33,62V777"/><path class="pele-lifeline" data-id="pg" d="M1366.26,62V777"/><path class="pele-lifeline" data-id="radar" d="M1840.35,62V777"/><path class="pele-lifeline" data-id="app" d="M2425.13,62V777"/></g><g class="pele-edges" fill="none" stroke="var(--_l)" stroke-linecap="round"><g class="pele-edge pele-message" data-id="i2"><path d="M8,148H421.98"/><path class="pele-marker" d="M428.98,148L420.98,151.36L420.98,144.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="-8" y="140" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="0" y="152.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">1</text></g></g><g class="pele-edge pele-message" data-id="i3"><path d="M436.98,185H605.09"/><path class="pele-marker" d="M612.09,185L604.09,188.36L604.09,181.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="420.98" y="177" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="428.98" y="189.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">2</text></g></g><g class="pele-edge pele-message" data-id="i4"><path d="M620.09,222H793.33"/><path class="pele-marker" d="M800.33,222L792.33,225.36L792.33,218.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="604.09" y="214" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="612.09" y="226.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">3</text></g></g><g class="pele-edge pele-message" data-id="i5"><path d="M808.33,259H1359.26"/><path class="pele-marker" d="M1366.26,259L1358.26,262.36L1358.26,255.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="792.33" y="251" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="800.33" y="263.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">4</text></g></g><g class="pele-edge pele-message" data-id="i7"><path d="M2417.13,339H1847.35"/><path class="pele-marker" d="M1840.35,339L1848.35,335.64L1848.35,342.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="2417.13" y="331" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="2425.13" y="343.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">5</text></g></g><g class="pele-edge pele-message" data-id="i8"><path d="M1832.35,376H1373.26"/><path class="pele-marker" d="M1366.26,376L1374.26,372.64L1374.26,379.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1832.35" y="368" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1840.35" y="380.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">6</text></g></g><g class="pele-edge pele-message" data-id="i9"><path d="M1848.35,390H1870.35A6,6 0 0 1 1876.35,396V406A6,6 0 0 1 1870.35,412H1847.35"/><path class="pele-marker" d="M1840.35,412L1848.35,408.64L1848.35,415.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1832.35" y="382" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1840.35" y="394.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">7</text></g></g><g class="pele-edge pele-message" data-id="i10"><path d="M1848.35,449H2418.13" stroke-dasharray="4 4"/><path class="pele-marker" d="M2425.13,449L2417.13,452.36L2417.13,445.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1832.35" y="441" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1840.35" y="453.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">8</text></g></g><g class="pele-edge pele-message" data-id="i13"><path d="M8,572H421.98"/><path class="pele-marker" d="M428.98,572L420.98,575.36L420.98,568.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="-8" y="564" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="0" y="576.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">9</text></g></g><g class="pele-edge pele-message" data-id="i14"><path d="M439.28,609H605.09"/><path class="pele-marker" d="M612.09,609L604.09,612.36L604.09,605.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="418.68" y="601" width="20.6" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="428.98" y="613.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">10</text></g></g><g class="pele-edge pele-message" data-id="i15"><path d="M620.92,646H793.33"/><path class="pele-marker" d="M800.33,646L792.33,649.36L792.33,642.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="603.27" y="638" width="17.65" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="612.09" y="650.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">11</text></g></g><g class="pele-edge pele-message" data-id="i16"><path d="M810.04,683H1359.26"/><path class="pele-marker" d="M1366.26,683L1358.26,686.36L1358.26,679.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="790.63" y="675" width="19.41" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="800.33" y="687.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">12</text></g></g><g class="pele-edge pele-message" data-id="i17"><path d="M2415.27,720H1847.35"/><path class="pele-marker" d="M1840.35,720L1848.35,716.64L1848.35,723.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="2415.27" y="712" width="19.71" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="2425.13" y="724.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">13</text></g></g><g class="pele-edge pele-message" data-id="i18"><path d="M1850.44,757H2418.13" stroke-dasharray="4 4"/><path class="pele-marker" d="M2425.13,757L2417.13,760.36L2417.13,753.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1830.25" y="749" width="20.19" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1840.35" y="761.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">14</text></g></g></g><g class="pele-edge-labels" font-size="14"><g class="pele-edge-label" data-id="i2"><text x="218.49" y="138.4" text-anchor="middle">&lt;prefixo&gt;/corredor/v1/{casaToken}/evento {tipo: HEARTBEAT}</text></g><g class="pele-edge-label" data-id="i3"><text x="524.54" y="175.4" text-anchor="middle">ponte de saída</text></g><g class="pele-edge-label" data-id="i4"><text x="710.21" y="212.4" text-anchor="middle">corredor/v1/+/evento</text></g><g class="pele-edge-label" data-id="i5"><text x="1087.3" y="249.4" text-anchor="middle">casa_monitorada.ultimo_pacote_em = 09h10. O HEARTBEAT não vira evento_sensor</text></g><g class="pele-edge-label" data-id="i7"><text x="2128.74" y="329.4" text-anchor="middle">GET /api/radar?microarea=3</text></g><g class="pele-edge-label" data-id="i8"><text x="1599.3" y="366.4" text-anchor="middle">casas ativas, eventos e confirmações de 24 horas, dia crítico de hoje</text></g><g class="pele-edge-label" data-id="i9"><text x="2112.84" y="405.9" text-anchor="middle">AvaliadorDeCasas: SemHeartbeat é a regra 2 e vem antes do sinal de vida</text></g><g class="pele-edge-label" data-id="i10"><text x="2136.74" y="439.4" text-anchor="middle">200, pendentes com {situacao: Cinza, motivo: SemHeartbeat, desde: 09h10}</text></g><g class="pele-edge-label" data-id="i13"><text x="218.49" y="562.4" text-anchor="middle">eventos do buffer com bufferizado: true e um HEARTBEAT</text></g><g class="pele-edge-label" data-id="i14"><text x="525.69" y="599.4" text-anchor="middle">ponte de saída</text></g><g class="pele-edge-label" data-id="i15"><text x="710.62" y="636.4" text-anchor="middle">corredor/v1/+/evento</text></g><g class="pele-edge-label" data-id="i16"><text x="1088.15" y="673.4" text-anchor="middle">ultimo_pacote_em avança. Os eventos entram com o ocorrido_em original</text></g><g class="pele-edge-label" data-id="i17"><text x="2127.81" y="710.4" text-anchor="middle">GET /api/radar?microarea=3</text></g><g class="pele-edge-label" data-id="i18"><text x="2137.79" y="747.4" text-anchor="middle">200, a casa sai do cinza</text></g></g><g class="pele-notes" font-size="14" fill="var(--_a)" stroke="var(--_b)"><g class="pele-note" data-id="i1"><rect x="1824.35" y="78" width="616.78" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="2132.74" y="99.4" text-anchor="middle">dia crítico, turno aberto. Casa Sozinho, não eletrodependente, Verde pelo movimento das 09h00</text></g><g class="pele-note" data-id="i6"><rect x="-16" y="269" width="644.09" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="306.05" y="290.4" text-anchor="middle">09h10: o nó para. Nenhum pacote chega dentro de SilencioMaximo</text></g><g class="pele-note" data-id="i11"><rect x="2121.34" y="459" width="607.58" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="2425.13" y="480.4" text-anchor="middle">card cinza, &quot;aparelho sem sinal desde 09h10&quot;. O movimento das 09h00 não deixa a casa verde</text></g><g class="pele-note" data-id="i12"><rect x="-16" y="502" width="644.09" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="306.05" y="523.4" text-anchor="middle">11h00: o nó volta</text></g></g><g class="pele-nodes"><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="no"><rect x="-51.26" y="777" width="102.53" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="804.6" text-anchor="middle">Nó ESP32</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="pub"><rect x="361.8" y="777" width="134.35" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="428.98" y="804.6" text-anchor="middle">Broker público</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="mq"><rect x="536.16" y="777" width="151.87" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="612.09" y="804.6" text-anchor="middle">Mosquitto da VM</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="reg"><rect x="728.03" y="777" width="144.61" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="800.33" y="804.6" text-anchor="middle">RegistrarPacote</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="pg"><rect x="1265.02" y="777" width="202.48" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1366.26" y="804.6" text-anchor="middle">Postgres, schema motor</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="radar"><rect x="1747.48" y="777" width="185.73" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1840.35" y="804.6" text-anchor="middle">Motor, GET /api/radar</text></g><g class="pele-node pele-actor pele-actor-actor pele-actor-footer" data-id="app"><circle cx="2425.13" cy="784" r="6" fill="var(--_s)" stroke="var(--_b)"/><path d="M2425.13,790V801M2415.13,794H2435.13M2417.13,811L2425.13,801L2433.13,811" fill="none" stroke="var(--_b)"/><text class="pele-label" x="2425.13" y="832.6" text-anchor="middle">App da ACS</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="no"><rect x="-51.26" y="18" width="102.53" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="0" y="45.6" text-anchor="middle">Nó ESP32</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="pub"><rect x="361.8" y="18" width="134.35" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="428.98" y="45.6" text-anchor="middle">Broker público</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="mq"><rect x="536.16" y="18" width="151.87" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="612.09" y="45.6" text-anchor="middle">Mosquitto da VM</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="reg"><rect x="728.03" y="18" width="144.61" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="800.33" y="45.6" text-anchor="middle">RegistrarPacote</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="pg"><rect x="1265.02" y="18" width="202.48" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1366.26" y="45.6" text-anchor="middle">Postgres, schema motor</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="radar"><rect x="1747.48" y="18" width="185.73" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1840.35" y="45.6" text-anchor="middle">Motor, GET /api/radar</text></g><g class="pele-node pele-actor pele-actor-actor" data-id="app"><circle cx="2425.13" cy="7" r="6" fill="var(--_s)" stroke="var(--_b)"/><path d="M2425.13,13V24M2415.13,17H2435.13M2417.13,34L2425.13,24L2433.13,34" fill="none" stroke="var(--_b)"/><text class="pele-label" x="2425.13" y="55.6" text-anchor="middle">App da ACS</text></g></g></g></svg></div><figcaption><span>Cena 2: o nó para de publicar e a casa fica cinza, nunca verde</span><span class="diagrama-links">2797×855 px · <a href="svg/01-visao-geral-3.svg">SVG claro</a> · <a href="svg/01-visao-geral-3.escuro.svg">SVG escuro</a></span><span class="diagrama-dica">Ctrl ou ⌘ + roda, pinça, duplo clique ou + e − para ampliar; arraste para mover.</span></figcaption></figure>
+<h3 id="cena-3-a-mensagem-com-dado-pessoal-é-bloqueada">Cena 3: a mensagem com dado pessoal é bloqueada <a class="ancora" href="#cena-3-a-mensagem-com-dado-pessoal-é-bloqueada" aria-label="Link para esta seção">#</a></h3>
+<p>A ACS escreve &quot;ele mora sozinho e toma diurético&quot; para o grupo do bairro e toca em verificar. A <code>SaidaSegura</code> acha os rótulos <code>MoraSozinho</code> e <code>Saude</code>, que o canal <code>GrupoDoBairro</code> não aceita. O app mostra a frase fixa e a versão segura, o painel Risco Cidadão fica vermelho e o LLM explica o bloqueio em duas frases. A cena é o caso de teste 39.</p>
+<p>No desenho, veja que a resposta 200 sai no passo 7, antes de o LLM ser chamado, e que o Postgres recebe só o texto mascarado.</p>
+<figure class="diagrama" id="diagrama-4" style="--w:2281px;--h:807px;--r:0.3538"><div class="diagrama-quadro"><svg xmlns="http://www.w3.org/2000/svg" class="pele pele-sequence" viewBox="0 0 2281 807" width="2281" height="807" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_r:var(--pele-radius,4px);--_fm:var(--pele-font-mono,&quot;Atkinson Hyperlegible Mono&quot;, monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,&quot;Atkinson Hyperlegible&quot;, sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="sequence"><g transform="translate(28,8)"><g class="pele-lifelines" fill="none" stroke="var(--_b)"><path class="pele-lifeline" data-id="acs" d="M0,62V729"/><path class="pele-lifeline" data-id="app" d="M439.47,62V729"/><path class="pele-lifeline" data-id="cad" d="M918.36,62V729"/><path class="pele-lifeline" data-id="guarda" d="M1355.25,62V729"/><path class="pele-lifeline" data-id="pg" d="M1871.38,62V729"/><path class="pele-lifeline" data-id="llm" d="M1990.24,62V729"/><path class="pele-lifeline" data-id="painel" d="M2153.23,62V729"/></g><g class="pele-edges" fill="none" stroke="var(--_l)" stroke-linecap="round"><g class="pele-edge pele-message" data-id="i1"><path d="M8,105H432.47"/><path class="pele-marker" d="M439.47,105L431.47,108.36L431.47,101.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="-8" y="97" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="0" y="109.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">1</text></g></g><g class="pele-edge pele-message" data-id="i2"><path d="M447.47,142H911.36"/><path class="pele-marker" d="M918.36,142L910.36,145.36L910.36,138.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="431.47" y="134" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="439.47" y="146.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">2</text></g></g><g class="pele-edge pele-message" data-id="i3"><path d="M926.36,179H1348.25"/><path class="pele-marker" d="M1355.25,179L1347.25,182.36L1347.25,175.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="910.36" y="171" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="918.36" y="183.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">3</text></g></g><g class="pele-edge pele-message" data-id="i4"><path d="M1363.25,216H1864.38"/><path class="pele-marker" d="M1871.38,216L1863.38,219.36L1863.38,212.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1347.25" y="208" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1355.25" y="220.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">4</text></g></g><g class="pele-edge pele-message" data-id="i5"><path d="M1347.25,253H925.36" stroke-dasharray="4 4"/><path class="pele-marker" d="M918.36,253L926.36,249.64L926.36,256.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1347.25" y="245" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1355.25" y="257.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">5</text></g></g><g class="pele-edge pele-message" data-id="i6"><path d="M926.36,290H1864.38"/><path class="pele-marker" d="M1871.38,290L1863.38,293.36L1863.38,286.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="910.36" y="282" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="918.36" y="294.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">6</text></g></g><g class="pele-edge pele-message" data-id="i7"><path d="M910.36,327H446.47" stroke-dasharray="4 4"/><path class="pele-marker" d="M439.47,327L447.47,323.64L447.47,330.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="910.36" y="319" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="918.36" y="331.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">7</text></g></g><g class="pele-edge pele-message" data-id="i9"><path d="M1363.25,407H1983.24"/><path class="pele-marker" d="M1990.24,407L1982.24,410.36L1982.24,403.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1347.25" y="399" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1355.25" y="411.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">8</text></g></g><g class="pele-edge pele-message" data-id="i10"><path d="M1982.24,444H1362.25" stroke-dasharray="4 4"/><path class="pele-marker" d="M1355.25,444L1363.25,440.64L1363.25,447.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1982.24" y="436" width="16" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1990.24" y="448.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">9</text></g></g><g class="pele-edge pele-message" data-id="i11"><path d="M1365.55,481H1864.38"/><path class="pele-marker" d="M1871.38,481L1863.38,484.36L1863.38,477.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1344.95" y="473" width="20.6" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1355.25" y="485.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">10</text></g></g><g class="pele-edge pele-message" data-id="i12"><path d="M2144.41,518H1362.25"/><path class="pele-marker" d="M1355.25,518L1363.25,514.64L1363.25,521.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="2144.41" y="510" width="17.65" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="2153.23" y="522.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">11</text></g></g><g class="pele-edge pele-message" data-id="i13"><path d="M1364.95,555H2146.23" stroke-dasharray="4 4"/><path class="pele-marker" d="M2153.23,555L2145.23,558.36L2145.23,551.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="1345.54" y="547" width="19.41" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="1355.25" y="559.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">12</text></g></g><g class="pele-edge pele-message" data-id="i14"><path d="M9.86,592H432.47"/><path class="pele-marker" d="M439.47,592L431.47,595.36L431.47,588.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="-9.86" y="584" width="19.71" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="0" y="596.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">13</text></g></g><g class="pele-edge pele-message" data-id="i15"><path d="M449.56,629H911.36"/><path class="pele-marker" d="M918.36,629L910.36,632.36L910.36,625.64Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="429.37" y="621" width="20.19" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="439.47" y="633.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">14</text></g></g><g class="pele-edge pele-message" data-id="i16"><path d="M908.45,666H446.47" stroke-dasharray="4 4"/><path class="pele-marker" d="M439.47,666L447.47,662.64L447.47,669.36Z" fill="var(--_l)" stroke="none"/><g class="pele-sequence-number"><rect x="908.45" y="658" width="19.82" height="16" rx="8" fill="var(--_l)" stroke="none"/><text x="918.36" y="670.2" text-anchor="middle" font-size="12" fill="var(--_bg)" stroke="none">15</text></g></g></g><g class="pele-edge-labels" font-size="14"><g class="pele-edge-label" data-id="i1"><text x="223.73" y="95.4" text-anchor="middle">escreve &quot;ele mora sozinho e toma diurético&quot; e toca em verificar</text></g><g class="pele-edge-label" data-id="i2"><text x="682.91" y="132.4" text-anchor="middle">POST /api/mensagens/verificar {canal: GrupoDoBairro, texto}</text></g><g class="pele-edge-label" data-id="i3"><text x="1140.8" y="169.4" text-anchor="middle">SaidaSegura recebe o TextoRotulado e o Canal GrupoDoBairro</text></g><g class="pele-edge-label" data-id="i4"><text x="1617.31" y="206.4" text-anchor="middle">guarda.evento_de_seguranca, SaidaBloqueada de severidade 4, sem o texto</text></g><g class="pele-edge-label" data-id="i5"><text x="1132.8" y="243.4" text-anchor="middle">Veredito Bloqueada, com MoraSozinho e Saude</text></g><g class="pele-edge-label" data-id="i6"><rect x="1229.61" y="267" width="338.51" height="17" rx="3" fill="var(--_bg)" stroke="none"/><text x="1398.87" y="280.4" text-anchor="middle">cadastro.mensagem_saida, só com o texto mascarado</text></g><g class="pele-edge-label" data-id="i7"><text x="674.91" y="317.4" text-anchor="middle">200 {veredito: Bloqueada, textoMascarado, explicacao, versaoSegura}</text></g><g class="pele-edge-label" data-id="i9"><rect x="1464.98" y="384" width="423.52" height="17" rx="3" fill="var(--_bg)" stroke="none"/><text x="1676.74" y="397.4" text-anchor="middle">depois da resposta, o Tradutor manda tipo de dado, canal e módulo</text></g><g class="pele-edge-label" data-id="i10"><text x="1668.74" y="434.4" text-anchor="middle">duas frases. Sem resposta em 5 segundos, entra a frase fixa</text></g><g class="pele-edge-label" data-id="i11"><text x="1618.46" y="471.4" text-anchor="middle">BloqueioTraduzido, a mensagem ao cidadão anexada ao evento</text></g><g class="pele-edge-label" data-id="i12"><text x="1749.83" y="508.4" text-anchor="middle">GET /api/painel</text></g><g class="pele-edge-label" data-id="i13"><rect x="1574.15" y="532" width="369.89" height="17" rx="3" fill="var(--_bg)" stroke="none"/><text x="1759.09" y="545.4" text-anchor="middle">200 {cor: Vermelho, eventos com a mensagem ao cidadão}</text></g><g class="pele-edge-label" data-id="i14"><text x="224.66" y="582.4" text-anchor="middle">troca o texto pela versão segura e toca em verificar</text></g><g class="pele-edge-label" data-id="i15"><text x="683.96" y="619.4" text-anchor="middle">POST /api/mensagens/verificar {canal: GrupoDoBairro, texto}</text></g><g class="pele-edge-label" data-id="i16"><text x="673.96" y="656.4" text-anchor="middle">200 {veredito: Liberada}</text></g></g><g class="pele-notes" font-size="14" fill="var(--_a)" stroke="var(--_b)"><g class="pele-note" data-id="i8"><rect x="229.33" y="337" width="420.27" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="439.47" y="358.4" text-anchor="middle">tela de mensagem bloqueada, com a frase fixa e a versão segura</text></g><g class="pele-note" data-id="i17"><rect x="-16" y="676" width="471.47" height="33" style="rx:var(--_r)"/><text class="pele-label" stroke="none" fill="var(--_fg)" x="219.73" y="697.4" text-anchor="middle">a ACS copia o texto. O sistema não envia nada ao grupo</text></g></g><g class="pele-nodes"><g class="pele-node pele-actor pele-actor-actor pele-actor-footer" data-id="acs"><circle cx="0" cy="736" r="6" fill="var(--_s)" stroke="var(--_b)"/><path d="M0,742V753M-10,746H10M-8,763L0,753L8,763" fill="none" stroke="var(--_b)"/><text class="pele-label" x="0" y="784.6" text-anchor="middle">ACS</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="app"><rect x="381.18" y="729" width="116.58" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="439.47" y="756.6" text-anchor="middle">App da ACS</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="cad"><rect x="870.68" y="729" width="95.34" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="918.36" y="756.6" text-anchor="middle">Cadastro</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="guarda"><rect x="1313.63" y="729" width="83.23" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1355.25" y="756.6" text-anchor="middle">Guarda</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="pg"><rect x="1824.51" y="729" width="93.73" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1871.38" y="756.6" text-anchor="middle">Postgres</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="llm"><rect x="1958.24" y="729" width="64" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1990.24" y="756.6" text-anchor="middle">LLM</text></g><g class="pele-node pele-actor pele-actor-participant pele-actor-footer" data-id="painel"><rect x="2062.24" y="729" width="181.98" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="2153.23" y="756.6" text-anchor="middle">Painel Risco Cidadão</text></g><g class="pele-node pele-actor pele-actor-actor" data-id="acs"><circle cx="0" cy="7" r="6" fill="var(--_s)" stroke="var(--_b)"/><path d="M0,13V24M-10,17H10M-8,34L0,24L8,34" fill="none" stroke="var(--_b)"/><text class="pele-label" x="0" y="55.6" text-anchor="middle">ACS</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="app"><rect x="381.18" y="18" width="116.58" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="439.47" y="45.6" text-anchor="middle">App da ACS</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="cad"><rect x="870.68" y="18" width="95.34" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="918.36" y="45.6" text-anchor="middle">Cadastro</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="guarda"><rect x="1313.63" y="18" width="83.23" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1355.25" y="45.6" text-anchor="middle">Guarda</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="pg"><rect x="1824.51" y="18" width="93.73" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1871.38" y="45.6" text-anchor="middle">Postgres</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="llm"><rect x="1958.24" y="18" width="64" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="1990.24" y="45.6" text-anchor="middle">LLM</text></g><g class="pele-node pele-actor pele-actor-participant" data-id="painel"><rect x="2062.24" y="18" width="181.98" height="44" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" x="2153.23" y="45.6" text-anchor="middle">Painel Risco Cidadão</text></g></g></g></svg></div><figcaption><span>Cena 3: a mensagem para o grupo do bairro é bloqueada e explicada</span><span class="diagrama-links">2281×807 px · <a href="svg/01-visao-geral-4.svg">SVG claro</a> · <a href="svg/01-visao-geral-4.escuro.svg">SVG escuro</a></span><span class="diagrama-dica">Ctrl ou ⌘ + roda, pinça, duplo clique ou + e − para ampliar; arraste para mover.</span></figcaption></figure>
+<h2 id="app-da-acs">App da ACS <a class="ancora" href="#app-da-acs" aria-label="Link para esta seção">#</a></h2>
+<p>O app tem seis telas no Expo Router: entrada, dia crítico, radar, detalhe da casa, mensagem bloqueada e encerramento do turno. O SQLite guarda a lista de nomes, o último radar, os avisos e a fila de desfechos que ainda não subiram. A sessão da ACS fica no <code>expo-secure-store</code>. A letra é grande, o contraste é alto, cada controle tem rótulo para leitor de tela, e a situação aparece em texto além da cor.</p>
+<p>No desenho, veja a volta do detalhe da casa para o radar. Registrar o desfecho de uma visita é o gesto que a ACS repete o dia inteiro. Os documentos finais não dizem de qual tela a ACS abre a mensagem para o grupo. O desenho parte do detalhe da casa.</p>
+<figure class="diagrama" id="diagrama-5" style="--w:1803px;--h:209px;--r:0.1159"><div class="diagrama-quadro"><svg xmlns="http://www.w3.org/2000/svg" class="pele pele-flowchart" viewBox="0 0 1803 209" width="1803" height="209" style="max-width:100%;height:auto;--_bg:var(--pele-bg,#fff);--_fg:var(--pele-fg,#1f1f1f);--_m:var(--pele-muted,#6e6e6e);--_l:var(--pele-line,#1f1f1f);--_s:var(--pele-surface,#f3f3f3);--_a:var(--pele-surface-alt,#e6e6e6);--_b:var(--pele-border,#8a8a8a);--_c:var(--pele-accent,#5b7bd5);color:var(--_fg);--_r:var(--pele-radius,4px);--_fm:var(--pele-font-mono,&quot;Atkinson Hyperlegible Mono&quot;, monospace);font:16px sans-serif;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;font-family:var(--pele-font,&quot;Atkinson Hyperlegible&quot;, sans-serif)" fill="var(--_fg)" role="graphics-document document" aria-roledescription="flowchart"><g class="pele-edges" fill="none" stroke="var(--_l)" stroke-linecap="round"><g class="pele-edge" data-id="L_entrada_dia_0"><path d="M222.19,62L422.44,62"/><path class="pele-marker" d="M429.44,62L421.44,65.36L421.44,58.64Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_entrada_radar_0"><path d="M222.19,78C252.35,78 252.35,138.75 282.51,138.75L685.78,138.75C703.94,138.75 703.94,78 722.1,78L728.1,78"/><path class="pele-marker" d="M735.1,78L727.1,81.36L727.1,74.64Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_dia_radar_0"><path d="M599.8,62L728.1,62"/><path class="pele-marker" d="M735.1,62L727.1,65.36L727.1,58.64Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_radar_detalhe_0"><path d="M940.22,31L1131.63,31"/><path class="pele-marker" d="M1138.63,31L1130.63,34.36L1130.63,27.64Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_detalhe_radar_0"><path d="M1138.63,73.25L964.22,73.25C957.85,73.25 957.85,66 951.47,66L947.22,66"/><path class="pele-marker" d="M940.22,66L948.22,62.64L948.22,69.36Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_detalhe_bloq_0"><path d="M1372.69,31L1595.2,31"/><path class="pele-marker" d="M1602.2,31L1594.2,34.36L1594.2,27.64Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_bloq_detalhe_0"><path d="M1602.2,72L1379.69,72"/><path class="pele-marker" d="M1372.69,72L1380.69,68.64L1380.69,75.36Z" fill="var(--_l)" stroke="none"/></g><g class="pele-edge" data-id="L_radar_fim_0"><path d="M940.22,82L950.72,82C957.47,82 957.47,168 964.22,168L1144.96,168"/><path class="pele-marker" d="M1151.96,168L1143.96,171.36L1143.96,164.64Z" fill="var(--_l)" stroke="none"/></g></g><g class="pele-edge-labels" font-size="14"><g class="pele-edge-label" data-id="L_entrada_dia_0"><rect x="244.69" y="51.5" width="155.25" height="21" rx="3" fill="var(--_bg)"/><text x="322.32" y="66.9" text-anchor="middle">GET /radar, turnoAberto</text></g><g class="pele-edge-label" data-id="L_entrada_radar_0"><rect x="476.19" y="128.25" width="76.85" height="21" rx="3" fill="var(--_bg)"/><text x="514.62" y="143.65" text-anchor="middle">dia comum</text></g><g class="pele-edge-label" data-id="L_dia_radar_0"><rect x="622.3" y="51.5" width="83.31" height="21" rx="3" fill="var(--_bg)"/><text x="663.95" y="66.9" text-anchor="middle">abre o radar</text></g><g class="pele-edge-label" data-id="L_radar_detalhe_0"><rect x="996.99" y="20.5" width="84.86" height="21" rx="3" fill="var(--_bg)"/><text x="1039.42" y="35.9" text-anchor="middle">toca no card</text></g><g class="pele-edge-label" data-id="L_detalhe_radar_0"><rect x="993.93" y="62.75" width="90.99" height="21" rx="3" fill="var(--_bg)"/><text x="1039.42" y="78.15" text-anchor="middle">POST /visitas</text></g><g class="pele-edge-label" data-id="L_detalhe_bloq_0"><rect x="1398.69" y="20.5" width="177.51" height="21" rx="3" fill="var(--_bg)"/><text x="1487.45" y="35.9" text-anchor="middle">POST /mensagens/verificar</text></g><g class="pele-edge-label" data-id="L_bloq_detalhe_0"><rect x="1416.04" y="61.5" width="142.81" height="21" rx="3" fill="var(--_bg)"/><text x="1487.45" y="76.9" text-anchor="middle">copia a versão segura</text></g><g class="pele-edge-label" data-id="L_radar_fim_0"><rect x="966.22" y="157.5" width="146.4" height="21" rx="3" fill="var(--_bg)"/><text x="1039.42" y="172.9" text-anchor="middle">POST .../encerramento</text></g></g><g class="pele-nodes"><g class="pele-node pele-shape-rect" data-id="entrada" transform="translate(115.1,74)"><rect x="-107.1" y="-43.5" width="214.19" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Entrada</tspan><tspan x="0" y="5.6">sessão da ACS,</tspan><tspan x="0" y="26.6">lista de nomes no SQLite</tspan></text></g><g class="pele-node pele-shape-rect" data-id="dia" transform="translate(514.62,62)"><rect x="-85.18" y="-33" width="170.35" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Dia crítico</tspan><tspan x="0" y="16.1">o turno está aberto</tspan></text></g><g class="pele-node pele-shape-rect luz" data-id="radar" transform="translate(837.66,73)"><rect x="-102.56" y="-54" width="205.12" height="108" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r);stroke-width:2px;"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-25.9">Radar</tspan><tspan x="0" y="-4.9">pendentes, atendidas,</tspan><tspan x="0" y="16.1">aguardando</tspan><tspan x="0" y="37.1">e a contagem de verdes</tspan></text></g><g class="pele-node pele-shape-rect" data-id="detalhe" transform="translate(1255.66,51.5)"><rect x="-117.03" y="-43.5" width="234.06" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Detalhe da casa</tspan><tspan x="0" y="5.6">linha do tempo de 24 horas,</tspan><tspan x="0" y="26.6">vizinho e desfecho</tspan></text></g><g class="pele-node pele-shape-rect alerta" data-id="bloq" transform="translate(1698.17,51.5)"><rect x="-95.97" y="-43.5" width="191.94" height="87" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r);stroke-width:2px;"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-15.4">Mensagem bloqueada</tspan><tspan x="0" y="5.6">frase fixa e</tspan><tspan x="0" y="26.6">versão segura</tspan></text></g><g class="pele-node pele-shape-rect" data-id="fim" transform="translate(1255.66,168)"><rect x="-103.7" y="-33" width="207.39" height="66" fill="var(--_s)" stroke="var(--_b)" style="rx:var(--_r)"/><text class="pele-label" text-anchor="middle" xml:space="preserve"><tspan x="0" y="-4.9">Encerramento do turno</tspan><tspan x="0" y="16.1">resumo com o indicador</tspan></text></g></g></svg></div><figcaption><span>Telas do app da ACS e a navegação entre elas</span><span class="diagrama-links">1803×209 px · <a href="svg/01-visao-geral-5.svg">SVG claro</a> · <a href="svg/01-visao-geral-5.escuro.svg">SVG escuro</a></span><span class="diagrama-dica">Ctrl ou ⌘ + roda, pinça, duplo clique ou + e − para ampliar; arraste para mover.</span></figcaption></figure>
+<p>As tabelas do SQLite e a fila de desfechos estão na seção 6 do <a href="04-modelo-de-dados.html#6-banco-sqlite-do-app">modelo de dados</a>.</p>
+<h2 id="modelo-de-dia-crítico">Modelo de dia crítico <a class="ancora" href="#modelo-de-dia-crítico" aria-label="Link para esta seção">#</a></h2>
+<p>A pergunta de ML é se hoje será um dia de excesso de internações de urgência por causa cardiovascular em pessoas de 60 anos ou mais, com o que se sabe às 05h. A pergunta, o alvo, a regra de base e a grade de 24 combinações estão na seção 5 de <a href="../../discovery/01-ideia-vencedora.md">01-ideia-vencedora.md</a>. A pasta <code>ml/</code> entrega:</p>
+<ul>
+<li><code>ml/corredor_aceso.ipynb</code> executado, com validação cruzada só no treino e métricas de treino e de teste lado a lado.</li>
+<li><code>ml/dados/README.md</code>, com fonte, link e período do INMET e do SIH.</li>
+<li><code>ml/requirements.txt</code> e <code>ml/RELATORIO_ML.md</code>, de 2 a 4 páginas.</li>
+<li><code>ml/prever_hoje.py</code>, que carrega o modelo salvo e chama <code>PUT /api/dias-criticos/{data}</code>. Na VM, o <code>corredor-ml.timer</code> roda o script às 05h.</li>
+</ul>
+<p>O <code>DiaCritico</code> só aceita a data de hoje. Na demo, o script usa as variáveis de uma data histórica e envia a data de hoje. Se o modelo empatar com a regra da noite quente, o relatório diz isso e o job envia <code>origem: REGRA_BASE</code>.</p>
+<h2 id="arquivos-da-guarda">Arquivos da Guarda <a class="ancora" href="#arquivos-da-guarda" aria-label="Link para esta seção">#</a></h2>
+<p>A equipe escreve a Guarda do zero, em C#, dentro da mesma solução. O desenho segue os três pontos do professor de Cybersecurity: achar o dado pessoal no que entra, impedir que o dado marcado saia por canal inseguro e traduzir cada bloqueio para o cidadão. Os nomes de domínio e as invariantes estão na seção 4.4 do <a href="03-modelo-de-dominio.html#44-guarda">modelo de domínio</a>.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ponto do professor</th>
+<th>Arquivo ou classe</th>
+<th>Faz</th>
+<th>Rubrica</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. Parsing de PII</td>
+<td><code>Regras/pii.json</code></td>
+<td>Uma <code>RegraDePii</code> por tipo de dado: padrão, validador, máscara e severidade de 1 a 5.</td>
+<td>parsing de PII, 3 pontos</td>
+</tr>
+<tr>
+<td>1. Parsing de PII</td>
+<td><code>MotorDeParsing.cs</code></td>
+<td>Aplica as regras a um texto ou a um JSON e devolve os achados e o <code>TextoRotulado</code>.</td>
+<td>parsing de PII, 3 pontos</td>
+</tr>
+<tr>
+<td>1. Parsing de PII</td>
+<td><code>InterceptadorDeEntrada.cs</code></td>
+<td>Middleware. Mascara CPF, RG, CNS e credencial em qualquer campo, antes do log e do banco. Os outros tipos de dado viram rótulo.</td>
+<td>parsing de PII, 3 pontos</td>
+</tr>
+<tr>
+<td>2. Taint</td>
+<td><code>TextoRotulado.cs</code></td>
+<td>Um texto com os tipos de dado que ele carrega. Juntar dois textos une os rótulos. <code>ToString()</code> devolve a máscara.</td>
+<td>taint, 3 pontos</td>
+</tr>
+<tr>
+<td>2. Taint</td>
+<td><code>SaidaSegura.cs</code></td>
+<td>A única porta por onde o valor sai. Consulta a <code>PoliticaDeCanal</code> e devolve o <code>Veredito</code>. Todo bloqueio registra um evento de segurança.</td>
+<td>taint, 3 pontos</td>
+</tr>
+<tr>
+<td>2. Taint</td>
+<td><code>ProvedorDeLogSeguro</code>, <code>FiltroDeResposta.cs</code>, <code>TratadorDeErros.cs</code></td>
+<td>Bloqueiam dado rotulado no log, em resposta de rota sem autenticação e em mensagem de erro.</td>
+<td>taint, 3 pontos</td>
+</tr>
+<tr>
+<td>3. IA</td>
+<td><code>Tradutor.cs</code></td>
+<td>Monta o prompt com tipo de dado, canal e módulo e pede duas frases ao LLM. Sem resposta em 5 segundos, usa a frase fixa.</td>
+<td>IA, 2 pontos</td>
+</tr>
+<tr>
+<td>3. IA</td>
+<td><code>Painel.cs</code> e <code>painel/index.html</code></td>
+<td>Mostram o farol verde, amarelo ou vermelho, que a função <code>Farol</code> calcula, e a mensagem ao cidadão de cada evento.</td>
+<td>painel, 2 pontos</td>
+</tr>
+</tbody></table>
+</div>
+<p>O farol fica vermelho só com uma saída bloqueada de severidade 4 ou 5 nas últimas 24 horas. Um mascaramento na entrada vai até amarelo. O Corredor Aceso não pede CPF. Se a ACS digitar um CPF numa observação, o interceptador mascara o valor antes de gravar.</p>
+<p>Quatro evidências vão para o PDF de Cybersecurity, e cada uma é um caso de teste:</p>
+<ol>
+<li>Um <code>POST /api/idosos</code> com um CPF em <code>condicoes</code>. O log e o banco guardam <code>***.456.***-00</code>. É o caso 38.</li>
+<li>Uma tentativa de gravar <code>Idoso.Nome</code> no log. O log recebe <code>[NOME]</code> e o painel ganha um evento. É o caso 40.</li>
+<li>Uma rota sem autenticação que tentaria devolver <code>Idoso.Condicoes</code>. A resposta sai bloqueada. É o caso 41.</li>
+<li>A mensagem da cena 3. É o caso 39.</li>
+</ol>
+<h2 id="onde-cada-disciplina-pontua">Onde cada disciplina pontua <a class="ancora" href="#onde-cada-disciplina-pontua" aria-label="Link para esta seção">#</a></h2>
+<p>A lista do que cada disciplina pede, com o caminho de cada item, está em <a href="../../entregaveis.md">entregaveis.md</a>. Esta tabela resume onde olhar.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Disciplina</th>
+<th>Critério do enunciado</th>
+<th>Onde está</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SOA e Web Services</td>
+<td>domínio 3, banco 3, migrações 1,5, documentação 1,5, testes 1</td>
+<td><code>Corredor.Cadastro</code>: regras de consentimento, Postgres, migrações do EF Core, Swagger, xUnit.</td>
+</tr>
+<tr>
+<td>Cybersecurity</td>
+<td>parsing de PII 3, taint 3, IA 2, painel 2</td>
+<td><code>Corredor.Guarda</code>, tabela da seção anterior. Entrega em PDF, mais o código.</td>
+</tr>
+<tr>
+<td>C# Software Development</td>
+<td>POO 3, Web API 2,5, EF Core e LINQ 1,5, async 1, qualidade 2</td>
+<td><code>Corredor.Motor</code>, <code>Corredor.Contratos</code> e <code>Corredor.Api</code>: <code>RegraDeContato</code> e as quatro regras, interfaces e injeção de dependência, a ordem do radar em LINQ, o <code>ConsumidorMqtt</code> assíncrono, xUnit.</td>
+</tr>
+<tr>
+<td>IA e Machine Learning</td>
+<td>6 critérios, com dados reais</td>
+<td><code>ml/</code>. Vídeo de até 5 minutos.</td>
+</tr>
+<tr>
+<td>Mobile Development</td>
+<td>telas, consumo de dados, banco, acessibilidade, aderência, documentação</td>
+<td><code>app/</code> e o README com a ficha e os prints. Vídeo de até 3 minutos.</td>
+</tr>
+<tr>
+<td>Operating Systems</td>
+<td>6 itens da rubrica</td>
+<td><code>infra/</code>. A seção 7 do <a href="05-infra-e-entrega.html#7-como-cada-item-da-rubrica-de-operating-systems-%C3%A9-atendido">documento de infra</a> liga cada item a um arquivo. Vídeo de até 7 minutos.</td>
+</tr>
+<tr>
+<td>Physical Computing</td>
+<td>circuito integrado à solução</td>
+<td><code>iot/</code>: o nó é o sensor do radar. Link do Wokwi, vídeo de até 4 minutos e <code>integrantes.txt</code>.</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Features 50%, Test Cases 50%</td>
+<td>Azure Boards. Os 42 casos da seção 7 do <a href="03-modelo-de-dominio.html#7-casos-de-teste">modelo de domínio</a> viram Test Cases.</td>
+</tr>
+</tbody></table>
+</div>
+<p>SOA e C# recebem o mesmo repositório. O README da raiz abre com a ficha e aponta, para cada disciplina, o módulo que ela avalia. Vale para todas: um repositório, uma pasta por parte, <code>prompts.md</code> na raiz e só dado simulado ou público.</p>
+<h2 id="plano-até-1911">Plano até 19/11 <a class="ancora" href="#plano-até-1911" aria-label="Link para esta seção">#</a></h2>
+<p>A entrega é em 19/11/2026, às 23h55. O plano tem duas partes que andam juntas. Os portões da infra e das releases estão na seção 8 do <a href="05-infra-e-entrega.html#8-plano-por-etapas-e-ordem-de-corte">documento de infra</a>, com o desenho do plano. Os passos de cada módulo e a ordem de corte estão na seção 8 do <a href="03-modelo-de-dominio.html#8-o-que-entra-em-1911">modelo de domínio</a>.</p>
+<p>Dez regras nunca são cortadas, porque sem uma delas a demo mostra um verde sem sinal de vida ou um vazamento. Elas estão na seção 8.3 do modelo de domínio.</p>
+<h2 id="o-que-mudou-desde-a-primeira-versão">O que mudou desde a primeira versão <a class="ancora" href="#o-que-mudou-desde-a-primeira-versão" aria-label="Link para esta seção">#</a></h2>
+<p>A primeira versão deste documento foi escrita antes do event storming. Os documentos 02 a 05 mudaram estes pontos:</p>
+<ul>
+<li>A plataforma é .NET 10, não .NET 8.</li>
+<li>São seis projetos em <code>api/</code>. <code>Corredor.Contratos</code> entrou para guardar os tipos e as interfaces que Motor e Cadastro dividem.</li>
+<li>São quatro situações, com <code>Aguardando</code>. O radar devolve pendentes, atendidas, aguardando e a contagem de verdes.</li>
+<li>São três schemas, com <code>guarda</code>.</li>
+<li>A chave única do evento é <code>(casaToken, seq, ts)</code>.</li>
+<li>O aviso ao vizinho sai do Cadastro, não do Motor.</li>
+<li>Os nomes da VM terminam em <code>.internal</code>, não em <code>.local</code>.</li>
+<li>O <code>02-app.sh</code> não instala runtime nem roda migração. As migrações rodam no deploy.</li>
+<li>No teste de falha, um publicador local faz o papel do nó durante a parada do Mosquitto. O buffer do nó aparece no vídeo de Physical Computing.</li>
+</ul>
+<p>A tabela da seção 9 do <a href="03-modelo-de-dominio.html#9-mudan%C3%A7as-em-rela%C3%A7%C3%A3o-a-docsarquiteturamd">modelo de domínio</a> e a da seção 10 do <a href="05-infra-e-entrega.html#10-mudan%C3%A7as-em-rela%C3%A7%C3%A3o-%C3%A0-arquitetura-e-ao-modelo-de-dom%C3%ADnio">documento de infra</a> dão o motivo de cada mudança. Nas duas tabelas, &quot;a arquitetura&quot; e <code>arquitetura.md</code> querem dizer a primeira versão, que está no histórico do Git.</p>
+<h2 id="onde-os-documentos-ainda-divergem">Onde os documentos ainda divergem <a class="ancora" href="#onde-os-documentos-ainda-divergem" aria-label="Link para esta seção">#</a></h2>
+<p>Estes pontos ainda não batem entre os documentos. Nenhum muda o desenho, mas quem programa precisa saber qual texto vale.</p>
+<div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
+<thead>
+<tr>
+<th>Ponto</th>
+<th>Um documento diz</th>
+<th>Outro documento diz</th>
+<th>Vale</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Versão do .NET</td>
+<td>A abertura do modelo de domínio cita &quot;monólito modular .NET 8&quot;.</td>
+<td>O documento de infra fixa <code>net10.0</code>.</td>
+<td>.NET 10.</td>
+</tr>
+<tr>
+<td>Número de projetos</td>
+<td>A seção 9 do modelo de domínio diz &quot;seis projetos&quot;.</td>
+<td>As seções 2 e 8.1 do mesmo documento listam cinco projetos em <code>src/</code> e três de teste.</td>
+<td>A lista da seção 2.</td>
+</tr>
+<tr>
+<td>Prazo do esqueleto de <code>api/</code></td>
+<td>O modelo de domínio põe a solução vazia em 16/11, à noite.</td>
+<td>O documento de infra põe o esqueleto no portão de 17/11, às 10h.</td>
+<td>O portão de 17/11, às 10h, que é o mais tardio.</td>
+</tr>
+<tr>
+<td>Pasta das migrações</td>
+<td><code>entregaveis.md</code> aponta <code>api/src/Corredor.Cadastro/Migrations</code>.</td>
+<td>A árvore do documento de infra aponta <code>Infra/Migrations</code> dentro de cada módulo.</td>
+<td>A árvore do documento de infra.</td>
+</tr>
+<tr>
+<td>Nome das tabelas no ensaio</td>
+<td>O ensaio da infra cita <code>motor.&quot;Eventos&quot;</code> e <code>cadastro.&quot;Idosos&quot;</code>, da API mínima do ensaio.</td>
+<td>O modelo de dados define <code>motor.evento_sensor</code> e <code>cadastro.idoso</code>.</td>
+<td>O modelo de dados.</td>
+</tr>
+<tr>
+<td>Conferência de migração aditiva</td>
+<td>O documento de infra usa <code>tools/conferir-migracoes.sh</code>, que lê o <code>Up()</code> em C#.</td>
+<td>O modelo de dados usa <code>conferir_migracao_aditiva.sh</code>, que lê o SQL gerado.</td>
+<td>Os dois podem rodar no CI. A seção 11.4 do modelo de dados explica.</td>
+</tr>
+</tbody></table>
+</div>
+<h2 id="o-que-a-equipe-precisa-confirmar">O que a equipe precisa confirmar <a class="ancora" href="#o-que-a-equipe-precisa-confirmar" aria-label="Link para esta seção">#</a></h2>
+<ul>
+<li>Os professores de SOA e de C# aceitam o mesmo repositório, com um módulo para cada disciplina? O texto do enunciado permite. Uma mensagem aos dois antes de 19/11 tira a dúvida.</li>
+<li>A entrevista com uma ACS real aconteceu? O pitch e a ficha ainda citam personas simuladas. As perguntas que só uma pessoa real responde estão no fim da sessão 1 do <a href="02-event-storming.html#perguntas-que-s%C3%B3-uma-pessoa-real-responde">event storming</a>.</li>
+</ul>
+<h2 id="outros-documentos">Outros documentos <a class="ancora" href="#outros-documentos" aria-label="Link para esta seção">#</a></h2>
+<p>Leia nesta ordem:</p>
+<ol>
+<li><a href="02-event-storming.html">02-event-storming.md</a>: os fatos do domínio, as políticas, os hotspots e os oito fluxos.</li>
+<li><a href="03-modelo-de-dominio.html">03-modelo-de-dominio.md</a>: contextos, projetos, glossário, agregados, regras da situação da casa, contratos e casos de teste.</li>
+<li><a href="04-modelo-de-dados.html">04-modelo-de-dados.md</a>: tabelas, mapeamento do EF Core, retenção, classificação dos dados, SQLite do app e carga da demo.</li>
+<li><a href="05-infra-e-entrega.html">05-infra-e-entrega.md</a>: VM, provisionamento, CI, releases, deploy, operação e plano.</li>
+<li><a href="guia.html">diagramas/GUIA.md</a>: o tipo de diagrama de cada vista, o tema e como renderizar.</li>
+</ol>
+<p>O <a href="readme.html">README desta pasta</a> lista todos os documentos e todos os diagramas.</p>
+
+</main>
+<script src="js/pele.global.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

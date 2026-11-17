@@ -1,20 +1,27 @@
 %% Modelo sequenceDiagram. Vistas: as três cenas da demo (uma sequência por cena) e o fluxo da Guarda.
 %% Regras: até 8 participantes com o nome do código, autonumber, rota HTTP e tópico MQTT na mensagem ou numa Note,
 %% resposta com -->>. Mensagem longa não quebra mais: a largura natural é o tamanho do texto.
+%% Corpo copiado de 03-cena-movimento.mmd.
 sequenceDiagram
   autonumber
   participant no as Nó ESP32
   participant pub as Broker público
-  participant mq as Mosquitto
-  participant motor as Motor
-  participant pg as Postgres
-  actor acs as App da ACS
-  Note over motor: dia crítico, turno aberto, casa vermelha
-  no->>pub: corredor/v1/{casaToken}/evento MOVIMENTO
-  pub->>mq: bridge
-  mq->>motor: evento {seq, ts, tipo}
-  motor->>pg: INSERT ON CONFLICT (casaToken, seq, ts)
-  acs->>motor: GET /api/radar?microarea=7
-  motor->>motor: AvaliadorDeCasas.Avaliar(casa, historico, turno, agora)
-  motor-->>acs: vermelhos e cinzas, sem esta casa
-  Note over acs: o card sai da tela
+  participant mq as Mosquitto da VM
+  participant cons as ConsumidorMqtt
+  participant reg as RegistrarPacote
+  participant pg as Postgres, schema motor
+  participant radar as Motor, GET /api/radar
+  actor app as App da ACS
+  Note over radar,app: dia crítico, turno aberto, 10h31. Casa Sozinho em Vermelho por SemMovimentoNaJanela desde 10h00
+  Note over no: a idosa passa. O nó acende a luz sem depender da rede
+  no->>pub: <prefixo>/corredor/v1/{casaToken}/evento {seq, ts, tipo: MOVIMENTO}
+  pub->>mq: ponte de saída, vira corredor/v1/{casaToken}/evento
+  mq->>cons: corredor/v1/+/evento
+  cons->>reg: PacoteDoNo, convertido pelo TradutorDePacote
+  reg->>pg: casa_monitorada.ultimo_pacote_em recebe a hora do servidor
+  reg->>pg: INSERT evento_sensor ON CONFLICT DO NOTHING (casa_token, seq, ocorrido_em)
+  app->>radar: GET /api/radar?microarea=3
+  radar->>pg: casas ativas, eventos e confirmações de 24 horas, dia crítico de hoje
+  radar->>radar: AvaliadorDeCasas.Avaliar(casa, historico, turno, agora, parametros)
+  radar-->>app: 200, pendentes sem esta casa e verdes mais 1
+  Note over app: o card sai da tela. A casa está Verde, com sinal de vida na janela atual

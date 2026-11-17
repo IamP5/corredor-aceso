@@ -1,0 +1,31 @@
+%% Regras da situação da casa, em ordem. A primeira regra que devolve alerta vence. Fonte: 03-modelo-de-dominio.md, seções 5.4 a 5.7.
+flowchart LR
+  inicio(["AvaliadorDeCasas.Avaliar(casa, historico,<br/>turno, agora, parametros)"])
+  r1{"R1 eletrodependente<br/>sem energia?"}
+  r2{"R2 nenhum pacote em<br/>SilencioMaximo?"}
+  turno{"turno aberto?"}
+  r3{"R3 calor por<br/>DuracaoDoCalor?"}
+  r4{"R4 sem sinal de vida desde<br/>a última janela vencida?"}
+  vida{"sinal de vida na<br/>janela atual?"}
+  v1["Vermelho<br/>EnergiaEletrodependente<br/>atende: Acs com PessoaVista"]:::alerta
+  c2["Cinza<br/>SemHeartbeat<br/>atende: Acs ou Vizinho, PessoaVista"]:::cinza
+  v3["Vermelho<br/>CalorInterno<br/>atende: Acs ou Vizinho, PessoaVista"]:::alerta
+  v4["Vermelho<br/>SemMovimentoNaJanela<br/>atende: Acs com AusenciaConfirmada"]:::alerta
+  verde["Verde"]:::verde
+  aguarda["Aguardando"]
+  inicio --> r1
+  r1 -- sim --> v1
+  r1 -- não --> r2
+  r2 -- sim --> c2
+  r2 -- não --> turno
+  turno -- sim --> r3
+  turno -- não --> aguarda
+  r3 -- sim --> v3
+  r3 -- não --> r4
+  r4 -- sim --> v4
+  r4 -- não --> vida
+  vida -- sim --> verde
+  vida -- não --> aguarda
+  classDef alerta stroke-width:2px
+  classDef cinza stroke-width:1px
+  classDef verde stroke-width:2px

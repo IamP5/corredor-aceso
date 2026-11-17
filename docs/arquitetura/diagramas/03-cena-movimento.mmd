@@ -1,0 +1,24 @@
+%% Cena 1 da demo: o movimento no corredor tira o card da tela. Fonte: 03-modelo-de-dominio.md (4.2, 6.2, 6.3, caso 4) e 05-infra-e-entrega.md (1.11).
+sequenceDiagram
+  autonumber
+  participant no as Nó ESP32
+  participant pub as Broker público
+  participant mq as Mosquitto da VM
+  participant cons as ConsumidorMqtt
+  participant reg as RegistrarPacote
+  participant pg as Postgres, schema motor
+  participant radar as Motor, GET /api/radar
+  actor app as App da ACS
+  Note over radar,app: dia crítico, turno aberto, 10h31. Casa Sozinho em Vermelho por SemMovimentoNaJanela desde 10h00
+  Note over no: a idosa passa. O nó acende a luz sem depender da rede
+  no->>pub: <prefixo>/corredor/v1/{casaToken}/evento {seq, ts, tipo: MOVIMENTO}
+  pub->>mq: ponte de saída, vira corredor/v1/{casaToken}/evento
+  mq->>cons: corredor/v1/+/evento
+  cons->>reg: PacoteDoNo, convertido pelo TradutorDePacote
+  reg->>pg: casa_monitorada.ultimo_pacote_em recebe a hora do servidor
+  reg->>pg: INSERT evento_sensor ON CONFLICT DO NOTHING (casa_token, seq, ocorrido_em)
+  app->>radar: GET /api/radar?microarea=3
+  radar->>pg: casas ativas, eventos e confirmações de 24 horas, dia crítico de hoje
+  radar->>radar: AvaliadorDeCasas.Avaliar(casa, historico, turno, agora, parametros)
+  radar-->>app: 200, pendentes sem esta casa e verdes mais 1
+  Note over app: o card sai da tela. A casa está Verde, com sinal de vida na janela atual

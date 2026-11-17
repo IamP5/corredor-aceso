@@ -9,7 +9,7 @@ Tudo o que este guia diz sobre aparência veio de uma imagem aberta e olhada: SV
 ## O que foi visto
 
 - **Os 601 exemplos de pele.run/examples**, nos 32 tipos, na primeira rodada (folhas de contato e alguns em tamanho real).
-- **63 candidatos do projeto na largura natural, sem teto**, para as 16 vistas, em 2 a 4 tipos cada, com conteúdo de `docs/arquitetura.md`, `02-event-storming.md` e `03-modelo-de-dominio.md`. Entraram os tipos que o limite de 820 px tinha tirado: `eventmodeling`, `C4Context`, `C4Container`, `C4Component`, `C4Deployment`, `architecture-beta`, `swimlane-beta`, `erDiagram` com os três schemas, `stateDiagram-v2`, `gantt` e `journey`. Os que entraram na galeria estão em `galeria/rascunhos/`.
+- **63 candidatos do projeto na largura natural, sem teto**, para as 16 vistas, em 2 a 4 tipos cada, com conteúdo da primeira versão da visão geral (`docs/arquitetura.md`, hoje `01-visao-geral.md`), de `02-event-storming.md` e de `03-modelo-de-dominio.md`. Entraram os tipos que o limite de 820 px tinha tirado: `eventmodeling`, `C4Context`, `C4Container`, `C4Component`, `C4Deployment`, `architecture-beta`, `swimlane-beta`, `erDiagram` com os três schemas, `stateDiagram-v2`, `gantt` e `journey`. Os que entraram na galeria estão em `galeria/rascunhos/`.
 - **Os 8 modelos de `modelos/`**, cada um no tema claro ou no escuro.
 - **O site gerado**, nas páginas com o diagrama de 2983 px, no claro e no escuro, com zoom.
 
@@ -19,7 +19,7 @@ A galeria `galeria/rascunhos.html` mostra cada candidato ao lado do código.
 
 | Vista | Tipo escolhido | Por quê | Segunda opção | Defeitos vistos |
 |---|---|---|---|---|
-| Visão geral do sistema | `flowchart LR` | O diagrama de `arquitetura.md`, como está, sai com 2983×607 e legível: grupos aninhados (casa, VM, processo .NET), cada aresta com o protocolo. | `C4Container` | C4: arestas passam por cima das caixas (Simulador → Mosquitto cruza o App), rótulos de relação se sobrepõem, estereótipos em inglês («container», «external system», [SYSTEM]). `architecture-beta`: aresta atravessa nó (Nó ESP32 → broker passa pelo Simulador) e não tem rótulo. |
+| Visão geral do sistema | `flowchart LR` | O diagrama da primeira versão da visão geral, como estava, sai com 2983×607 e legível: grupos aninhados (casa, VM, processo .NET), cada aresta com o protocolo. | `C4Container` | C4: arestas passam por cima das caixas (Simulador → Mosquitto cruza o App), rótulos de relação se sobrepõem, estereótipos em inglês («container», «external system», [SYSTEM]). `architecture-beta`: aresta atravessa nó (Nó ESP32 → broker passa pelo Simulador) e não tem rótulo. |
 | Módulos e referências permitidas | `classDiagram` | Separa "depende de" (`..>`) de "implementa" (`..\|>`) e mostra os métodos de `IMotorDeCasas`. | `C4Component` | O `C4Component` ficou limpo na largura natural, mas não tem seta de realização e os estereótipos saem em inglês («component», [CONTAINER]). |
 | Fluxos MQTT e HTTP das 3 cenas | `sequenceDiagram`, um por cena | Diz quem chama quem, em que ordem, com a rota HTTP e o tópico MQTT escritos na mensagem. É o que quem programa precisa. | `eventmodeling` | O `eventmodeling` mostra comando, evento e leitura por contexto, mas não diz protocolo nem rota. O `swimlane-beta LR` ficou legível (1646 px) e diz menos que a sequência. |
 | Regras da situação da casa | `flowchart LR` em escada | A ordem das regras é a semântica: a primeira que devolve alerta vence. A escada desce da esquerda para a direita (1969×458) e termina em `Verde` ou `Aguardando`. | `stateDiagram-v2` | Na largura natural o state ficou legível, com rótulo junto da linha. Ele perde porque sugere uma situação gravada que muda por transição, e a situação é calculada a cada leitura (seção 5 do modelo de domínio). |
@@ -171,8 +171,8 @@ npm run site              # apaga e gera docs/arquitetura/site/
 
 Abra `docs/arquitetura/site/index.html` com dois cliques. O site não precisa de servidor nem de rede: fontes, CSS e o script do Pele ficam copiados dentro de `site/`.
 
-- **Páginas.** Uma por documento: `docs/arquitetura.md`, cada `docs/arquitetura/*.md` e este guia. O índice lista todas com o primeiro parágrafo. Links relativos entre os `.md` viram links entre as páginas.
-- **Diagrama no Markdown.** Duas formas, e as duas viram SVG dentro da página:
+- **Páginas.** Uma por documento: cada `docs/arquitetura/*.md`, com o `README.md` da pasta, e este guia. O índice lista todas com o primeiro parágrafo. Links relativos entre os `.md` viram links entre as páginas.
+- **Diagrama no Markdown.** Duas formas, e as duas viram SVG dentro da página. Todo link para um `.mmd` vira o desenho, mesmo dentro de uma tabela. Para só apontar um desenho, ligue o `.svg`:
   - um bloco cercado ` ```mermaid `;
   - uma referência a um `.mmd`, sozinha no parágrafo, com o caminho relativo ao `.md`. O texto entre colchetes vira a legenda:
 
@@ -191,7 +191,7 @@ Abra `docs/arquitetura/site/index.html` com dois cliques. O site não precisa de
 
 - **`galeria/index.html`** liga uma página por tipo, com os 601 exemplos, e `galeria/rascunhos.html`, com os 50 candidatos do projeto na largura natural. As páginas guardam só o código Mermaid e desenham no navegador com `node_modules/pele`, com um seletor de tema. Precisam de `npm install`.
 - **Regenerar a galeria:** `node galeria/gerar.mjs <pasta dos exemplos> [resultados.json]`. Sem a pasta, o comando refaz só a página de rascunhos e o índice.
-- **`modelos/`** tem um modelo por tipo escolhido, com conteúdo real do projeto. As primeiras linhas `%%` de cada modelo dizem as vistas e as regras daquele tipo.
+- **`modelos/`** tem um modelo por tipo escolhido. O corpo de cada modelo é cópia de um diagrama final desta pasta. As primeiras linhas `%%` de cada modelo dizem as vistas e as regras daquele tipo.
 
 ![Modelo flowchart: VM e seus serviços](modelos/flowchart.mmd)
 

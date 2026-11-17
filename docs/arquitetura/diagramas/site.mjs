@@ -4,7 +4,7 @@
 // Uso: cd docs/arquitetura/diagramas && npm install && npm run site
 //      Abra docs/arquitetura/site/index.html com dois cliques. Não precisa de servidor nem de rede.
 //
-// Fontes, nesta ordem: docs/arquitetura.md (visão geral), cada docs/arquitetura/*.md e diagramas/GUIA.md.
+// Fontes, nesta ordem: cada docs/arquitetura/*.md (01-visao-geral.md é a visão geral) e diagramas/GUIA.md.
 // Para testar com outros arquivos:
 //   SITE_FONTES=a.md:b.md SITE_SAIDA=/tmp/site node site.mjs
 // SITE_FONTES lista os .md separados por ":" e SITE_SAIDA troca a pasta de saída.
@@ -39,7 +39,6 @@ const saida = resolve(process.env.SITE_SAIDA ?? join(arquitetura, 'site'));
 const fontes = process.env.SITE_FONTES
   ? process.env.SITE_FONTES.split(delimiter).filter(Boolean).map((f) => resolve(f))
   : [
-      resolve(arquitetura, '../arquitetura.md'),
       ...readdirSync(arquitetura).filter((f) => f.endsWith('.md')).sort().map((f) => join(arquitetura, f)),
       join(pasta, 'GUIA.md'),
     ];

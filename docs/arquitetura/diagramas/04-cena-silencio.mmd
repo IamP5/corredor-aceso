@@ -1,0 +1,28 @@
+%% Cena 2 da demo: o aparelho mudo fica cinza, nunca verde. Fonte: 03-modelo-de-dominio.md (5.4, casos 10 e 13) e 02-event-storming.md (fluxo 5).
+sequenceDiagram
+  autonumber
+  participant no as Nó ESP32
+  participant pub as Broker público
+  participant mq as Mosquitto da VM
+  participant reg as RegistrarPacote
+  participant pg as Postgres, schema motor
+  participant radar as Motor, GET /api/radar
+  actor app as App da ACS
+  Note over radar,app: dia crítico, turno aberto. Casa Sozinho, não eletrodependente, Verde pelo movimento das 09h00
+  no->>pub: <prefixo>/corredor/v1/{casaToken}/evento {tipo: HEARTBEAT}
+  pub->>mq: ponte de saída
+  mq->>reg: corredor/v1/+/evento
+  reg->>pg: casa_monitorada.ultimo_pacote_em = 09h10. O HEARTBEAT não vira evento_sensor
+  Note over no,mq: 09h10: o nó para. Nenhum pacote chega dentro de SilencioMaximo
+  app->>radar: GET /api/radar?microarea=3
+  radar->>pg: casas ativas, eventos e confirmações de 24 horas, dia crítico de hoje
+  radar->>radar: AvaliadorDeCasas: SemHeartbeat é a regra 2 e vem antes do sinal de vida
+  radar-->>app: 200, pendentes com {situacao: Cinza, motivo: SemHeartbeat, desde: 09h10}
+  Note over app: card cinza, "aparelho sem sinal desde 09h10". O movimento das 09h00 não deixa a casa verde
+  Note over no,mq: 11h00: o nó volta
+  no->>pub: eventos do buffer com bufferizado: true e um HEARTBEAT
+  pub->>mq: ponte de saída
+  mq->>reg: corredor/v1/+/evento
+  reg->>pg: ultimo_pacote_em avança. Os eventos entram com o ocorrido_em original
+  app->>radar: GET /api/radar?microarea=3
+  radar-->>app: 200, a casa sai do cinza

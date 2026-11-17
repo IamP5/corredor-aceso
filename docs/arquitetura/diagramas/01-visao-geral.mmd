@@ -1,47 +1,51 @@
+%% Visão geral do sistema. Fonte: 01-visao-geral.md, 03-modelo-de-dominio.md (seções 1 e 2) e 05-infra-e-entrega.md (seção 1).
 flowchart LR
-  subgraph CASA["Casa da idosa"]
-    ESP["Nó ESP32 no Wokwi<br/>PIR + LED de caminho, DHT22,<br/>tensão, botão, buzzer,<br/>buffer + heartbeat"]
-    SIM["Simulador de 39 casas<br/>script Python"]
+  subgraph casa["Casa da idosa"]
+    esp["Nó ESP32 no Wokwi<br/>PIR e luz de caminho, DHT22, tensão,<br/>botão, buzzer, buffer e heartbeat"]
   end
 
-  PUB["Broker MQTT público<br/>só token, sem dado pessoal"]
-  APP["App Expo da ACS<br/>radar + SQLite"]
+  pub["Broker MQTT público<br/>broker.hivemq.com:1883<br/>só o token no tópico"]:::externo
+  app["App Expo da ACS<br/>radar e SQLite<br/>junta token e nome"]
 
-  subgraph VM["VM Linux da UBS, provisionada por Shell Script, vigiada pelo corredor-monitor.service"]
-    MQ["Mosquitto<br/>bridge + broker local"]
-    NGINX["Nginx<br/>api.corredor.local"]
-    JOB["Job das 05h<br/>modelo XGBoost"]
-    subgraph API["corredor-api.service: um processo .NET 8"]
-      MOTOR["Módulo Motor<br/>regras de contato, radar<br/>só tokens e perfis"]
-      CAD["Módulo Cadastro<br/>idoso, consentimento, visita<br/>único dono de dado pessoal"]
-      GUARDA["Módulo Guarda<br/>interceptador de entrada,<br/>taint nas saídas, LLM"]
+  subgraph vm["VM Linux corredor-ubs, provisionada por Bash e vigiada pelo corredor-monitor.service"]
+    mq["Mosquitto<br/>ponte de saída e<br/>broker local"]
+    sim["corredor-simulador.service<br/>39 casas simuladas"]
+    nginx["Nginx :80<br/>api.corredor.internal"]
+    job["corredor-ml.timer, 05h<br/>prever_hoje.py"]
+    subgraph api["corredor-api.service: um processo .NET 10"]
+      motor["Módulo Motor<br/>regras de contato e radar<br/>só token, microárea e perfil"]:::luz
+      cad["Módulo Cadastro<br/>idoso, consentimento, visita, aviso<br/>único dono de dado pessoal"]
+      guarda["Módulo Guarda<br/>InterceptadorDeEntrada,<br/>SaidaSegura, Tradutor"]
     end
-    PAINEL["Painel Risco Cidadão<br/>farol + mensagem traduzida"]
-    PG[("Postgres<br/>schema motor e schema cadastro")]
+    painel["Painel Risco Cidadão<br/>página estática com o farol,<br/>lê GET /api/painel"]
+    pg[("Postgres, banco corredor<br/>schemas motor, cadastro e guarda")]
   end
 
-  subgraph DADOS["Dados públicos"]
-    INMET[("INMET A701")]
-    SIH[("SIH/DATASUS")]
+  subgraph dados["Dados públicos"]
+    inmet[("INMET A701")]:::externo
+    sih[("SIH/DATASUS")]:::externo
   end
 
-  VIZ["Vizinho de confiança<br/>canal simulado"]
-  LLM["LLM<br/>recebe só o achado redigido"]
+  llm["LLM<br/>recebe tipo de dado,<br/>canal e módulo"]:::externo
+  viz["Vizinho de confiança<br/>canal simulado"]:::externo
 
-  ESP -- "MQTT evento" --> PUB
-  PUB -- bridge --> MQ
-  SIM -- MQTT --> MQ
-  MQ <-- "eventos e comandos" --> MOTOR
-  APP -- HTTPS --> NGINX
-  NGINX -- "/api" --> API
-  NGINX -- "/painel" --> PAINEL
-  CAD -- "toda saída de texto" --> GUARDA
-  CAD -- "IMotorDeCasas" --> MOTOR
-  MOTOR -. "aviso neutro" .-> VIZ
-  INMET --> JOB
-  SIH -. "treino no notebook" .-> JOB
-  JOB -- "PUT /api/dias-criticos/{data}" --> NGINX
-  MOTOR --> PG
-  CAD --> PG
-  GUARDA --> PAINEL
-  GUARDA -- "achado sem dado pessoal" --> LLM
+  esp -- "MQTT, QoS 0" --> pub
+  pub <-- "ponte" --> mq
+  sim -- "MQTT" --> mq
+  mq <-- "eventos e comandos" --> motor
+  app -- "HTTPS pelo túnel" --> nginx
+  nginx -- "/api" --> api
+  nginx -- "/painel/" --> painel
+  cad -- "IMotorDeCasas" --> motor
+  motor -- "IReceptorDeContato" --> cad
+  cad -- "toda saída de texto" --> guarda
+  cad -. "aviso neutro" .-> viz
+  inmet --> job
+  sih -. "treino no notebook" .-> job
+  job -- "PUT /api/dias-criticos/{data}" --> motor
+  motor --> pg
+  cad --> pg
+  guarda --> pg
+  guarda -- "prompt sem dado pessoal" --> llm
+  classDef luz stroke-width:2px
+  classDef externo stroke-width:1px

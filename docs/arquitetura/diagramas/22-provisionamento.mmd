@@ -1,0 +1,28 @@
+%% Ordem de provisionamento da VM. Fonte: 05-infra-e-entrega.md, visão geral, seções 1.2, 2 e 6.1.
+flowchart LR
+  mp(["VM local<br/>multipass launch 24.04"])
+  tf(["VM do Azure, opcional<br/>terraform apply"])
+  ci["cloud-init<br/>corredor.yaml"]
+  clone["git clone em<br/>/opt/corredor/repo"]
+  prov["infra/provisionar.sh<br/>ponto de entrada"]:::luz
+  r1["01-rede.sh<br/>hostname, fuso, 10.77.0.1 em corredor0,<br/>nomes .internal, firewall, chaves SSH"]
+  r2["02-app.sh<br/>pacotes, usuários, Postgres e papéis,<br/>Mosquitto com ponte, Nginx, units"]
+  r3["03-monitor.sh<br/>monitor como serviço, unit de alerta,<br/>rotação de logs"]
+  ver["verificar.sh<br/>confere a VM de ponta a ponta"]
+  dep(["sudo corredor deploy vX.Y.Z<br/>primeira versão da API"])
+  aud["lib/auditoria.sh<br/>quem rodou, quando, como terminou"]
+  mp -- "à mão" --> clone
+  tf --> ci
+  ci -- "primeiro boot" --> clone
+  clone --> prov
+  prov --> r1
+  r1 --> r2
+  r2 --> r3
+  r3 --> ver
+  ver --> dep
+  aud -.-> prov
+  aud -.-> r1
+  aud -.-> r2
+  aud -.-> r3
+  aud -.-> ver
+  classDef luz stroke-width:2px

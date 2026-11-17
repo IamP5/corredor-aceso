@@ -1,0 +1,13 @@
+%% Event storming, fluxo 7: desfecho da visita. Fonte: 02-event-storming.md, sessão 2.
+eventmodeling
+
+rf 01 ui AppDaACS
+tf 02 cmd RegistrarVisita { id; casaToken; ocorridaEm; desfecho; observacao }
+tf 03 evt Guarda.PiiMascaradaNaEntrada
+tf 04 evt Cadastro.VisitaRegistrada
+tf 05 pcr TradutorDeDesfecho
+tf 06 cmd Confirmar { origem: Acs; resultado }
+tf 07 evt Motor.ConfirmacaoRegistrada
+tf 08 rmo Radar ->> 07
+rf 09 pcr Expurgo
+tf 10 evt Motor.EventosExpurgados

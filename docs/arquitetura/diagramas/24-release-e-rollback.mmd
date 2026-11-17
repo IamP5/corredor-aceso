@@ -1,0 +1,31 @@
+%% Release e rollback. Fonte: 05-infra-e-entrega.md, seções 1.5 a 1.7 e 6.2 a 6.3.
+swimlane-beta LR
+  subgraph GitHub
+    tag([tag vX.Y.Z na main])
+    pub[release.yml, job publicar: testa, gera o SQL, empacota x64 e arm64, publica a Release]
+    impl[job implantar: espera a aprovação do ambiente producao e entra por SSH como deploy]
+  end
+  subgraph VM
+    dep[sudo corredor deploy vX.Y.Z]
+    baixa[baixa o pacote da Release e confere o SHA-256]
+    dump[guarda um pg_dump]
+    migra[aplica cada modulo.sql como corredor_modulo_migra]
+    link[troca o link current e reinicia a API]
+    saude{/healthz/ready e /api/versao respondem a versão nova?}
+    volta[volta o link para previous e sai com código 1]:::alerta
+    manual[sudo corredor voltar]
+  end
+  subgraph Resultado
+    novo([versão nova no ar]):::verde
+    anterior([versão anterior no ar])
+  end
+  tag --> pub
+  pub -->|VM local, pessoa no terminal| dep
+  pub --> impl
+  impl -->|VM do Azure| dep
+  dep --> baixa --> dump --> migra --> link --> saude
+  saude -->|sim| novo
+  saude -->|não| volta --> anterior
+  novo -->|defeito visto depois| manual --> anterior
+  classDef verde stroke-width:2px
+  classDef alerta stroke-width:2px

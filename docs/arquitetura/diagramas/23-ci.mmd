@@ -1,0 +1,29 @@
+%% Pipeline de CI: ci.yml. Fonte: 05-infra-e-entrega.md, seções 1.4 e 1.12, e referencia/repo/.github/workflows/ci.yml.
+flowchart LR
+  pr(["push ou pull request"])
+  mud["mudancas<br/>dorny/paths-filter"]
+  subgraph jobs["Jobs do ci.yml. Só roda o job da pasta que mudou"]
+    api["api<br/>check:migracoes, check:api,<br/>check:pacote"]
+    infra["infra<br/>check:infra,<br/>check:terraform"]
+    app["app<br/>typecheck e lint"]
+    ml["ml<br/>compila os .py e exige<br/>o notebook executado"]
+    iot["iot<br/>compila os .py"]
+  end
+  ok{"ci-ok: algum<br/>job falhou?"}
+  merge(["merge por squash na main<br/>com uma aprovação.<br/>Job pulado conta como sucesso"]):::luz
+  trava(["merge travado"]):::alerta
+  pr --> mud
+  mud -- "api/, tools/" --> api
+  mud -- "infra/, tools/" --> infra
+  mud -- "app/" --> app
+  mud -- "ml/" --> ml
+  mud -- "iot/" --> iot
+  api --> ok
+  infra --> ok
+  app --> ok
+  ml --> ok
+  iot --> ok
+  ok -- "não" --> merge
+  ok -- "sim" --> trava
+  classDef luz stroke-width:2px
+  classDef alerta stroke-width:2px

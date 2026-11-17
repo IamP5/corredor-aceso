@@ -1,0 +1,63 @@
+%% Agregados do Motor. Fonte: 03-modelo-de-dominio.md, seção 4.2. A situação da casa não aparece como campo: ela é calculada.
+classDiagram
+  direction LR
+  namespace Motor {
+    class CasaMonitorada {
+      <<raiz>>
+      CasaToken, MicroareaId, PerfilDaCasa
+      AtivadaEm, DesativadaEm, UltimoPacoteEm
+      DefinirPerfil(perfil)
+      RegistrarPacote(recebidoEm)
+      Confirmar(confirmacao, agora)
+      DesativarCasa(agora)
+    }
+    class Confirmacao {
+      <<entidade>>
+      Guid Id
+      OrigemDaConfirmacao Origem
+      ResultadoDaConfirmacao Resultado
+      DateTimeOffset Quando
+    }
+    class EventoSensor {
+      <<raiz, imutável>>
+      CasaToken, Seq, OcorridoEm
+      TipoDePacote, nunca Heartbeat
+      RecebidoEm, Bufferizado
+      TempC, TensaoV
+      De(pacote, recebidoEm)
+    }
+    class DiaCritico {
+      <<raiz>>
+      Data, Probabilidade, Motivo
+      OrigemDoDiaCritico
+      AbertoEm, ToquePedidoEm, EncerradoEm
+      DeclararDiaCritico(data, previsao, agora)
+      PedirToque(agora)
+      EncerrarTurno(resumo, agora)
+    }
+    class TurnoRadar {
+      <<objeto de valor, calculado>>
+      AbertoEm, FimPrevisto, EncerradoEm
+      janela da manhã, janela da tarde
+      EstaAberto(agora)
+    }
+    class ResumoDoTurno {
+      <<objeto de valor>>
+      casas ativas
+      com sinal de vida até as 10h
+      atendidas
+      vermelhas pendentes
+      cinzas pendentes
+    }
+    class AvaliadorDeCasas {
+      <<serviço de domínio, puro>>
+      Avaliar(casa, historico, turno, agora, parametros)
+    }
+  }
+  CasaMonitorada "1" *-- "0..*" Confirmacao
+  DiaCritico *-- TurnoRadar
+  DiaCritico *-- ResumoDoTurno
+  EventoSensor ..> CasaMonitorada : por CasaToken
+  AvaliadorDeCasas ..> CasaMonitorada
+  AvaliadorDeCasas ..> EventoSensor
+  AvaliadorDeCasas ..> TurnoRadar

@@ -1,0 +1,30 @@
+%% Event storming, fluxo 3, das 13h00 às 17h30: dia crítico, tarde. Fonte: 02-event-storming.md, sessão 2, passos 11 a 16.
+%% Cada leitura liga só o evento mais próximo. A seta até um evento distante cruzava os outros quadros.
+eventmodeling
+
+rf 01 pcr NoDoCorredor
+tf 02 cmd RegistrarPacote { tipo: TELEMETRIA; tempC: 34.5 }
+tf 03 evt Motor.TelemetriaRecebida
+tf 04 evt Motor.CasaFicouVermelha
+rf 05 ui AppDaACS
+tf 06 cmd RegistrarVisita { desfecho: EstavaBem }
+tf 07 evt Cadastro.VisitaRegistrada
+tf 08 pcr TradutorDeDesfecho
+tf 09 cmd Confirmar { origem: Acs; resultado: PessoaVista }
+tf 10 evt Motor.ConfirmacaoRegistrada
+tf 11 rmo Radar ->> 10
+rf 12 pcr VigiaDoRadar
+tf 13 cmd PedirToque
+tf 14 evt Motor.ToquePedido
+rf 15 pcr NoDoCorredor
+tf 16 cmd RegistrarPacote { tipo: BOTAO_BEM }
+tf 17 evt Motor.BotaoBemPressionado
+tf 18 evt Motor.CasaFicouVerde
+rf 19 pcr Relogio
+tf 20 evt Motor.JanelaEncerrada
+tf 21 evt Motor.CasaFicouVermelha
+tf 22 rmo Radar ->> 21
+rf 23 ui AppDaACS
+tf 24 cmd EncerrarTurno
+tf 25 evt Motor.TurnoEncerrado { resumo }
+tf 26 rmo ResumoDoTurno ->> 25

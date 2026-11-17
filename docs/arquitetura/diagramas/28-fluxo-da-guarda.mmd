@@ -1,0 +1,28 @@
+%% Fluxo da Guarda numa saída bloqueada: a resposta 200 sai antes da tradução. Fonte: 03-modelo-de-dominio.md (4.4) e 02-event-storming.md (fluxo 6, políticas P15 a P17).
+sequenceDiagram
+  autonumber
+  actor app as App da ACS
+  participant int as InterceptadorDeEntrada
+  participant mp as MotorDeParsing
+  participant cad as Cadastro
+  participant ss as SaidaSegura
+  participant ev as EventoDeSeguranca
+  participant tr as Tradutor
+  participant llm as LLM
+  app->>int: POST /api/mensagens/verificar {canal: GrupoDoBairro, texto}
+  int->>mp: corpo da requisição
+  mp-->>int: sem CPF, RG, CNS nem credencial, o corpo não muda. Rótulos MoraSozinho e Saude
+  int->>cad: TextoRotulado com MoraSozinho e Saude
+  cad->>ss: VerificarMensagem pede o Veredito para o Canal GrupoDoBairro
+  ss->>ss: PoliticaDeCanal: GrupoDoBairro não aceita rótulo
+  ss->>ev: Registrar, SaidaBloqueada de severidade 4, sem o valor
+  ss-->>cad: Veredito Bloqueada, com os achados
+  cad-->>app: 200 {veredito: Bloqueada, explicacao, versaoSegura}
+  Note over ev,tr: depois da resposta HTTP, numa fila em memória lida por um BackgroundService
+  ev->>tr: SaidaBloqueada
+  tr->>ss: prompt com tipo de dado, canal e módulo, para o Canal PromptDoLlm
+  ss-->>tr: Liberada, o prompt não tem rótulo
+  tr->>llm: prompt sem o texto da mensagem
+  llm-->>tr: duas frases. Sem resposta em 5 segundos, vale a frase fixa
+  tr->>ev: AnexarMensagem(texto, origem), BloqueioTraduzido
+  Note over ev: o Farol está Vermelho desde o passo 7. Agora o painel ganha a mensagem ao cidadão

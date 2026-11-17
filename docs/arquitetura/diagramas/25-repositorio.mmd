@@ -1,0 +1,21 @@
+%% Árvore do repositório. Fonte: 05-infra-e-entrega.md, seção 2.
+treeView-beta
+  corredor-aceso/
+    README.md ## ficha e seção por disciplina
+    prompts.md ## prompts de IA usados
+    integrantes.txt ## nomes e RMs
+    package.json ## só nomes de comando
+    .github/workflows/ ## ci, release, operacao
+    api/ ## solução .NET 10
+      src/Corredor.Contratos/ ## tipos e interfaces
+      src/Corredor.Motor/ ## schema motor
+      src/Corredor.Cadastro/ ## schema cadastro
+      src/Corredor.Guarda/ ## schema guarda e painel
+      src/Corredor.Api/ ## host, único Program.cs
+      tests/ ## um projeto xUnit por módulo
+    app/ ## Expo, radar e SQLite
+    ml/ ## notebook e prever_hoje.py
+    iot/ ## sketch do Wokwi e simulador
+    infra/ ## Bash, systemd e Terraform
+    tools/ ## conferências que o CI chama
+    docs/arquitetura/ ## documentos e diagramas

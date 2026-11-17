@@ -1,0 +1,18 @@
+%% Telas do app da ACS e a navegação entre elas. Fonte: 01-visao-geral.md (app), 02-event-storming.md (fluxos 3, 6 e 7) e 03-modelo-de-dominio.md (6.3).
+flowchart LR
+  entrada["Entrada<br/>sessão da ACS,<br/>lista de nomes no SQLite"]
+  dia["Dia crítico<br/>o turno está aberto"]
+  radar["Radar<br/>pendentes, atendidas, aguardando<br/>e a contagem de verdes"]:::luz
+  detalhe["Detalhe da casa<br/>linha do tempo de 24 horas,<br/>vizinho e desfecho"]
+  bloq["Mensagem bloqueada<br/>frase fixa e<br/>versão segura"]:::alerta
+  fim["Encerramento do turno<br/>resumo com o indicador"]
+  entrada -- "GET /radar, turnoAberto" --> dia
+  entrada -- "dia comum" --> radar
+  dia -- "abre o radar" --> radar
+  radar -- "toca no card" --> detalhe
+  detalhe -- "POST /visitas" --> radar
+  detalhe -- "POST /mensagens/verificar" --> bloq
+  bloq -- "copia a versão segura" --> detalhe
+  radar -- "POST .../encerramento" --> fim
+  classDef luz stroke-width:2px
+  classDef alerta stroke-width:2px

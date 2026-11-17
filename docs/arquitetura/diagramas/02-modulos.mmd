@@ -1,0 +1,56 @@
+%% Módulos e referências permitidas. Fonte: 03-modelo-de-dominio.md, seções 2 e 6.1.
+%% ..> é referência de projeto ou chamada. ..|> é implementação. *-- é "declarado em".
+classDiagram
+  direction LR
+  class Api["Corredor.Api"] {
+    <<host>>
+    Program.cs, único
+    AddGuarda, AddMotor, AddCadastro
+    /healthz e /api/versao
+  }
+  class Cadastro["Corredor.Cadastro"] {
+    <<módulo, SOA>>
+    Idoso, Visita
+    MensagemSaida, AvisoAoVizinho
+    ReceptorDeContato
+  }
+  class Motor["Corredor.Motor"] {
+    <<módulo, C#>>
+    CasaMonitorada, EventoSensor, DiaCritico
+    AvaliadorDeCasas, RegraDeContato
+    MotorDeCasas, VigiaDoRadar
+  }
+  class Guarda["Corredor.Guarda"] {
+    <<módulo, Cyber>>
+    MotorDeParsing, TextoRotulado
+    SaidaSegura, PoliticaDeCanal
+    EventoDeSeguranca, Tradutor
+  }
+  class Contratos["Corredor.Contratos"] {
+    <<núcleo compartilhado>>
+    CasaToken, MicroareaId
+    PerfilDaCasa, Confirmacao
+    PedidoDeContato, MotivoDoAlerta
+  }
+  class IMotorDeCasas {
+    <<interface>>
+    AtivarCasaAsync(token, microarea, perfil, ct)
+    DefinirPerfilAsync(token, perfil, ct)
+    ConfirmarAsync(token, confirmacao, ct)
+    DesativarCasaAsync(token, ct)
+  }
+  class IReceptorDeContato {
+    <<interface>>
+    PedirContatoAsync(pedido, ct)
+  }
+  Api ..> Cadastro
+  Api ..> Motor
+  Api ..> Guarda
+  Api ..> Contratos
+  Cadastro ..> Guarda : TextoRotulado e SaidaSegura
+  Cadastro ..> Contratos
+  Motor ..> Contratos
+  Contratos *-- IMotorDeCasas
+  Contratos *-- IReceptorDeContato
+  Motor ..|> IMotorDeCasas
+  Cadastro ..|> IReceptorDeContato

@@ -1,0 +1,15 @@
+%% Mapa de contextos. Fonte: 03-modelo-de-dominio.md, seção 1.2. Tracejado na borda: contexto fora do processo .NET.
+flowchart LR
+  NO["Nó"]:::externo -- "linguagem publicada: MQTT v1" --> MOTOR["Motor"]
+  ML["Job de previsão"]:::externo -- "conformista" --> MOTOR
+  CT["Corredor.Contratos<br/>núcleo compartilhado"]
+  CT --- MOTOR
+  CT --- CAD["Cadastro"]
+  MOTOR -- "fornecedor: IMotorDeCasas e IReceptorDeContato" --> CAD
+  GUARDA["Guarda"] -- "Cadastro conformista" --> CAD
+  MOTOR -. "caminhos separados" .- GUARDA
+  MOTOR -- "serviço aberto" --> APP["App da ACS"]:::externo
+  CAD -- "serviço aberto" --> APP
+  GUARDA -- "camada anticorrupção" --> LLM["LLM"]:::externo
+  CAD -- "camada anticorrupção" --> VIZ["Canal do vizinho"]:::externo
+  classDef externo stroke-width:1px

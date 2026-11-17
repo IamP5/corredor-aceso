@@ -1818,6 +1818,10 @@ O `TRUNCATE` passa pelos gatilhos de `evento_sensor` e de `evento_de_seguranca`,
 
 Os diagramas mostram as chaves e as colunas que explicam cada relação. A lista completa de colunas está na seção 1. Não existe relação entre schemas no banco.
 
+O primeiro desenho junta os três schemas. Veja que nenhuma linha sai de um schema para outro.
+
+![Os três schemas do banco corredor](diagramas/20-modelo-de-dados.mmd)
+
 ### 9.1 Schema `motor`
 
 ```mermaid
