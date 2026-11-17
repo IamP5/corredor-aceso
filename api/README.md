@@ -227,3 +227,11 @@ Cada módulo começa vazio, com a pasta `Infra/` e o `DbContext`. A sessão do m
 - O Motor registra o `RelogioDeDemo` como `TimeProvider` e como `IDeslocamentoDoRelogio` em `Development`. Sem esse registro, o host usa `TimeProvider.System` e deslocamento zero.
 - O Cadastro implementa `IReceptorDeContato`, e o Motor implementa `IMotorDeCasas`. Cada um registra a própria implementação no próprio `Add*`.
 - `Corredor.Api --semear <arquivo>` chama `SemearCadastroAsync` e encerra. Ele só roda em `Development` e `Demo`.
+
+## Integrantes
+
+| Nome | RM |
+|---|---|
+| Bruno Dominicheli | 554981 |
+| Miguel Kapicius | 556198 |
+| Thiago Ferreira | 555608 |

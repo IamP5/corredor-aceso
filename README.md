@@ -61,4 +61,10 @@ A demo integrada, com os comandos de cada cena e as evidências, está em [docs/
 
 ## Integrantes
 
-Ver `integrantes.txt`.
+| Nome | RM |
+|---|---|
+| Bruno Dominicheli | 554981 |
+| Miguel Kapicius | 556198 |
+| Thiago Ferreira | 555608 |
+
+A mesma lista está em `integrantes.txt`.

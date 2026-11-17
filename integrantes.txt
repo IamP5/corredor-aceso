@@ -1,4 +1,5 @@
 Corredor Aceso - Global Solution FIAP 2026.2, Engenharia de Software, 3º ano, turma de fevereiro
 
-PREENCHER: nome completo e RM de cada integrante, um por linha, no formato abaixo.
-Nome Completo - RM000000
+Bruno Dominicheli - RM554981
+Miguel Kapicius - RM556198
+Thiago Ferreira - RM555608

@@ -18,7 +18,7 @@ Os critérios e os pesos: parsing de PII 3,0, taint analysis 3,0, IA na remedia�
 
 - Corredor Aceso, Global Solution CitizenTech, FIAP 2026, Engenharia de Software, 3º ano.
 - Disciplina: Cybersecurity.
-- Integrantes: [nomes, como em `integrantes.txt`].
+- Integrantes: Bruno Dominicheli (RM554981), Miguel Kapicius (RM556198) e Thiago Ferreira (RM555608).
 - Repositório: https://github.com/IamP5/corredor-aceso
 - Vídeo do dashboard: [link].
 - Data: 19/11/2026.

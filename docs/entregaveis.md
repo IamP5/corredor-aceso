@@ -18,7 +18,7 @@ A coluna "Quem faz" separa o que sai do repositório do que só uma pessoa da eq
 | Registro dos prompts de IA | `prompts.md` | repositório | pronto |
 | Nenhum dado pessoal real, fonte dos dados públicos declarada | `ml/dados/README.md`, verificador em `docs/arquitetura/referencia/dados/semente/verificar_dados_pessoais.py` | repositório | pronto |
 | Uma pasta por parte, README claro | raiz | repositório | pronto |
-| Nomes dos integrantes | `integrantes.txt` | equipe | equipe: o arquivo existe com uma linha a preencher |
+| Nomes dos integrantes | `integrantes.txt` | repositório | pronto |
 | Todo integrante sabe explicar o projeto inteiro | | equipe | equipe |
 
 ## SOA e Web Services
@@ -33,7 +33,7 @@ Nota: domínio 3,0, conexão com banco 3,0, migrações 1,5, documentação auto
 | Migrações | `api/src/Corredor.Cadastro/Infra/Migrations` | repositório | pronto: aplicadas duas vezes como `corredor_cadastro_migra` |
 | Documentação dos endpoints | Swagger em `/swagger` | repositório | pronto |
 | Testes automatizados | `api/tests/Corredor.Cadastro.Testes` | repositório | pronto |
-| README com instruções, descrição e nomes | `api/README.md` | repositório, nomes da equipe | parcial: faltam os nomes, que vêm de `integrantes.txt` |
+| README com instruções, descrição e nomes | `api/README.md` | repositório | pronto |
 | Evidências da aplicação | `docs/evidencias/integracao/`, `docs/evidencias/api/`, `docs/evidencias/cyber/evidencia-integrada-cadastro.txt` | repositório | pronto: o log das rotas, o relatório e os prints do Swagger |
 
 ## Cybersecurity
@@ -113,7 +113,7 @@ Entrega: link do projeto no Wokwi, link do vídeo e um arquivo `.txt` com os nom
 | Circuito ESP32 com sensores, integrado à solução | `iot/no/`, simulador em `iot/simulador/` | repositório | pronto: o simulador falou com o Motor real; o nó rodou no wokwi.com contra o broker público, não contra a API |
 | Link do projeto no Wokwi | `iot/README.md` | equipe publica no Wokwi | equipe: "ainda não publicado" |
 | Vídeo de até 4 minutos com a integração | roteiro em `iot/README.md` | equipe | equipe |
-| Arquivo com o nome dos integrantes | `integrantes.txt` | equipe | equipe: preencher a linha marcada |
+| Arquivo com o nome dos integrantes | `integrantes.txt` | repositório | pronto: a equipe anexa o arquivo no envio |
 
 ## Testing, Compliance e Quality Assurance
 

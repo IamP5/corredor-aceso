@@ -16,7 +16,7 @@ Os roteiros dos vídeos estão em [roteiros.md](roteiros.md). O esqueleto do PDF
 
 ## Antes de tudo, 18/11 de manhã
 
-- [ ] **P1.** Criar `integrantes.txt` na raiz com o nome completo de cada integrante, um por linha. O `README.md` e a entrega de Physical Computing apontam para ele.
+- [x] **P1.** Criar `integrantes.txt` na raiz com o nome completo de cada integrante, um por linha. O `README.md` e a entrega de Physical Computing apontam para ele.
 - [ ] **P1.** Conferir que o repositório `IamP5/corredor-aceso` está público e abre numa janela anônima.
 - [ ] **Todos.** Rodar `npm run check` na `main` depois da junção das branches. Nenhum vídeo é gravado com o check vermelho.
 - [ ] **P1.** Publicar a release que os vídeos vão usar (`v1.0.0-rc.1`, seção 6.4 de [05-infra-e-entrega.md](../arquitetura/05-infra-e-entrega.md)).
