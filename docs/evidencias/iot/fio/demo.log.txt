@@ -1,0 +1,149 @@
+cenário demo, 39 casas. casa 4: saida-avisada; casa 5: silenciosa; casa 6: silenciosa; casa 7: silenciosa; casa 8: calor; casa 9: toque; casa 10: muda
+CENARIO {"cenario": "demo", "ligadoEm": "2026-11-17T04:00:48.756419+00:00", "inicio": 30, "janela": 60}
+CASA 2 105f2eed2da3d5b646f6214064a776d7 normal
+CASA 3 97c9382e37b2a27d27233a262c972bee normal
+CASA 4 07a6edbe6f716ea823c61eb9fb15f5a6 saida-avisada
+CASA 5 c71ab493c1390cfc19d8548bffe56197 silenciosa
+CASA 6 c48ea4000ddd7e4493e5ac861752b184 silenciosa
+CASA 7 58121fa0b480d57423d8ce8c61644a31 silenciosa
+CASA 8 ca89674fa869483fd3278dc6ddf7fb47 calor
+CASA 9 cf7c83ea1e8333dabf97d1d77c37b76b toque
+CASA 10 2d99f4bc0c3aac1fb973811f2d83b825 muda
+CASA 11 a8d27e0b653783450392d8e4cb608860 normal
+CASA 12 d060b758dc767fd32721c1d6ca910fa9 normal
+CASA 13 e2e4ffc59ebbe9eabb6dc11df32c67fc normal
+CASA 14 a74fb20b823197eb04b5b5743974cd0a normal
+CASA 15 75f4671ad412c0fa98642ddcdb2175bd normal
+CASA 16 534f1acf061ac0b4a2f417b3173f71fc normal
+CASA 17 7600f2fc2fe57f10435d8a2730633326 normal
+CASA 18 f295bf993fdf975aacfcb2e5c1c2a034 normal
+CASA 19 aa8e67bebf14380b997b8405d8337428 normal
+CASA 20 307af507403e71886187f70898f20909 normal
+CASA 21 fa8e20eaebb9b43341d232376e1e7360 normal
+CASA 22 d953f22a5c333ff4c08537f1025f7b56 normal
+CASA 23 cdf4eaa4c40844421f27de9f09bf04b4 normal
+CASA 24 0dcca9ee79df2fefb18d889911dde7fb normal
+CASA 25 aec55b18424e3c625f2f8d9ac27ff6f1 normal
+CASA 26 a95195e211deaea95cc8370882aba919 normal
+CASA 27 ef32391329517a392832e5aa669f0677 normal
+CASA 28 24a454c7d22ca5540d7208bff6102410 normal
+CASA 29 2803acc1952e4593c0f18cbaca017d74 normal
+CASA 30 266ef0c58cdbe1cc18313acaf14337d9 normal
+CASA 31 9f15dfb21d03404b2fbcc5e40b9a2ad7 normal
+CASA 32 df74435f567d09b22232d44a5ae5b1b5 normal
+CASA 33 0fc38fffb415f0d2a8576024a84e40a6 normal
+CASA 34 401f9c9146e52120d53dfe10dff5f7c6 normal
+CASA 35 ff575bf6dd6da4ff7fb1e1b4f029a615 normal
+CASA 36 5598d556a4b1dba279dff64c15764524 normal
+CASA 37 e8f04b03257a7643726333309995a33f normal
+CASA 38 e7aef91a78b17953c906c8c24f0d3a7b normal
+CASA 39 da6dcf7fd690010dfc2b079da5706249 normal
+CASA 40 d9440a18145d6ac2ea2af59c9b3329af normal
+04:00:48 casa 4 {"seq":1,"ts":"2026-11-17T04:00:48Z","tipo":"BOTAO_SAIR","tempC":29.3,"tensaoV":127.0,"bufferizado":false}
+conectado a 127.0.0.1:18839 (Success)
+04:00:49 casa 3 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":26.9,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 4 {"seq":2,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":29.3,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 10 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":26.7,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 12 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":27.7,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 23 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":26.8,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 24 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":26.0,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 25 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":30.3,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 26 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":29.3,"tensaoV":127.0,"bufferizado":false}
+04:00:49 casa 29 {"seq":1,"ts":"2026-11-17T04:00:49Z","tipo":"TELEMETRIA","tempC":26.0,"tensaoV":127.0,"bufferizado":false}
+04:00:50 casa 5 {"seq":1,"ts":"2026-11-17T04:00:50Z","tipo":"TELEMETRIA","tempC":30.4,"tensaoV":127.0,"bufferizado":false}
+04:00:50 casa 13 {"seq":1,"ts":"2026-11-17T04:00:50Z","tipo":"TELEMETRIA","tempC":28.3,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 2 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":29.8,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 6 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":28.0,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 9 {"seq":2,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":27.2,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 11 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":28.0,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 14 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":28.8,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 16 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":27.5,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 17 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":26.7,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 18 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":25.7,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 19 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":27.2,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 20 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":29.2,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 21 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":27.6,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 31 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":26.5,"tensaoV":127.0,"bufferizado":false}
+04:00:51 casa 34 {"seq":1,"ts":"2026-11-17T04:00:51Z","tipo":"TELEMETRIA","tempC":28.2,"tensaoV":127.0,"bufferizado":false}
+04:00:52 casa 7 {"seq":1,"ts":"2026-11-17T04:00:52Z","tipo":"TELEMETRIA","tempC":28.8,"tensaoV":127.0,"bufferizado":false}
+04:00:52 casa 22 {"seq":1,"ts":"2026-11-17T04:00:52Z","tipo":"TELEMETRIA","tempC":28.1,"tensaoV":127.0,"bufferizado":false}
+04:00:52 casa 27 {"seq":1,"ts":"2026-11-17T04:00:52Z","tipo":"TELEMETRIA","tempC":25.8,"tensaoV":127.0,"bufferizado":false}
+04:00:52 casa 30 {"seq":1,"ts":"2026-11-17T04:00:52Z","tipo":"TELEMETRIA","tempC":30.4,"tensaoV":127.0,"bufferizado":false}
+04:00:52 casa 35 {"seq":1,"ts":"2026-11-17T04:00:52Z","tipo":"TELEMETRIA","tempC":27.7,"tensaoV":127.0,"bufferizado":false}
+04:00:52 casa 38 {"seq":1,"ts":"2026-11-17T04:00:52Z","tipo":"TELEMETRIA","tempC":27.8,"tensaoV":127.0,"bufferizado":false}
+04:00:52 casa 39 {"seq":2,"ts":"2026-11-17T04:00:52Z","tipo":"TELEMETRIA","tempC":27.1,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 8 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":34.5,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 15 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":26.1,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 28 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":27.6,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 32 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 33 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":27.7,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 36 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":26.8,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 37 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":28.5,"tensaoV":127.0,"bufferizado":false}
+04:00:53 casa 40 {"seq":1,"ts":"2026-11-17T04:00:53Z","tipo":"TELEMETRIA","tempC":27.1,"tensaoV":127.0,"bufferizado":false}
+04:00:59 casa 15 {"seq":3,"ts":"2026-11-17T04:00:59Z","tipo":"MOVIMENTO","tempC":26.1,"tensaoV":127.0,"bufferizado":false}
+04:00:59 casa 39 {"seq":3,"ts":"2026-11-17T04:00:59Z","tipo":"MOVIMENTO","tempC":27.1,"tensaoV":127.0,"bufferizado":false}
+04:01:00 casa 35 {"seq":2,"ts":"2026-11-17T04:01:00Z","tipo":"MOVIMENTO","tempC":27.7,"tensaoV":127.0,"bufferizado":false}
+04:01:07 casa 2 {"seq":2,"ts":"2026-11-17T04:01:07Z","tipo":"MOVIMENTO","tempC":29.8,"tensaoV":127.0,"bufferizado":false}
+04:01:08 casa 2 recebeu DIA_CRITICO
+04:01:08 casa 3 recebeu DIA_CRITICO
+04:01:08 casa 19 {"seq":3,"ts":"2026-11-17T04:01:08Z","tipo":"MOVIMENTO","tempC":27.2,"tensaoV":127.0,"bufferizado":false}
+04:01:08 casa 22 {"seq":3,"ts":"2026-11-17T04:01:08Z","tipo":"MOVIMENTO","tempC":28.1,"tensaoV":127.0,"bufferizado":false}
+04:01:09 casa 4 recebeu DIA_CRITICO
+04:01:09 casa 5 recebeu DIA_CRITICO
+04:01:09 casa 6 recebeu DIA_CRITICO
+04:01:09 casa 7 recebeu DIA_CRITICO
+04:01:09 casa 8 recebeu DIA_CRITICO
+04:01:09 casa 9 recebeu DIA_CRITICO
+04:01:09 casa 10 recebeu DIA_CRITICO
+04:01:09 casa 11 recebeu DIA_CRITICO
+04:01:09 casa 12 recebeu DIA_CRITICO
+04:01:09 casa 13 recebeu DIA_CRITICO
+04:01:09 casa 14 recebeu DIA_CRITICO
+04:01:09 casa 15 recebeu DIA_CRITICO
+04:01:09 casa 16 recebeu DIA_CRITICO
+04:01:09 casa 17 recebeu DIA_CRITICO
+04:01:10 casa 18 recebeu DIA_CRITICO
+04:01:10 casa 19 recebeu DIA_CRITICO
+04:01:10 casa 20 recebeu DIA_CRITICO
+04:01:10 casa 21 recebeu DIA_CRITICO
+04:01:10 casa 22 recebeu DIA_CRITICO
+04:01:10 casa 23 recebeu DIA_CRITICO
+04:01:10 casa 24 recebeu DIA_CRITICO
+04:01:10 casa 25 recebeu DIA_CRITICO
+04:01:10 casa 26 recebeu DIA_CRITICO
+04:01:10 casa 27 recebeu DIA_CRITICO
+04:01:10 casa 28 recebeu DIA_CRITICO
+04:01:10 casa 29 recebeu DIA_CRITICO
+04:01:10 casa 30 recebeu DIA_CRITICO
+04:01:10 casa 31 recebeu DIA_CRITICO
+04:01:10 casa 32 recebeu DIA_CRITICO
+04:01:10 casa 25 {"seq":3,"ts":"2026-11-17T04:01:10Z","tipo":"MOVIMENTO","tempC":30.3,"tensaoV":127.0,"bufferizado":false}
+04:01:11 casa 33 recebeu DIA_CRITICO
+04:01:11 casa 34 recebeu DIA_CRITICO
+04:01:11 casa 35 recebeu DIA_CRITICO
+04:01:11 casa 36 recebeu DIA_CRITICO
+04:01:11 casa 37 recebeu DIA_CRITICO
+04:01:11 casa 38 recebeu DIA_CRITICO
+04:01:11 casa 39 recebeu DIA_CRITICO
+04:01:11 casa 40 recebeu DIA_CRITICO
+04:01:11 casa 9 recebeu PEDIR_TOQUE
+04:01:17 casa 32 {"seq":3,"ts":"2026-11-17T04:01:17Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.0,"bufferizado":false}
+04:01:21 casa 8 {"seq":3,"ts":"2026-11-17T04:01:21Z","tipo":"MOVIMENTO","tempC":34.5,"tensaoV":127.0,"bufferizado":false}
+04:01:21 casa 29 {"seq":3,"ts":"2026-11-17T04:01:21Z","tipo":"MOVIMENTO","tempC":26.0,"tensaoV":127.0,"bufferizado":false}
+04:01:23 casa 3 {"seq":3,"ts":"2026-11-17T04:01:23Z","tipo":"MOVIMENTO","tempC":26.9,"tensaoV":127.0,"bufferizado":false}
+04:01:25 casa 11 {"seq":3,"ts":"2026-11-17T04:01:25Z","tipo":"MOVIMENTO","tempC":28.0,"tensaoV":127.0,"bufferizado":false}
+04:01:26 casa 17 {"seq":3,"ts":"2026-11-17T04:01:26Z","tipo":"MOVIMENTO","tempC":26.7,"tensaoV":127.0,"bufferizado":false}
+04:01:27 casa 13 {"seq":4,"ts":"2026-11-17T04:01:27Z","tipo":"MOVIMENTO","tempC":28.3,"tensaoV":127.0,"bufferizado":false}
+04:01:30 casa 12 {"seq":4,"ts":"2026-11-17T04:01:30Z","tipo":"MOVIMENTO","tempC":27.7,"tensaoV":127.0,"bufferizado":false}
+04:01:30 casa 24 {"seq":4,"ts":"2026-11-17T04:01:30Z","tipo":"MOVIMENTO","tempC":26.0,"tensaoV":127.0,"bufferizado":false}
+04:01:30 casa 38 {"seq":4,"ts":"2026-11-17T04:01:30Z","tipo":"MOVIMENTO","tempC":27.8,"tensaoV":127.0,"bufferizado":false}
+04:01:31 casa 20 {"seq":4,"ts":"2026-11-17T04:01:31Z","tipo":"MOVIMENTO","tempC":29.2,"tensaoV":127.0,"bufferizado":false}
+04:01:31 casa 33 {"seq":4,"ts":"2026-11-17T04:01:31Z","tipo":"MOVIMENTO","tempC":27.7,"tensaoV":127.0,"bufferizado":false}
+04:01:32 casa 9 {"seq":5,"ts":"2026-11-17T04:01:32Z","tipo":"BOTAO_BEM","tempC":27.2,"tensaoV":127.0,"bufferizado":false}
+04:01:32 casa 34 {"seq":4,"ts":"2026-11-17T04:01:32Z","tipo":"MOVIMENTO","tempC":28.2,"tensaoV":127.0,"bufferizado":false}
+04:01:36 casa 31 {"seq":4,"ts":"2026-11-17T04:01:36Z","tipo":"MOVIMENTO","tempC":26.5,"tensaoV":127.0,"bufferizado":false}
+04:01:46 casa 36 {"seq":4,"ts":"2026-11-17T04:01:46Z","tipo":"MOVIMENTO","tempC":26.8,"tensaoV":127.0,"bufferizado":false}
+04:01:49 casa 14 {"seq":5,"ts":"2026-11-17T04:01:49Z","tipo":"MOVIMENTO","tempC":28.8,"tensaoV":127.0,"bufferizado":false}
+04:01:51 casa 27 {"seq":5,"ts":"2026-11-17T04:01:51Z","tipo":"MOVIMENTO","tempC":25.8,"tensaoV":127.0,"bufferizado":false}
+04:01:53 casa 30 {"seq":5,"ts":"2026-11-17T04:01:53Z","tipo":"MOVIMENTO","tempC":30.4,"tensaoV":127.0,"bufferizado":false}
+04:01:55 casa 16 {"seq":5,"ts":"2026-11-17T04:01:55Z","tipo":"MOVIMENTO","tempC":27.5,"tensaoV":127.0,"bufferizado":false}

@@ -1,0 +1,5 @@
+237 eventos de 39 casas, 0 comandos
+por tipo: MOVIMENTO 43, TELEMETRIA 41, HEARTBEAT 153
+bufferizado: true em 0, chaves distintas 237
+  casa 2 queda: 0.0 V às 03:58:12, 127.0 V às 03:58:42
+PASSOU: todas as mensagens seguem o contrato

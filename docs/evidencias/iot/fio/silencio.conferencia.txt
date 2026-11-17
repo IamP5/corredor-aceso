@@ -1,0 +1,5 @@
+204 eventos de 39 casas, 0 comandos
+por tipo: MOVIMENTO 34, TELEMETRIA 39, HEARTBEAT 131
+bufferizado: true em 0, chaves distintas 204
+  casa 5 silenciosa: 2 heartbeats e 0 sinais de vida depois de 03:55:35
+PASSOU: todas as mensagens seguem o contrato

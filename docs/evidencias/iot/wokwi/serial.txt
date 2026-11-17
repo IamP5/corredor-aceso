@@ -1,0 +1,21 @@
+Corredor Aceso: nó da casa fa11fa... publica em gs26-evid-78bbd350/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento
+[wifi] conectando
+[mqtt] conectado em broker.hivemq.com, 0 evento(s) no buffer
+[mqtt] {"seq":1,"ts":"2026-11-17T03:49:36Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[mqtt] {"seq":3,"ts":"2026-11-17T03:50:03Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[mqtt] {"seq":6,"ts":"2026-11-17T03:50:31Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[comando] DIA_CRITICO: LED âmbar aceso
+[comando] PEDIR_TOQUE: buzzer até alguém apertar o botão
+[wifi] chave desligada: Wi-Fi cortado. Eventos vão para o buffer.
+[evento] seq=9 MOVIMENTO sem rede: guardado (1 no buffer)
+[evento] seq=10 BOTAO_BEM sem rede: guardado (2 no buffer)
+[wifi] chave ligada: reconectando
+[wifi] conectando
+[mqtt] conectado em broker.hivemq.com, 2 evento(s) no buffer
+[mqtt] {"seq":9,"ts":"2026-11-17T03:51:18Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.1,"bufferizado":true}
+[mqtt] {"seq":10,"ts":"2026-11-17T03:51:23Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":127.1,"bufferizado":true}
+[buffer] 2 evento(s) reenviados com a hora original
+[energia] tensão cruzou 100 V: 0.0 V
+[mqtt] {"seq":13,"ts":"2026-11-17T03:52:11Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":0.0,"bufferizado":false}
+[energia] tensão cruzou 100 V: 250.0 V
+[mqtt] {"seq":14,"ts":"2026-11-17T03:52:14Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":250.0,"bufferizado":false}
