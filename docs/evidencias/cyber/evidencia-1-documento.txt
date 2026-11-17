@@ -1,0 +1,24 @@
+# Evidência 1: CPF do professor mascarado antes do log e do banco
+
+## Requisição
+
+$ curl -X POST /api/guarda/demo/documento -d '{"documento": "123.456.789-00"}' (com token da ACS)
+{"documentoRecebido":"***.456.***-00"}
+HTTP 200
+
+## Log da API depois da requisição
+
+04:03:57 info: Corredor.Guarda.Rotas.InterceptadorDeEntrada[0]
+      PII mascarada na entrada: campo=documento tipo=Cpf valor=***.456.***-00 severidade=4 rota=/api/guarda/demo/documento
+
+## guarda.evento_de_seguranca
+
+         ocorrido_em          |         tipo          | tipos_de_dado | canal | modulo |            rota            | severidade | mensagem_origem |                                                           mensagem_texto                                                            
+------------------------------+-----------------------+---------------+-------+--------+----------------------------+------------+-----------------+-------------------------------------------------------------------------------------------------------------------------------------
+ 2026-11-17 04:03:57.82577+00 | MascaramentoNaEntrada | {Cpf}         | Banco | Guarda | /api/guarda/demo/documento |          4 | Llm             | O sistema escondeu o número do documento antes de guardá-lo. Assim, outras pessoas não conseguem vê-lo, protegendo sua privacidade.
+(1 row)
+
+
+## Painel
+
+{"cor":"Amarelo","pontos24h":4,"canais":[{"canal":"Banco","eventos":1,"bloqueios":0,"pontos":4}],"eventos":[{"ocorridoEm":"2026-11-17T01:03:57.82577-03:00","tipo":"MascaramentoNaEntrada","canal":"Banco","modulo":"Guarda","tiposDeDado":["Cpf"],"severidade":4,"mensagemAoCidadao":"O sistema escondeu o número do documento antes de guardá-lo. Assim, outras pessoas não conseguem vê-lo, protegendo sua privacidade.","origemDaMensagem":"Llm"}]}

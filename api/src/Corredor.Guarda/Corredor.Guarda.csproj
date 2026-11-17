@@ -10,5 +10,11 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Corredor.Guarda.Testes" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- As regras de PII, o SQL dos gatilhos e a página do painel vão dentro do assembly. -->
+    <EmbeddedResource Include="Regras/pii.json" LogicalName="pii.json" />
+    <EmbeddedResource Include="Infra/ddl/guarda_gatilhos.sql" LogicalName="guarda_gatilhos.sql" />
+    <EmbeddedResource Include="painel/index.html" LogicalName="painel.html" />
+  </ItemGroup>
   <!-- A Guarda não referencia nenhum projeto da solução. -->
 </Project>
