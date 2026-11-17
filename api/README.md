@@ -4,11 +4,39 @@ Monólito modular em .NET 10. Um processo, um `Program.cs`, três módulos: Moto
 
 Rode todos os comandos a partir da raiz do repositório.
 
+## O que SOA e C# avaliam e onde está
+
+As duas disciplinas recebem este mesmo código. SOA olha principalmente o módulo Cadastro, e C# olha o Motor, os Contratos e o host.
+
+### SOA e Web Services
+
+| Critério | Pontos | Onde |
+|---|---|---|
+| Estruturação do domínio | 3,0 | `src/Corredor.Cadastro/Dominio/`: `Idoso`, com consentimento revogável, vizinho de confiança e perfil da casa; `Visita`; `AvisoAoVizinho`; `MensagemSaida`. Uma regra violada vira `RegraDeDominioViolada`, que o host devolve como 422 ou 409. |
+| Conexão com banco de dados | 3,0 | Postgres. `src/Corredor.Cadastro/Infra/CadastroDbContext.cs`, no schema `cadastro`, conectado com o papel `corredor_cadastro`, que não enxerga os outros schemas. |
+| Migrações | 1,5 | `src/Corredor.Cadastro/Infra/Migrations/`: `Esqueleto`, `Inicial` e `Gatilhos`. O `bash tools/demo.sh subir` aplica as migrações duas vezes, sem erro. |
+| Documentação dos endpoints | 1,5 | Swagger em `/swagger` e OpenAPI em `/openapi/v1.json`. Prints em [docs/evidencias/api/](../docs/evidencias/api/README.md). |
+| Testes automatizados | 1,0 | `tests/Corredor.Cadastro.Testes`, com Postgres real pelo Testcontainers. |
+
+### C# Software Development
+
+| Critério | Pontos | Onde |
+|---|---|---|
+| Programação orientada a objetos | 3,0 | `src/Corredor.Motor/Dominio/Regras.cs`: a classe abstrata `RegraDeContato` e as quatro regras que herdam dela (`EnergiaEletrodependente`, `SemHeartbeat`, `CalorInterno` e `SemMovimentoNaJanela`). O `AvaliadorDeCasas.cs` aplica as regras em ordem. Os agregados `CasaMonitorada` e `DiaCritico` guardam o próprio estado. |
+| Interfaces e injeção de dependência | parte da POO | `src/Corredor.Contratos/Portas.cs`: `IMotorDeCasas` e `IReceptorDeContato` ligam Motor e Cadastro sem que um referencie o outro. Cada módulo registra os próprios serviços em `MotorModulo.cs`, `CadastroModulo.cs` e `GuardaModulo.cs`. |
+| Web API | 2,5 | Minimal APIs em `src/*/Rotas/`, agrupadas por módulo, com 201, 204, 401, 403, 404, 409 e 422. O host fica em `src/Corredor.Api/Program.cs`. |
+| Entity Framework Core e LINQ | 1,5 | `src/Corredor.Motor/Infra/MotorDbContext.cs`. As consultas do radar ficam em `src/Corredor.Motor/Aplicacao/Consultas.cs`, inclusive a ordem das casas pendentes: vermelho antes de cinza, depois a ordem da regra, depois o alerta mais antigo. |
+| Programação assíncrona | 1,0 | O consumidor MQTT em `src/Corredor.Motor/Infra/Mqtt.cs`, os serviços periódicos em `ServicosPeriodicos.cs` e os casos de uso, todos com `async` e `await`. |
+| Qualidade do código | 2,0 | `Directory.Build.props` (nullable e aviso como erro), `.editorconfig`, o teste `tests/Corredor.Api.Testes/ReferenciasEntreProjetosTestes.cs`, que impede referência proibida entre projetos, e o CI em `.github/workflows/ci.yml`. |
+| Testes unitários | parte da qualidade | Um projeto xUnit por módulo em `tests/`. `dotnet test api/Corredor.slnx` roda todos. |
+
+Evidências das duas disciplinas: os prints do Swagger em [docs/evidencias/api/](../docs/evidencias/api/README.md) e o [relatório da integração](../docs/evidencias/integracao/RELATORIO.md), com a API rodando junto com o app, o simulador e o job de ML.
+
 ## Projetos
 
 | Projeto | Papel | Pode referenciar |
 |---|---|---|
-| `src/Corredor.Contratos` | Tipos e interfaces que Motor e Cadastro dividem. Congelado. | nada |
+| `src/Corredor.Contratos` | Tipos e interfaces que Motor e Cadastro dividem. | nada |
 | `src/Corredor.Motor` | Módulo Motor. `MotorDbContext`, schema `motor`. | `Corredor.Contratos` |
 | `src/Corredor.Cadastro` | Módulo Cadastro. `CadastroDbContext`, schema `cadastro`. | `Corredor.Contratos`, `Corredor.Guarda` |
 | `src/Corredor.Guarda` | Módulo Guarda. `GuardaDbContext`, schema `guarda`. | nada |
@@ -18,43 +46,44 @@ Rode todos os comandos a partir da raiz do repositório.
 
 O teste `ReferenciasEntreProjetosTestes` falha se um `.csproj` de `src/` referencia um projeto fora da coluna "Pode referenciar". Ele também falha se um projeto novo aparece em `src/` sem linha na tabela do teste.
 
-`Directory.Build.props` fixa `net10.0`, `Nullable`, `ImplicitUsings` e aviso como erro. `Directory.Packages.props` guarda a versão de todo pacote. Um `.csproj` cita o pacote sem versão. Os pacotes que os módulos vão usar já estão lá: `MQTTnet` para o Motor e `Testcontainers.PostgreSql` para os testes dos módulos. A Guarda chama o LLM com o `HttpClient` e lê o `pii.json` com o `System.Text.Json`, que vêm com o .NET. Se um módulo precisar de outro pacote, a sessão do módulo avisa o orquestrador. Ela não usa `VersionOverride` nem edita `Directory.Packages.props`.
+`Directory.Build.props` fixa `net10.0`, `Nullable`, `ImplicitUsings` e aviso como erro. `Directory.Packages.props` guarda a versão de todo pacote. Um `.csproj` cita o pacote sem versão. O Motor usa o `MQTTnet`, e os testes de banco usam o `Testcontainers.PostgreSql`. A Guarda chama o LLM com o `HttpClient` e lê o `pii.json` com o `System.Text.Json`, que vêm com o .NET.
 
 ## Rodar no notebook
 
-Você precisa do SDK do .NET 10 e do Docker.
+Você precisa do SDK do .NET 10, do Docker com o Docker Compose e do Python 3.11 ou mais novo, para o simulador.
 
-1. Suba o Postgres e o Mosquitto:
+A API nunca cria as tabelas. Quem aplica as migrações é o deploy, e no notebook é o `tools/demo.sh`, que faz o mesmo caminho. Por isso, suba a API por ele.
 
-	```bash
-	npm run dev:deps
-	```
+1. Para usar o LLM da Guarda, copie `.env.example` para `.env` na raiz e preencha `OPENROUTER_API_KEY`. O `.env` nunca entra no Git. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação do LLM.
 
-2. Para usar o LLM da Guarda, copie `.env.example` para `.env` na raiz e preencha `OPENROUTER_API_KEY`. O `.env` nunca entra no Git.
-
-3. Suba a API em `http://localhost:5000`, no ambiente `Development`:
+2. Suba o banco, as migrações, a carga das 40 casas e a API:
 
 	```bash
-	npm run dev:api
+	bash tools/demo.sh subir
 	```
 
-4. Confira:
+	O script sobe o Postgres e o Mosquitto do `compose.dev.yml`, recria o banco `corredor_demo` do zero, cria um papel por módulo, aplica as migrações duas vezes, roda a carga da demo duas vezes e sobe a API em segundo plano, em `Development`. Termina com `API pronta em http://localhost:5080`. O log fica em `.demo/api.log`.
+
+	A porta é 5080 porque, no macOS, o receptor do AirPlay ocupa a 5000 e responde 403 no lugar da API.
+
+3. Confira:
 
 	```bash
-	curl http://localhost:5000/healthz/ready
-	curl http://localhost:5000/api/versao
+	curl http://localhost:5080/healthz/ready
+	curl http://localhost:5080/api/versao
 	```
 
-	O Swagger fica em `http://localhost:5000/swagger`. Os prints da visão geral e de uma rota do Cadastro e do Motor estão em [docs/evidencias/api/](../docs/evidencias/api/README.md).
+	O primeiro responde `Healthy`. O Swagger fica em `http://localhost:5080/swagger`. Os prints da visão geral e de uma rota do Cadastro e do Motor estão em [docs/evidencias/api/](../docs/evidencias/api/README.md).
 
-	No macOS, o receptor do AirPlay ocupa a porta 5000 e responde 403 no lugar da API. Use outra porta:
-	`dotnet run --project api/src/Corredor.Api --urls http://localhost:5080`.
+4. Para ver o radar mudar, ligue o simulador das casas e abra o dia crítico. Os comandos e o que se vê em cada um estão em "Ver funcionando em 5 minutos", no [README da raiz](../README.md#ver-funcionando-em-5-minutos).
 
-5. Pare os contêineres quando terminar:
+5. Pare a API e o simulador quando terminar. Com `--tudo`, para também os contêineres:
 
 	```bash
-	docker compose -f compose.dev.yml down
+	bash tools/demo.sh parar --tudo
 	```
+
+`npm run dev:api` roda a API em `http://localhost:5000` contra o banco `corredor` do `compose.dev.yml`. Ele serve para quem já aplicou as migrações nesse banco. Para avaliar, use o `tools/demo.sh`.
 
 ## Rotas do host
 
@@ -82,7 +111,7 @@ O modelo de domínio não define a autenticação. O modelo de dados só exige u
 O cliente manda o token no cabeçalho `Authorization`:
 
 ```bash
-curl -H "Authorization: Bearer dev-acs-demo-01-so-no-notebook" "http://localhost:5000/api/radar?microarea=3"
+curl -H "Authorization: Bearer dev-acs-demo-01-so-no-notebook" "http://localhost:5080/api/radar?microarea=3"
 ```
 
 No Swagger, clique em **Authorize** e cole o token, sem a palavra `Bearer`.
@@ -164,7 +193,7 @@ Sem `CORREDOR_BD_TESTE`, o `check:api` compila e testa sem aplicar as migraçõe
 
 ## Criar uma migração
 
-Só a pessoa dona do módulo cria migração no contexto dele. Toda migração é aditiva até 20/11. O `check:migracoes` recusa `DropTable`, `DropColumn`, `RenameTable` e `RenameColumn` no `Up()`.
+Toda migração é aditiva, para o deploy poder voltar à versão anterior sem mexer no banco. O `check:migracoes` recusa `DropTable`, `DropColumn`, `RenameTable` e `RenameColumn` no `Up()`.
 
 1. Mude o modelo no `DbContext` do módulo.
 2. Gere a migração. Troque `Motor` pelo módulo:
@@ -194,7 +223,7 @@ Cada contexto já tem a migração vazia `Esqueleto`. Ela só cria a tabela `<sc
 
 ## Tipos públicos da Guarda
 
-O Cadastro referencia a Guarda e grava `TextoRotulado`. Estes tipos ficam em `src/Corredor.Guarda/` e estão congelados como `Corredor.Contratos`. A sessão da Guarda troca as implementações registradas, sem mudar as assinaturas.
+O Cadastro referencia a Guarda e grava `TextoRotulado`. Estes tipos ficam em `src/Corredor.Guarda/` e são a parte da Guarda que os outros módulos enxergam.
 
 | Arquivo | Tipos |
 |---|---|
@@ -209,7 +238,7 @@ O `AddGuarda` registra a `SaidaSegura`, que aplica a `PoliticaDeCanal` da seçã
 
 ## O que cada módulo implementa
 
-Cada módulo começa vazio, com a pasta `Infra/` e o `DbContext`. A sessão do módulo preenche `Dominio/`, `Aplicacao/`, `Infra/` e `Rotas/`, e liga tudo pelos métodos abaixo. O `Program.cs` já chama cada um, então nenhuma sessão edita o host.
+Cada módulo tem as pastas `Dominio/`, `Aplicacao/`, `Infra/` e `Rotas/` e se liga ao host pelos métodos abaixo. O `Program.cs` chama cada um, e o host não tem regra de módulo.
 
 | Módulo | Arquivo | Métodos |
 |---|---|---|

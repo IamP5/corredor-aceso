@@ -9,6 +9,17 @@ Os dois falam o mesmo contrato MQTT, da seção 6.2 de
 [03-modelo-de-dominio.md](../docs/arquitetura/03-modelo-de-dominio.md). O pacote leva só o token da casa.
 Nenhum nome, endereço ou telefone sai do nó.
 
+## O que Physical Computing avalia e onde está
+
+| Item | Onde |
+|---|---|
+| Circuito ESP32 com sensores | `no/diagram.json` e `no/no.ino`: sensor de presença, DHT22, potenciômetro no papel do sensor de tensão, botão, dois LEDs e buzzer. Ver "Peças e por que cada uma existe". |
+| Integrado à solução | O nó fala o contrato MQTT que o Motor da API consome, e cada movimento é o sinal de vida da casa no radar da ACS. O simulador, com o mesmo contrato, falou com o Motor real na demo integrada. Ver "O que já rodou no Wokwi" e o [relatório da integração](../docs/evidencias/integracao/RELATORIO.md). |
+| Evidências | [docs/evidencias/iot/](../docs/evidencias/iot/README.md): o monitor serial, a captura do broker e os prints da rodada no wokwi.com. |
+| Link do projeto no Wokwi | Ver "Publicar o projeto no wokwi.com". |
+| Vídeo de até 4 minutos | Ver "Roteiro do vídeo de Physical Computing". |
+| Nomes dos integrantes | `integrantes.txt`, na raiz do repositório. |
+
 ## O nó do corredor
 
 A idosa mora sozinha. Um aparelho pequeno fica no corredor entre o quarto e o banheiro. Quando ela passa,
