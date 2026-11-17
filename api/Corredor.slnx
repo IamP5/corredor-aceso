@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Corredor.Api/Corredor.Api.csproj" />
+    <Project Path="src/Corredor.Cadastro/Corredor.Cadastro.csproj" />
+    <Project Path="src/Corredor.Contratos/Corredor.Contratos.csproj" />
+    <Project Path="src/Corredor.Guarda/Corredor.Guarda.csproj" />
+    <Project Path="src/Corredor.Motor/Corredor.Motor.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Corredor.Api.Testes/Corredor.Api.Testes.csproj" />
+    <Project Path="tests/Corredor.Cadastro.Testes/Corredor.Cadastro.Testes.csproj" />
+    <Project Path="tests/Corredor.Guarda.Testes/Corredor.Guarda.Testes.csproj" />
+    <Project Path="tests/Corredor.Motor.Testes/Corredor.Motor.Testes.csproj" />
+  </Folder>
+</Solution>

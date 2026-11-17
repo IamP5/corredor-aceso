@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../Corredor.Contratos/Corredor.Contratos.csproj" />
+    <ProjectReference Include="../Corredor.Motor/Corredor.Motor.csproj" />
+    <ProjectReference Include="../Corredor.Cadastro/Corredor.Cadastro.csproj" />
+    <ProjectReference Include="../Corredor.Guarda/Corredor.Guarda.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+    <!-- O dotnet ef usa este projeto como startup para gerar os scripts de migração. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Corredor.Api.Testes" />
+  </ItemGroup>
+</Project>

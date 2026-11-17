@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Núcleo compartilhado entre Motor e Cadastro. Não referencia projeto nem pacote. -->
+</Project>

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Corredor.Api": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "applicationUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Logging__Console__FormatterName": "simple",
+        "Logging__Console__FormatterOptions__TimestampFormat": "HH:mm:ss "
+      }
+    }
+  }
+}
