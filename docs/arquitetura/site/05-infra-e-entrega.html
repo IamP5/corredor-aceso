@@ -455,6 +455,7 @@ HTTPS dos vídeos: sudo corredor tunel -&gt; https://&lt;aleatorio&gt;.trycloudf
 sudo corredor deploy vX.Y.Z | --ultima    implanta uma release
 sudo corredor deploy --arquivo PACOTE     implanta um pacote feito no notebook
 sudo corredor voltar                      rollback manual
+sudo corredor semear                      carrega a demo e ativa a casa do teste de falha (só Development)
 sudo corredor reiniciar api
 sudo corredor logs api|monitor|alertas|deploy|auditoria
 sudo corredor infra [ref]                 atualiza infra/ para uma ref do Git e provisiona de novo
@@ -657,7 +658,7 @@ sudo corredor tunel [parar]               liga ou desliga a URL HTTPS temporári
 <li>Rode <code>multipass shell corredor-ubs</code>.</li>
 <li>Rode <code>sudo git clone --depth 1 https://github.com/&lt;org&gt;/corredor-aceso.git /opt/corredor/repo</code>.</li>
 <li>Rode <code>sudo bash /opt/corredor/repo/infra/provisionar.sh</code>. O fim mostra <code>== tudo certo ==</code>, com a API em <code>[PENDENTE]</code> antes da primeira release.</li>
-<li>Depois da primeira release, rode <code>sudo corredor deploy v0.1.0</code>.</li>
+<li>Depois da primeira release, rode <code>sudo corredor deploy v0.1.0</code> e <code>sudo corredor semear</code>, que ativa a casa do teste de falha.</li>
 <li>Rode <code>sudoedit /etc/corredor/segredos.env</code>, preencha <code>Llm__ApiKey=</code> e rode <code>sudo corredor reiniciar api</code>.</li>
 </ol>
 <p>VM do Azure, pelo dono da infra, só em 17/11 e dentro do prazo de duas horas:</p>
@@ -748,7 +749,7 @@ sudo corredor deploy &lt;tag anterior&gt;
 <ol>
 <li><code>multipass launch 24.04 --name corredor-ubs --cpus 2 --memory 4G --disk 20G</code>, depois <code>multipass shell corredor-ubs</code>. Mostre <code>hostname</code> e <code>systemctl status nginx</code>, que ainda não existe.</li>
 <li><code>sudo git clone --depth 1 https://github.com/&lt;org&gt;/corredor-aceso.git /opt/corredor/repo &amp;&amp; sudo bash /opt/corredor/repo/infra/provisionar.sh</code>. Pare a câmera em <code>01-rede</code> e em <code>02-app</code>.</li>
-<li><code>sudo corredor deploy v1.0.0-rc.1</code>, depois <code>sudo corredor status</code>.</li>
+<li><code>sudo corredor deploy v1.0.0-rc.1</code>, <code>sudo corredor semear</code> e <code>sudo corredor status</code>.</li>
 <li><code>curl http://api.corredor.internal/api/versao</code>, <code>ip addr show corredor0</code> e <code>getent hosts api.corredor.internal</code>.</li>
 <li>No navegador do notebook, <code>http://&lt;IP da VM&gt;/painel/</code>.</li>
 <li><code>sudo bash /opt/corredor/repo/infra/provisionar.sh</code> de novo. O fim mostra <code>0 mudança(s)</code> em cada etapa e as linhas <code>corredor-api: não reiniciou</code> e <code>corredor-monitor: não reiniciou</code>, com o mesmo <code>InvocationID</code> antes e depois.</li>

@@ -21,7 +21,7 @@
 <p>O Corredor Aceso é uma luz de corredor que protege a idosa do tropeço à noite. Em dia crítico de calor ou de apagão, a agente comunitária de saúde (ACS) abre o celular e vê só as casas que ficaram em silêncio, não as 40 da microárea.</p>
 <p>O produto funciona em cinco passos:</p>
 <ol>
-<li>Às 05h, um modelo treinado com dados públicos do INMET e do SIH/DATASUS decide se hoje é dia crítico para pessoas de 60 anos ou mais. Se for, ele abre o turno do radar.</li>
+<li>Às 05h, um job decide se hoje é dia crítico para pessoas de 60 anos ou mais. Quem decide é a regra da noite quente, com o clima do INMET. Um XGBoost treinado com INMET e SIH/DATASUS empatou com essa regra no teste, e por isso o job usa a regra (<code>origem: REGRA_BASE</code>). Se for dia crítico, o job abre o turno do radar.</li>
 <li>Na casa, um nó ESP32 acende a luz quando a idosa passa no corredor. O mesmo movimento conta como sinal de vida. O nó também mede temperatura e tensão, tem um botão e guarda os eventos quando a rede cai.</li>
 <li>No dia crítico, o app da ACS mostra o radar. Cada casa está em uma de quatro situações: <code>Verde</code>, <code>Aguardando</code>, <code>Vermelho</code> ou <code>Cinza</code>. A casa verde não aparece como card. Ela só entra na contagem.</li>
 <li>Quando uma casa tem alerta pendente, o vizinho de confiança que a idosa escolheu recebe um aviso neutro, sem nome e sem motivo de saúde.</li>
@@ -309,9 +309,9 @@
 <li><code>ml/corredor_aceso.ipynb</code> executado, com validação cruzada só no treino e métricas de treino e de teste lado a lado.</li>
 <li><code>ml/dados/README.md</code>, com fonte, link e período do INMET e do SIH.</li>
 <li><code>ml/requirements.txt</code> e <code>ml/RELATORIO_ML.md</code>, de 2 a 4 páginas.</li>
-<li><code>ml/prever_hoje.py</code>, que carrega o modelo salvo e chama <code>PUT /api/dias-criticos/{data}</code>. Na VM, o <code>corredor-ml.timer</code> roda o script às 05h.</li>
+<li><code>ml/prever_hoje.py</code>, que lê <code>ml/modelo/metadados.json</code>, aplica a regra ou o modelo salvo conforme a <code>origem</code> e chama <code>PUT /api/dias-criticos/{data}</code>. Na VM, o <code>corredor-ml.timer</code> roda o script às 05h.</li>
 </ul>
-<p>O <code>DiaCritico</code> só aceita a data de hoje. Na demo, o script usa as variáveis de uma data histórica e envia a data de hoje. Se o modelo empatar com a regra da noite quente, o relatório diz isso e o job envia <code>origem: REGRA_BASE</code>.</p>
+<p>O <code>DiaCritico</code> só aceita a data de hoje. Na demo, o script usa as variáveis de uma data histórica e envia a data de hoje. O modelo empatou com a regra da noite quente: o <a href="../../../ml/RELATORIO_ML.md">relatório de ML</a> diz isso, e o job envia <code>origem: REGRA_BASE</code>.</p>
 <h2 id="arquivos-da-guarda">Arquivos da Guarda <a class="ancora" href="#arquivos-da-guarda" aria-label="Link para esta seção">#</a></h2>
 <p>A equipe escreve a Guarda do zero, em C#, dentro da mesma solução. O desenho segue os três pontos do professor de Cybersecurity: achar o dado pessoal no que entra, impedir que o dado marcado saia por canal inseguro e traduzir cada bloqueio para o cidadão. Os nomes de domínio e as invariantes estão na seção 4.4 do <a href="03-modelo-de-dominio.html#44-guarda">modelo de domínio</a>.</p>
 <div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
@@ -441,7 +441,7 @@
 <p>A primeira versão deste documento foi escrita antes do event storming. Os documentos 02 a 05 mudaram estes pontos:</p>
 <ul>
 <li>A plataforma é .NET 10, não .NET 8.</li>
-<li>São seis projetos em <code>api/</code>. <code>Corredor.Contratos</code> entrou para guardar os tipos e as interfaces que Motor e Cadastro dividem.</li>
+<li>São cinco projetos em <code>api/src/</code> e quatro de teste. <code>Corredor.Contratos</code> entrou para guardar os tipos e as interfaces que Motor e Cadastro dividem.</li>
 <li>São quatro situações, com <code>Aguardando</code>. O radar devolve pendentes, atendidas, aguardando e a contagem de verdes.</li>
 <li>São três schemas, com <code>guarda</code>.</li>
 <li>A chave única do evento é <code>(casaToken, seq, ts)</code>.</li>
@@ -452,54 +452,55 @@
 </ul>
 <p>A tabela da seção 9 do <a href="03-modelo-de-dominio.html#9-mudan%C3%A7as-em-rela%C3%A7%C3%A3o-a-docsarquiteturamd">modelo de domínio</a> e a da seção 10 do <a href="05-infra-e-entrega.html#10-mudan%C3%A7as-em-rela%C3%A7%C3%A3o-%C3%A0-arquitetura-e-ao-modelo-de-dom%C3%ADnio">documento de infra</a> dão o motivo de cada mudança. Nas duas tabelas, &quot;a arquitetura&quot; e <code>arquitetura.md</code> querem dizer a primeira versão, que está no histórico do Git.</p>
 <h2 id="onde-os-documentos-ainda-divergem">Onde os documentos ainda divergem <a class="ancora" href="#onde-os-documentos-ainda-divergem" aria-label="Link para esta seção">#</a></h2>
-<p>Estes pontos ainda não batem entre os documentos. Nenhum muda o desenho, mas quem programa precisa saber qual texto vale.</p>
+<p>Em 17/11, com as sete partes juntas na <code>main</code>, cada ponto desta tabela foi conferido contra o código. Os que o código já resolveu saíram da lista e estão no fim da seção.</p>
 <div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
 <thead>
 <tr>
 <th>Ponto</th>
 <th>Um documento diz</th>
-<th>Outro documento diz</th>
+<th>O código faz</th>
 <th>Vale</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Versão do .NET</td>
-<td>A abertura do modelo de domínio cita &quot;monólito modular .NET 8&quot;.</td>
-<td>O documento de infra fixa <code>net10.0</code>.</td>
-<td>.NET 10.</td>
-</tr>
-<tr>
-<td>Número de projetos</td>
-<td>A seção 9 do modelo de domínio diz &quot;seis projetos&quot;.</td>
-<td>As seções 2 e 8.1 do mesmo documento listam cinco projetos em <code>src/</code> e três de teste.</td>
-<td>A lista da seção 2.</td>
-</tr>
-<tr>
-<td>Prazo do esqueleto de <code>api/</code></td>
-<td>O modelo de domínio põe a solução vazia em 16/11, à noite.</td>
-<td>O documento de infra põe o esqueleto no portão de 17/11, às 10h.</td>
-<td>O portão de 17/11, às 10h, que é o mais tardio.</td>
-</tr>
-<tr>
-<td>Pasta das migrações</td>
-<td><code>entregaveis.md</code> aponta <code>api/src/Corredor.Cadastro/Migrations</code>.</td>
-<td>A árvore do documento de infra aponta <code>Infra/Migrations</code> dentro de cada módulo.</td>
-<td>A árvore do documento de infra.</td>
-</tr>
-<tr>
 <td>Nome das tabelas no ensaio</td>
 <td>O ensaio da infra cita <code>motor.&quot;Eventos&quot;</code> e <code>cadastro.&quot;Idosos&quot;</code>, da API mínima do ensaio.</td>
-<td>O modelo de dados define <code>motor.evento_sensor</code> e <code>cadastro.idoso</code>.</td>
-<td>O modelo de dados.</td>
+<td>As migrações criam <code>motor.evento_sensor</code> e <code>cadastro.idoso</code>.</td>
+<td>O modelo de dados. O texto do ensaio fica como registro do que foi medido.</td>
 </tr>
 <tr>
 <td>Conferência de migração aditiva</td>
 <td>O documento de infra usa <code>tools/conferir-migracoes.sh</code>, que lê o <code>Up()</code> em C#.</td>
-<td>O modelo de dados usa <code>conferir_migracao_aditiva.sh</code>, que lê o SQL gerado.</td>
-<td>Os dois podem rodar no CI. A seção 11.4 do modelo de dados explica.</td>
+<td>O CI roda o <code>tools/conferir-migracoes.sh</code>. O <code>conferir_migracao_aditiva.sh</code> do modelo de dados fica em <code>docs/arquitetura/referencia/dados/</code> e não está no CI.</td>
+<td>O de <code>tools/</code>. A seção 11.4 do modelo de dados explica a diferença.</td>
+</tr>
+<tr>
+<td>Autenticação</td>
+<td>O modelo de domínio não define.</td>
+<td>O host lê um token por ACS da configuração e o app manda esse token em <code>Authorization: Bearer</code> (<code>api/README.md</code>, &quot;Autenticação&quot;). <code>PUT /api/dias-criticos/{data}</code> aceita chamada sem token, para o job de ML.</td>
+<td><code>api/README.md</code>.</td>
+</tr>
+<tr>
+<td>Campo <code>diaCritico</code> em <code>GET /radar</code></td>
+<td>A seção 11.3 do modelo de dados deixa em aberto.</td>
+<td>O radar não traz o campo. O app usa só <code>turnoAberto</code>.</td>
+<td>Sem o campo.</td>
+</tr>
+<tr>
+<td>Painel Risco Cidadão</td>
+<td>A seção 6.3 põe a página em <code>/painel</code>, servida pelo Nginx.</td>
+<td>Na VM é assim. No notebook, sem Nginx, a página sai de <code>/api/guarda/demo/painel</code>, que só existe em <code>Development</code>. <code>GET /api/painel</code> traz o campo <code>canais</code>, a mais que o exemplo da seção 6.3.</td>
+<td>Os dois caminhos.</td>
+</tr>
+<tr>
+<td>Casa do teste de falha</td>
+<td>O documento de infra só diz que o seed ativa <code>fa11...</code>.</td>
+<td>A carga ativa essa casa na microárea 999, sem ACS, para ela não aparecer no radar da microárea 3.</td>
+<td>O código.</td>
 </tr>
 </tbody></table>
 </div>
+<p>Resolvidos pelo código: o .NET é o 10 em todos os documentos; são cinco projetos em <code>api/src/</code> e quatro de teste; o esqueleto existe; as migrações ficam em <code>Infra/Migrations</code> de cada módulo, como em <code>entregaveis.md</code>; a semente fica em <code>api/semente/</code>, como no modelo de dados.</p>
 <h2 id="o-que-a-equipe-precisa-confirmar">O que a equipe precisa confirmar <a class="ancora" href="#o-que-a-equipe-precisa-confirmar" aria-label="Link para esta seção">#</a></h2>
 <ul>
 <li>Os professores de SOA e de C# aceitam o mesmo repositório, com um módulo para cada disciplina? O texto do enunciado permite. Uma mensagem aos dois antes de 19/11 tira a dúvida.</li>

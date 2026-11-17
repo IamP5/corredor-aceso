@@ -2,13 +2,27 @@
 
 Escrever um resultado esperado para cada regra obriga a ler cada regra ao pé da letra. Esta lista é o que essa leitura achou. Nos casos de teste, quando dois documentos discordam, vale o [modelo de domínio](../arquitetura/03-modelo-de-dominio.md), que é o mais recente e registra as próprias mudanças na seção 9.
 
-Nada aqui foi corrigido nos documentos de arquitetura: o escopo desta entrega é `docs/qa/` e `docs/entrega/`. Cada linha diz quem precisa decidir.
+Nada aqui foi corrigido nos documentos de arquitetura quando a lista foi escrita: o escopo daquela entrega era `docs/qa/` e `docs/entrega/`. Cada linha diz quem precisa decidir. O `arquitetura.md` citado abaixo era a primeira versão da arquitetura. Ele foi apagado e substituído por [01-visao-geral.md](../arquitetura/01-visao-geral.md).
+
+## Situação em 17/11/2026
+
+| # | Situação | Onde se vê |
+|---|---|---|
+| 1 a 6, 8 e 10 | Resolvidas. O `arquitetura.md` foi apagado, e a [visão geral](../arquitetura/01-visao-geral.md) segue o 03: farol vermelho só com saída bloqueada de severidade 4 ou 5, máscara só em CPF, RG, CNS e credencial, evidência com `condicoes`, quatro regras, três schemas, nomes `.internal`. O `api.corredor.local` sobrou só nos rascunhos da galeria de diagramas. | 01-visao-geral, seções "Arquivos da Guarda" e "Onde cada disciplina pontua" |
+| 7 | Resolvida. Nenhum documento de arquitetura diz mais .NET 8 como plataforma. | 01-visao-geral, decisão 2 |
+| 9 | Resolvida. A visão geral diz que o script usa as variáveis da data histórica e envia a de hoje. | 01-visao-geral, "Modelo de dia crítico" |
+| 11 | Resolvida. O fluxo 3 do 02 mostra 36 `Aguardando` e as 4 `Acamado` em `Vermelho` na abertura. | 02-event-storming, fluxo 3, passos 1 e 4 |
+| 12 | Resolvida no comportamento. O Nginx responde 301 de `/painel` para `/painel/`, então os dois caminhos abrem o painel. | `infra/config/nginx-rotas.conf.modelo` |
+| 13 | Aberta. O `api.env` continua com a senha. O vídeo de OS mostra o arquivo com o `sed` do TC-F29-01. | `infra/02-app.sh` |
+| 14, 15 e 16 | Abertas. São decisões de produto do App, do Cadastro e do Motor, sem efeito nas cenas da demo. | esta lista |
+| 17 a 20 | Tratadas pelo checklist e pelos roteiros. | [checklist.md](../entrega/checklist.md), [roteiros.md](../entrega/roteiros.md) |
+| Seção 4 | Continua valendo: as seções 8 e 9 da ideia vencedora são anteriores ao modelo final. | [01-ideia-vencedora.md](../discovery/01-ideia-vencedora.md) |
 
 ## 1. Documentos de arquitetura que se contradizem
 
 | # | Um documento diz | Outro documento diz | Como os casos tratam | Quem decide |
 |---|---|---|---|---|
-| 1 | [arquitetura.md](../arquitetura.md), Módulo Guarda: qualquer bloqueio de severidade 4 ou 5 dá vermelho; bloqueios até 3 dão amarelo. | 03 §4.4 e mudança 16 da §9: só uma `SaidaBloqueada` de severidade 4 ou 5 dá vermelho; qualquer outro evento dá amarelo, inclusive um mascaramento de CPF de severidade 5. | Seguem o 03. TC-F26-03 e TC-F24-08 provam a diferença. | Guarda. Atualizar arquitetura.md. |
+| 1 | `arquitetura.md`, Módulo Guarda: qualquer bloqueio de severidade 4 ou 5 dá vermelho; bloqueios até 3 dão amarelo. | 03 §4.4 e mudança 16 da §9: só uma `SaidaBloqueada` de severidade 4 ou 5 dá vermelho; qualquer outro evento dá amarelo, inclusive um mascaramento de CPF de severidade 5. | Seguem o 03. TC-F26-03 e TC-F24-08 provam a diferença. | Guarda. Atualizar arquitetura.md. |
 | 2 | arquitetura.md: o interceptador troca por máscara todo campo com PII; o validador de CPF confere os dígitos. | 03 mudança 14 e §9.1 mudanças 10 e 11: só CPF, RG, CNS e credencial são mascarados; o CPF é mascarado pelo formato e o dígito válido só sobe a severidade. | Seguem o 03. | Guarda. |
 | 3 | arquitetura.md, evidência 1 da auditoria: `POST` com o campo `"documento"`. | Nenhuma rota tem esse campo. O caso 38 do 03 usa `condicoes`. | Usam `condicoes`. O esqueleto do PDF de Cyber também. | Guarda. |
 | 4 | arquitetura.md: a lista de nomes do app aceita nome e endereço. | 03 §4.4, `PoliticaDeCanal`: `AppAutenticado` aceita nome, endereço e telefone. | Seguem o 03. | Guarda. |
@@ -46,7 +60,7 @@ Os casos anotam a lacuna em vez de inventar o comportamento.
 | 17 | [entregaveis.md](../entregaveis.md) põe o PDF de Cyber em `docs/evidencias/cyber/`. O esqueleto desta entrega ficou em `docs/entrega/cyber-documentacao.md`. | O esqueleto diz para copiar para `docs/evidencias/cyber/` antes de preencher. |
 | 18 | Nenhum documento dá limite de tempo para o vídeo do dashboard de Cyber. | O roteiro diz que não há limite e mira 3 minutos. |
 | 19 | Mobile e Operating Systems pedem vídeo, mas a entrega é "link do GitHub" e não diz onde vai o link do vídeo. | O checklist põe o link no README da parte e no texto do envio. |
-| 20 | O plano de [01-ideia-vencedora.md](../discovery/01-ideia-vencedora.md), seção 7, grava os vídeos em 18/11. [arquitetura.md](../arquitetura.md), ordem de construção, grava em 19/11 de manhã. | O checklist grava OS, Physical e Mobile em 18/11 e ML, Cyber e pitch em 19/11, pela ordem das dependências. |
+| 20 | O plano de [01-ideia-vencedora.md](../discovery/01-ideia-vencedora.md), seção 7, grava os vídeos em 18/11. `arquitetura.md`, ordem de construção, grava em 19/11 de manhã. | O checklist grava OS, Physical e Mobile em 18/11 e ML, Cyber e pitch em 19/11, pela ordem das dependências. |
 
 ## 4. Discovery desatualizado em relação ao modelo final
 

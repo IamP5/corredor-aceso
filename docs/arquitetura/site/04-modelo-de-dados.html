@@ -78,7 +78,7 @@
 </div>
 <p>O que não rodou:</p>
 <ul>
-<li>O código dos módulos não existe ainda. A API, o <code>Corredor.Api --semear</code> da seção 8.2, o deslocamento de <code>ocorridaEm</code> em <code>POST /visitas</code> e a fila de desfechos em TypeScript não rodaram.</li>
+<li>Quando esta conferência rodou, o código dos módulos não existia. A API, o <code>Corredor.Api --semear</code> da seção 8.2, o deslocamento de <code>ocorridaEm</code> em <code>POST /visitas</code> e a fila de desfechos em TypeScript não rodaram aqui. Eles foram escritos depois e rodaram juntos na demo integrada: veja o <a href="../../evidencias/integracao/RELATORIO.md">relatório da integração</a>.</li>
 <li>O modo de CI de <code>conferir_migracao_aditiva.sh</code>, que compara com a <code>main</code> por <code>git diff</code>, não rodou. Rodou só o modo <code>--sql</code>.</li>
 <li>O SQL do app rodou no <code>sqlite3</code> 3.51, não no <code>expo-sqlite</code>.</li>
 <li>Os diagramas Mermaid da seção 9 não foram renderizados.</li>
@@ -1792,7 +1792,7 @@ public static IQueryable&lt;DiaCritico&gt; DiaCriticoDe(MotorDbContext db, DateO
 <li><code>desde</code> é <code>agora</code> menos <code>Retencao</code>. A segunda condição traz as leituras de tensão baixa de qualquer idade. O critério é o mesmo do <code>Expurgo</code>, então a avaliação dá o mesmo resultado com o expurgo em dia, atrasado ou cortado.</li>
 <li>A consulta de eventos lê a tabela inteira, e nenhum índice mudaria isso. Depois do expurgo, a tabela é a própria janela de 24 horas. No banco de teste, a microárea 3 trouxe 13.080 dos 261.600 eventos.</li>
 <li>O agrupamento por casa roda na memória, com <code>ToLookup(e =&gt; e.CasaToken)</code>. O <code>AvaliadorDeCasas</code> recebe um <code>HistoricoDaCasa</code> por token.</li>
-<li>A ordem de <code>Pendentes</code> e de <code>Atendidas</code> é LINQ sobre objetos, depois da avaliação: <code>Vermelho</code> antes de <code>Cinza</code>, depois a <code>Ordem</code> da regra, depois o <code>Desde</code> mais antigo. Essa parte não rodou, porque o <code>AvaliadorDeCasas</code> não existe ainda.</li>
+<li>A ordem de <code>Pendentes</code> e de <code>Atendidas</code> é LINQ sobre objetos, depois da avaliação: <code>Vermelho</code> antes de <code>Cinza</code>, depois a <code>Ordem</code> da regra, depois o <code>Desde</code> mais antigo. Essa parte não rodou nesta conferência. Ela está em <code>api/src/Corredor.Motor/Aplicacao/Consultas.cs</code> e rodou na demo integrada.</li>
 <li>A projeção traz cinco colunas. <code>recebido_em</code>, <code>seq</code> e <code>bufferizado</code> não entram na avaliação.</li>
 </ul>
 <h3 id="34-linha-do-tempo-de-uma-casa">3.4 Linha do tempo de uma casa <a class="ancora" href="#34-linha-do-tempo-de-uma-casa" aria-label="Link para esta seção">#</a></h3>

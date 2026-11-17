@@ -12,7 +12,7 @@ Os dados de pessoas são simulados. Nenhum nome, endereço ou telefone do app é
 | Cidade e bairro | São Paulo (SP), Zona Leste. Piloto em uma microárea de UBS da Estratégia Saúde da Família, com o Jardim Helena como referência. |
 | Cidadão beneficiado | Idosos de 60 anos ou mais que moram sozinhos, e casas com pessoa que depende de aparelho na tomada. Quem opera é a agente comunitária de saúde (ACS). |
 | Problema, em uma frase | Em dia de calor extremo ou de apagão, a ACS não consegue checar todos os idosos sozinhos da microárea e não sabe quem está em risco. |
-| Como funciona | Um aparelho no corredor acende a luz quando a idosa passa, e esse movimento vale como "estou bem". Um modelo treinado com dados públicos decide se o dia é crítico. No dia crítico, o celular da ACS mostra só as casas que ficaram em silêncio. Aparelho mudo aparece em cinza e nunca vira verde. |
+| Como funciona | Um aparelho no corredor acende a luz quando a idosa passa, e esse movimento vale como "estou bem". Às 05h, a regra da noite quente, com dados públicos do INMET, decide se o dia é crítico. Um modelo de ML treinado com INMET e SIH/DATASUS foi testado contra essa regra e não a superou. No dia crítico, o celular da ACS mostra só as casas que ficaram em silêncio. Aparelho mudo aparece em cinza e nunca vira verde. |
 | O que cada parte faz | Ver a tabela "Partes do repositório" no `README.md` da raiz. |
 | Link do repositório | https://github.com/IamP5/corredor-aceso |
 | Indicador de impacto | Percentual de idosos sozinhos da microárea com contato confirmado até as 10h em dia crítico. Meta: 100%. Indicador de segurança: nenhuma casa em verde sem prova de vida. |

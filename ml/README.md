@@ -1,6 +1,6 @@
 # ml/: o modelo de dia crítico
 
-Decide às 05h se hoje é dia crítico para quem tem 60 anos ou mais em São Paulo. Se for, o turno do radar da ACS abre. Entregável da disciplina de IA e Machine Learning.
+O job decide às 05h se hoje é dia crítico para quem tem 60 anos ou mais em São Paulo. Se for, o turno do radar da ACS abre. Quem decide hoje é a regra da noite quente, porque o modelo não a superou (veja o resultado abaixo). Entregável da disciplina de IA e Machine Learning.
 
 | Arquivo | O que é |
 |---|---|
@@ -52,7 +52,7 @@ Vídeo no YouTube, não listado. Uma pessoa narra e outra compartilha a tela. Ab
 
 | Tempo | Tela | Fala |
 |---|---|---|
-| 0:00-0:30 | slide ou README do projeto | "Num dia de calor, a ACS vê no radar só as casas de idosos sozinhos que ficaram em silêncio. Quem decide se o dia é crítico é um modelo que roda às 5 da manhã. Este vídeo mostra como ele foi feito e o que descobrimos." |
+| 0:00-0:30 | slide ou README do projeto | "Num dia de calor, a ACS vê no radar só as casas de idosos sozinhos que ficaram em silêncio. Quem decide se o dia é crítico é um job que roda às 5 da manhã. Testamos se um modelo de ML decidiria melhor do que uma regra simples de noite quente. Este vídeo mostra como ele foi feito e o que descobrimos." |
 | 0:30-1:10 | notebook, seção 1 e 2 | "A pergunta: com o que se sabe às 5h, hoje vai ter excesso de internação de urgência cardiovascular de idosos em São Paulo? Usamos dois dados públicos e reais: o termômetro do INMET no Mirante de Santana e 141 meses de internações do SUS, 317 mil internações em 11 anos." |
 | 1:10-1:50 | `dados/README.md` e o gráfico de completude | "Os dados têm armadilhas: hora em UTC, município com 6 dígitos, arquivo por mês de pagamento e meses recentes incompletos. Este gráfico mostra que só depois de 4 meses chega 99% das internações, então paramos em maio de 2026." |
 | 1:50-2:20 | gráfico mensal | "Primeira surpresa: a internação do coração sobe no inverno, não no verão. Por isso o alvo compara cada dia com as 4 semanas anteriores." |

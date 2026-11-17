@@ -26,7 +26,7 @@ Todos os números desta seção saem da última rodada de `verificar_tudo.sh`, n
 
 O que não rodou:
 
-- O código dos módulos não existe ainda. A API, o `Corredor.Api --semear` da seção 8.2, o deslocamento de `ocorridaEm` em `POST /visitas` e a fila de desfechos em TypeScript não rodaram.
+- Quando esta conferência rodou, o código dos módulos não existia. A API, o `Corredor.Api --semear` da seção 8.2, o deslocamento de `ocorridaEm` em `POST /visitas` e a fila de desfechos em TypeScript não rodaram aqui. Eles foram escritos depois e rodaram juntos na demo integrada: veja o [relatório da integração](../evidencias/integracao/RELATORIO.md).
 - O modo de CI de `conferir_migracao_aditiva.sh`, que compara com a `main` por `git diff`, não rodou. Rodou só o modo `--sql`.
 - O SQL do app rodou no `sqlite3` 3.51, não no `expo-sqlite`.
 - Os diagramas Mermaid da seção 9 não foram renderizados.
@@ -515,7 +515,7 @@ O radar de uma microárea e o `VigiaDoRadar` usam as mesmas três consultas. O `
 - `desde` é `agora` menos `Retencao`. A segunda condição traz as leituras de tensão baixa de qualquer idade. O critério é o mesmo do `Expurgo`, então a avaliação dá o mesmo resultado com o expurgo em dia, atrasado ou cortado.
 - A consulta de eventos lê a tabela inteira, e nenhum índice mudaria isso. Depois do expurgo, a tabela é a própria janela de 24 horas. No banco de teste, a microárea 3 trouxe 13.080 dos 261.600 eventos.
 - O agrupamento por casa roda na memória, com `ToLookup(e => e.CasaToken)`. O `AvaliadorDeCasas` recebe um `HistoricoDaCasa` por token.
-- A ordem de `Pendentes` e de `Atendidas` é LINQ sobre objetos, depois da avaliação: `Vermelho` antes de `Cinza`, depois a `Ordem` da regra, depois o `Desde` mais antigo. Essa parte não rodou, porque o `AvaliadorDeCasas` não existe ainda.
+- A ordem de `Pendentes` e de `Atendidas` é LINQ sobre objetos, depois da avaliação: `Vermelho` antes de `Cinza`, depois a `Ordem` da regra, depois o `Desde` mais antigo. Essa parte não rodou nesta conferência. Ela está em `api/src/Corredor.Motor/Aplicacao/Consultas.cs` e rodou na demo integrada.
 - A projeção traz cinco colunas. `recebido_em`, `seq` e `bufferizado` não entram na avaliação.
 
 ### 3.4 Linha do tempo de uma casa

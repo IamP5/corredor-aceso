@@ -98,12 +98,12 @@ Mostra o notebook executado e o relatório. A rubrica olha problema e dados reai
 | 0:00 a 0:40 | Pergunta no topo do notebook | "Com o que se sabe às 5h da manhã, hoje será um dia de excesso de internações de urgência de idosos por causa cardiovascular em São Paulo?" |
 | 0:40 a 1:30 | `ml/dados/README.md` e as células de carga | "Os dados são públicos: o INMET da estação Mirante de Santana e as internações do SIH/DATASUS, filtradas para 60 anos ou mais em São Paulo. O período é [período]. Dia de excesso é acima do percentil 90 da média móvel de 28 dias." |
 | 1:30 a 2:10 | Preparação e divisão | "Só entram variáveis observadas até as 5h, então não há vazamento. O treino vai até [ano] e o teste é [anos]. A validação cruzada é por série temporal e só no treino." |
-| 2:10 a 3:00 | Grade de hiperparâmetros | "Usamos XGBoost, porque lida bem com classes desbalanceadas e variáveis em tabela. Testamos [n] combinações de profundidade, taxa de aprendizado e número de árvores." |
-| 3:00 a 4:00 | Tabela de treino contra teste e a baseline da noite quente | "No treino o recall foi [x], no teste [y]. A regra simples da noite quente teve [z]. [O modelo venceu a regra / empatou com a regra]." |
-| 4:00 a 4:40 | Conclusão do relatório | "[Quando a noite não esfria abaixo de X °C por duas noites, a chance de um dia de excesso sobe Y vezes.] É nesse dia que o radar da ACS liga." |
-| 4:40 a 5:00 | `ml/prever_hoje.py` chamando `PUT /api/dias-criticos/{data}` | "Às 5h, o job manda a previsão para o sistema. Se o modelo não vence a regra, o job usa a regra e diz isso na origem." |
+| 2:10 a 3:00 | Grade de hiperparâmetros | "Usamos XGBoost, porque lida bem com classes desbalanceadas e variáveis em tabela. Testamos 24 combinações de profundidade, taxa de aprendizado e número de árvores." |
+| 3:00 a 4:00 | Tabela de treino contra teste e a baseline da noite quente | "No treino o recall foi [x], no teste [y]. A regra simples da noite quente teve [z]. O modelo empatou com a regra: ficou um pouco acima do acaso, dentro do ruído, e aprendeu o inverno, não o calor." |
+| 4:00 a 4:40 | Conclusão do relatório | "Em São Paulo, a noite quente não avisa, sozinha, que mais idosos vão ser internados por problema do coração. Por isso o produto não promete reduzir internação. O radar liga na noite quente porque quem mora sozinho corre risco direto no calor: 'a noite não esfriou; passe nas casas que ficaram em silêncio'." |
+| 4:40 a 5:00 | `ml/prever_hoje.py` chamando `PUT /api/dias-criticos/{data}` | "Às 5h, o job manda a decisão para o sistema. Como o modelo não venceu a regra, o job usa a regra e diz isso na origem." |
 
-Se o modelo empatar com a regra, diga isso. O relatório e o job usam a regra com `origem: REGRA_BASE` ([arquitetura.md](../arquitetura.md), seção do modelo de dia crítico).
+O modelo empatou com a regra, e o vídeo precisa dizer isso. O relatório e o job usam a regra com `origem: REGRA_BASE` ([visão geral](../arquitetura/01-visao-geral.md#modelo-de-dia-crítico) e [relatório de ML](../../ml/RELATORIO_ML.md), seção 9).
 
 ## Dashboard de Cyber
 

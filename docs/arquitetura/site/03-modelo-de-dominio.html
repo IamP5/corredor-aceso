@@ -143,6 +143,7 @@
     Corredor.Motor.Testes/
     Corredor.Cadastro.Testes/
     Corredor.Guarda.Testes/
+    Corredor.Api.Testes/
 </code></pre>
 <div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
 <thead>
@@ -848,7 +849,7 @@ app.MapMotor(); app.MapCadastro(); app.MapGuarda();
 <li>Declarar de novo a mesma data atualiza probabilidade, motivo e origem. <code>AbertoEm</code> não muda, então a janela da manhã não se desloca.</li>
 <li>Depois do encerramento, declarar de novo é recusado com <code>TURNO_ENCERRADO</code>. O turno encerrado não reabre.</li>
 <li>O toque é pedido no máximo uma vez por dia.</li>
-<li>Existe um encerramento por data. O resumo é gravado no encerramento e não muda. Encerrar de novo devolve o mesmo resumo.</li>
+<li>Existe um encerramento por data. O resumo gravado conta as casas de todas as microáreas e não muda. Com <code>?microarea=</code>, a resposta à ACS conta só as casas da microárea dela, como o radar, no instante do encerramento.</li>
 </ol>
 <div class="tabela" role="region" aria-label="Tabela" tabindex="0"><table>
 <thead>
@@ -2705,7 +2706,7 @@ public interface IDeslocamentoDoRelogio
 <tbody><tr>
 <td>1</td>
 <td>16/11, noite</td>
-<td>A solução com os cinco projetos e os três de teste, com as referências da seção 2. <code>Corredor.Contratos</code> fechado. <code>ParametrosDoMotor</code> e <code>RelogioDeDemo</code>.</td>
+<td>A solução com os cinco projetos e os quatro de teste, contando o <code>Corredor.Api.Testes</code>, com as referências da seção 2. <code>Corredor.Contratos</code> fechado. <code>ParametrosDoMotor</code> e <code>RelogioDeDemo</code>.</td>
 <td><code>Idoso</code> vazio, com a migração. <code>Microarea</code> por carga inicial.</td>
 <td><code>TipoDeDado</code>, <code>Canal</code>, <code>TextoRotulado</code>, <code>Veredito</code>.</td>
 </tr>
@@ -2840,7 +2841,7 @@ public interface IDeslocamentoDoRelogio
 <tbody><tr>
 <td>1</td>
 <td>Cinco projetos. <code>Corredor.Cadastro</code> referencia a interface <code>IMotorDeCasas</code>.</td>
-<td>Seis projetos. <code>IMotorDeCasas</code>, <code>IReceptorDeContato</code> e os tipos compartilhados ficam em <code>Corredor.Contratos</code>. Motor e Cadastro referenciam esse projeto e nenhum referencia o outro.</td>
+<td>Cinco projetos em <code>src/</code>, com <code>Corredor.Contratos</code>. <code>IMotorDeCasas</code>, <code>IReceptorDeContato</code> e os tipos compartilhados ficam em <code>Corredor.Contratos</code>. Motor e Cadastro referenciam esse projeto e nenhum referencia o outro.</td>
 <td>A barreira fica no compilador mesmo com tudo <code>public</code>.</td>
 </tr>
 <tr>

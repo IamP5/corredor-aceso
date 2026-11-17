@@ -266,10 +266,10 @@ No segundo, das 13h00 às 17h30, veja que `TurnoEncerrado` leva o resumo, a úni
 
 | # | Hora | Ator | Comando | Agregado | Evento | Política | Leitura |
 |---|---|---|---|---|---|---|---|
-| 1 | 05h00 | Job de previsão | `DeclararDiaCritico` | `DiaCritico` | `DiaCriticoDeclarado` [g], `TurnoAberto` [d] | P8. Repetir o `PUT` não abre outro turno nem muda a abertura. | Nó: LED âmbar. Radar: 40 casas `Aguardando`. |
+| 1 | 05h00 | Job de previsão | `DeclararDiaCritico` | `DiaCritico` | `DiaCriticoDeclarado` [g], `TurnoAberto` [d] | P8. Repetir o `PUT` não abre outro turno nem muda a abertura. | Nó: LED âmbar. Radar: 36 casas `Aguardando` e as 4 `Acamado` em `Vermelho` desde a abertura (03 §5.2). |
 | 2 | 06h12 | Idosa A | Passa no corredor | `EventoSensor` | `MovimentoDetectado` [g], `CasaFicouVerde` [d] | | Radar: A sai de `Aguardando`. |
 | 3 | 07h30 | Idosa B | Dois toques no botão | `EventoSensor` | `SaidaAvisada` [g], `CasaFicouVerde` [d] | P9 | |
-| 4 | 09h00 | ACS | `GET /radar` | | `RadarConsultado` | | 27 verdes, 12 `Aguardando`, 1 cinza pendente. |
+| 4 | 09h00 | ACS | `GET /radar` | | `RadarConsultado` | | 23 verdes, 12 `Aguardando`, 1 cinza pendente e as 4 `Acamado` vermelhas até a ACS ver a pessoa. |
 | 5 | 10h00 | Relógio | | | `JanelaEncerrada` [d], `CasaFicouVermelha` [d] para C, D e E, `CasaFicouAguardando` [d] para as verdes | | Radar: C, D e E vermelhas e pendentes. A contagem de verdes recomeça. |
 | 6 | 10h00 | `VigiaDoRadar` | `PedirContatoAsync` para C, D e E | | `PedidoDeContatoEnviado` | P10, depois P19 no Cadastro | `GET /avisos`: "vizinho avisado às 10h00". |
 | 7 | 10h05 | Vizinho de C | `RegistrarResposta`, `EstaBem` | `AvisoAoVizinho` | `VizinhoRespondeu` [g] | P20 | |

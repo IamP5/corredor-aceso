@@ -1,6 +1,6 @@
 # Esqueleto do PDF de Cybersecurity
 
-O professor de Cybersecurity pede dois arquivos separados: **um PDF com a documentação** dos três pontos (Source, Auditoria e Vídeo do Dashboard), com prints do código e das evidências e o link do vídeo, e **um ZIP ou o link do GitHub** com o código ([arquitetura.md](../arquitetura.md), seção "Entrega" do Módulo Guarda; [entregaveis.md](../entregaveis.md)).
+O professor de Cybersecurity pede dois arquivos separados: **um PDF com a documentação** dos três pontos (Source, Auditoria e Vídeo do Dashboard), com prints do código e das evidências e o link do vídeo, e **um ZIP ou o link do GitHub** com o código ([entregaveis.md](../entregaveis.md)).
 
 Como usar este esqueleto: copie para `docs/evidencias/cyber/documentacao.md`, troque cada caixa `[PRINT ...]` pelo print, preencha os campos entre colchetes e gere o PDF. Com o pandoc instalado:
 
@@ -72,7 +72,7 @@ Frase para o PDF: [fontes, sumidouros e a regra que liga os dois. Fontes: os cam
 
 ## 3. Auditoria
 
-Cada evidência tem o comando, o print e a frase do resultado. As quatro primeiras são as de [arquitetura.md](../arquitetura.md), seção "Evidências para a auditoria". As outras vêm dos casos 38 a 42 do [modelo de domínio](../arquitetura/03-modelo-de-dominio.md) e dos Test Cases de [casos-de-teste.md](../qa/casos-de-teste.md), Features F23 a F26.
+Cada evidência tem o comando, o print e a frase do resultado. As quatro primeiras são as da [visão geral](../arquitetura/01-visao-geral.md#arquivos-da-guarda), seção "Arquivos da Guarda". As outras vêm dos casos 38 a 42 do [modelo de domínio](../arquitetura/03-modelo-de-dominio.md) e dos Test Cases de [casos-de-teste.md](../qa/casos-de-teste.md), Features F23 a F26.
 
 ### 3.1 CPF mascarado na entrada
 

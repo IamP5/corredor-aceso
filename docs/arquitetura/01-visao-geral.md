@@ -10,7 +10,7 @@ O Corredor Aceso é uma luz de corredor que protege a idosa do tropeço à noite
 
 O produto funciona em cinco passos:
 
-1. Às 05h, um modelo treinado com dados públicos do INMET e do SIH/DATASUS decide se hoje é dia crítico para pessoas de 60 anos ou mais. Se for, ele abre o turno do radar.
+1. Às 05h, um job decide se hoje é dia crítico para pessoas de 60 anos ou mais. Quem decide é a regra da noite quente, com o clima do INMET. Um XGBoost treinado com INMET e SIH/DATASUS empatou com essa regra no teste, e por isso o job usa a regra (`origem: REGRA_BASE`). Se for dia crítico, o job abre o turno do radar.
 2. Na casa, um nó ESP32 acende a luz quando a idosa passa no corredor. O mesmo movimento conta como sinal de vida. O nó também mede temperatura e tensão, tem um botão e guarda os eventos quando a rede cai.
 3. No dia crítico, o app da ACS mostra o radar. Cada casa está em uma de quatro situações: `Verde`, `Aguardando`, `Vermelho` ou `Cinza`. A casa verde não aparece como card. Ela só entra na contagem.
 4. Quando uma casa tem alerta pendente, o vizinho de confiança que a idosa escolheu recebe um aviso neutro, sem nome e sem motivo de saúde.
@@ -133,9 +133,9 @@ A pergunta de ML é se hoje será um dia de excesso de internações de urgênci
 - `ml/corredor_aceso.ipynb` executado, com validação cruzada só no treino e métricas de treino e de teste lado a lado.
 - `ml/dados/README.md`, com fonte, link e período do INMET e do SIH.
 - `ml/requirements.txt` e `ml/RELATORIO_ML.md`, de 2 a 4 páginas.
-- `ml/prever_hoje.py`, que carrega o modelo salvo e chama `PUT /api/dias-criticos/{data}`. Na VM, o `corredor-ml.timer` roda o script às 05h.
+- `ml/prever_hoje.py`, que lê `ml/modelo/metadados.json`, aplica a regra ou o modelo salvo conforme a `origem` e chama `PUT /api/dias-criticos/{data}`. Na VM, o `corredor-ml.timer` roda o script às 05h.
 
-O `DiaCritico` só aceita a data de hoje. Na demo, o script usa as variáveis de uma data histórica e envia a data de hoje. Se o modelo empatar com a regra da noite quente, o relatório diz isso e o job envia `origem: REGRA_BASE`.
+O `DiaCritico` só aceita a data de hoje. Na demo, o script usa as variáveis de uma data histórica e envia a data de hoje. O modelo empatou com a regra da noite quente: o [relatório de ML](../../ml/RELATORIO_ML.md) diz isso, e o job envia `origem: REGRA_BASE`.
 
 ## Arquivos da Guarda
 
