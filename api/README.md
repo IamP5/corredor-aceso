@@ -47,6 +47,9 @@ Você precisa do SDK do .NET 10 e do Docker.
 
 	O Swagger fica em `http://localhost:5000/swagger`.
 
+	No macOS, o receptor do AirPlay ocupa a porta 5000 e responde 403 no lugar da API. Use outra porta:
+	`dotnet run --project api/src/Corredor.Api --urls http://localhost:5080`.
+
 5. Pare os contêineres quando terminar:
 
 	```bash
@@ -126,6 +129,18 @@ dotnet build api/Corredor.slnx
 dotnet test api/Corredor.slnx
 ```
 
+Os testes de banco e de MQTT sobem contêineres pelo Testcontainers 4.17, que pede a API 1.44 do Docker. Numa máquina com Docker mais antigo, como o Docker Desktop 4.22, que só fala a 1.43, esses testes falham ao conectar. Rode com a versão fixada:
+
+```bash
+DOCKER_API_VERSION=1.43 dotnet test api/Corredor.slnx
+```
+
+O CI do GitHub tem Docker novo e não precisa da variável.
+
+## Demo integrada
+
+`bash tools/demo.sh` sobe tudo e roda as cenas contra o sistema de verdade: Postgres e Mosquitto do `compose.dev.yml`, os papéis de módulo, as migrações aplicadas como no deploy, a API em `Development` na porta 5080, a carga da demo duas vezes, o simulador das casas e o job de ML. Os comandos, o que foi visto e as evidências estão em [docs/evidencias/integracao/RELATORIO.md](../docs/evidencias/integracao/RELATORIO.md).
+
 O CI roda a mesma verificação com o banco:
 
 ```bash
@@ -179,10 +194,7 @@ O Cadastro referencia a Guarda e grava `TextoRotulado`. Estes tipos ficam em `sr
 
 O valor de um `TextoRotulado` é `internal`. Fora da Guarda, ele só sai por `ISaidaSegura.Liberar` ou pelo conversor do EF Core. `ToString()` devolve `[NOME]`, `[MORA_SOZINHO]` e assim por diante, nunca o valor de um texto com rótulo.
 
-O `AddGuarda` já registra duas implementações que funcionam antes da sessão da Guarda terminar:
-
-- `SaidaSegura` aplica a `PoliticaDeCanal` da seção 4.4. Ela ainda não registra `SaidaBloqueada`.
-- `MotorDeParsingProvisorio` não tem as regras do `pii.json`. Ele dá a todo texto não vazio os cinco rótulos de texto livre: `Saude`, `MoraSozinho`, `Nome`, `Endereco` e `Telefone`. Assim, todo canal aberto bloqueia o texto até a regra de verdade existir.
+O `AddGuarda` registra a `SaidaSegura`, que aplica a `PoliticaDeCanal` da seção 4.4 e registra um `SaidaBloqueada` a cada bloqueio, e o `MotorDeParsing`, que aplica as regras de `Regras/pii.json`.
 
 ## O que cada módulo implementa
 

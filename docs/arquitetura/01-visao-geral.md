@@ -189,7 +189,7 @@ Dez regras nunca são cortadas, porque sem uma delas a demo mostra um verde sem 
 A primeira versão deste documento foi escrita antes do event storming. Os documentos 02 a 05 mudaram estes pontos:
 
 - A plataforma é .NET 10, não .NET 8.
-- São seis projetos em `api/`. `Corredor.Contratos` entrou para guardar os tipos e as interfaces que Motor e Cadastro dividem.
+- São cinco projetos em `api/src/` e quatro de teste. `Corredor.Contratos` entrou para guardar os tipos e as interfaces que Motor e Cadastro dividem.
 - São quatro situações, com `Aguardando`. O radar devolve pendentes, atendidas, aguardando e a contagem de verdes.
 - São três schemas, com `guarda`.
 - A chave única do evento é `(casaToken, seq, ts)`.
@@ -202,16 +202,18 @@ A tabela da seção 9 do [modelo de domínio](03-modelo-de-dominio.md#9-mudança
 
 ## Onde os documentos ainda divergem
 
-Estes pontos ainda não batem entre os documentos. Nenhum muda o desenho, mas quem programa precisa saber qual texto vale.
+Em 17/11, com as sete partes juntas na `main`, cada ponto desta tabela foi conferido contra o código. Os que o código já resolveu saíram da lista e estão no fim da seção.
 
-| Ponto | Um documento diz | Outro documento diz | Vale |
+| Ponto | Um documento diz | O código faz | Vale |
 |---|---|---|---|
-| Versão do .NET | A abertura do modelo de domínio cita "monólito modular .NET 8". | O documento de infra fixa `net10.0`. | .NET 10. |
-| Número de projetos | A seção 9 do modelo de domínio diz "seis projetos". | As seções 2 e 8.1 do mesmo documento listam cinco projetos em `src/` e três de teste. | A lista da seção 2. |
-| Prazo do esqueleto de `api/` | O modelo de domínio põe a solução vazia em 16/11, à noite. | O documento de infra põe o esqueleto no portão de 17/11, às 10h. | O portão de 17/11, às 10h, que é o mais tardio. |
-| Pasta das migrações | `entregaveis.md` aponta `api/src/Corredor.Cadastro/Migrations`. | A árvore do documento de infra aponta `Infra/Migrations` dentro de cada módulo. | A árvore do documento de infra. |
-| Nome das tabelas no ensaio | O ensaio da infra cita `motor."Eventos"` e `cadastro."Idosos"`, da API mínima do ensaio. | O modelo de dados define `motor.evento_sensor` e `cadastro.idoso`. | O modelo de dados. |
-| Conferência de migração aditiva | O documento de infra usa `tools/conferir-migracoes.sh`, que lê o `Up()` em C#. | O modelo de dados usa `conferir_migracao_aditiva.sh`, que lê o SQL gerado. | Os dois podem rodar no CI. A seção 11.4 do modelo de dados explica. |
+| Nome das tabelas no ensaio | O ensaio da infra cita `motor."Eventos"` e `cadastro."Idosos"`, da API mínima do ensaio. | As migrações criam `motor.evento_sensor` e `cadastro.idoso`. | O modelo de dados. O texto do ensaio fica como registro do que foi medido. |
+| Conferência de migração aditiva | O documento de infra usa `tools/conferir-migracoes.sh`, que lê o `Up()` em C#. | O CI roda o `tools/conferir-migracoes.sh`. O `conferir_migracao_aditiva.sh` do modelo de dados fica em `docs/arquitetura/referencia/dados/` e não está no CI. | O de `tools/`. A seção 11.4 do modelo de dados explica a diferença. |
+| Autenticação | O modelo de domínio não define. | O host lê um token por ACS da configuração e o app manda esse token em `Authorization: Bearer` (`api/README.md`, "Autenticação"). `PUT /api/dias-criticos/{data}` aceita chamada sem token, para o job de ML. | `api/README.md`. |
+| Campo `diaCritico` em `GET /radar` | A seção 11.3 do modelo de dados deixa em aberto. | O radar não traz o campo. O app usa só `turnoAberto`. | Sem o campo. |
+| Painel Risco Cidadão | A seção 6.3 põe a página em `/painel`, servida pelo Nginx. | Na VM é assim. No notebook, sem Nginx, a página sai de `/api/guarda/demo/painel`, que só existe em `Development`. `GET /api/painel` traz o campo `canais`, a mais que o exemplo da seção 6.3. | Os dois caminhos. |
+| Casa do teste de falha | O documento de infra só diz que o seed ativa `fa11...`. | A carga ativa essa casa na microárea 999, sem ACS, para ela não aparecer no radar da microárea 3. | O código. |
+
+Resolvidos pelo código: o .NET é o 10 em todos os documentos; são cinco projetos em `api/src/` e quatro de teste; o esqueleto existe; as migrações ficam em `Infra/Migrations` de cada módulo, como em `entregaveis.md`; a semente fica em `api/semente/`, como no modelo de dados.
 
 ## O que a equipe precisa confirmar
 

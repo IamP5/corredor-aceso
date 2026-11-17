@@ -53,7 +53,11 @@ As instruções de cada parte ficam no `README.md` da pasta dela. Os comandos da
 npm run dev:deps    # sobe Postgres e Mosquitto para desenvolvimento
 npm run dev:api     # roda a API
 npm run check       # roda as verificações de todas as partes
+npm run test:app    # roda os testes do app
+npm run demo        # sobe banco, API, carga e simulador e roda as cenas da demo
 ```
+
+A demo integrada, com os comandos de cada cena e as evidências, está em [docs/evidencias/integracao/RELATORIO.md](docs/evidencias/integracao/RELATORIO.md).
 
 ## Integrantes
 

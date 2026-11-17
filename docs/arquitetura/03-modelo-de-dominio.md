@@ -57,6 +57,7 @@ api/
     Corredor.Motor.Testes/
     Corredor.Cadastro.Testes/
     Corredor.Guarda.Testes/
+    Corredor.Api.Testes/
 ```
 
 | Projeto | Pode referenciar | Não pode referenciar |
@@ -1029,7 +1030,7 @@ Os mesmos casos entram no Azure Boards. Os negativos da arquitetura estão cober
 
 | Passo | Quando | Contratos e Motor | Cadastro | Guarda |
 |---|---|---|---|---|
-| 1 | 16/11, noite | A solução com os cinco projetos e os três de teste, com as referências da seção 2. `Corredor.Contratos` fechado. `ParametrosDoMotor` e `RelogioDeDemo`. | `Idoso` vazio, com a migração. `Microarea` por carga inicial. | `TipoDeDado`, `Canal`, `TextoRotulado`, `Veredito`. |
+| 1 | 16/11, noite | A solução com os cinco projetos e os quatro de teste, contando o `Corredor.Api.Testes`, com as referências da seção 2. `Corredor.Contratos` fechado. `ParametrosDoMotor` e `RelogioDeDemo`. | `Idoso` vazio, com a migração. `Microarea` por carga inicial. | `TipoDeDado`, `Canal`, `TextoRotulado`, `Veredito`. |
 | 2 | 17/11 | `CasaMonitorada` com `AtivarCasa` e `RegistrarPacote`. `EventoSensor` com a chave única e a recusa de `ts`. `TradutorDePacote` e `ConsumidorMqtt`. `DiaCritico` com `DeclararDiaCritico`, `TurnoRadar` e as janelas. `AvaliadorDeCasas` com `SemHeartbeat`, `SemMovimentoNaJanela`, sinal de vida por perfil, `Verde` e `Aguardando`. `Radar`. | `RegistrarConsentimento` gera o token e chama `AtivarCasaAsync`. `ListaDeNomes`. `ReconciliacaoComMotor`. | `MotorDeParsing`, `PoliticaDeCanal`, `SaidaSegura`, `InterceptadorDeEntrada`. |
 | 3 | 18/11 | `EnergiaEletrodependente` com a trava. `Confirmar`, atendimento e a tabela da seção 5.7. `CalorInterno`. `LinhaDoTempo`. | `Visita` com `TradutorDeDesfecho`. `MensagemSaida`. | `EventoDeSeguranca`, `Tradutor`, `Farol`, painel, `ProvedorDeLogSeguro`, `FiltroDeResposta`, `TratadorDeErros`. |
 | 4 | 18/11, se sobrar tempo, nesta ordem | `Expurgo`. `EncerrarTurno` com o resumo. Saída avisada e `AusenciaConfirmada`. `VigiaDoRadar` com o pedido de toque e o encerramento das 18h. Pedido de contato pela porta. | Rotas de revogação e de perfil. `AvisoAoVizinho` e `ReceptorDeContato`. Resposta do vizinho e `GET /avisos`. | Schema `guarda`, se a lista em memória entrou primeiro. |
@@ -1087,7 +1088,7 @@ O token viaja no nome do tópico por um broker público. Quem assina `corredor/v
 
 | # | A arquitetura diz | Este modelo diz | Motivo |
 |---|---|---|---|
-| 1 | Cinco projetos. `Corredor.Cadastro` referencia a interface `IMotorDeCasas`. | Seis projetos. `IMotorDeCasas`, `IReceptorDeContato` e os tipos compartilhados ficam em `Corredor.Contratos`. Motor e Cadastro referenciam esse projeto e nenhum referencia o outro. | A barreira fica no compilador mesmo com tudo `public`. |
+| 1 | Cinco projetos. `Corredor.Cadastro` referencia a interface `IMotorDeCasas`. | Cinco projetos em `src/`, com `Corredor.Contratos`. `IMotorDeCasas`, `IReceptorDeContato` e os tipos compartilhados ficam em `Corredor.Contratos`. Motor e Cadastro referenciam esse projeto e nenhum referencia o outro. | A barreira fica no compilador mesmo com tudo `public`. |
 | 2 | Três situações. O radar devolve vermelhos, cinzas e a contagem de verdes. | Quatro situações, com `Aguardando`. `Verde` exige sinal de vida na janela atual e só existe com turno aberto. O radar devolve pendentes, atendidas, aguardando e a contagem de verdes. | Antes do prazo, a casa sem sinal de vida seria verde sem ninguém saber dela. |
 | 3 | `PerfilDaCasa` é um enum com `Sozinho`, `Acamado`, `Eletrodependente` e `Coabitado`. | `PerfilDaCasa(PerfilDeContato, bool Eletrodependente)`. | A eletrodependente que mora sozinha, ou acamada, não cabe num valor só. |
 | 4 | A seta "aviso neutro" sai do Motor para o vizinho. | O aviso mora no Cadastro. O Motor manda um `PedidoDeContato` pela porta `IReceptorDeContato`. O Cadastro descarta a repetição por episódio. O Motor não guarda alerta. | O Motor não tem o telefone do vizinho e não pode ter. |

@@ -49,6 +49,8 @@ Sem `EXPO_PUBLIC_API_URL`, o app usa o mock, com 40 casas simuladas. Para falar 
 cd app && EXPO_PUBLIC_API_URL=http://<ip-do-computador>:<porta> npx expo start
 ```
 
+Na entrada, o código de acesso é o token da ACS que a API lê da configuração. No notebook, com a API em `Development`, é `dev-acs-demo-01-so-no-notebook`, na microárea 3 (`api/README.md`, "Autenticação"). Para subir a API, o banco, a carga e o app de uma vez, use `bash tools/demo.sh subir` e depois `bash tools/demo.sh app`, que abre o alvo web ligado à API em `http://localhost:5080`.
+
 Para ver no navegador:
 
 ```bash
@@ -87,7 +89,7 @@ As telas abaixo vieram do alvo web, numa janela de 390 por 844 pontos, e do Expo
 
 | Tela | O que a ACS faz | Imagem |
 |---|---|---|
-| Entrada | Digita o código de ACS e a microárea. A sessão fica no `expo-secure-store`. | [01-entrada.png](../docs/evidencias/mobile/01-entrada.png), [no iPhone](../docs/evidencias/mobile/ios/01-entrada.png) |
+| Entrada | Digita o código de acesso que a UBS entregou e a microárea. A sessão fica no `expo-secure-store`. | [01-entrada.png](../docs/evidencias/mobile/01-entrada.png), [no iPhone](../docs/evidencias/mobile/ios/01-entrada.png) |
 | Dia crítico | Vê se hoje é dia crítico e quantas casas estão urgentes, cinza, atendidas e verdes. | [02-dia-critico.png](../docs/evidencias/mobile/02-dia-critico.png), [no iPhone](../docs/evidencias/mobile/ios/02-dia-critico.png) |
 | Radar | Vê as casas em três grupos: precisam de visita, já atendidas e aguardando. Cada card tem selo com símbolo e nome, o motivo em frase e a hora. | [03-radar.png](../docs/evidencias/mobile/03-radar.png), [04-radar-cinza-e-atendida.png](../docs/evidencias/mobile/04-radar-cinza-e-atendida.png), [no iPhone](../docs/evidencias/mobile/ios/03-radar.png) |
 | Casa | Vê o nome, o endereço, o perfil, o vizinho de confiança com botão de ligar, as visitas dela e a linha do tempo das últimas 24 horas. | [05-casa.png](../docs/evidencias/mobile/05-casa.png), [06-casa-linha-do-tempo.png](../docs/evidencias/mobile/06-casa-linha-do-tempo.png), [no iPhone](../docs/evidencias/mobile/ios/04-casa.png) |
@@ -115,7 +117,7 @@ ferramentas/  servidor mock HTTP, medidor de contraste, gerador das casas do moc
 
 `src/api/config.ts` lê `EXPO_PUBLIC_API_URL`. Com o endereço, o app usa o cliente HTTP. Sem ele, usa o mock. O mock guarda estado em memória: uma visita registrada muda o radar seguinte, pelas regras da seção 5.7 do modelo de domínio. O cenário é o fluxo 3 do event storming às 10h31: uma casa sem energia, uma casa sem movimento, um aparelho mudo, uma casa cinza já atendida, nove aguardando e 27 verdes.
 
-O cliente HTTP manda `Authorization: Bearer <código da ACS>`. O modelo de domínio não define a autenticação, então a equipe da API precisa confirmar esse formato.
+O cliente HTTP manda `Authorization: Bearer <código de acesso>`, com o código como a ACS digitou. É o token que a API lê da configuração, e ela descobre por ele quem é a ACS e a microárea. O código não aparece na tela. O teste `cliente.test.ts` confere o cabeçalho.
 
 ### Banco do celular
 
@@ -160,6 +162,7 @@ Os testes cobrem o que pode quebrar sem ninguém ver. O SQL roda de verdade, no 
 |---|---|
 | `radarNaTela.test.ts` | A junção do radar com a lista de nomes: ordem do servidor, card sem nome continua visível, hora em UTC casa com o aviso, só o último desfecho aparece, a lista é trocada inteira, desfecho enviado com mais de 24 horas sai. |
 | `fila.test.ts` | A fila: grava sem rede e manda o mesmo `id` quando volta, envia da mais antiga, para no 503, recusa no 422 e segue, para no 401, não envia duas vezes ao mesmo tempo. Também o mock: repetição, efeito da visita no radar, rede caída e mensagem bloqueada. |
+| `cliente.test.ts` | O cliente HTTP manda o código de acesso como está em `Authorization: Bearer` e na rota `/api`, e a entrada aceita o token da API. |
 | `textos.test.ts` | Situação e motivo viram texto com a hora de São Paulo, radar velho se declara velho, código de erro vira frase. |
 | `contraste.test.ts` | Cada par de cores passa de 4,5:1. |
 
@@ -179,8 +182,7 @@ Para gravar no iPhone sem a API, rode o app sem `EXPO_PUBLIC_API_URL`. O mock l�
 
 ## Limites conhecidos
 
-- A API .NET ainda não existia quando o app foi feito. O cliente HTTP foi provado contra o servidor mock, que segue os contratos da seção 6.3, e não contra a API real.
+- Em 17/11 o alvo web rodou contra a API real, com a carga da demo. Os prints e o caminho sem rede com a API parada estão em [docs/evidencias/integracao/](../docs/evidencias/integracao/RELATORIO.md). No celular, o app ainda não falou com a API real.
 - O radar não traz a probabilidade nem o motivo do dia crítico. O modelo de dados lista o campo `diaCritico` em `GET /radar` como decisão em aberto. A tela do dia crítico usa só `turnoAberto`.
-- O cabeçalho de autenticação é uma suposição. Ver "Dados da API".
 - No alvo web, recarregar a página logo depois de fechar outra aba do app pode falhar com `NoModificationAllowedError`, porque o SQLite web ainda segura o arquivo da aba anterior. Fechar a aba e abrir de novo resolve. No celular isso não acontece.
-- O CI roda só `check:app`. Os testes do Jest não rodam no CI, porque o `package.json` da raiz não chama `npm --prefix app test`.
+- O CI roda `check:app` e `test:app`, que chama os testes do Jest.
