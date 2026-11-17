@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Corredor.Cadastro;
@@ -22,14 +21,12 @@ public static class CadastroModulo
         // Toda verificação registrada entra no /healthz/ready do host.
         builder.Services.AddHealthChecks().AddDbContextCheck<CadastroDbContext>("bd-cadastro");
 
-        // O Motor registra IMotorDeCasas em AddMotor, antes deste método. Sem ele, o Cadastro responde MOTOR_INDISPONIVEL.
-        builder.Services.TryAddSingleton<IMotorDeCasas, MotorAusente>();
         builder.Services.AddScoped<CasosDoIdoso>();
         builder.Services.AddScoped<CasosDaVisita>();
         builder.Services.AddScoped<CasosDoAviso>();
         builder.Services.AddScoped<Leituras>();
-        // P19: o Motor chama a porta do VigiaDoRadar, um BackgroundService. O receptor abre o próprio escopo.
-        builder.Services.AddSingleton<IReceptorDeContato, ReceptorDeContato>();
+        // P19. AddScoped, não TryAdd: o Motor registra antes um SemReceptorDeContato com TryAddScoped, e este vence.
+        builder.Services.AddScoped<IReceptorDeContato, ReceptorDeContato>();
         // P22: reenvia as casas ativas ao Motor ao iniciar.
         builder.Services.AddHostedService<ReconciliacaoComMotor>();
         return builder;

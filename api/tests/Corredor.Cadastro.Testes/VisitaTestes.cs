@@ -126,12 +126,28 @@ public sealed class VisitaTestes(BancoDeTeste banco) : IClassFixture<BancoDeTest
     {
         await using var api = await ApiDeTeste.IniciarAsync(banco);
         var (_, token) = await api.CasaAtivaComVizinhoAsync();
-        api.Motor.RecusaDeConfirmacao = new RegraDeDominioViolada("CONFIRMACAO_VELHA", "confirmação com mais de 24 horas");
+        api.Motor.RecusaDeConfirmacao = new RegraDeDominioViolada("CONFIRMACAO_VENCIDA", "confirmação com mais de 24 horas");
         var id = Guid.NewGuid();
 
         var resposta = await api.PostAsync("/api/visitas", Cenario.Visita(id, token, "EstavaBem", ApiDeTeste.Inicio.AddHours(-25)));
 
         Assert.Equal(HttpStatusCode.Created, resposta.StatusCode);
+        await using var db = api.NovoContexto();
+        Assert.Contains(db.Visitas, v => v.Id == id);
+    }
+
+    [Fact]
+    public async Task Outra_recusa_do_Motor_chega_ao_app_e_a_visita_fica_gravada()
+    {
+        await using var api = await ApiDeTeste.IniciarAsync(banco);
+        var (_, token) = await api.CasaAtivaComVizinhoAsync();
+        api.Motor.RecusaDeConfirmacao = new RegraDeDominioViolada("CASA_DESATIVADA", "casa desativada", TipoDeViolacao.Conflito);
+        var id = Guid.NewGuid();
+
+        var resposta = await api.PostAsync("/api/visitas", Cenario.Visita(id, token, "EstavaBem"));
+
+        Assert.Equal(HttpStatusCode.Conflict, resposta.StatusCode);
+        Assert.Equal("CASA_DESATIVADA", await resposta.CodigoAsync());
         await using var db = api.NovoContexto();
         Assert.Contains(db.Visitas, v => v.Id == id);
     }

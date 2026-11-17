@@ -21,7 +21,7 @@ public sealed class AvisoTestes(BancoDeTeste banco) : IClassFixture<BancoDeTeste
     {
         await using var api = await ApiDeTeste.IniciarAsync(banco);
         var (_, token) = await api.CasaAtivaComVizinhoAsync();
-        var receptor = api.Servicos.GetRequiredService<IReceptorDeContato>();
+        var receptor = api.Receptor();
 
         await receptor.PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
         await receptor.PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
@@ -39,7 +39,7 @@ public sealed class AvisoTestes(BancoDeTeste banco) : IClassFixture<BancoDeTeste
         await using var api = await ApiDeTeste.IniciarAsync(banco);
         var semAutorizacao = await api.ConsentirAsync(await api.CadastrarAsync(), avisarVizinho: false);
         var semVizinho = await api.ConsentirAsync(await api.CadastrarAsync());
-        var receptor = api.Servicos.GetRequiredService<IReceptorDeContato>();
+        var receptor = api.Receptor();
 
         await receptor.PedirContatoAsync(Pedido(semAutorizacao), TestContext.Current.CancellationToken);
         await receptor.PedirContatoAsync(Pedido(semVizinho), TestContext.Current.CancellationToken);
@@ -70,7 +70,7 @@ public sealed class AvisoTestes(BancoDeTeste banco) : IClassFixture<BancoDeTeste
     {
         await using var api = await ApiDeTeste.IniciarAsync(banco);
         var (idoso, token) = await api.CasaAtivaComVizinhoAsync();
-        await api.Servicos.GetRequiredService<IReceptorDeContato>().PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
+        await api.Receptor().PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
 
         await api.DeleteAsync($"/api/idosos/{idoso}/consentimento");
 
@@ -82,7 +82,7 @@ public sealed class AvisoTestes(BancoDeTeste banco) : IClassFixture<BancoDeTeste
     {
         await using var api = await ApiDeTeste.IniciarAsync(banco);
         var (_, token) = await api.CasaAtivaComVizinhoAsync();
-        var receptor = api.Servicos.GetRequiredService<IReceptorDeContato>();
+        var receptor = api.Receptor();
         api.Relogio.Agora = ApiDeTeste.Inicio.AddHours(-30);
         await receptor.PedirContatoAsync(Pedido(token, MotivoDoAlerta.CalorInterno), TestContext.Current.CancellationToken);
         api.Relogio.Agora = ApiDeTeste.Inicio;
@@ -99,7 +99,7 @@ public sealed class AvisoTestes(BancoDeTeste banco) : IClassFixture<BancoDeTeste
     {
         await using var api = await ApiDeTeste.IniciarAsync(banco);
         var (_, token) = await api.CasaAtivaComVizinhoAsync();
-        await api.Servicos.GetRequiredService<IReceptorDeContato>().PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
+        await api.Receptor().PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
         var aviso = Assert.Single(await AvisosDaCasaAsync(api, token));
         api.Relogio.Agora = ApiDeTeste.Inicio.AddMinutes(5);
 
@@ -118,7 +118,7 @@ public sealed class AvisoTestes(BancoDeTeste banco) : IClassFixture<BancoDeTeste
     {
         await using var api = await ApiDeTeste.IniciarAsync(banco);
         var (_, token) = await api.CasaAtivaComVizinhoAsync();
-        await api.Servicos.GetRequiredService<IReceptorDeContato>().PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
+        await api.Receptor().PedirContatoAsync(Pedido(token), TestContext.Current.CancellationToken);
         var aviso = Assert.Single(await AvisosDaCasaAsync(api, token));
 
         var primeira = await api.PostAsync($"/api/avisos/{aviso.Id}/resposta", new { resposta = "PrecisaDeAjuda" });

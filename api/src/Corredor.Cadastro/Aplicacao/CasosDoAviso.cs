@@ -3,7 +3,6 @@ using Corredor.Cadastro.Infra;
 using Corredor.Contratos;
 using Corredor.Guarda;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Corredor.Cadastro.Aplicacao;
@@ -38,16 +37,12 @@ public sealed class CasosDoAviso(CadastroDbContext db, IMotorDeCasas motor, Time
 // P19. O Motor declara a porta e chama a cada ciclo do VigiaDoRadar, para cada alerta pendente.
 // O Cadastro descarta a repetição pela chave do episódio. O envio simulado é a própria linha do aviso
 // e uma linha de log sem telefone, depois do texto fixo passar pela SaidaSegura no canal Vizinho.
-// Singleton com escopo próprio, porque o VigiaDoRadar do Motor é um BackgroundService.
-public sealed class ReceptorDeContato(IServiceScopeFactory escopos, TimeProvider relogio, ILogger<ReceptorDeContato> log)
+// Scoped: o VigiaDoRadar abre um escopo novo para cada chamada.
+public sealed class ReceptorDeContato(CadastroDbContext db, ISaidaSegura saida, TimeProvider relogio, ILogger<ReceptorDeContato> log)
     : IReceptorDeContato
 {
     public async Task PedirContatoAsync(PedidoDeContato pedido, CancellationToken ct)
     {
-        await using var escopo = escopos.CreateAsyncScope();
-        var db = escopo.ServiceProvider.GetRequiredService<CadastroDbContext>();
-        var saida = escopo.ServiceProvider.GetRequiredService<ISaidaSegura>();
-
         var episodioExiste = await db.Avisos.AnyAsync(
             a => a.CasaToken == pedido.Token && a.Motivo == pedido.Motivo && a.Desde == pedido.Desde, ct);
         if (episodioExiste || await db.IdosoDoTokenAsync(pedido.Token, ct) is not { } idoso)

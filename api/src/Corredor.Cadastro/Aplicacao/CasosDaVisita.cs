@@ -21,6 +21,9 @@ public sealed class CasosDaVisita(
     ParametrosDoRelogio parametros,
     ILogger<CasosDaVisita> log)
 {
+    // O código com que o Motor recusa uma confirmação com mais de 24 horas.
+    private const string ConfirmacaoVencida = "CONFIRMACAO_VENCIDA";
+
     // O id nasce no celular. Repetir devolve a visita que já existe e chama o Motor de novo, que ignora o Id repetido.
     public async Task<VisitaGravada> RegistrarAsync(NovaVisita nova, AcsId acs, CancellationToken ct)
     {
@@ -34,9 +37,9 @@ public sealed class CasosDaVisita(
             {
                 await ChamadaAoMotor.ExecutarAsync(() => motor.ConfirmarAsync(token, confirmacao, ct));
             }
-            catch (RegraDeDominioViolada recusa) when (recusa.Tipo != TipoDeViolacao.Indisponivel)
+            catch (RegraDeDominioViolada recusa) when (recusa.Codigo == ConfirmacaoVencida)
             {
-                // Invariante 7: o Motor recusou a confirmação, por exemplo com mais de 24 horas. A visita fica e a resposta é 201.
+                // Invariante 7: o Motor recusou a confirmação com mais de 24 horas. A visita fica e a resposta é 201.
                 log.LogWarning("o Motor recusou a confirmação da visita {Visita} com {Codigo}", visita.Id, recusa.Codigo);
             }
         }

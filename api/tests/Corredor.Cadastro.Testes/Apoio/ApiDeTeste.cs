@@ -82,6 +82,9 @@ public sealed class ApiDeTeste : IAsyncDisposable
         return new ApiDeTeste(app, app.GetTestClient());
     }
 
+    // Como o VigiaDoRadar: um escopo novo por pedido de contato.
+    public IReceptorDeContato Receptor() => _app.Services.CreateScope().ServiceProvider.GetRequiredService<IReceptorDeContato>();
+
     public CadastroDbContext NovoContexto() => _app.Services.CreateScope().ServiceProvider.GetRequiredService<CadastroDbContext>();
 
     public async Task<HttpResponseMessage> EnviarAsync(HttpMethod metodo, string rota, object? corpo = null, bool autenticado = true)
