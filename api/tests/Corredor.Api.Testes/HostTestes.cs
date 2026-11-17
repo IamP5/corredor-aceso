@@ -82,6 +82,56 @@ public class HostTestes(WebApplicationFactory<Program> fabrica) : IClassFixture<
         Assert.Equal("O turno de hoje já foi encerrado.", corpo.GetProperty("mensagem").GetString());
     }
 
+    // O alvo web do app roda em outra porta e manda Authorization. Sem CORS o navegador barra toda chamada.
+    [Fact]
+    public async Task Em_development_o_app_web_passa_pelo_preflight_com_authorization()
+    {
+        var resposta = await fabrica.CreateClient().SendAsync(Preflight("/api/radar?microarea=3"), TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NoContent, resposta.StatusCode);
+        Assert.Equal("*", resposta.Headers.GetValues("Access-Control-Allow-Origin").Single());
+        Assert.Contains("authorization", string.Join(',', resposta.Headers.GetValues("Access-Control-Allow-Headers")).ToLowerInvariant());
+    }
+
+    [Fact]
+    public async Task Fora_de_development_nao_ha_cors()
+    {
+        using var producao = fabrica.WithWebHostBuilder(host => host.UseEnvironment("Production"));
+
+        var resposta = await producao.CreateClient().SendAsync(Preflight("/api/radar?microarea=3"), TestContext.Current.CancellationToken);
+
+        Assert.False(resposta.Headers.Contains("Access-Control-Allow-Origin"));
+    }
+
+    // As rotas de demo do Motor e da Guarda só existem em Development. Na VM do Azure, em Production, somem.
+    [Theory]
+    [InlineData("GET", "/api/guarda/demo/condicoes")]
+    [InlineData("GET", "/api/guarda/demo/painel")]
+    [InlineData("POST", "/api/guarda/demo/grupo-do-bairro")]
+    [InlineData("PUT", "/api/demo/relogio")]
+    public async Task Fora_de_development_as_rotas_de_demo_nao_existem(string metodo, string rota)
+    {
+        // Com token válido, para o 401 da política padrão não esconder se a rota existe.
+        using var producao = fabrica.WithWebHostBuilder(host => host.UseEnvironment("Production")
+            .UseSetting("Autenticacao:Acs:0:Id", "acs-prod-01").UseSetting("Autenticacao:Acs:0:Microarea", "3")
+            .UseSetting("Autenticacao:Acs:0:Token", "token-de-producao-no-teste"));
+        var pedido = new HttpRequestMessage(new HttpMethod(metodo), rota) { Content = JsonContent.Create(new { }) };
+        pedido.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", "token-de-producao-no-teste");
+
+        var resposta = await producao.CreateClient().SendAsync(pedido, TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.NotFound, resposta.StatusCode);
+    }
+
+    private static HttpRequestMessage Preflight(string rota)
+    {
+        var pedido = new HttpRequestMessage(HttpMethod.Options, rota);
+        pedido.Headers.Add("Origin", "http://localhost:8081");
+        pedido.Headers.Add("Access-Control-Request-Method", "GET");
+        pedido.Headers.Add("Access-Control-Request-Headers", "authorization");
+        return pedido;
+    }
+
     [Fact]
     public async Task Outra_excecao_fica_para_o_proximo_tratador()
     {

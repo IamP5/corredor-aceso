@@ -19,6 +19,9 @@ builder.Services.AddExceptionHandler<TratadorDeRegraDeDominio>();
 builder.Services.AddSingleton(builder.Configuration.GetRequiredSection("Relogio").Get<ParametrosDoRelogio>()!);
 
 builder.AddAutenticacaoDaAcs();
+// O alvo web do app (npx expo start --web) roda em outra porta. Só em Development: o app no celular não usa CORS.
+builder.Services.AddCors(cors => cors.AddDefaultPolicy(politica => politica
+    .AllowAnyOrigin().WithHeaders("Authorization", "Content-Type", "Accept").WithMethods("GET", "POST", "PUT", "DELETE")));
 builder.AddGuarda().AddMotor().AddCadastro();
 
 // O Motor registra o RelogioDeDemo em Development. Sem ele, valem o relógio do sistema e deslocamento zero.
@@ -41,6 +44,7 @@ if (args is ["--semear", var arquivo])
 app.UseExceptionHandler();
 app.UseGuarda();
 app.UseSwaggerUI(swagger => swagger.SwaggerEndpoint("/openapi/v1.json", "Corredor Aceso"));
+if (app.Environment.IsDevelopment()) app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
