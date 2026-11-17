@@ -152,9 +152,9 @@ grava 09-auditoria.txt 'head -n 12 "$(ls -tr /var/log/corredor/execucao/*-01-red
 grava 09-auditoria.txt 'journalctl -t corredor-auditoria -o short-iso --no-pager | tail -n 5'
 grava 09-auditoria.txt 'corredor logs deploy'
 
-if grep -rIlE '/Users/|/private/tmp' "$SAIDA" >/dev/null; then
-  echo "há caminho local nas evidências:" >&2
-  grep -rIlE '/Users/|/private/tmp' "$SAIDA" >&2
+if grep -rIlF -e "$RAIZ" -e "$HOME" "$SAIDA" >/dev/null; then
+  echo "há caminho do notebook nas evidências:" >&2
+  grep -rIlF -e "$RAIZ" -e "$HOME" "$SAIDA" >&2
   exit 1
 fi
 echo "== evidências em ${SAIDA#"$RAIZ"/}"
