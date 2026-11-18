@@ -48,7 +48,7 @@ Cada linha diz o que olhar, onde estão as evidências e o que vai na entrega. O
 | IA e Machine Learning | [ml/README.md](ml/README.md), o notebook `ml/corredor_aceso.ipynb` e o [relatório](ml/RELATORIO_ML.md) | o notebook executado | link do GitHub e vídeo |
 | Mobile Development | [app/README.md](app/README.md): telas, consumo da API, banco local e acessibilidade | [docs/evidencias/mobile/](docs/evidencias/mobile/) | link do GitHub e vídeo |
 | Operating Systems | [infra/README.md](infra/README.md): scripts de rede e da aplicação, monitor, systemd, logs e teste de falha | [docs/evidencias/os/](docs/evidencias/os/README.md) | link do GitHub e vídeo |
-| Physical Computing | [iot/README.md](iot/README.md): o nó ESP32 no Wokwi e o simulador das casas | [docs/evidencias/iot/](docs/evidencias/iot/README.md) | link do Wokwi, vídeo e `integrantes.txt` |
+| Physical Computing | [iot/README.md](iot/README.md): o nó ESP32 no Wokwi e o [painel web](https://iamp5.github.io/corredor-aceso/painel/) via MQTT | [docs/evidencias/iot/](docs/evidencias/iot/README.md) | link do Wokwi, vídeo e `integrantes.txt` |
 | Testing e QA | [docs/qa/features.md](docs/qa/features.md) e [docs/qa/casos-de-teste.md](docs/qa/casos-de-teste.md), cadastrados no Azure Boards | prints do Azure Boards | PDF com o link do Azure Boards e o vídeo de pitch |
 
 ## Vídeos

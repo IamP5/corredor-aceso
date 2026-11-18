@@ -31,7 +31,7 @@ ESPERA_SAUDE_S="60"
 # MQTT: ponte de saída até o broker público onde o nó do Wokwi publica.
 MQTT_PUBLICO_HOST="broker.hivemq.com"
 MQTT_PUBLICO_PORTA="1883"
-MQTT_PREFIXO_PUBLICO="gs26-TROQUE-ISTO"
+MQTT_PREFIXO_PUBLICO="corredor-aceso-40028922"
 
 # Casa usada só pelo teste de falha: 32 caracteres hexadecimais minúsculos, como todo
 # CasaToken. O seed do Motor precisa ativar esta casa.

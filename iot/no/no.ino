@@ -11,13 +11,55 @@
 // - TELEMETRIA ao ligar, a cada 5 min e na hora em que a tensão cruza 100 V.
 // - Botão: um toque "estou bem" (BOTAO_BEM), dois toques "hoje vou sair" (BOTAO_SAIR).
 // - Comandos: DIA_CRITICO acende o LED âmbar. PEDIR_TOQUE toca o buzzer até o botão.
+// - Reações locais, sem servidor: 34 °C ou mais acende o âmbar; tensão abaixo de 100 V dispara o
+//   alarme até a tensão voltar ou o botão; às 14h30, sem sinal de vida desde as 10h, o buzzer chama.
+// - Queda: impacto no pingente (MPU6050) ou alguém deitado no chão sob o sensor de teto (HC-SR04).
+//   A tela pergunta "Caiu?" e o buzzer chama. Sem toque no botão, sai um evento QUEDA. O Motor
+//   da API não conhece QUEDA e recusa o pacote; o painel web mostra.
+// - Tela OLED com o recado do momento, em letras grandes.
+// - Tópico estado: uma foto dos sensores a cada 2 s, retida no broker, para o painel web.
 // - O pacote leva só o token da casa. Nunca nome.
 
 #include <WiFi.h>
+#include <Wire.h>
 #include <PubSubClient.h>
 #include <DHTesp.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <time.h>
 #include "config.h"
+
+// Padrões para um config.h antigo, sem as reações locais.
+#ifndef FUSO_SEGUNDOS
+#define FUSO_SEGUNDOS (-3 * 3600)
+#endif
+#ifndef PEDIDO_LOCAL_DE_TOQUE
+#define PEDIDO_LOCAL_DE_TOQUE 1
+#endif
+#ifndef INICIO_DA_JANELA_MIN
+#define INICIO_DA_JANELA_MIN (10 * 60)
+#endif
+#ifndef HORA_DO_PEDIDO_MIN
+#define HORA_DO_PEDIDO_MIN (14 * 60 + 30)
+#endif
+#ifndef SILENCIO_DEMO_S
+#define SILENCIO_DEMO_S 0
+#endif
+#ifndef IMPACTO_G
+#define IMPACTO_G 2.0
+#endif
+#ifndef ALTURA_DO_TETO_CM
+#define ALTURA_DO_TETO_CM 250
+#endif
+#ifndef ALTURA_DEITADO_CM
+#define ALTURA_DEITADO_CM 50
+#endif
+#ifndef TEMPO_NO_CHAO_S
+#define TEMPO_NO_CHAO_S 30
+#endif
+#ifndef CONTAGEM_DA_QUEDA_S
+#define CONTAGEM_DA_QUEDA_S 15
+#endif
 
 // Pinos (ver diagram.json).
 const int PINO_PIR = 27;
@@ -28,6 +70,11 @@ const int PINO_BOTAO = 25;     // botão grande, com pull-up interno
 const int PINO_AMBAR = 33;     // LED âmbar: dia crítico e pedido de toque
 const int PINO_BUZZER = 32;
 const int PINO_WIFI = 14;      // chave da demo: desligada corta o Wi-Fi de verdade
+const int PINO_TRIG = 5;       // HC-SR04 no teto
+const int PINO_ECHO = 18;      // no aparelho real, com divisor de tensão: o eco sai em 5 V
+// OLED (0x3C) e MPU6050 (0x68) no I2C padrão: SDA 21, SCL 22.
+const uint8_t ENDERECO_TELA = 0x3C;
+const uint8_t ENDERECO_MPU = 0x68;
 
 // Tempos, em milissegundos.
 const unsigned long INTERVALO_HEARTBEAT = 20000;
@@ -40,7 +87,13 @@ const unsigned long LEITURA_DHT = 2500;
 const unsigned long RECONEXAO = 5000;
 const unsigned long DURACAO_DIA_CRITICO = 12UL * 60 * 60 * 1000;
 const unsigned long DURACAO_TOQUE = 10UL * 60 * 1000;
+const unsigned long INTERVALO_ESTADO = 2000;
+const unsigned long INTERVALO_TELA = 500;
+const unsigned long INTERVALO_DISTANCIA = 300;
+const unsigned long INTERVALO_MPU = 100;
 
+const float TEMPERATURA_DE_CALOR = 34.0;  // a mesma do Motor
+const float FIM_DO_CALOR = 33.5;          // histerese: o âmbar não pisca na beira dos 34 °C
 const float TENSAO_MINIMA = 100.0;
 const float TENSAO_MAXIMA_ESCALA = 250.0;  // potenciômetro no fim da escala
 const time_t HORA_VALIDA = 1700000000;     // antes disso o NTP ainda não respondeu
@@ -63,9 +116,13 @@ int tamanhoBuffer = 0;
 WiFiClient rede;
 PubSubClient mqtt(rede);
 DHTesp dht;
+Adafruit_SSD1306 tela(128, 64, &Wire, -1);
+bool telaOk = false;
+bool mpuOk = false;
 
 char topicoEvento[96];
 char topicoComando[96];
+char topicoEstado[96];
 uint32_t seq = 0;
 float tempC = NAN;
 float tensaoV = 0;
@@ -93,7 +150,39 @@ unsigned long diaCriticoEm = 0;
 bool pedindoToque = false;
 unsigned long toquePedidoEm = 0;
 
+// Reações locais.
+bool calor = false;
+bool alarmeDeEnergia = false;   // tensão baixa e ninguém apertou o botão ainda
+bool houveSinal = false;        // MOVIMENTO, BOTAO_BEM ou BOTAO_SAIR desde o boot
+unsigned long ultimoSinalEm = 0;
+bool houveSaida = false;
+unsigned long saidaEm = 0;
+int diaDoPedidoLocal = -1;      // tm_yday do último pedido local: um por dia
+bool pedidoDeDemoFeito = false;
+
+// Queda.
+enum EstadoDaQueda { SEM_QUEDA, PERGUNTANDO, QUEDA_AVISADA };
+EstadoDaQueda queda = SEM_QUEDA;
+unsigned long perguntaEm = 0;
+const char *origemDaQueda = "";
+float aceleracaoG = NAN;
+bool impactoAntes = false;
+unsigned long ultimaLeituraMpu = 0;
+int alturaCm = -1;              // altura do que está sob o sensor de teto; -1 sem leitura
+unsigned long ultimaDistancia = 0;
+bool noChao = false;
+unsigned long noChaoDesde = 0;
+
+unsigned long ultimoEstado = 0;
+unsigned long ultimaTela = 0;
+
 bool horaValida() { return time(nullptr) > HORA_VALIDA; }
+
+void registrarSinal() {
+  houveSinal = true;
+  ultimoSinalEm = millis();
+  pedidoDeDemoFeito = false;
+}
 
 void bipar(int vezes) {
   for (int i = 0; i < vezes; i++) {
@@ -224,6 +313,7 @@ void cuidarDaRede() {
     ultimoHeartbeat = agora;
     publicar(++seq, time(nullptr), "HEARTBEAT", tempC, tensaoV, false);
   }
+  publicarEstado();
 }
 
 // ---------- sensores e atuadores ----------
@@ -236,6 +326,7 @@ void cuidarDoCorredor() {
     houveMovimento = true;
     ultimoMovimento = agora;
     guardar("MOVIMENTO");
+    registrarSinal();
   }
   pirAntes = pir;
   digitalWrite(PINO_LUZ, (long)(luzAte - agora) > 0 ? HIGH : LOW);
@@ -255,15 +346,31 @@ void cuidarDoBotao() {
         pedindoToque = false;
         noTone(PINO_BUZZER);
       }
+      if (alarmeDeEnergia) {
+        alarmeDeEnergia = false;
+        noTone(PINO_BUZZER);
+        Serial.println("[energia] alarme silenciado pelo botão");
+      }
+      if (queda != SEM_QUEDA) {
+        Serial.println(queda == PERGUNTANDO ? "[queda] cancelada: ela disse que está bem"
+                                            : "[queda] encerrada pelo botão");
+        queda = SEM_QUEDA;
+        noChaoDesde = agora;  // se continuar no chão, a contagem recomeça
+        noTone(PINO_BUZZER);
+      }
     }
   }
   if (toques >= 2) {
     toques = 0;
     guardar("BOTAO_SAIR");
+    registrarSinal();
+    houveSaida = true;
+    saidaEm = agora;
     bipar(2);
   } else if (toques == 1 && agora - ultimoToqueSoltoEm > DUPLO_TOQUE) {
     toques = 0;
     guardar("BOTAO_BEM");
+    registrarSinal();
     bipar(1);
   }
 }
@@ -274,6 +381,14 @@ void cuidarDaTelemetria() {
     ultimaLeituraDht = agora;
     TempAndHumidity leitura = dht.getTempAndHumidity();
     if (dht.getStatus() == DHTesp::ERROR_NONE) tempC = leitura.temperature;
+    if (!isnan(tempC) && !calor && tempC >= TEMPERATURA_DE_CALOR) {
+      calor = true;
+      Serial.printf("[calor] %.1f °C dentro de casa: âmbar aceso, beba água\n", tempC);
+      bipar(3);
+    } else if (!isnan(tempC) && calor && tempC < FIM_DO_CALOR) {
+      calor = false;
+      Serial.printf("[calor] %.1f °C: âmbar do calor apagado\n", tempC);
+    }
   }
   tensaoV = analogRead(PINO_TENSAO) * TENSAO_MAXIMA_ESCALA / 4095.0;
   bool baixa = tensaoV < TENSAO_MINIMA;
@@ -283,7 +398,12 @@ void cuidarDaTelemetria() {
   // A primeira espera a rede subir, ou 30 s, para não sair marcada como guardada a cada boot.
   bool primeira = !telemetriaInicial && !isnan(tempC) && (mqtt.connected() || agora > 30000);
   if (primeira || cruzou || (telemetriaInicial && vencida)) {
-    if (cruzou) Serial.printf("[energia] tensão cruzou 100 V: %.1f V\n", tensaoV);
+    if (cruzou) {
+      Serial.printf("[energia] tensão cruzou 100 V: %.1f V\n", tensaoV);
+      alarmeDeEnergia = baixa;
+      if (baixa) Serial.println("[energia] alarme local até a tensão voltar ou alguém apertar o botão");
+      else noTone(PINO_BUZZER);
+    }
     telemetriaInicial = true;
     ultimaTelemetria = agora;
     guardar("TELEMETRIA");
@@ -298,12 +418,222 @@ void cuidarDosAvisos() {
     noTone(PINO_BUZZER);
   }
   bool piscar = (agora / 500) % 2 == 0;
-  if (pedindoToque) {
+  if (queda == QUEDA_AVISADA) {
+    digitalWrite(PINO_AMBAR, (agora / 150) % 2 == 0 ? HIGH : LOW);
+    if (agora % 600 < 20) tone(PINO_BUZZER, 2600, 400);
+  } else if (queda == PERGUNTANDO) {
+    digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
+    if (agora % 1000 < 20) tone(PINO_BUZZER, 1500, 150);
+  } else if (alarmeDeEnergia) {
+    digitalWrite(PINO_AMBAR, (agora / 150) % 2 == 0 ? HIGH : LOW);
+    if (agora % 1000 < 20) tone(PINO_BUZZER, 2200, 500);
+  } else if (pedindoToque) {
     digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
     if (agora % 2000 < 20) tone(PINO_BUZZER, 880, 300);
   } else {
-    digitalWrite(PINO_AMBAR, diaCritico ? HIGH : LOW);
+    digitalWrite(PINO_AMBAR, diaCritico || calor ? HIGH : LOW);
   }
+}
+
+void pedirToqueLocal(const char *motivo) {
+  if (pedindoToque) return;  // o servidor já pediu
+  pedindoToque = true;
+  toquePedidoEm = millis();
+  Serial.printf("[silêncio] %s: buzzer até alguém apertar o botão\n", motivo);
+}
+
+// A mesma regra do VigiaDoRadar, decidida no aparelho. Só conclui "silêncio desde as 10h" se o
+// aparelho estava ligado desde as 10h, e decide uma vez por dia, no começo da janela de 14h30.
+void cuidarDoSilencio() {
+  if (!PEDIDO_LOCAL_DE_TOQUE) return;
+  unsigned long agora = millis();
+  if (SILENCIO_DEMO_S > 0) {
+    unsigned long desde = houveSinal ? ultimoSinalEm : 0;
+    if (!houveSaida && !pedidoDeDemoFeito && agora - desde >= SILENCIO_DEMO_S * 1000UL) {
+      pedidoDeDemoFeito = true;
+      char motivo[48];
+      snprintf(motivo, sizeof motivo, "demo: %d s sem sinal de vida", (int)SILENCIO_DEMO_S);
+      pedirToqueLocal(motivo);
+    }
+    return;
+  }
+  if (!horaValida()) return;
+  time_t local = time(nullptr) + FUSO_SEGUNDOS;
+  struct tm t;
+  gmtime_r(&local, &t);
+  long segundosNoDia = t.tm_hour * 3600L + t.tm_min * 60L + t.tm_sec;
+  long inicioDoPedido = HORA_DO_PEDIDO_MIN * 60L;
+  if (t.tm_yday == diaDoPedidoLocal) return;
+  if (segundosNoDia < inicioDoPedido || segundosNoDia >= inicioDoPedido + (long)(DURACAO_TOQUE / 1000)) return;
+  diaDoPedidoLocal = t.tm_yday;
+  unsigned long desdeOInicio = (unsigned long)(segundosNoDia - INICIO_DA_JANELA_MIN * 60L) * 1000UL;
+  unsigned long desdeMeiaNoite = (unsigned long)segundosNoDia * 1000UL;
+  if (agora < desdeOInicio) return;  // ligou depois das 10h: não sabe o que houve antes
+  if (houveSinal && agora - ultimoSinalEm <= desdeOInicio) return;
+  if (houveSaida && agora - saidaEm <= desdeMeiaNoite) return;  // "hoje vou sair" suspende a regra
+  pedirToqueLocal("14h30 sem sinal de vida desde as 10h");
+}
+
+// ---------- queda ----------
+
+void iniciarMpu() {
+  Wire.beginTransmission(ENDERECO_MPU);
+  Wire.write(0x6B);  // PWR_MGMT_1: acorda o sensor
+  Wire.write(0);
+  mpuOk = Wire.endTransmission() == 0;
+  if (!mpuOk) return;
+  Wire.beginTransmission(ENDERECO_MPU);
+  Wire.write(0x1C);  // ACCEL_CONFIG: escala de 16 g, para enxergar o impacto
+  Wire.write(0x18);
+  Wire.endTransmission();
+}
+
+// Módulo da aceleração, em g. Parado, vale 1 g (a gravidade).
+float lerAceleracaoG() {
+  Wire.beginTransmission(ENDERECO_MPU);
+  Wire.write(0x3B);
+  if (Wire.endTransmission(false) != 0 || Wire.requestFrom(ENDERECO_MPU, (uint8_t)6) != 6) return NAN;
+  float soma = 0;
+  for (int i = 0; i < 3; i++) {
+    int16_t bruto = (int16_t)((Wire.read() << 8) | Wire.read());
+    float g = bruto / 2048.0;
+    soma += g * g;
+  }
+  return sqrt(soma);
+}
+
+// Altura do que está sob o sensor de teto: o teto menos a distância medida. -1 sem eco.
+int medirAlturaCm() {
+  digitalWrite(PINO_TRIG, LOW);
+  delayMicroseconds(2);
+  digitalWrite(PINO_TRIG, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(PINO_TRIG, LOW);
+  unsigned long eco = pulseIn(PINO_ECHO, HIGH, 30000);
+  if (eco == 0) return -1;
+  int distancia = eco / 58;
+  return distancia >= ALTURA_DO_TETO_CM ? 0 : ALTURA_DO_TETO_CM - distancia;
+}
+
+void perguntarSeCaiu(const char *origem) {
+  if (queda != SEM_QUEDA) return;
+  queda = PERGUNTANDO;
+  perguntaEm = millis();
+  origemDaQueda = origem;
+  Serial.printf("[queda] %s: perguntando por %d s antes de avisar\n", origem, CONTAGEM_DA_QUEDA_S);
+}
+
+void cuidarDaQueda() {
+  unsigned long agora = millis();
+  if (mpuOk && agora - ultimaLeituraMpu >= INTERVALO_MPU) {
+    ultimaLeituraMpu = agora;
+    aceleracaoG = lerAceleracaoG();
+    bool impacto = !isnan(aceleracaoG) && aceleracaoG >= IMPACTO_G;
+    if (impacto && !impactoAntes) perguntarSeCaiu("impacto no pingente");
+    impactoAntes = impacto;
+  }
+  if (agora - ultimaDistancia >= INTERVALO_DISTANCIA) {
+    ultimaDistancia = agora;
+    alturaCm = medirAlturaCm();
+    bool deitado = alturaCm >= 10 && alturaCm <= ALTURA_DEITADO_CM;
+    if (deitado && !noChao) noChaoDesde = agora;
+    noChao = deitado;
+    if (noChao && agora - noChaoDesde >= TEMPO_NO_CHAO_S * 1000UL) perguntarSeCaiu("alguém deitado no chão do corredor");
+  }
+  // millis() de novo: perguntaEm pode ter nascido depois do agora lido no começo da função.
+  if (queda == PERGUNTANDO && millis() - perguntaEm >= CONTAGEM_DA_QUEDA_S * 1000UL) {
+    queda = QUEDA_AVISADA;
+    Serial.printf("[queda] sem resposta: QUEDA avisada (%s)\n", origemDaQueda);
+    guardar("QUEDA");
+  }
+}
+
+// ---------- tela e painel ----------
+
+const char *alertaAtual() {
+  if (queda == QUEDA_AVISADA) return "QUEDA";
+  if (queda == PERGUNTANDO) return "PERGUNTANDO";
+  if (tensaoBaixa) return "ENERGIA";
+  if (pedindoToque) return "PEDIR_TOQUE";
+  if (calor) return "CALOR";
+  if (diaCritico) return "DIA_CRITICO";
+  return "OK";
+}
+
+// A fonte da tela não tem acento, por isso os recados saem sem acento.
+void escreverTela(const char *grande, const char *linha1, const char *linha2) {
+  tela.clearDisplay();
+  tela.setTextColor(SSD1306_WHITE);
+  tela.setTextSize(1);
+  tela.setCursor(0, 0);
+  tela.print("Corredor Aceso");
+  tela.setCursor(110, 0);
+  tela.print(mqtt.connected() ? "on" : "--");
+  tela.setTextSize(2);
+  tela.setCursor(0, 14);
+  tela.print(grande);
+  tela.setTextSize(1);
+  tela.setCursor(0, 38);
+  tela.print(linha1);
+  tela.setCursor(0, 52);
+  tela.print(linha2);
+  tela.display();
+}
+
+void cuidarDaTela() {
+  unsigned long agora = millis();
+  if (!telaOk || agora - ultimaTela < INTERVALO_TELA) return;
+  ultimaTela = agora;
+  char linha[24], sensores[24];
+  snprintf(sensores, sizeof sensores, "%.1fC %.0fV", isnan(tempC) ? 0.0 : tempC, tensaoV);
+  if (queda == QUEDA_AVISADA) {
+    escreverTela("QUEDA!", "Aviso enviado.", "Aperte o botao.");
+  } else if (queda == PERGUNTANDO) {
+    long resta = CONTAGEM_DA_QUEDA_S - (long)((agora - perguntaEm) / 1000);
+    snprintf(linha, sizeof linha, "o botao. Aviso em %lds", resta < 0 ? 0 : resta);
+    escreverTela("CAIU?", "Se esta bem, aperte", linha);
+  } else if (tensaoBaixa) {
+    escreverTela("ENERGIA!", "Tomada sem forca.", sensores);
+  } else if (pedindoToque) {
+    escreverTela("TOQUE", "Aperte o botao verde", sensores);
+  } else if (calor) {
+    snprintf(linha, sizeof linha, "Casa quente: %.1fC", tempC);
+    escreverTela("BEBA AGUA", linha, sensores);
+  } else if (diaCritico) {
+    escreverTela("BEBA AGUA", "Dia de muito calor.", sensores);
+  } else {
+    if (horaValida()) {
+      time_t local = time(nullptr) + FUSO_SEGUNDOS;
+      strftime(linha, sizeof linha, "Hora %H:%M", gmtime(&local));
+    } else {
+      snprintf(linha, sizeof linha, "Sem hora ainda");
+    }
+    escreverTela("TUDO BEM", linha, sensores);
+  }
+}
+
+// Foto dos sensores para o painel web, retida no broker: quem abre o painel vê o último estado.
+// Fica fora do buffer e do contrato do Motor, que só lê o tópico evento.
+void publicarEstado() {
+  unsigned long agora = millis();
+  if (!mqtt.connected() || !horaValida() || agora - ultimoEstado < INTERVALO_ESTADO) return;
+  ultimoEstado = agora;
+  time_t ts = time(nullptr);
+  char quando[24], temp[12], tensao[12], acel[12], corpo[360];
+  strftime(quando, sizeof quando, "%Y-%m-%dT%H:%M:%SZ", gmtime(&ts));
+  numero(temp, sizeof temp, tempC);
+  numero(tensao, sizeof tensao, tensaoV);
+  numero(acel, sizeof acel, aceleracaoG);
+  bool buzzer = queda != SEM_QUEDA || alarmeDeEnergia || pedindoToque;
+  bool ambar = buzzer || calor || diaCritico;
+  bool luz = (long)(luzAte - agora) > 0;
+  long sinalHa = houveSinal ? (long)((agora - ultimoSinalEm) / 1000) : -1;
+  snprintf(corpo, sizeof corpo,
+           "{\"ts\":\"%s\",\"tempC\":%s,\"tensaoV\":%s,\"alturaCm\":%d,\"aceleracaoG\":%s,\"luz\":%s,"
+           "\"ambar\":%s,\"buzzer\":%s,\"alerta\":\"%s\",\"ultimoSinalHaS\":%ld,\"noBuffer\":%d}",
+           quando, temp, tensao, alturaCm, acel, luz ? "true" : "false", ambar ? "true" : "false",
+           buzzer ? "true" : "false", alertaAtual(), sinalHa, tamanhoBuffer);
+  mqtt.publish(topicoEstado, corpo, true);
 }
 
 void setup() {
@@ -314,9 +644,17 @@ void setup() {
   pinMode(PINO_AMBAR, OUTPUT);
   pinMode(PINO_BUZZER, OUTPUT);
   pinMode(PINO_WIFI, INPUT_PULLUP);
+  pinMode(PINO_TRIG, OUTPUT);
+  pinMode(PINO_ECHO, INPUT);
   dht.setup(PINO_DHT, DHTesp::DHT22);
+  Wire.begin();
+  Wire.setClock(400000);
+  telaOk = tela.begin(SSD1306_SWITCHCAPVCC, ENDERECO_TELA);
+  if (telaOk) escreverTela("OLA", "Ligando...", "");
+  iniciarMpu();
   snprintf(topicoEvento, sizeof topicoEvento, "%s/corredor/v1/%s/evento", MQTT_PREFIXO, CASA_TOKEN);
   snprintf(topicoComando, sizeof topicoComando, "%s/corredor/v1/%s/comando", MQTT_PREFIXO, CASA_TOKEN);
+  snprintf(topicoEstado, sizeof topicoEstado, "%s/corredor/v1/%s/estado", MQTT_PREFIXO, CASA_TOKEN);
   mqtt.setServer(MQTT_HOST, MQTT_PORTA);
   mqtt.setCallback(aoReceber);
   mqtt.setBufferSize(512);
@@ -324,13 +662,17 @@ void setup() {
   configTime(0, 0, NTP_1, NTP_2);
   wifiLigado = digitalRead(PINO_WIFI) == LOW;
   Serial.printf("Corredor Aceso: nó da casa %.6s... publica em %s\n", CASA_TOKEN, topicoEvento);
+  Serial.printf("[pecas] tela %s, pingente %s\n", telaOk ? "ok" : "ausente", mpuOk ? "ok" : "ausente");
 }
 
 void loop() {
   cuidarDoCorredor();
   cuidarDoBotao();
   cuidarDaTelemetria();
+  cuidarDaQueda();
   cuidarDosAvisos();
+  cuidarDoSilencio();
+  cuidarDaTela();
   cuidarDaRede();
   delay(10);
 }

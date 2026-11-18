@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel da casa · Corredor Aceso</title>
+  <meta name="description" content="Painel web do nó ESP32 do Corredor Aceso: o agente de saúde vê, via MQTT, como está a casa.">
+  <style>
+    :root {
+      --magenta: #ed145b; --fundo: #0e0f10; --cartao: #181818; --linha: rgba(255,255,255,.1);
+      --texto: #e8e9ee; --suave: #a3a8b4; --verde: #2fbf71; --amarelo: #f2b33d; --vermelho: #ff4d5e; --cinza: #75838b;
+      --fonte: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--fonte); background: var(--fundo); color: var(--texto); line-height: 1.5; }
+    header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--linha); }
+    header h1 { margin: 0; font-size: 1.25rem; }
+    header h1 span { color: var(--magenta); }
+    header p { margin: 2px 0 0; color: var(--suave); font-size: .9rem; }
+    main { max-width: 1100px; margin: 0 auto; padding: 20px 24px 40px; display: grid; gap: 20px; }
+    .pilula { padding: 4px 12px; border-radius: 999px; font-size: .85rem; font-weight: 600; border: 1px solid var(--linha); }
+    .pilula.on { background: rgba(47,191,113,.15); color: var(--verde); }
+    .pilula.off { background: rgba(255,77,94,.12); color: var(--vermelho); }
+    .cartao { background: var(--cartao); border: 1px solid var(--linha); border-radius: 12px; padding: 16px 20px; }
+    h2 { margin: 0 0 12px; font-size: 1rem; color: var(--suave); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    #situacao { border-left: 8px solid var(--cinza); }
+    #situacao.verde { border-left-color: var(--verde); }
+    #situacao.amarelo { border-left-color: var(--amarelo); }
+    #situacao.vermelho { border-left-color: var(--vermelho); background: rgba(255,77,94,.08); }
+    #situacao-titulo { font-size: 1.9rem; font-weight: 800; margin: 0; }
+    #situacao-detalhe { margin: 6px 0 0; color: var(--suave); font-size: 1.05rem; }
+    .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .sensor { background: #111213; border: 1px solid var(--linha); border-radius: 10px; padding: 12px 14px; }
+    .sensor .rotulo { color: var(--suave); font-size: .85rem; }
+    .sensor .valor { font-size: 1.5rem; font-weight: 700; }
+    .sensor .nota { font-size: .85rem; color: var(--suave); }
+    .sensor.alerta { border-color: var(--vermelho); }
+    .sensor.alerta .valor { color: var(--vermelho); }
+    .duas { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+    @media (max-width: 800px) { .duas { grid-template-columns: 1fr; } }
+    button { font: inherit; font-weight: 600; cursor: pointer; border-radius: 8px; padding: 10px 14px; border: 1px solid var(--linha);
+      background: #222; color: var(--texto); width: 100%; margin-bottom: 10px; text-align: left; }
+    button small { font-weight: 400; opacity: .85; }
+    button.principal { background: var(--magenta); border-color: var(--magenta); color: #fff; }
+    button:focus-visible, input:focus-visible { outline: 3px solid var(--amarelo); outline-offset: 2px; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    ol#linha { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow: auto; }
+    ol#linha li { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--linha); }
+    ol#linha time { color: var(--suave); font-variant-numeric: tabular-nums; }
+    ol#linha .queda { color: var(--vermelho); font-weight: 700; }
+    ol#linha .painel { color: var(--magenta); }
+    .marca { font-size: .75rem; color: var(--amarelo); margin-left: 6px; }
+    details summary { cursor: pointer; color: var(--suave); }
+    label { display: block; font-size: .85rem; color: var(--suave); margin-top: 10px; }
+    input[type=text] { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--linha); background: #111; color: var(--texto);
+      font-family: ui-monospace, Menlo, monospace; }
+    footer { color: var(--suave); font-size: .85rem; }
+    code { font-family: ui-monospace, Menlo, monospace; font-size: .9em; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1><span>Corredor Aceso</span> · Painel da casa</h1>
+      <p>O que o aparelho do corredor viu, ao vivo, pelo MQTT. Para a agente de saúde verificar como está a casa.</p>
+    </div>
+    <span id="conexao" class="pilula off" role="status" aria-live="polite">Desconectado</span>
+  </header>
+
+  <main>
+    <section id="situacao" class="cartao" aria-labelledby="situacao-h">
+      <h2 id="situacao-h">Situação da casa</h2>
+      <p id="situacao-titulo" aria-live="assertive">Aguardando o aparelho…</p>
+      <p id="situacao-detalhe">Abra o projeto no Wokwi e inicie a simulação.</p>
+    </section>
+
+    <section class="cartao" aria-labelledby="sensores-h">
+      <h2 id="sensores-h">Sensores</h2>
+      <div class="grade">
+        <div class="sensor" id="s-sinal"><div class="rotulo">Último sinal de vida</div><div class="valor">—</div><div class="nota">passagem ou botão</div></div>
+        <div class="sensor" id="s-temp"><div class="rotulo">Temperatura dentro de casa</div><div class="valor">—</div><div class="nota">DHT22 · calor a partir de 34 °C</div></div>
+        <div class="sensor" id="s-tensao"><div class="rotulo">Tensão da tomada</div><div class="valor">—</div><div class="nota">concentrador de oxigênio · mínimo 100 V</div></div>
+        <div class="sensor" id="s-altura"><div class="rotulo">Sensor de teto (HC-SR04)</div><div class="valor">—</div><div class="nota">altura do que está embaixo</div></div>
+        <div class="sensor" id="s-acel"><div class="rotulo">Pingente (MPU6050)</div><div class="valor">—</div><div class="nota">impacto a partir de 2 g</div></div>
+        <div class="sensor" id="s-saidas"><div class="rotulo">No aparelho agora</div><div class="valor">—</div><div class="nota">luz · âmbar · buzzer</div></div>
+      </div>
+    </section>
+
+    <div class="duas">
+      <section class="cartao" aria-labelledby="acoes-h">
+        <h2 id="acoes-h">Ações da UBS</h2>
+        <button id="b-dia" class="principal" disabled>Declarar dia crítico de calor<br><small>acende o âmbar: "beba água"</small></button>
+        <button id="b-toque" disabled>Pedir um toque no botão<br><small>o buzzer chama até ela apertar</small></button>
+        <details>
+          <summary>Casa e broker</summary>
+          <label for="prefixo">Prefixo MQTT</label>
+          <input id="prefixo" type="text" autocomplete="off" spellcheck="false">
+          <label for="token">Token da casa</label>
+          <input id="token" type="text" autocomplete="off" spellcheck="false">
+          <button id="b-conectar" style="margin-top:12px">Conectar</button>
+        </details>
+      </section>
+
+      <section class="cartao" aria-labelledby="linha-h">
+        <h2 id="linha-h">Linha do tempo</h2>
+        <label style="margin:0 0 8px"><input type="checkbox" id="ver-tudo"> mostrar heartbeats e fotos de estado</label>
+        <ol id="linha"></ol>
+      </section>
+    </div>
+
+    <footer>
+      Broker público <code>broker.hivemq.com</code> por WebSocket seguro. Tópicos <code id="topicos"></code>.
+      Os eventos são os mesmos que o Motor da API consome; <code>QUEDA</code> e o tópico <code>estado</code> existem só
+      para este painel. Use só a casa de teste: o broker é público.
+    </footer>
+  </main>
+
+  <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+  <script>
+    const BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+    const SEM_NOTICIAS_S = 30;
+    const parametros = new URLSearchParams(location.search);
+    const $ = id => document.getElementById(id);
+    $('prefixo').value = parametros.get('prefixo') || 'corredor-aceso-40028922';
+    $('token').value = parametros.get('token') || 'fa11fa11fa11fa11fa11fa11fa11fa11';
+
+    let cliente = null, base = '', estado = null, ultimoSinalEm = 0;
+    const eventos = [];
+
+    const NOMES = {
+      MOVIMENTO: 'Passou no corredor', BOTAO_BEM: 'Apertou o botão: estou bem', BOTAO_SAIR: 'Apertou duas vezes: hoje vou sair',
+      TELEMETRIA: 'Leitura dos sensores', HEARTBEAT: 'Aparelho ligado', QUEDA: 'QUEDA avisada pelo aparelho', ESTADO: 'Foto de estado'
+    };
+    const SINAL_DE_VIDA = ['MOVIMENTO', 'BOTAO_BEM', 'BOTAO_SAIR'];
+
+    const hora = data => data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    function ha(segundos) {
+      if (segundos < 60) return `há ${Math.max(0, Math.round(segundos))} s`;
+      if (segundos < 3600) return `há ${Math.round(segundos / 60)} min`;
+      return `há ${(segundos / 3600).toFixed(1).replace('.', ',')} h`;
+    }
+    const num = (v, casas = 1) => typeof v !== 'number' || Number.isNaN(v) ? '—' : v.toFixed(casas).replace('.', ',');
+
+    function conectar() {
+      if (cliente) cliente.end(true);
+      base = `${$('prefixo').value.trim()}/corredor/v1/${$('token').value.trim()}`;
+      $('topicos').textContent = `${base}/{evento,estado,comando}`;
+      estado = null; ultimoSinalEm = 0; eventos.length = 0;
+      desenharLinha();
+      cliente = mqtt.connect(BROKER, { clientId: 'painel-' + Math.random().toString(16).slice(2, 10), clean: true, reconnectPeriod: 3000, connectTimeout: 8000 });
+      cliente.on('connect', () => { cliente.subscribe([`${base}/evento`, `${base}/estado`]); marcarConexao(true); });
+      cliente.on('close', () => marcarConexao(false));
+      cliente.on('message', (topico, corpo) => {
+        let dado;
+        try { dado = JSON.parse(corpo.toString()); } catch { return; }
+        if (topico.endsWith('/estado')) {
+          estado = dado;
+          if (typeof dado.ultimoSinalHaS === 'number' && dado.ultimoSinalHaS >= 0) {
+            ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts) - dado.ultimoSinalHaS * 1000);
+          }
+          if ($('ver-tudo').checked) registrar({ tipo: 'ESTADO', ts: dado.ts, alerta: dado.alerta });
+        } else {
+          registrar(dado);
+          if (SINAL_DE_VIDA.includes(dado.tipo)) ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts));
+        }
+        desenhar();
+      });
+    }
+
+    function marcarConexao(ligado) {
+      $('conexao').className = 'pilula ' + (ligado ? 'on' : 'off');
+      $('conexao').textContent = ligado ? 'Conectado ao broker' : 'Desconectado';
+      $('b-dia').disabled = $('b-toque').disabled = !ligado;
+    }
+
+    function registrar(evento) {
+      eventos.unshift({ ...evento, recebido: new Date() });
+      if (eventos.length > 200) eventos.pop();
+      desenharLinha();
+    }
+
+    function desenharLinha() {
+      const lista = $('linha'), verTudo = $('ver-tudo').checked;
+      lista.replaceChildren();
+      for (const e of eventos) {
+        if (!verTudo && (e.tipo === 'HEARTBEAT' || e.tipo === 'ESTADO')) continue;
+        if (lista.children.length >= 60) break;
+        const li = document.createElement('li');
+        const t = document.createElement('time');
+        const quando = e.ts ? new Date(e.ts) : e.recebido;
+        t.dateTime = quando.toISOString();
+        t.textContent = hora(quando);
+        const texto = document.createElement('span');
+        texto.textContent = e.painel || NOMES[e.tipo] || e.tipo;
+        if (e.tipo === 'TELEMETRIA') texto.textContent += `: ${num(e.tempC)} °C, ${num(e.tensaoV, 0)} V`;
+        if (e.tipo === 'ESTADO') texto.textContent += `: ${e.alerta}`;
+        if (e.tipo === 'QUEDA') texto.className = 'queda';
+        if (e.painel) texto.className = 'painel';
+        if (e.bufferizado) {
+          const marca = document.createElement('span');
+          marca.className = 'marca';
+          marca.textContent = 'guardado sem rede, enviado depois';
+          texto.append(marca);
+        }
+        li.append(t, texto);
+        lista.append(li);
+      }
+      if (!lista.children.length) {
+        const li = document.createElement('li');
+        li.textContent = 'Nenhum evento ainda.';
+        lista.append(li);
+      }
+    }
+
+    function situacao() {
+      if (!estado) return ['cinza', 'Aguardando o aparelho…', 'Nenhuma foto de estado recebida. Inicie a simulação no Wokwi.'];
+      const idade = (Date.now() - Date.parse(estado.ts)) / 1000;
+      if (idade > SEM_NOTICIAS_S) return ['cinza', 'Sem notícias do aparelho', `Último contato ${ha(idade)}. Pode estar sem rede ou desligado; os eventos ficam guardados nele.`];
+      switch (estado.alerta) {
+        case 'QUEDA': return ['vermelho', 'Queda avisada', 'Ninguém respondeu no aparelho. Ligar para a casa ou ir até lá agora.'];
+        case 'PERGUNTANDO': return ['amarelo', 'Possível queda', 'O aparelho está perguntando se ela está bem. Sem toque no botão, vira aviso de queda.'];
+        case 'ENERGIA': return ['vermelho', 'Falta de energia', `Tomada em ${num(estado.tensaoV, 0)} V: o concentrador de oxigênio pode ter parado.`];
+        case 'PEDIR_TOQUE': return ['amarelo', 'Pedido de toque em andamento', 'O buzzer está chamando até ela apertar o botão.'];
+        case 'CALOR': return ['amarelo', 'Casa quente', `${num(estado.tempC)} °C dentro de casa. O aparelho acendeu o âmbar: beba água.`];
+        case 'DIA_CRITICO': return ['amarelo', 'Dia crítico de calor', 'Âmbar aceso na casa. Fique de olho no sinal de vida.'];
+        default: return ['verde', 'Tudo bem', 'Nenhum alerta no aparelho.'];
+      }
+    }
+
+    function sensor(id, valor, nota, alerta) {
+      const s = $(id);
+      s.querySelector('.valor').textContent = valor;
+      if (nota !== undefined) s.querySelector('.nota').textContent = nota;
+      s.classList.toggle('alerta', !!alerta);
+    }
+
+    function desenhar() {
+      const [cor, titulo, detalhe] = situacao();
+      $('situacao').className = 'cartao ' + cor;
+      if ($('situacao-titulo').textContent !== titulo) $('situacao-titulo').textContent = titulo;
+      $('situacao-detalhe').textContent = detalhe;
+      sensor('s-sinal', ultimoSinalEm ? ha((Date.now() - ultimoSinalEm) / 1000) : '—',
+        ultimoSinalEm ? `às ${hora(new Date(ultimoSinalEm))}` : 'passagem ou botão');
+      if (!estado) return;
+      sensor('s-temp', `${num(estado.tempC)} °C`, undefined, estado.tempC >= 34);
+      sensor('s-tensao', `${num(estado.tensaoV, 0)} V`, undefined, estado.tensaoV < 100);
+      const h = estado.alturaCm;
+      const leitura = h < 0 ? 'sem leitura' : h < 10 ? 'corredor vazio' : h <= 50 ? 'alguém deitado no chão'
+        : h < 100 ? 'alguém sentado ou abaixado' : 'pessoa em pé';
+      sensor('s-altura', h < 0 ? '—' : `${h} cm`, leitura, h >= 10 && h <= 50);
+      sensor('s-acel', `${num(estado.aceleracaoG, 2)} g`, estado.aceleracaoG >= 2 ? 'impacto!' : 'parado: perto de 1 g', estado.aceleracaoG >= 2);
+      const saidas = [estado.luz ? 'luz acesa' : 'luz apagada', estado.ambar ? 'âmbar aceso' : 'âmbar apagado', estado.buzzer ? 'buzzer tocando' : 'buzzer quieto'];
+      sensor('s-saidas', estado.buzzer ? 'Buzzer' : estado.ambar ? 'Âmbar' : estado.luz ? 'Luz' : 'Quieto', saidas.join(' · '), estado.buzzer);
+    }
+
+    function comandar(tipo, texto) {
+      if (!cliente || !cliente.connected) return;
+      cliente.publish(`${base}/comando`, JSON.stringify({ tipo }), { qos: 1 });
+      registrar({ painel: texto, recebido: new Date() });
+    }
+
+    $('b-dia').onclick = () => comandar('DIA_CRITICO', 'Painel declarou dia crítico');
+    $('b-toque').onclick = () => comandar('PEDIR_TOQUE', 'Painel pediu um toque no botão');
+    $('b-conectar').onclick = conectar;
+    $('ver-tudo').onchange = desenharLinha;
+    setInterval(desenhar, 1000);
+    conectar();
+  </script>
+</body>
+</html>

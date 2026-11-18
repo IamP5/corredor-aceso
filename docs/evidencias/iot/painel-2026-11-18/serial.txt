@@ -1,0 +1,38 @@
+# Boot 1: pingente com X e Z em 2 g desde a partida anterior, depois os testes de queda e o sensor de teto.
+Corredor Aceso: nó da casa fa11fa... publica em corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento
+[pecas] tela ok, pingente ok
+[queda] impacto no pingente: perguntando por 15 s antes de avisar
+[wifi] conectando
+[mqtt] conectado em broker.hivemq.com, 0 evento(s) no buffer
+[mqtt] {"seq":1,"ts":"2026-11-18T21:16:30Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[queda] sem resposta: QUEDA avisada (impacto no pingente)
+[mqtt] {"seq":2,"ts":"2026-11-18T21:16:36Z","tipo":"QUEDA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[queda] encerrada pelo botão
+[mqtt] {"seq":4,"ts":"2026-11-18T21:16:55Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[queda] impacto no pingente: perguntando por 15 s antes de avisar
+[energia] tensão cruzou 100 V: 0.0 V
+[energia] alarme local até a tensão voltar ou alguém apertar o botão
+[mqtt] {"seq":6,"ts":"2026-11-18T21:17:01Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":0.0,"bufferizado":false}
+[queda] sem resposta: QUEDA avisada (impacto no pingente)
+[mqtt] {"seq":7,"ts":"2026-11-18T21:17:12Z","tipo":"QUEDA","tempC":29.5,"tensaoV":0.0,"bufferizado":false}
+[energia] tensão cruzou 100 V: 250.0 V
+[mqtt] {"seq":9,"ts":"2026-11-18T21:17:26Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":250.0,"bufferizado":false}
+[queda] encerrada pelo botão
+[mqtt] {"seq":10,"ts":"2026-11-18T21:17:29Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":250.0,"bufferizado":false}
+[queda] impacto no pingente: perguntando por 15 s antes de avisar
+[queda] cancelada: ela disse que está bem
+[mqtt] falhou (-2)
+[evento] seq=12 BOTAO_BEM sem rede: guardado (1 no buffer)
+[mqtt] falhou (-2)
+[queda] alguém deitado no chão do corredor: perguntando por 15 s antes de avisar
+[mqtt] falhou (-2)
+[queda] sem resposta: QUEDA avisada (alguém deitado no chão do corredor)
+[evento] seq=13 QUEDA sem rede: guardado (2 no buffer)
+
+# Boot 2: comando enviado pelo botão "Declarar dia crítico" do painel web.
+Corredor Aceso: nó da casa fa11fa... publica em corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento
+[pecas] tela ok, pingente ok
+[wifi] conectando
+[mqtt] conectado em broker.hivemq.com, 0 evento(s) no buffer
+[mqtt] {"seq":1,"ts":"2026-11-18T21:19:25Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":250.0,"bufferizado":false}
+[comando] DIA_CRITICO: LED âmbar aceso

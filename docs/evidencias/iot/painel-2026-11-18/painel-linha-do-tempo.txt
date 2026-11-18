@@ -1,0 +1,13 @@
+# Linha do tempo do painel web (site/painel/), hora de Brasília, na mesma rodada.
+18:20:00  Painel declarou dia crítico
+18:19:25  Leitura dos sensores: 29,5 °C, 250 V
+18:17:29  Apertou o botão: estou bem
+18:17:26  Leitura dos sensores: 29,5 °C, 250 V
+18:17:12  QUEDA avisada pelo aparelho
+18:17:01  Leitura dos sensores: 29,5 °C, 0 V
+18:16:55  Apertou o botão: estou bem
+18:16:36  QUEDA avisada pelo aparelho
+18:16:30  Leitura dos sensores: 29,5 °C, 127 V
+18:11:28  QUEDA avisada pelo aparelho
+18:11:19  Passou no corredor
+18:10:50  Leitura dos sensores: 29,5 °C, 127 V

@@ -29,7 +29,7 @@ A ordem segue as dependências. O token da casa 1 só vai para o firmware do Wok
 |---|---|---|
 | 18/11, manhã | Importar Features e Test Cases no Azure. Pôr o professor de Testing como Admin. | P5 |
 | 18/11, manhã | Gravar o vídeo de Operating Systems na VM nova | P1 |
-| 18/11, início da tarde | Carga final na VM, token da casa 1 no firmware, publicar o Wokwi | P1 |
+| 18/11, início da tarde | Publicar o Wokwi (casa de teste) e conferir o painel no Pages | P1 |
 | 18/11, tarde | Gravar o vídeo de Physical Computing | P1 |
 | 18/11, tarde | Prints de SOA e de C# (Swagger, testes, migrações) | P2 e P3 |
 | 18/11, noite | Gravar o vídeo de Mobile | P5 |
@@ -146,8 +146,8 @@ Nota: script de infra (rede, DNS, IP) 2, script da aplicação 2, monitoramento 
 
 Entrega: link do projeto no Wokwi, link do vídeo e um arquivo `.txt` com os nomes.
 
-- [ ] **P1, 18/11.** Depois da carga final na VM, copiar o token da casa 1 de `api/semente/tokens.local.json` para a constante do firmware no Wokwi. O token não entra no Git.
-- [ ] **P1, 18/11.** Salvar o projeto no Wokwi como público e pôr o link em `iot/README.md`.
+- [ ] **P1, 18/11.** Salvar o projeto no Wokwi como público, com a casa de teste e `SILENCIO_DEMO_S 90`, e pôr o link em `iot/README.md`. Esta entrega não usa a VM nem o token da casa 1.
+- [ ] **P1, 18/11.** Conferir o painel publicado em <https://iamp5.github.io/corredor-aceso/painel/> depois do push.
 - [ ] **P1, 18/11.** Gravar o vídeo de **até 4 minutos** com a integração, pelo roteiro.
 - [ ] **P1, 19/11.** Enviar no Teams o link do Wokwi, o link do vídeo e o arquivo `integrantes.txt`.
 

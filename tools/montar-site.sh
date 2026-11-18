@@ -66,6 +66,7 @@ done < <(
 rm -rf "$SAIDA"
 mkdir -p "$SAIDA/repo"
 cp site/index.html site/estilo.css site/guia.js "$SAIDA/"
+cp -R site/painel "$SAIDA/"
 
 { echo docs/evidencias/; evidencias; echo "$COPIAR_DO_LEITOR"; } | sort -u | while IFS= read -r caminho; do
   mkdir -p "$SAIDA/repo/$(dirname "$caminho")"

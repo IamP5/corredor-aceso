@@ -1,0 +1,18 @@
+Corredor Aceso: nó da casa fa11fa... publica em corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento
+[wifi] conectando
+[wifi] conectando
+[wifi] conectando
+[wifi] conectando
+[wifi] conectando
+[mqtt] conectado em broker.hivemq.com, 0 evento(s) no buffer
+[mqtt] {"seq":1,"ts":"2026-11-18T20:46:06Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[mqtt] {"seq":3,"ts":"2026-11-18T20:46:20Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+[comando] DIA_CRITICO: LED âmbar aceso
+[energia] tensão cruzou 100 V: 0.0 V
+[energia] alarme local até a tensão voltar ou alguém apertar o botão
+[mqtt] {"seq":5,"ts":"2026-11-18T20:46:50Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":0.0,"bufferizado":false}
+[energia] alarme silenciado pelo botão
+[mqtt] {"seq":8,"ts":"2026-11-18T20:47:13Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":0.0,"bufferizado":false}
+[calor] 35.0 °C dentro de casa: âmbar aceso, beba água
+[silêncio] demo: 90 s sem sinal de vida: buzzer até alguém apertar o botão
+[mqtt] {"seq":14,"ts":"2026-11-18T20:48:57Z","tipo":"BOTAO_BEM","tempC":35.0,"tensaoV":0.0,"bufferizado":false}

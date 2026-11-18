@@ -1,0 +1,6 @@
+corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento {"seq":1,"ts":"2026-11-18T20:46:06Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento {"seq":3,"ts":"2026-11-18T20:46:20Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/comando {"tipo":"DIA_CRITICO"}
+corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento {"seq":5,"ts":"2026-11-18T20:46:50Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":0.0,"bufferizado":false}
+corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento {"seq":8,"ts":"2026-11-18T20:47:13Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":0.0,"bufferizado":false}
+corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento {"seq":14,"ts":"2026-11-18T20:48:57Z","tipo":"BOTAO_BEM","tempC":35.0,"tensaoV":0.0,"bufferizado":false}

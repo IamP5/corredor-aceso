@@ -13,7 +13,10 @@
     { "type": "wokwi-led", "id": "ambar", "top": -140, "left": 330, "attrs": { "color": "orange", "label": "Dia crítico" } },
     { "type": "wokwi-resistor", "id": "r_ambar", "top": -60, "left": 290, "rotate": 90, "attrs": { "value": "220" } },
     { "type": "wokwi-buzzer", "id": "buzzer", "top": 100, "left": 330, "attrs": { "volume": "0.3" } },
-    { "type": "wokwi-slide-switch", "id": "wifi", "top": 230, "left": -90, "attrs": { "value": "1" } }
+    { "type": "wokwi-slide-switch", "id": "wifi", "top": 230, "left": -90, "attrs": { "value": "1" } },
+    { "type": "board-ssd1306", "id": "tela", "top": -260, "left": 90, "attrs": { "i2cAddress": "0x3c" } },
+    { "type": "wokwi-mpu6050", "id": "pingente", "top": 330, "left": 40, "attrs": {} },
+    { "type": "wokwi-hc-sr04", "id": "teto", "top": -290, "left": -230, "attrs": { "distance": "400" } }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
@@ -46,7 +49,22 @@
     [ "buzzer:1", "esp:GND.2", "black", [] ],
 
     [ "wifi:2", "esp:14", "cyan", [] ],
-    [ "wifi:3", "esp:GND.1", "black", [] ]
+    [ "wifi:3", "esp:GND.1", "black", [] ],
+
+    [ "tela:VCC", "esp:3V3", "red", [] ],
+    [ "tela:GND", "esp:GND.2", "black", [] ],
+    [ "tela:SDA", "esp:21", "blue", [] ],
+    [ "tela:SCL", "esp:22", "purple", [] ],
+
+    [ "pingente:VCC", "esp:3V3", "red", [] ],
+    [ "pingente:GND", "esp:GND.3", "black", [] ],
+    [ "pingente:SDA", "esp:21", "blue", [] ],
+    [ "pingente:SCL", "esp:22", "purple", [] ],
+
+    [ "teto:VCC", "esp:5V", "red", [] ],
+    [ "teto:GND", "esp:GND.3", "black", [] ],
+    [ "teto:TRIG", "esp:5", "white", [] ],
+    [ "teto:ECHO", "esp:18", "gray", [] ]
   ],
   "dependencies": {}
 }

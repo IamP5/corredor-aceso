@@ -1,0 +1,7 @@
+# motor.evento_sensor da casa de teste, banco corredor_demo do tools/demo.sh
+# tipo|seq|ocorrido_em|recebido_em|bufferizado
+Telemetria|1|2026-11-18 20:46:06+00|2026-11-18 20:46:12.746664+00|f
+Movimento|3|2026-11-18 20:46:20+00|2026-11-18 20:46:20.858156+00|f
+Telemetria|5|2026-11-18 20:46:50+00|2026-11-18 20:46:51.005056+00|f
+BotaoBem|8|2026-11-18 20:47:13+00|2026-11-18 20:47:14.612515+00|f
+BotaoBem|14|2026-11-18 20:48:57+00|2026-11-18 20:48:58.669288+00|f
