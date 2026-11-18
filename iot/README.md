@@ -22,7 +22,7 @@ mas fica fora desta entrega.
 | Circuito ESP32 com sensores | `no/diagram.json` e `no/no.ino`: sensor de presença, DHT22, potenciômetro no papel do sensor de tensão, pingente MPU6050, sensor de teto HC-SR04, tela OLED, botão, dois LEDs e buzzer. Ver "Peças e por que cada uma existe". |
 | Integrado à solução | O nó publica os eventos do contrato MQTT do Corredor Aceso. O [painel web](../site/painel/index.html) é a visão da agente de saúde sobre uma casa: mostra a situação, os sensores e a linha do tempo, e manda `DIA_CRITICO` e `PEDIR_TOQUE`. Ver "O painel web". |
 | Evidências | [docs/evidencias/iot/](../docs/evidencias/iot/README.md): monitor serial, captura do broker, linha do tempo do painel e prints das rodadas no wokwi.com. |
-| Link do projeto no Wokwi | Ainda não publicado. O projeto pode ser montado pelos passos de "Abrir e rodar no wokwi.com". |
+| Link do projeto no Wokwi | <https://wokwi.com/projects/481064362873341953>, com a casa de teste e `SILENCIO_DEMO_S 90`. Para montar outro, siga "Abrir e rodar no wokwi.com". |
 | Link do painel | <https://iamp5.github.io/corredor-aceso/painel/>, publicado pelo GitHub Pages junto com o guia. |
 | Vídeo de até 4 minutos | Roteiro em [roteiro-iot.md](../docs/entrega/roteiro-iot.md). O link consta na seção "Vídeos" do [README da raiz](../README.md#vídeos). |
 | Nomes dos integrantes | `integrantes.txt`, na raiz do repositório. |

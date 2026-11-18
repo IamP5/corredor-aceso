@@ -112,7 +112,7 @@ Entrega: link do projeto no Wokwi, link do vídeo e um arquivo `.txt` com os nom
 | Item pedido | Onde | Quem faz | Situação |
 |---|---|---|---|
 | Circuito ESP32 com sensores, integrado à solução | `iot/no/` e o painel web em `site/painel/` | repositório | pronto: em 18/11, o nó (com pingente, sensor de teto e tela) rodou no wokwi.com e conversou com o painel pelo broker público, sem a API |
-| Link do projeto no Wokwi | `iot/README.md` | equipe publica no Wokwi | falta: projeto montado no navegador, falta entrar na conta e salvar como público |
+| Link do projeto no Wokwi | <https://wokwi.com/projects/481064362873341953> | equipe publica no Wokwi | pronto: salvo em 18/11 |
 | Link do painel web | <https://iamp5.github.io/corredor-aceso/painel/> | GitHub Pages, no push para `main` | falta: sai no próximo push |
 | Vídeo de até 4 minutos com a integração | roteiro em `docs/entrega/roteiro-iot.md` | equipe | equipe |
 | Arquivo com o nome dos integrantes | `integrantes.txt` | repositório | pronto: a equipe anexa o arquivo no envio |
