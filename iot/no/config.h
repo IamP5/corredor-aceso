@@ -34,7 +34,7 @@
 
 // Queda. O pingente (MPU6050) avisa um impacto. O sensor de teto (HC-SR04) mede a altura do que
 // está embaixo dele: alguém deitado no chão por TEMPO_NO_CHAO_S também é queda. Antes de avisar,
-// o aparelho pergunta na tela e no buzzer por CONTAGEM_DA_QUEDA_S. Um toque no botão cancela.
+// o aparelho mostra "QUEDA?" e bipa por CONTAGEM_DA_QUEDA_S. Um toque no botão cancela.
 #define IMPACTO_G 2.0
 #define ALTURA_DO_TETO_CM 250
 #define ALTURA_DEITADO_CM 50

@@ -48,6 +48,7 @@
     ol#linha { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow: auto; }
     ol#linha li { display: grid; grid-template-columns: 76px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--linha); }
     ol#linha time { color: var(--suave); font-variant-numeric: tabular-nums; }
+    ol#linha li.vazio { display: block; color: var(--suave); }
     ol#linha .queda { color: var(--vermelho); font-weight: 700; }
     ol#linha .painel { color: var(--magenta); }
     .marca { font-size: .75rem; color: var(--amarelo); margin-left: 6px; }
@@ -106,7 +107,7 @@
       <div class="grade">
         <div class="sensor" id="s-sinal"><div class="rotulo">Último sinal de vida</div><div class="valor">—</div><div class="nota">passagem ou botão</div></div>
         <div class="sensor" id="s-temp"><div class="rotulo">Temperatura dentro de casa</div><div class="valor">—</div><div class="nota">DHT22 · calor a partir de 34 °C</div></div>
-        <div class="sensor" id="s-tensao"><div class="rotulo">Tensão da tomada</div><div class="valor">—</div><div class="nota">concentrador de oxigênio · mínimo 100 V</div></div>
+        <div class="sensor" id="s-tensao"><div class="rotulo">Tensão da tomada</div><div class="valor">—</div><div class="nota">mínimo 100 V</div></div>
         <div class="sensor" id="s-altura"><div class="rotulo">Sensor de teto (HC-SR04)</div><div class="valor">—</div><div class="nota">altura do que está embaixo</div></div>
         <div class="sensor" id="s-acel"><div class="rotulo">Pingente (MPU6050)</div><div class="valor">—</div><div class="nota">impacto a partir de 2 g</div></div>
         <div class="sensor" id="s-saidas"><div class="rotulo">No aparelho agora</div><div class="valor">—</div><div class="nota">luz · âmbar · buzzer</div></div>
@@ -116,8 +117,8 @@
     <div class="duas">
       <section class="cartao" aria-labelledby="acoes-h">
         <h2 id="acoes-h">Ações da UBS</h2>
-        <button id="b-dia" class="principal" disabled>Declarar dia crítico de calor<br><small>acende o âmbar: "beba água"</small></button>
-        <button id="b-toque" disabled>Pedir um toque no botão<br><small>o buzzer chama até ela apertar</small></button>
+        <button id="b-dia" class="principal" disabled>Declarar dia crítico de calor<br><small>acende o âmbar no aparelho</small></button>
+        <button id="b-toque" disabled>Pedir um toque no botão<br><small>o buzzer bipa até alguém apertar</small></button>
         <details>
           <summary>Casa e broker</summary>
           <label for="prefixo">Prefixo MQTT</label>
@@ -155,10 +156,10 @@
     const eventos = [];
 
     const NOMES = {
-      MOVIMENTO: 'Passou no corredor', BOTAO_BEM: 'Apertou o botão: estou bem', BOTAO_SAIR: 'Apertou duas vezes: hoje vou sair',
+      MOVIMENTO: 'Passou no corredor', BOTAO_BEM: 'Apertou o botão',
       TELEMETRIA: 'Leitura dos sensores', HEARTBEAT: 'Aparelho ligado', QUEDA: 'QUEDA avisada pelo aparelho', ESTADO: 'Foto de estado'
     };
-    const SINAL_DE_VIDA = ['MOVIMENTO', 'BOTAO_BEM', 'BOTAO_SAIR'];
+    const SINAL_DE_VIDA = ['MOVIMENTO', 'BOTAO_BEM'];
 
     const hora = data => data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     function ha(segundos) {
@@ -234,6 +235,7 @@
       }
       if (!lista.children.length) {
         const li = document.createElement('li');
+        li.className = 'vazio';
         li.textContent = 'Nenhum evento ainda.';
         lista.append(li);
       }
@@ -244,12 +246,12 @@
       const idade = (Date.now() - Date.parse(estado.ts)) / 1000;
       if (idade > SEM_NOTICIAS_S) return ['cinza', 'Sem notícias do aparelho', `Último contato ${ha(idade)}. Pode estar sem rede ou desligado; os eventos ficam guardados nele.`];
       switch (estado.alerta) {
-        case 'QUEDA': return ['vermelho', 'Queda avisada', 'Ninguém respondeu no aparelho. Ligar para a casa ou ir até lá agora.'];
-        case 'PERGUNTANDO': return ['amarelo', 'Possível queda', 'O aparelho está perguntando se ela está bem. Sem toque no botão, vira aviso de queda.'];
-        case 'ENERGIA': return ['vermelho', 'Falta de energia', `Tomada em ${num(estado.tensaoV, 0)} V: o concentrador de oxigênio pode ter parado.`];
-        case 'PEDIR_TOQUE': return ['amarelo', 'Pedido de toque em andamento', 'O buzzer está chamando até ela apertar o botão.'];
-        case 'CALOR': return ['amarelo', 'Casa quente', `${num(estado.tempC)} °C dentro de casa. O aparelho acendeu o âmbar: beba água.`];
-        case 'DIA_CRITICO': return ['amarelo', 'Dia crítico de calor', 'Âmbar aceso na casa. Fique de olho no sinal de vida.'];
+        case 'QUEDA': return ['vermelho', 'Queda', 'O aparelho avisou uma queda. Ninguém apertou o botão em 15 s.'];
+        case 'PERGUNTANDO': return ['amarelo', 'Possível queda', 'Impacto no pingente ou alguém no chão do corredor. O aviso de queda sai em 15 s sem toque no botão.'];
+        case 'ENERGIA': return ['vermelho', 'Sem energia', `Acabou a energia na casa. Tomada em ${num(estado.tensaoV, 0)} V.`];
+        case 'PEDIR_TOQUE': return ['amarelo', 'Pedido de toque', 'O buzzer está bipando até alguém apertar o botão.'];
+        case 'CALOR': return ['amarelo', 'Muito quente', `${num(estado.tempC)} °C dentro de casa.`];
+        case 'DIA_CRITICO': return ['amarelo', 'Dia crítico de calor', 'Declarado pela UBS. Âmbar aceso no aparelho.'];
         default: return ['verde', 'Tudo bem', 'Nenhum alerta no aparelho.'];
       }
     }

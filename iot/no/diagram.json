@@ -9,7 +9,7 @@
     { "type": "wokwi-resistor", "id": "r_luz", "top": -60, "left": 190, "rotate": 90, "attrs": { "value": "220" } },
     { "type": "wokwi-dht22", "id": "dht", "top": -150, "left": -40, "attrs": { "temperature": "29.5", "humidity": "55" } },
     { "type": "wokwi-potentiometer", "id": "tensao", "top": 190, "left": -230, "attrs": { "value": "520" } },
-    { "type": "wokwi-pushbutton", "id": "botao", "top": 230, "left": 230, "attrs": { "color": "green", "key": "b", "label": "Estou bem / vou sair", "bounce": "0" } },
+    { "type": "wokwi-pushbutton", "id": "botao", "top": 230, "left": 230, "attrs": { "color": "green", "key": "b", "label": "Estou bem", "bounce": "0" } },
     { "type": "wokwi-led", "id": "ambar", "top": -140, "left": 330, "attrs": { "color": "orange", "label": "Dia crítico" } },
     { "type": "wokwi-resistor", "id": "r_ambar", "top": -60, "left": 290, "rotate": 90, "attrs": { "value": "220" } },
     { "type": "wokwi-buzzer", "id": "buzzer", "top": 100, "left": 330, "attrs": { "volume": "0.3", "mode": "accurate" } },

@@ -244,9 +244,9 @@ const DISCIPLINAS = [
     passos: [
       { texto: 'Abra o projeto no Wokwi e, ao lado, o <a href="painel/">painel</a>. Inicie a simulação: o serial mostra <code>[pecas] tela ok, pingente ok</code> e <code>[mqtt] conectado</code>, e o painel muda para <strong>Tudo bem</strong>. Se o Wi-Fi do Wokwi fechar a conexão, reinicie a simulação.', cmd: 'https://wokwi.com/projects/481064362873341953' },
       { texto: 'Clique no PIR e em <em>Simulate motion</em>: a luz de caminho acende e o painel registra <strong>Passou no corredor</strong> como sinal de vida.', cmd: '' },
-      { texto: 'Queda pelo pingente: no MPU6050, leve a aceleração Z de 1 para 2 g. A tela pergunta <strong>CAIU?</strong> e o buzzer bipa. Sem toque no botão em 15 s, sai <code>QUEDA</code> e o painel fica vermelho. O botão verde cancela ou encerra o alarme.', cmd: '' },
-      { texto: 'Queda pelo sensor de teto: no HC-SR04, ponha 220 cm, alguém deitado no chão. Depois de 30 s começa a mesma pergunta. Volte para 400 cm, o corredor vazio.', cmd: '' },
-      { texto: 'Gire o potenciômetro para baixo de 100 V: alarme de energia na casa e no painel. Ponha o DHT22 em 35 °C: a tela pede <strong>BEBA AGUA</strong>. No painel, <strong>Declarar dia crítico</strong> acende o âmbar no Wokwi.', cmd: '' },
+      { texto: 'Queda pelo pingente: no MPU6050, leve a aceleração Z de 1 para 2 g. A tela mostra <strong>QUEDA?</strong> com a contagem e o buzzer bipa. Sem toque no botão em 15 s, sai <code>QUEDA</code> e o painel fica vermelho. O botão verde cancela ou encerra o alarme.', cmd: '' },
+      { texto: 'Queda pelo sensor de teto: no HC-SR04, ponha 220 cm, alguém deitado no chão. Depois de 30 s começa a mesma contagem. Volte para 400 cm, o corredor vazio.', cmd: '' },
+      { texto: 'Gire o potenciômetro para baixo de 100 V: alarme de energia na casa e no painel. Ponha o DHT22 em 35 °C: a tela mostra <strong>CALOR</strong>. No painel, <strong>Declarar dia crítico</strong> acende o âmbar no Wokwi.', cmd: '' },
       { texto: 'Desligue a chave de Wi-Fi, gere eventos e religue: o buffer reenvia com a hora original, e o painel marca cada um como guardado sem rede.', cmd: '' },
     ],
     evidencias: [

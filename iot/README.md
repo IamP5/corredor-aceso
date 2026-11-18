@@ -39,20 +39,20 @@ não depende de a pessoa lembrar de nada. Num dia crítico de calor, a ACS vê n
 |---|---|---|---|
 | Sensor de presença PIR | GPIO 27 | Acende a luz quando ela passa, sem tocar em nada. | `MOVIMENTO`, o sinal de vida da casa `Sozinho`. Um por passagem, no máximo um a cada 30 s. |
 | LED branco com resistor de 220 Ω | GPIO 26 | Luz de caminho por 30 s. Evita a queda no escuro, de madrugada. | Funciona sem rede. A luz nunca espera o Wi-Fi. |
-| DHT22 | GPIO 15 | A 34 °C ou mais, o âmbar acende sozinho com três bipes: beba água. Apaga abaixo de 33,5 °C. | `tempC` na `TELEMETRIA`. Casa a 34 °C ou mais por muito tempo vira `CalorInterno` no radar. |
+| DHT22 | GPIO 15 | A 34 °C ou mais, o âmbar acende sozinho com três bipes e a tela mostra "CALOR". Apaga abaixo de 33,5 °C. | `tempC` na `TELEMETRIA`. Casa a 34 °C ou mais por muito tempo vira `CalorInterno` no radar. |
 | Potenciômetro | GPIO 34 (ADC) | Faz o papel do sensor de tensão da tomada. Abaixo de 100 V, o aparelho dispara o alarme (âmbar piscando rápido e buzzer) até a tensão voltar ou alguém apertar o botão. | `tensaoV` na `TELEMETRIA`. Escala de 0 a 250 V. Abaixo de 100 V numa casa eletrodependente, o concentrador de oxigênio parou: `EnergiaEletrodependente`. |
-| Botão grande verde | GPIO 25, pull-up interno | Um toque: "estou bem". Dois toques: "hoje vou sair". Um bipe confirma o toque, dois bipes o duplo toque. | `BOTAO_BEM` e `BOTAO_SAIR`. A saída avisada suspende a regra de silêncio até o fim do turno. |
-| LED laranja (âmbar) com resistor de 220 Ω | GPIO 33 | Aceso: dia crítico ou casa a 34 °C, beba água. Piscando: pedido de toque no botão. Piscando rápido: falta de energia. | Comandos `DIA_CRITICO` e `PEDIR_TOQUE`, e as reações locais. |
+| Botão grande verde | GPIO 25, pull-up interno | Cada toque é um "estou bem", confirmado por um bipe. Também silencia o buzzer. | `BOTAO_BEM`. O aparelho não registra se a pessoa saiu de casa. |
+| LED laranja (âmbar) com resistor de 220 Ω | GPIO 33 | Aceso: dia crítico ou casa a 34 °C. Piscando: pedido de toque. Piscando rápido: falta de energia ou queda. | Comandos `DIA_CRITICO` e `PEDIR_TOQUE`, e as reações locais. |
 | Buzzer | GPIO 32 | Às 14h30, se ela não deu sinal desde as 10h, o buzzer chama até ela apertar o botão. Também toca no alarme de energia. | Comando `PEDIR_TOQUE` ou a mesma regra decidida no aparelho. O toque no botão para o buzzer e manda `BOTAO_BEM`. |
 | Chave deslizante | GPIO 14, pull-up interno | Não existe no aparelho real. | Chave da demo: desligada, o firmware desliga o Wi-Fi de verdade (`WiFi.mode(WIFI_OFF)`). Permite demonstrar o buffer. |
-| Pingente MPU6050 | I2C: SDA 21, SCL 22 (0x68) | Ela usa no pescoço. Num tombo, o impacto passa de 2 g. | Começa a pergunta "Caiu?". No aparelho real, o pingente seria sem fio. No Wokwi, ele vai ligado ao ESP32. |
-| Sensor de teto HC-SR04 | TRIG 5, ECHO 18 | Fica no teto do corredor, apontado para o chão, e mede a altura do que está embaixo: vazio, alguém em pé ou alguém deitado (de 10 a 50 cm). | Alguém deitado no chão por 30 s também começa a pergunta "Caiu?", mesmo sem o pingente. No aparelho real, o ECHO precisa de divisor de tensão, porque sai em 5 V. |
-| Tela OLED SSD1306 | I2C: SDA 21, SCL 22 (0x3C) | Recado em letras grandes: "TUDO BEM", "BEBA AGUA", "ENERGIA!", "TOQUE", "CAIU?" e "QUEDA!". A fonte da tela não tem acentos. | Mostra a conexão (`on` ou `--`), a temperatura e a tensão. |
+| Pingente MPU6050 | I2C: SDA 21, SCL 22 (0x68) | Ela usa no pescoço. Num tombo, o impacto passa de 2 g. | Começa a contagem de "possível queda". No aparelho real, o pingente seria sem fio. No Wokwi, ele vai ligado ao ESP32. |
+| Sensor de teto HC-SR04 | TRIG 5, ECHO 18 | Fica no teto do corredor, apontado para o chão, e mede a altura do que está embaixo: vazio, alguém em pé ou alguém deitado (de 10 a 50 cm). | Alguém deitado no chão por 30 s também começa a contagem de "possível queda", mesmo sem o pingente. No aparelho real, o ECHO precisa de divisor de tensão, porque sai em 5 V. |
+| Tela OLED SSD1306 | I2C: SDA 21, SCL 22 (0x3C) | Só o fato, em letras grandes, sem ordem para a pessoa: "TUDO BEM", "CALOR", "DIA QUENTE", "SEM LUZ", "UBS CHAMOU", "QUEDA?" e "QUEDA". A fonte da tela não tem acentos. | Mostra a conexão (`on` ou `--`), a temperatura e a tensão. |
 
 ### O que o firmware faz
 
 - A luz e os sensores rodam no `loop()` antes da rede. Sem Wi-Fi, a luz continua acendendo.
-- Todo evento (`MOVIMENTO`, `BOTAO_BEM`, `BOTAO_SAIR`, `TELEMETRIA`) entra num buffer de 64 eventos em RAM.
+- Todo evento (`MOVIMENTO`, `BOTAO_BEM`, `TELEMETRIA`, `QUEDA`) entra num buffer de 64 eventos em RAM.
   Com rede, sai na hora com `"bufferizado": false`. Sem rede, fica guardado. Na volta, sai na ordem, com o
   `seq` e o `ts` do momento do fato e `"bufferizado": true`. O Motor grava cada evento uma vez, pela chave
   `(casaToken, seq, ts)`.
@@ -66,13 +66,13 @@ não depende de a pessoa lembrar de nada. Num dia crítico de calor, a ACS vê n
 - Comandos chegam em `<prefixo>/corredor/v1/{token}/comando`. `DIA_CRITICO` acende o âmbar por 12 h.
   `PEDIR_TOQUE` pisca o âmbar e toca o buzzer até o botão ou por 10 min.
 - A queda tem três passos. Primeiro, um impacto no pingente ou alguém deitado sob o sensor de teto por 30 s.
-  Depois, a tela pergunta "CAIU?" e o buzzer bipa a cada segundo por 15 s. Um toque no botão cancela e manda
+  Depois, a tela mostra "QUEDA?" com a contagem e o buzzer bipa a cada segundo por 15 s. Um toque no botão cancela e manda
   `BOTAO_BEM`. Sem toque, sai um evento `QUEDA`, que entra no buffer como os outros, e o alarme toca até o
   botão.
 - O tópico `<prefixo>/corredor/v1/{token}/estado` recebe uma foto dos sensores e das saídas a cada 2 s, retida
   no broker, para o painel web. A foto não entra no buffer: ela só vale no instante em que sai.
 - O buzzer só toca bipes curtos, nunca um som contínuo. São três bipes por segundo na queda avisada, três a
-  cada 1,6 s na falta de energia, um por segundo no "Caiu?" e dois a cada 2 s no pedido de toque. O firmware
+  cada 1,6 s na falta de energia, um por segundo na possível queda e dois a cada 2 s no pedido de toque. O firmware
   liga e desliga o PWM pelo LEDC (`ledcWriteTone`), e o buzzer do `diagram.json` usa `"mode": "accurate"`.
   O modo padrão (`smooth`) e o `noTone()` emendavam os bipes num som contínuo.
 
@@ -87,11 +87,11 @@ limites do Motor e não mudam o contrato MQTT: os pacotes continuam os mesmos.
 | Situação | Reação no aparelho | Constante |
 |---|---|---|
 | Pessoa passa no corredor | Luz de caminho por 30 s. | `LUZ_ACESA` |
-| Botão | Um bipe para "estou bem", dois para "hoje vou sair". Para o buzzer e o alarme de energia. | `DUPLO_TOQUE` |
+| Botão | Um bipe para "estou bem". Para o buzzer, o alarme de energia e a queda. | `DEBOUNCE` |
 | DHT22 a 34 °C ou mais | Âmbar aceso e três bipes. Apaga abaixo de 33,5 °C. | `TEMPERATURA_DE_CALOR`, `FIM_DO_CALOR` |
 | Tensão abaixo de 100 V | Âmbar piscando rápido e buzzer a cada segundo, até a tensão voltar ou o botão. | `TENSAO_MINIMA` |
-| 14h30 sem `MOVIMENTO` nem botão desde as 10h | Âmbar piscando e buzzer até o botão ou por 10 min, uma vez por dia. "Hoje vou sair" suspende a regra no dia. | `HORA_DO_PEDIDO_MIN`, `INICIO_DA_JANELA_MIN` em `config.h` |
-| Impacto de 2 g ou mais no pingente, ou alguém deitado sob o sensor de teto por 30 s | "CAIU?" na tela e bipe a cada segundo por 15 s. O botão cancela. Sem toque, `QUEDA` e alarme até o botão. | `IMPACTO_G`, `ALTURA_DEITADO_CM`, `TEMPO_NO_CHAO_S`, `CONTAGEM_DA_QUEDA_S` em `config.h` |
+| 14h30 sem `MOVIMENTO` nem botão desde as 10h | Âmbar piscando e buzzer até o botão ou por 10 min, uma vez por dia. | `HORA_DO_PEDIDO_MIN`, `INICIO_DA_JANELA_MIN` em `config.h` |
+| Impacto de 2 g ou mais no pingente, ou alguém deitado sob o sensor de teto por 30 s | "QUEDA?" na tela e bipe a cada segundo por 15 s. O botão cancela. Sem toque, `QUEDA` e alarme até o botão. | `IMPACTO_G`, `ALTURA_DEITADO_CM`, `TEMPO_NO_CHAO_S`, `CONTAGEM_DA_QUEDA_S` em `config.h` |
 | Qualquer situação acima | A tela OLED mostra o recado do momento em letras grandes. | |
 
 O pedido de toque local usa o relógio do ESP32 (NTP, no fuso `FUSO_SEGUNDOS`), não o relógio de demo da
@@ -120,7 +120,7 @@ para o site.
 | Parte da tela | De onde vem |
 |---|---|
 | Situação da casa: tudo bem, dia crítico, casa quente, falta de energia, pedido de toque, possível queda, queda avisada ou sem notícias do aparelho | Campo `alerta` do tópico `estado`. Sem foto há mais de 30 s, aparece "Sem notícias do aparelho". |
-| Último sinal de vida | O `MOVIMENTO`, `BOTAO_BEM` ou `BOTAO_SAIR` mais recente, ou o `ultimoSinalHaS` do estado. |
+| Último sinal de vida | O `MOVIMENTO` ou `BOTAO_BEM` mais recente, ou o `ultimoSinalHaS` do estado. |
 | Sensores | Temperatura, tensão, altura sob o sensor de teto, aceleração do pingente, e o estado da luz, do âmbar e do buzzer, todos do tópico `estado`. |
 | Linha do tempo | O tópico `evento`, com o rótulo em português e a marca "guardado sem rede" nos eventos bufferizados. |
 | Ações da UBS | "Declarar dia crítico" publica `DIA_CRITICO` e "Pedir um toque" publica `PEDIR_TOQUE` no tópico `comando`. |
@@ -228,7 +228,7 @@ Para mexer no circuito durante a simulação:
 - PIR: clique no sensor e em `Simulate motion`.
 - Botão: clique no botão verde e segure um instante, ou aperte a tecla `b` com o foco no diagrama. O
   firmware ignora toque com menos de 30 ms, que é ruído de contato. Um clique de automação, sem tempo de
-  pressão, não conta. Dois toques rápidos são "hoje vou sair".
+  pressão, não conta.
 - Tensão: gire o potenciômetro, ou clique nele e use `Home` e `End`. Ele começa em 127 V. Abaixo de
   100 V, o serial mostra `[energia] tensão cruzou 100 V`, o âmbar pisca rápido e o buzzer toca até a
   tensão voltar ou o botão.
@@ -236,7 +236,7 @@ Para mexer no circuito durante a simulação:
   âmbar acende.
 - Silêncio: com `SILENCIO_DEMO_S 90` em `config.h`, não toque em nada por 90 s. O serial mostra
   `[silêncio] demo: 90 s sem sinal de vida` e o buzzer chama até o botão.
-- Queda pelo pingente: clique no MPU6050 e leve a aceleração Z de 1 g para 2 g. A tela mostra "CAIU?" e a
+- Queda pelo pingente: clique no MPU6050 e leve a aceleração Z de 1 g para 2 g. A tela mostra "QUEDA?" e a
   contagem de 15 s. Volte Z para 1 g e aperte o botão para cancelar, ou espere para ver `QUEDA`.
 - Queda pelo sensor de teto: clique no HC-SR04 e ponha a distância em 220 cm (algo de 30 cm no chão). Depois
   de 30 s, começa a mesma pergunta. Volte para 400 cm, que é o corredor vazio.

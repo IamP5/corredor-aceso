@@ -9,12 +9,12 @@
 //   seq e o ts originais e "bufferizado": true.
 // - HEARTBEAT a cada 20 s, só com rede: ele diz que o aparelho está ligado agora.
 // - TELEMETRIA ao ligar, a cada 5 min e na hora em que a tensão cruza 100 V.
-// - Botão: um toque "estou bem" (BOTAO_BEM), dois toques "hoje vou sair" (BOTAO_SAIR).
+// - Botão: cada toque é um "estou bem" (BOTAO_BEM) e silencia o buzzer.
 // - Comandos: DIA_CRITICO acende o LED âmbar. PEDIR_TOQUE toca o buzzer até o botão.
 // - Reações locais, sem servidor: 34 °C ou mais acende o âmbar; tensão abaixo de 100 V dispara o
 //   alarme até a tensão voltar ou o botão; às 14h30, sem sinal de vida desde as 10h, o buzzer chama.
 // - Queda: impacto no pingente (MPU6050) ou alguém deitado no chão sob o sensor de teto (HC-SR04).
-//   A tela pergunta "Caiu?" e o buzzer chama. Sem toque no botão, sai um evento QUEDA. O Motor
+//   A tela mostra "QUEDA?" e o buzzer bipa. Sem toque no botão, sai um evento QUEDA. O Motor
 //   da API não conhece QUEDA e recusa o pacote; o painel web mostra.
 // - Tela OLED com o recado do momento, em letras grandes.
 // - Tópico estado: uma foto dos sensores a cada 2 s, retida no broker, para o painel web.
@@ -81,7 +81,6 @@ const unsigned long INTERVALO_HEARTBEAT = 20000;
 const unsigned long INTERVALO_TELEMETRIA = 5UL * 60 * 1000;
 const unsigned long LUZ_ACESA = 30000;
 const unsigned long MOVIMENTO_MINIMO = 30000;  // um MOVIMENTO por passagem, não um por segundo
-const unsigned long DUPLO_TOQUE = 500;
 const unsigned long DEBOUNCE = 30;
 const unsigned long LEITURA_DHT = 2500;
 const unsigned long RECONEXAO = 5000;
@@ -142,8 +141,6 @@ bool houveMovimento = false;
 bool botaoAntes = HIGH;
 unsigned long botaoMudouEm = 0;
 bool botaoEstavel = HIGH;
-int toques = 0;
-unsigned long ultimoToqueSoltoEm = 0;
 
 bool diaCritico = false;
 unsigned long diaCriticoEm = 0;
@@ -153,10 +150,8 @@ unsigned long toquePedidoEm = 0;
 // Reações locais.
 bool calor = false;
 bool alarmeDeEnergia = false;   // tensão baixa e ninguém apertou o botão ainda
-bool houveSinal = false;        // MOVIMENTO, BOTAO_BEM ou BOTAO_SAIR desde o boot
+bool houveSinal = false;        // MOVIMENTO ou BOTAO_BEM desde o boot
 unsigned long ultimoSinalEm = 0;
-bool houveSaida = false;
-unsigned long saidaEm = 0;
 int diaDoPedidoLocal = -1;      // tm_yday do último pedido local: um por dia
 bool pedidoDeDemoFeito = false;
 
@@ -347,8 +342,6 @@ void cuidarDoBotao() {
   if (agora - botaoMudouEm > DEBOUNCE && leitura != botaoEstavel) {
     botaoEstavel = leitura;
     if (botaoEstavel == HIGH) {  // soltou
-      toques++;
-      ultimoToqueSoltoEm = agora;
       if (pedindoToque) {
         pedindoToque = false;
         silenciar();
@@ -359,26 +352,15 @@ void cuidarDoBotao() {
         Serial.println("[energia] alarme silenciado pelo botão");
       }
       if (queda != SEM_QUEDA) {
-        Serial.println(queda == PERGUNTANDO ? "[queda] cancelada: ela disse que está bem"
-                                            : "[queda] encerrada pelo botão");
+        Serial.println(queda == PERGUNTANDO ? "[queda] cancelada pelo botão" : "[queda] encerrada pelo botão");
         queda = SEM_QUEDA;
         noChaoDesde = agora;  // se continuar no chão, a contagem recomeça
         silenciar();
       }
+      guardar("BOTAO_BEM");
+      registrarSinal();
+      bipar(1);
     }
-  }
-  if (toques >= 2) {
-    toques = 0;
-    guardar("BOTAO_SAIR");
-    registrarSinal();
-    houveSaida = true;
-    saidaEm = agora;
-    bipar(2);
-  } else if (toques == 1 && agora - ultimoToqueSoltoEm > DUPLO_TOQUE) {
-    toques = 0;
-    guardar("BOTAO_BEM");
-    registrarSinal();
-    bipar(1);
   }
 }
 
@@ -390,7 +372,7 @@ void cuidarDaTelemetria() {
     if (dht.getStatus() == DHTesp::ERROR_NONE) tempC = leitura.temperature;
     if (!isnan(tempC) && !calor && tempC >= TEMPERATURA_DE_CALOR) {
       calor = true;
-      Serial.printf("[calor] %.1f °C dentro de casa: âmbar aceso, beba água\n", tempC);
+      Serial.printf("[calor] %.1f °C dentro de casa: muito quente, âmbar aceso\n", tempC);
       bipar(3);
     } else if (!isnan(tempC) && calor && tempC < FIM_DO_CALOR) {
       calor = false;
@@ -471,7 +453,7 @@ void cuidarDoSilencio() {
   unsigned long agora = millis();
   if (SILENCIO_DEMO_S > 0) {
     unsigned long desde = houveSinal ? ultimoSinalEm : 0;
-    if (!houveSaida && !pedidoDeDemoFeito && agora - desde >= SILENCIO_DEMO_S * 1000UL) {
+    if (!pedidoDeDemoFeito && agora - desde >= SILENCIO_DEMO_S * 1000UL) {
       pedidoDeDemoFeito = true;
       char motivo[48];
       snprintf(motivo, sizeof motivo, "demo: %d s sem sinal de vida", (int)SILENCIO_DEMO_S);
@@ -489,10 +471,8 @@ void cuidarDoSilencio() {
   if (segundosNoDia < inicioDoPedido || segundosNoDia >= inicioDoPedido + (long)(DURACAO_TOQUE / 1000)) return;
   diaDoPedidoLocal = t.tm_yday;
   unsigned long desdeOInicio = (unsigned long)(segundosNoDia - INICIO_DA_JANELA_MIN * 60L) * 1000UL;
-  unsigned long desdeMeiaNoite = (unsigned long)segundosNoDia * 1000UL;
   if (agora < desdeOInicio) return;  // ligou depois das 10h: não sabe o que houve antes
   if (houveSinal && agora - ultimoSinalEm <= desdeOInicio) return;
-  if (houveSaida && agora - saidaEm <= desdeMeiaNoite) return;  // "hoje vou sair" suspende a regra
   pedirToqueLocal("14h30 sem sinal de vida desde as 10h");
 }
 
@@ -542,7 +522,7 @@ void perguntarSeCaiu(const char *origem) {
   queda = PERGUNTANDO;
   perguntaEm = millis();
   origemDaQueda = origem;
-  Serial.printf("[queda] %s: perguntando por %d s antes de avisar\n", origem, CONTAGEM_DA_QUEDA_S);
+  Serial.printf("[queda] %s: possível queda, aviso em %d s\n", origem, CONTAGEM_DA_QUEDA_S);
 }
 
 void cuidarDaQueda() {
@@ -608,21 +588,23 @@ void cuidarDaTela() {
   ultimaTela = agora;
   char linha[24], sensores[24];
   snprintf(sensores, sizeof sensores, "%.1fC %.0fV", isnan(tempC) ? 0.0 : tempC, tensaoV);
+  // Só o fato, sem ordem para a pessoa. Letra grande cabe 10 caracteres.
   if (queda == QUEDA_AVISADA) {
-    escreverTela("QUEDA!", "Aviso enviado.", "Aperte o botao.");
+    escreverTela("QUEDA", "UBS avisada.", sensores);
   } else if (queda == PERGUNTANDO) {
     long resta = CONTAGEM_DA_QUEDA_S - (long)((agora - perguntaEm) / 1000);
-    snprintf(linha, sizeof linha, "o botao. Aviso em %lds", resta < 0 ? 0 : resta);
-    escreverTela("CAIU?", "Se esta bem, aperte", linha);
+    snprintf(linha, sizeof linha, "Aviso a UBS em %lds", resta < 0 ? 0 : resta);
+    escreverTela("QUEDA?", "Possivel queda.", linha);
   } else if (tensaoBaixa) {
-    escreverTela("ENERGIA!", "Tomada sem forca.", sensores);
+    snprintf(linha, sizeof linha, "Tomada em %.0f V", tensaoV);
+    escreverTela("SEM LUZ", "Acabou a energia.", linha);
   } else if (pedindoToque) {
-    escreverTela("TOQUE", "Aperte o botao verde", sensores);
+    escreverTela("UBS CHAMOU", "Pedido de toque.", sensores);
   } else if (calor) {
-    snprintf(linha, sizeof linha, "Casa quente: %.1fC", tempC);
-    escreverTela("BEBA AGUA", linha, sensores);
+    snprintf(linha, sizeof linha, "Casa a %.1f C", tempC);
+    escreverTela("CALOR", "Muito quente.", linha);
   } else if (diaCritico) {
-    escreverTela("BEBA AGUA", "Dia de muito calor.", sensores);
+    escreverTela("DIA QUENTE", "Dia critico na UBS.", sensores);
   } else {
     if (horaValida()) {
       time_t local = time(nullptr) + FUSO_SEGUNDOS;
