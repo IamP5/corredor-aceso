@@ -104,6 +104,7 @@ h1, h2, h3 { font-family: var(--fonte-titulo); margin: 0; }
 h1 { font-weight: 900; font-size: clamp(48px, 9vw, 112px); line-height: 0.95; letter-spacing: -0.03em; text-transform: uppercase; }
 .ponto { color: var(--magenta); }
 .heroi__lead { max-width: 640px; margin: 28px 0 48px; font-size: 19px; color: var(--prata); }
+.heroi__equipe { margin: 28px 0 0; }
 
 /* ---- Navegação das disciplinas */
 .disciplinas { position: sticky; top: 59px; z-index: 4; background: var(--preto); border-bottom: 1px solid var(--linha); margin: 0 -24px; padding: 0 24px; }

@@ -71,6 +71,10 @@ não depende de a pessoa lembrar de nada. Num dia crítico de calor, a ACS vê n
   botão.
 - O tópico `<prefixo>/corredor/v1/{token}/estado` recebe uma foto dos sensores e das saídas a cada 2 s, retida
   no broker, para o painel web. A foto não entra no buffer: ela só vale no instante em que sai.
+- O buzzer só toca bipes curtos, nunca um som contínuo. São três bipes por segundo na queda avisada, três a
+  cada 1,6 s na falta de energia, um por segundo no "Caiu?" e dois a cada 2 s no pedido de toque. O firmware
+  liga e desliga o PWM pelo LEDC (`ledcWriteTone`), e o buzzer do `diagram.json` usa `"mode": "accurate"`.
+  O modo padrão (`smooth`) e o `noTone()` emendavam os bipes num som contínuo.
 
 `QUEDA` e o tópico `estado` existem só para o painel. O Motor da API não conhece o tipo `QUEDA` e recusa o
 pacote pelo tradutor, sem quebrar. A ponte da VM só leva o tópico `evento`. Não houve mudança na API.

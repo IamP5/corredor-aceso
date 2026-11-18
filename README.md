@@ -4,6 +4,16 @@ Global Solution FIAP 2026.2, CitizenTech. Engenharia de Software, 3º ano, turma
 
 **Professores:** o passo a passo para conferir cada disciplina está no **[Guia de avaliação](https://iamp5.github.io/corredor-aceso/)**. Os requisitos de todas as disciplinas, com pontos, formato de entrega e onde cada item está, ficam em [REQUISITOS.md](REQUISITOS.md).
 
+## Integrantes
+
+| Nome | RM |
+|---|---|
+| Bruno Dominicheli | RM554981 |
+| Miguel Kapicius | RM556198 |
+| Thiago Ferreira | RM555608 |
+
+A mesma lista está em [integrantes.txt](integrantes.txt).
+
 ## Ficha da CitizenTech
 
 | Campo | Conteúdo |
@@ -30,7 +40,7 @@ Os dados de pessoas neste repositório são simulados. Os dados de clima e de in
 | `api/src/Corredor.Guarda` | Detecção de PII na entrada, bloqueio nas saídas e tradução por LLM. | Cybersecurity |
 | `api/src/Corredor.Api` | Host da Web API, Swagger e injeção de dependência. | C# e SOA |
 | `app/` | App Expo da ACS, com o radar e o banco local. | Mobile Development |
-| `iot/` | Nó ESP32 para o Wokwi e simulador de casas. | Physical Computing |
+| `iot/` | Nó ESP32 para o Wokwi e simulador de casas. O painel web do nó, via MQTT, fica em `site/painel/`. | Physical Computing |
 | `ml/` | Notebook, relatório e job do modelo de dia crítico. | IA e Machine Learning |
 | `infra/` | Scripts Bash, units do systemd e Terraform da VM Linux. | Operating Systems |
 | `docs/arquitetura/` | Event storming, modelo de domínio, modelo de dados, infraestrutura e diagramas. | todas |
@@ -185,13 +195,3 @@ npm run dev:deps    # só sobe o Postgres e o Mosquitto
 ```
 
 `bash tools/demo.sh subir` sobe a mesma demo sem contêiner para a API, em `http://localhost:5080`. O que se viu em cada cena do `npm run demo` está no [relatório da integração](docs/evidencias/integracao/RELATORIO.md). As instruções de cada parte ficam no `README.md` da pasta dela.
-
-## Integrantes
-
-| Nome | RM |
-|---|---|
-| Bruno Dominicheli | 554981 |
-| Miguel Kapicius | 556198 |
-| Thiago Ferreira | 555608 |
-
-A mesma lista está em `integrantes.txt`.

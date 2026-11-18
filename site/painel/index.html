@@ -57,6 +57,32 @@
       font-family: ui-monospace, Menlo, monospace; }
     footer { color: var(--suave); font-size: .85rem; }
     code { font-family: ui-monospace, Menlo, monospace; font-size: .9em; word-break: break-all; }
+
+    /* Coluna estreita (ao lado do Wokwi, ou no celular): tudo cabe numa tela, sem rolar. */
+    @media (max-width: 760px) {
+      header { padding: 8px 12px; gap: 6px; }
+      header h1 { font-size: 1rem; }
+      header p, footer, details { display: none; }
+      .pilula { font-size: .75rem; padding: 2px 8px; }
+      main { padding: 8px 12px; gap: 8px; }
+      .cartao { padding: 10px 12px; border-radius: 10px; }
+      h2 { font-size: .7rem; margin-bottom: 6px; }
+      #situacao { border-left-width: 6px; }
+      #situacao-titulo { font-size: 1.35rem; line-height: 1.2; }
+      #situacao-detalhe { font-size: .85rem; margin-top: 2px; }
+      .grade { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .sensor { padding: 6px 8px; border-radius: 8px; }
+      .sensor .rotulo, .sensor .nota { font-size: .68rem; line-height: 1.25; }
+      .sensor .valor { font-size: 1.05rem; }
+      .duas { grid-template-columns: 1fr; gap: 8px; }
+      #acoes-h { display: none; }
+      section[aria-labelledby="acoes-h"] { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      button { margin: 0; padding: 8px 10px; font-size: .8rem; }
+      button small { display: none; }
+      ol#linha { max-height: 34vh; }
+      ol#linha li { grid-template-columns: 64px 1fr; padding: 4px 0; font-size: .8rem; }
+      label { font-size: .75rem; }
+    }
   </style>
 </head>
 <body>

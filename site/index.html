@@ -40,6 +40,14 @@
       <p class="sobretitulo">CitizenTech · Engenharia de Software · 3º ano</p>
       <h1>Corredor Aceso<span class="ponto">.</span></h1>
       <p class="heroi__lead">Guia de avaliação para a banca. Cada disciplina reúne os critérios, os comandos de validação e as evidências. As marcações de conferência ficam salvas neste navegador.</p>
+      <div class="heroi__equipe">
+        <p class="rodape__titulo">Integrantes</p>
+        <ul class="rodape__nomes">
+          <li>Bruno Dominicheli <span>RM 554981</span></li>
+          <li>Miguel Kapicius <span>RM 556198</span></li>
+          <li>Thiago Ferreira <span>RM 555608</span></li>
+        </ul>
+      </div>
     </section>
 
     <section class="bloco" id="ficha" aria-labelledby="ficha-titulo">
@@ -70,7 +78,7 @@
                 <li><strong>Cadastro</strong> (<code>api/src/Corredor.Cadastro</code>): idoso, consentimento, vizinho de confiança e visita. Único dono de dado pessoal.</li>
                 <li><strong>Guarda</strong> (<code>api/src/Corredor.Guarda</code>): detecção de PII na entrada, bloqueio nas saídas e tradução por LLM.</li>
                 <li><strong>App</strong> (<code>app/</code>): app Expo da ACS, com o radar e o banco local.</li>
-                <li><strong>Nó do corredor</strong> (<code>iot/</code>): ESP32 no Wokwi e simulador de casas.</li>
+                <li><strong>Nó do corredor</strong> (<code>iot/</code>): ESP32 no Wokwi, <a href="painel/">painel web</a> via MQTT e simulador de casas.</li>
                 <li><strong>Modelo de dia crítico</strong> (<code>ml/</code>): notebook, relatório e job das 05h.</li>
                 <li><strong>Infraestrutura</strong> (<code>infra/</code>): scripts Bash, units do systemd e Terraform da VM Linux.</li>
               </ul>
@@ -129,14 +137,6 @@
   <main class="leitor" id="leitor" hidden></main>
 
   <footer class="rodape">
-    <div>
-      <p class="rodape__titulo">Integrantes</p>
-      <ul class="rodape__nomes">
-        <li>Bruno Dominicheli <span>RM 554981</span></li>
-        <li>Miguel Kapicius <span>RM 556198</span></li>
-        <li>Thiago Ferreira <span>RM 555608</span></li>
-      </ul>
-    </div>
     <p class="rodape__nota">Projeto acadêmico da Global Solution FIAP 2026.2.</p>
   </footer>
 

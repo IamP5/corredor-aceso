@@ -184,10 +184,17 @@ void registrarSinal() {
   pedidoDeDemoFeito = false;
 }
 
+// O buzzer anda pelo LEDC: frequência para tocar, frequência 0 para calar. O noTone() da Arduino
+// não deixa o pino quieto no Wokwi, e o bipe virava um som contínuo.
+void somLigar(unsigned int frequencia) { ledcWriteTone(PINO_BUZZER, frequencia); }
+void somDesligar() { ledcWriteTone(PINO_BUZZER, 0); }
+
 void bipar(int vezes) {
   for (int i = 0; i < vezes; i++) {
-    tone(PINO_BUZZER, 1760, 80);
-    delay(140);
+    somLigar(1760);
+    delay(80);
+    somDesligar();
+    delay(60);
   }
 }
 
@@ -344,11 +351,11 @@ void cuidarDoBotao() {
       ultimoToqueSoltoEm = agora;
       if (pedindoToque) {
         pedindoToque = false;
-        noTone(PINO_BUZZER);
+        silenciar();
       }
       if (alarmeDeEnergia) {
         alarmeDeEnergia = false;
-        noTone(PINO_BUZZER);
+        silenciar();
         Serial.println("[energia] alarme silenciado pelo botão");
       }
       if (queda != SEM_QUEDA) {
@@ -356,7 +363,7 @@ void cuidarDoBotao() {
                                             : "[queda] encerrada pelo botão");
         queda = SEM_QUEDA;
         noChaoDesde = agora;  // se continuar no chão, a contagem recomeça
-        noTone(PINO_BUZZER);
+        silenciar();
       }
     }
   }
@@ -402,7 +409,7 @@ void cuidarDaTelemetria() {
       Serial.printf("[energia] tensão cruzou 100 V: %.1f V\n", tensaoV);
       alarmeDeEnergia = baixa;
       if (baixa) Serial.println("[energia] alarme local até a tensão voltar ou alguém apertar o botão");
-      else noTone(PINO_BUZZER);
+      else silenciar();
     }
     telemetriaInicial = true;
     ultimaTelemetria = agora;
@@ -410,27 +417,42 @@ void cuidarDaTelemetria() {
   }
 }
 
+// Bipes curtos, "bip bip bip", nunca um som contínuo. O relógio decide se o buzzer está ligado em cada
+// instante, então o padrão não depende do tempo de cada volta do loop.
+bool buzzerLigado = false;
+
+void bipes(unsigned long agora, unsigned long periodo, int quantos, unsigned int frequencia) {
+  unsigned long fase = agora % periodo;
+  bool ligar = fase < (unsigned long)quantos * 200 && fase % 200 < 90;
+  if (ligar && !buzzerLigado) somLigar(frequencia);
+  if (!ligar && buzzerLigado) somDesligar();
+  buzzerLigado = ligar;
+}
+
+void silenciar() {
+  if (buzzerLigado) somDesligar();
+  buzzerLigado = false;
+}
+
 void cuidarDosAvisos() {
   unsigned long agora = millis();
   if (diaCritico && agora - diaCriticoEm >= DURACAO_DIA_CRITICO) diaCritico = false;
-  if (pedindoToque && agora - toquePedidoEm >= DURACAO_TOQUE) {
-    pedindoToque = false;
-    noTone(PINO_BUZZER);
-  }
+  if (pedindoToque && agora - toquePedidoEm >= DURACAO_TOQUE) pedindoToque = false;
   bool piscar = (agora / 500) % 2 == 0;
   if (queda == QUEDA_AVISADA) {
     digitalWrite(PINO_AMBAR, (agora / 150) % 2 == 0 ? HIGH : LOW);
-    if (agora % 600 < 20) tone(PINO_BUZZER, 2600, 400);
+    bipes(agora, 1000, 3, 2600);
   } else if (queda == PERGUNTANDO) {
     digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
-    if (agora % 1000 < 20) tone(PINO_BUZZER, 1500, 150);
+    bipes(agora, 1000, 1, 1500);
   } else if (alarmeDeEnergia) {
     digitalWrite(PINO_AMBAR, (agora / 150) % 2 == 0 ? HIGH : LOW);
-    if (agora % 1000 < 20) tone(PINO_BUZZER, 2200, 500);
+    bipes(agora, 1600, 3, 2200);
   } else if (pedindoToque) {
     digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
-    if (agora % 2000 < 20) tone(PINO_BUZZER, 880, 300);
+    bipes(agora, 2000, 2, 880);
   } else {
+    silenciar();
     digitalWrite(PINO_AMBAR, diaCritico || calor ? HIGH : LOW);
   }
 }
@@ -642,7 +664,8 @@ void setup() {
   pinMode(PINO_LUZ, OUTPUT);
   pinMode(PINO_BOTAO, INPUT_PULLUP);
   pinMode(PINO_AMBAR, OUTPUT);
-  pinMode(PINO_BUZZER, OUTPUT);
+  ledcAttach(PINO_BUZZER, 2000, 10);
+  somDesligar();
   pinMode(PINO_WIFI, INPUT_PULLUP);
   pinMode(PINO_TRIG, OUTPUT);
   pinMode(PINO_ECHO, INPUT);
