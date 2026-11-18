@@ -2,6 +2,8 @@
 
 Global Solution FIAP 2026.2, CitizenTech. Engenharia de Software, 3º ano, turma de fevereiro.
 
+**Professores:** o passo a passo para conferir cada disciplina está no **[Guia de avaliação](https://iamp5.github.io/corredor-aceso/)**. Os requisitos de todas as disciplinas, com pontos, formato de entrega e onde cada item está, ficam em [REQUISITOS.md](REQUISITOS.md).
+
 ## Ficha da CitizenTech
 
 | Campo | Conteúdo |
@@ -9,10 +11,11 @@ Global Solution FIAP 2026.2, CitizenTech. Engenharia de Software, 3º ano, turma
 | Nome da CitizenTech | Corredor Aceso |
 | Cidade e bairro | São Paulo (SP), Zona Leste. Piloto em uma microárea de UBS da Estratégia Saúde da Família, com o Jardim Helena como referência. |
 | Cidadão beneficiado | Idosos de 60 anos ou mais que moram sozinhos, e casas com pessoa que depende de aparelho na tomada. Quem opera é a agente comunitária de saúde (ACS). |
-| Problema, em uma frase | Em dia de calor extremo ou de apagão, a ACS não consegue checar todos os idosos sozinhos da microárea e não sabe quem está em risco. |
-| Como funciona | Um aparelho no corredor acende a luz quando a idosa passa, e esse movimento vale como "estou bem". Às 05h, a regra da noite quente, com dados públicos do INMET, decide se o dia é crítico. Um modelo de ML treinado com INMET e SIH/DATASUS foi testado contra essa regra e não a superou. No dia crítico, o celular da ACS mostra só as casas que ficaram em silêncio. Aparelho mudo aparece em cinza e nunca vira verde. |
+| Problema, em uma frase | Em dia de calor extremo ou de apagão, a agente comunitária de saúde (ACS) não tem tempo de visitar todos os idosos que moram sozinhos na microárea e não tem como saber quais deles estão sem dar sinal de vida. |
+| Como funciona | Um aparelho instalado no corredor da casa acende a luz quando a pessoa idosa passa à noite. Cada passagem fica registrada como sinal de vida daquela casa. Às 05h, o sistema verifica, com dados públicos do INMET, se a noite foi quente. Quando foi, o dia é declarado crítico. No dia crítico, o aplicativo da ACS lista apenas as casas que ficaram sem sinal de vida, e são essas que ela visita. A casa cujo aparelho parou de transmitir aparece em cinza e nunca é mostrada como verde. Um modelo de ML treinado com dados do INMET e do SIH/DATASUS foi comparado à regra da noite quente e não a superou. Por isso, a regra decide o dia crítico. A luz também atende a um ponto levantado na descoberta, feita com personas simuladas: com o corredor escuro e o interruptor longe, a pessoa idosa bebe menos água para não precisar levantar à noite. Com o caminho iluminado, ela pode se hidratar sem medo de cair. |
 | O que cada parte faz | Ver a tabela "Partes do repositório". |
 | Link do repositório | https://github.com/IamP5/corredor-aceso |
+| Guia de avaliação | https://iamp5.github.io/corredor-aceso/ |
 | Indicador de impacto | Percentual de idosos sozinhos da microárea com contato confirmado até as 10h em dia crítico. Meta: 100%. Indicador de segurança: nenhuma casa em verde sem sinal de vida. |
 | ODS conectados | ODS 3 (metas 3.4 e 3.d), ODS 10 (meta 10.2), ODS 11 (meta 11.5) e ODS 13 (meta 13.1). |
 
@@ -50,14 +53,14 @@ Cada linha diz o que olhar, onde estão as evidências e o que vai na entrega. O
 
 ## Vídeos
 
-| Vídeo | Duração máxima | Roteiro | Link |
-|---|---|---|---|
-| Pitch | 4 min | [docs/entrega/roteiros.md](docs/entrega/roteiros.md#pitch-4-minutos) | a publicar |
-| Mobile Development | 3 min | [app/README.md](app/README.md#roteiro-do-vídeo-de-3-minutos) | a publicar |
-| Physical Computing | 4 min | [iot/README.md](iot/README.md#roteiro-do-vídeo-de-physical-computing-até-4-minutos) | a publicar |
-| IA e Machine Learning | 5 min | [ml/README.md](ml/README.md#roteiro-do-vídeo-até-5-minutos) | a publicar |
-| Operating Systems | 7 min | [docs/entrega/roteiros.md](docs/entrega/roteiros.md#operating-systems-7-minutos) | a publicar |
-| Painel de Cybersecurity | sem limite | [docs/entrega/roteiros.md](docs/entrega/roteiros.md#dashboard-de-cyber) | vai dentro do PDF de Cyber |
+| Vídeo | Duração máxima | Link |
+|---|---|---|
+| Pitch | 4 min | a publicar |
+| Mobile Development | 3 min | a publicar |
+| Physical Computing | 4 min | a publicar |
+| IA e Machine Learning | 5 min | a publicar |
+| Operating Systems | 7 min | a publicar |
+| Painel de Cybersecurity | sem limite | vai dentro do PDF de Cyber |
 
 ## Documentação
 
@@ -66,87 +69,94 @@ Cada linha diz o que olhar, onde estão as evidências e o que vai na entrega. O
 - [Modelo de domínio](docs/arquitetura/03-modelo-de-dominio.md)
 - [Modelo de dados](docs/arquitetura/04-modelo-de-dados.md)
 - [Infraestrutura e entrega](docs/arquitetura/05-infra-e-entrega.md)
+- [Requisitos de todas as disciplinas](REQUISITOS.md)
 - [Entregáveis por disciplina](docs/entregaveis.md)
+- [Guia de avaliação](https://iamp5.github.io/corredor-aceso/), montado de `site/` por `bash tools/montar-site.sh`
 - [Uso de IA no projeto](prompts.md)
 
 A versão em HTML, com os diagramas em tamanho natural, abre por duplo clique em `docs/arquitetura/site/index.html`.
 
 ## Como rodar
 
-### Pré-requisitos
+Você só precisa do Docker com o Docker Compose. O .NET, o Node e o Python rodam dentro das imagens, e nada é instalado no seu computador. Os dados de pessoas são simulados.
 
-- Docker com o Docker Compose.
-- SDK do .NET 10. O `global.json` exige a versão 10.0.x.
-- Node 22.13 ou mais novo.
-- Python 3.11 ou mais novo.
+### Subir a solução
 
-Para a Guarda usar o LLM, copie `.env.example` para `.env` e preencha `OPENROUTER_API_KEY`. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação do LLM, e o resto funciona igual.
+Na raiz do repositório:
 
-As instruções de cada parte ficam no `README.md` da pasta dela.
+```bash
+docker compose up --build
+```
 
-### Ver funcionando em 5 minutos
+A primeira vez leva alguns minutos, porque o Docker baixa as imagens e compila a API. O compose sobe, nesta ordem:
 
-Rode tudo na raiz do repositório. Os dados de pessoas são simulados.
+| Serviço | O que faz |
+|---|---|
+| `postgres` e `mosquitto` | Banco e broker MQTT. |
+| `preparar` | Cria os papéis do banco, aplica as migrações e cadastra as 40 casas da demo. Termina e sai. |
+| `api` | A Web API, em `http://localhost:5080`. |
+| `simulador` | As 39 casas simuladas, publicando no mesmo contrato MQTT do nó do Wokwi. |
+| `app` | O app da ACS no navegador, em `http://localhost:8081`. |
 
-1. Suba o banco, as migrações, a carga das 40 casas e a API:
+Quando aparecer `corredor-api-1 ... Healthy`, abra:
+
+- Swagger: `http://localhost:5080/swagger`. Para as rotas fechadas, clique em **Authorize** e cole `dev-acs-demo-01-so-no-notebook`.
+- App da ACS: `http://localhost:8081`. Entre com o código `dev-acs-demo-01-so-no-notebook` e a microárea 3.
+- Painel Risco Cidadão da Guarda: `http://localhost:5080/api/guarda/demo/painel`.
+
+Para a Guarda usar o LLM, copie `.env.example` para `.env` e preencha `OPENROUTER_API_KEY` antes do `up`. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação, e o resto funciona igual.
+
+### Ver o dia crítico em 2 minutos
+
+Com o compose de pé, rode em outro terminal:
+
+1. Leve o relógio da demo para as 08h de amanhã. O turno da ACS vai das 05h às 18h, e o relógio da demo só anda para frente, então assim o roteiro funciona a qualquer hora:
 
 	```bash
-	bash tools/demo.sh subir
+	curl -s -X PUT http://localhost:5080/api/demo/relogio -H "Content-Type: application/json" \
+	  -d "{\"agora\":\"$(date -v+1d +%F 2>/dev/null || date -d tomorrow +%F)T08:00:00-03:00\"}"
 	```
 
-	Termina com `API pronta em http://localhost:5080`. A porta é 5080 porque, no macOS, o AirPlay ocupa a 5000. O Swagger fica em `http://localhost:5080/swagger`. Para usar as rotas fechadas, clique em **Authorize** e cole `dev-acs-demo-01-so-no-notebook`.
-
-2. Em outro terminal, ligue o simulador das 39 casas e deixe rodando:
+2. Declare o dia crítico, como o job de ML faz às 05h:
 
 	```bash
-	python3 -m venv .demo/venv
-	.demo/venv/bin/pip install -r iot/simulador/requirements.txt
-	.demo/venv/bin/python iot/simulador/simulador.py --cenario demo
+	curl -s -X PUT "http://localhost:5080/api/dias-criticos/$(date -v+1d +%F 2>/dev/null || date -d tomorrow +%F)" \
+	  -H "Content-Type: application/json" -d '{"probabilidade":0.11,"motivo":"Noite quente","origem":"MANUAL"}'
 	```
 
-	Ele imprime os pacotes de cada casa: `TELEMETRIA`, `MOVIMENTO` e botões.
-
-3. Declare o dia crítico, como o job de ML faz às 05h:
-
-	```bash
-	curl -s -X PUT "http://localhost:5080/api/dias-criticos/$(date +%F)" -H "Content-Type: application/json" \
-	  -d '{"probabilidade":0.11,"motivo":"Noite quente","origem":"MANUAL"}'
-	```
-
-4. Depois de uns 30 segundos, veja o radar da ACS:
+3. Espere uns 30 segundos e veja o radar da ACS, ou atualize o app:
 
 	```bash
 	curl -s -H "Authorization: Bearer dev-acs-demo-01-so-no-notebook" "http://localhost:5080/api/radar?microarea=3"
 	```
 
-	Em `pendentes` aparecem as casas acamadas e a casa com calor em `Vermelho`, e os aparelhos mudos em `Cinza`. A contagem de `verdes` sobe conforme os movimentos chegam. Nenhuma casa fica verde sem sinal de vida.
+	Em `pendentes` aparecem as casas acamadas e as casas com calor em `Vermelho`, e os aparelhos mudos em `Cinza`. A contagem de `verdes` sobe conforme os movimentos chegam. Nenhuma casa fica verde sem sinal de vida.
 
-5. Abra o app da ACS no navegador, ligado à mesma API:
-
-	```bash
-	bash tools/demo.sh app
-	```
-
-	Abra `http://localhost:8081`, entre com o código `dev-acs-demo-01-so-no-notebook` e a microárea 3.
-
-6. Pare tudo:
-
-	```bash
-	bash tools/demo.sh parar --tudo
-	```
-
-`npm run demo` roda todas as cenas sozinho, em cerca de 10 minutos: dia crítico, aparelho mudo, mensagem bloqueada, queda de energia, desfechos da visita e reenvio do buffer. O que se viu em cada cena está no [relatório da integração](docs/evidencias/integracao/RELATORIO.md).
-
-### Comandos da raiz
-
-Os comandos ficam em `package.json`:
+### Outros comandos
 
 ```bash
-npm run demo        # sobe banco, API, carga e simulador e roda todas as cenas
+docker compose logs -f api          # log da API, onde a Guarda mostra o que mascarou
+docker compose logs -f simulador    # pacotes de cada casa
+docker compose --profile ml run --rm ml python prever_hoje.py --dia-das-variaveis 2025-12-29 --seco
+docker compose --profile ml run --rm ml jupyter nbconvert --to notebook --execute --inplace corredor_aceso.ipynb
+docker compose down                 # para tudo e guarda o banco
+docker compose down -v              # para tudo e apaga o banco, para começar do zero
+```
+
+O job das 05h roda sem `--seco` para enviar o pedido à API. Ele usa a data do seu computador, então faça isso antes de mexer no relógio da demo.
+
+### Sem Docker
+
+Os testes automatizados, as verificações do CI e o roteiro completo de cenas rodam com as ferramentas instaladas no computador: SDK do .NET 10 (o `global.json` pede 10.0.x), Node 22.13 ou mais novo, Python 3.11 ou mais novo, e o Docker para o Postgres e o Mosquitto. Os comandos ficam em `package.json`:
+
+```bash
+npm run demo        # sobe banco, API, carga e simulador e roda todas as cenas, em cerca de 10 minutos
 npm run check       # roda as verificações de todas as partes
 npm run test:app    # roda os testes do app
 npm run dev:deps    # só sobe o Postgres e o Mosquitto
 ```
+
+`bash tools/demo.sh subir` sobe a mesma demo sem contêiner para a API, em `http://localhost:5080`. O que se viu em cada cena do `npm run demo` está no [relatório da integração](docs/evidencias/integracao/RELATORIO.md). As instruções de cada parte ficam no `README.md` da pasta dela.
 
 ## Integrantes
 

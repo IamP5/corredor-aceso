@@ -1,6 +1,6 @@
 # App da ACS do Corredor Aceso
 
-App Expo da agente comunitária de saúde (ACS). Em dia de calor extremo ou de apagão, ela abre o celular e vê só as casas de idosos que ficaram em silêncio. É a entrega de Mobile Development e o jeito de mostrar o fluxo do cidadão.
+App Expo da agente comunitária de saúde (ACS). Em dia de calor extremo ou de apagão, a ACS abre o celular e vê só as casas de idosos que ficaram em silêncio. O app é a entrega de Mobile Development e demonstra o fluxo do cidadão.
 
 Os dados de pessoas são simulados. Nenhum nome, endereço ou telefone do app é de uma pessoa real.
 
@@ -11,8 +11,8 @@ Os dados de pessoas são simulados. Nenhum nome, endereço ou telefone do app é
 | Nome da CitizenTech | Corredor Aceso |
 | Cidade e bairro | São Paulo (SP), Zona Leste. Piloto em uma microárea de UBS da Estratégia Saúde da Família, com o Jardim Helena como referência. |
 | Cidadão beneficiado | Idosos de 60 anos ou mais que moram sozinhos, e casas com pessoa que depende de aparelho na tomada. Quem opera é a agente comunitária de saúde (ACS). |
-| Problema, em uma frase | Em dia de calor extremo ou de apagão, a ACS não consegue checar todos os idosos sozinhos da microárea e não sabe quem está em risco. |
-| Como funciona | Um aparelho no corredor acende a luz quando a idosa passa, e esse movimento vale como "estou bem". Às 05h, a regra da noite quente, com dados públicos do INMET, decide se o dia é crítico. Um modelo de ML treinado com INMET e SIH/DATASUS foi testado contra essa regra e não a superou. No dia crítico, o celular da ACS mostra só as casas que ficaram em silêncio. Aparelho mudo aparece em cinza e nunca vira verde. |
+| Problema, em uma frase | Em dia de calor extremo ou de apagão, a agente comunitária de saúde (ACS) não tem tempo de visitar todos os idosos que moram sozinhos na microárea e não tem como saber quais deles estão sem dar sinal de vida. |
+| Como funciona | Um aparelho instalado no corredor da casa acende a luz quando a pessoa idosa passa à noite. Cada passagem fica registrada como sinal de vida daquela casa. Às 05h, o sistema verifica, com dados públicos do INMET, se a noite foi quente. Quando foi, o dia é declarado crítico. No dia crítico, o aplicativo da ACS lista apenas as casas que ficaram sem sinal de vida, e são essas que ela visita. A casa cujo aparelho parou de transmitir aparece em cinza e nunca é mostrada como verde. Um modelo de ML treinado com dados do INMET e do SIH/DATASUS foi comparado à regra da noite quente e não a superou. Por isso, a regra decide o dia crítico. A luz também atende a um ponto levantado na descoberta, feita com personas simuladas: com o corredor escuro e o interruptor longe, a pessoa idosa bebe menos água para não precisar levantar à noite. Com o caminho iluminado, ela pode se hidratar sem medo de cair. |
 | O que cada parte faz | Ver a tabela "Partes do repositório" no `README.md` da raiz. |
 | Link do repositório | https://github.com/IamP5/corredor-aceso |
 | Indicador de impacto | Percentual de idosos sozinhos da microárea com contato confirmado até as 10h em dia crítico. Meta: 100%. Indicador de segurança: nenhuma casa em verde sem prova de vida. |
@@ -31,7 +31,7 @@ Os dados de pessoas são simulados. Nenhum nome, endereço ou telefone do app é
 
 ## Como rodar
 
-Precisa de Node 20.19 ou mais novo. Os testes usam o SQLite que vem no Node, então pedem Node 22.13 ou mais novo. No iPhone, instale o Expo Go. O app usa o Expo SDK 54.
+O app exige Node 20.19 ou mais novo. Os testes usam o SQLite embutido no Node e por isso exigem Node 22.13 ou mais novo. No iPhone, é preciso instalar o Expo Go. O app usa o Expo SDK 54.
 
 ```bash
 npm --prefix app ci
@@ -43,7 +43,7 @@ cd app && npx expo start
 
 Leia o QR code com a câmera do iPhone. O Expo Go abre o app.
 
-Sem `EXPO_PUBLIC_API_URL`, o app usa o mock, com 40 casas simuladas. Para falar com a API .NET, passe o endereço dela. O celular precisa alcançar esse endereço pela rede, então use o IP do computador, não `localhost`:
+Sem `EXPO_PUBLIC_API_URL`, o app usa o mock, com 40 casas simuladas. Para conectar o app à API .NET, informe o endereço dela. O celular precisa alcançar esse endereço pela rede, então o endereço deve usar o IP do computador, não `localhost`:
 
 ```bash
 cd app && EXPO_PUBLIC_API_URL=http://<ip-do-computador>:<porta> npx expo start
@@ -57,7 +57,7 @@ Para ver no navegador:
 cd app && npx expo start --web
 ```
 
-Antes de a API existir, dá para provar o cliente HTTP e o caminho sem rede com o servidor mock, que serve o mesmo mock por HTTP:
+Sem a API, o servidor mock permite verificar o cliente HTTP e o caminho sem rede, porque serve o mesmo mock por HTTP:
 
 ```bash
 cd app && npm run api:mock -- 3001
@@ -81,11 +81,11 @@ npm --prefix app test
 npm --prefix app run contraste
 ```
 
-`check:app` roda o TypeScript e o ESLint. `test` roda os testes do Jest. `contraste` mede cada par de cores contra 4,5:1.
+`check:app` roda o TypeScript e o ESLint. `test` roda os testes do Jest. `contraste` mede cada par de cores contra 4,5:1. O CI roda `check:app` e `test:app`, que chama os testes do Jest.
 
 ## Telas
 
-As telas abaixo vieram do alvo web, numa janela de 390 por 844 pontos, e do Expo Go no simulador do iPhone 16. A pasta [docs/evidencias/mobile/](../docs/evidencias/mobile/) tem todas.
+As telas abaixo foram capturadas no alvo web, numa janela de 390 por 844 pontos, e do Expo Go no simulador do iPhone 16. A pasta [docs/evidencias/mobile/](../docs/evidencias/mobile/) tem todas.
 
 | Tela | O que a ACS faz | Imagem |
 |---|---|---|
@@ -158,7 +158,7 @@ O caminho foi rodado duas vezes, com o celular sem internet e com a API fora do 
 npm --prefix app test
 ```
 
-Os testes cobrem o que pode quebrar sem ninguém ver. O SQL roda de verdade, no SQLite do Node, com os `CHECK` do esquema.
+Os testes cobrem falhas que não apareceriam na interface. O SQL executa de fato no SQLite do Node, com os `CHECK` do esquema.
 
 | Arquivo | O que prova |
 |---|---|
@@ -168,23 +168,9 @@ Os testes cobrem o que pode quebrar sem ninguém ver. O SQL roda de verdade, no 
 | `textos.test.ts` | Situação e motivo viram texto com a hora de São Paulo, radar velho se declara velho, código de erro vira frase. |
 | `contraste.test.ts` | Cada par de cores passa de 4,5:1. |
 
-## Roteiro do vídeo de 3 minutos
-
-| Tempo | Na tela | Fala |
-|---|---|---|
-| 0:00 a 0:20 | Tela de entrada no iPhone. | "Dia de calor extremo na Zona Leste. A Maria é agente comunitária de saúde e tem 40 idosos na microárea. Ela não consegue bater em todas as portas. O Corredor Aceso mostra a quem ir primeiro." |
-| 0:20 a 0:45 | Toca em Entrar. Tela do dia crítico. | "O modelo previu dia crítico. O app diz quantas casas estão urgentes, quantas estão com aparelho sem sinal e quantas deram sinal hoje. Verde só aparece com prova de vida." |
-| 0:45 a 1:15 | Radar. Rola pelos cards. | "O radar mostra só quem precisa de visita. Cada card diz o motivo em palavras, não só pela cor: sem energia numa casa com concentrador de oxigênio, ninguém passou no corredor, aparelho sem sinal. O cinza nunca vira verde." |
-| 1:15 a 1:40 | Abre a casa de Benedito. Mostra vizinho e linha do tempo. | "Na casa, ela vê o vizinho de confiança, liga com um toque e confere a linha do tempo das últimas 24 horas. O nome só existe aqui, no celular. O servidor do radar só conhece um código aleatório." |
-| 1:40 a 2:10 | Liga o modo avião. Registra "Estava fora". Mostra "Ainda não enviado". Desliga o modo avião. Mostra "Enviado". | "Na rua, a internet cai. O radar continua na tela e a visita fica guardada no celular. Quando a rede volta, o app manda sozinho, com o mesmo código, e o sistema não registra a visita duas vezes." |
-| 2:10 a 2:35 | Mensagem para o grupo: "Ele mora sozinho e toma diurético". Bloqueada. Toca em "Usar esta versão". | "Ela quer pedir ajuda no grupo do bairro. O app barra a mensagem que diz que ele mora sozinho e fala da saúde, explica por quê e oferece uma versão segura." |
-| 2:35 a 3:00 | Encerrar o turno. Mostra o indicador. | "No fim do dia, ela encerra o turno e vê o indicador: quantos idosos deram sinal de vida até as 10h. A meta é 100%. Os dados deste vídeo são simulados." |
-
-Para gravar no iPhone sem a API, rode o app sem `EXPO_PUBLIC_API_URL`. O mock lê o estado da rede do `NetInfo` e falha como sem internet quando o celular está desconectado. Isso está coberto pelo teste do mock com rede caída, mas o modo avião no iPhone não foi gravado: ensaie esse trecho antes do vídeo. Com o modo avião, o Expo Go também perde a conexão com o computador, então abra o app antes e não recarregue no meio.
-
 ## Limites conhecidos
 
-- Em 17/11 o alvo web rodou contra a API real, com a carga da demo. Os prints e o caminho sem rede com a API parada estão em [docs/evidencias/integracao/](../docs/evidencias/integracao/RELATORIO.md). No celular, o app ainda não falou com a API real.
-- O radar não traz a probabilidade nem o motivo do dia crítico. O modelo de dados lista o campo `diaCritico` em `GET /radar` como decisão em aberto. A tela do dia crítico usa só `turnoAberto`.
-- No alvo web, recarregar a página logo depois de fechar outra aba do app pode falhar com `NoModificationAllowedError`, porque o SQLite web ainda segura o arquivo da aba anterior. Fechar a aba e abrir de novo resolve. No celular isso não acontece.
-- O CI roda `check:app` e `test:app`, que chama os testes do Jest.
+- O caminho sem rede com o modo avião ligado não foi exercitado em um iPhone. O comportamento está coberto pelo teste do mock com a rede caída.
+- Em 17/11/2026, o alvo web rodou contra a API real, com a carga da demo. Os prints e o caminho sem rede com a API parada estão em [docs/evidencias/integracao/](../docs/evidencias/integracao/RELATORIO.md). No celular, o app ainda não se conectou à API real.
+- O radar não traz a probabilidade nem o motivo do dia crítico, porque `GET /radar` não expõe esses dados. A tela do dia crítico usa só `turnoAberto`.
+- No alvo web, recarregar a página logo depois de fechar outra aba do app pode falhar com `NoModificationAllowedError`, porque o SQLite web ainda segura o arquivo da aba anterior. Fechar a aba e abri-la de novo resolve o problema. No celular, a falha não ocorre.

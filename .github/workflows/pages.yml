@@ -1,0 +1,47 @@
+name: pages
+
+# Publica o guia de avaliação em https://iamp5.github.io/corredor-aceso/.
+# O mesmo tools/montar-site.sh roda no notebook e falha se um link do guia ou de um documento do leitor
+# apontar para arquivo que não existe.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'REQUISITOS.md'
+      - 'docs/evidencias/**'
+      - 'docs/arquitetura/**'
+      - 'tools/montar-site.sh'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  montar:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - run: bash tools/montar-site.sh _site
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  publicar:
+    needs: montar
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.publicacao.outputs.page_url }}
+    steps:
+      - id: publicacao
+        uses: actions/deploy-pages@v5

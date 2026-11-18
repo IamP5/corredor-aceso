@@ -74,7 +74,7 @@ Nota: problema e dados reais 2,0, escolha justificada do modelo 1,0, preparaçã
 | Relatório de 2 a 4 páginas | `ml/RELATORIO_ML.md` | repositório | pronto |
 | Ao menos 10 combinações de 3 hiperparâmetros, validação cruzada só no treino | notebook | repositório | pronto: 24 combinações |
 | Job que abre o turno | `ml/prever_hoje.py` | repositório | pronto: abriu o turno da API integrada na cena 1 |
-| Vídeo de até 5 minutos no YouTube, não listado | roteiro em `ml/README.md` | equipe | equipe |
+| Vídeo de até 5 minutos no YouTube, não listado | roteiro em `docs/entrega/roteiro-ml.md` | equipe | equipe |
 
 ## Mobile Development e IoT
 
@@ -87,7 +87,7 @@ Nota em 6 critérios: telas e navegação, consumo de dados, banco de dados, ace
 | Banco de dados local | `app/src/banco`, expo-sqlite | repositório | pronto |
 | Acessibilidade | rótulos, contraste e texto junto da cor | repositório | pronto |
 | README com a Ficha, instruções e prints das telas | `app/README.md`, `docs/evidencias/mobile/`, `docs/evidencias/integracao/` | repositório e prints da equipe | pronto |
-| Vídeo de até 3 minutos com o app rodando | roteiro em `app/README.md` | equipe | equipe |
+| Vídeo de até 3 minutos com o app rodando | roteiro em `docs/entrega/roteiro-mobile.md` | equipe | equipe |
 
 ## Operating Systems
 
@@ -112,7 +112,7 @@ Entrega: link do projeto no Wokwi, link do vídeo e um arquivo `.txt` com os nom
 |---|---|---|---|
 | Circuito ESP32 com sensores, integrado à solução | `iot/no/`, simulador em `iot/simulador/` | repositório | pronto: o simulador falou com o Motor real; o nó rodou no wokwi.com contra o broker público, não contra a API |
 | Link do projeto no Wokwi | `iot/README.md` | equipe publica no Wokwi | equipe: "ainda não publicado" |
-| Vídeo de até 4 minutos com a integração | roteiro em `iot/README.md` | equipe | equipe |
+| Vídeo de até 4 minutos com a integração | roteiro em `docs/entrega/roteiro-iot.md` | equipe | equipe |
 | Arquivo com o nome dos integrantes | `integrantes.txt` | repositório | pronto: a equipe anexa o arquivo no envio |
 
 ## Testing, Compliance e Quality Assurance

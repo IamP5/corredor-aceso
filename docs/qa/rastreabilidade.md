@@ -1,8 +1,8 @@
 # Rastreabilidade
 
-Arquivo gerado por `docs/qa/ferramentas/gerar.py`. A conferência `docs/qa/ferramentas/conferir.py` lê este arquivo, as Features e os Test Cases e aponta qualquer regra ou rota sem cobertura.
+A matriz liga cada Feature aos seus Test Cases, às regras e rotas que eles cobrem e ao teste automatizado correspondente. O script `docs/qa/ferramentas/conferir.py` lê esta matriz, as Features e os Test Cases e aponta qualquer regra ou rota sem cobertura.
 
-A coluna "Teste automatizado" diz qual teste do repositório cobre o caso. "existe" quer dizer que o arquivo já está no repositório. "proposto" quer dizer que o código ainda não chegou e o nome é o que este documento pede ao módulo. Quando o arquivo existir, gere de novo e o status muda sozinho.
+A coluna "Teste automatizado" indica o teste do repositório que cobre o caso. "existe" significa que o arquivo do teste está no repositório. "proposto" significa que o teste ainda não foi escrito e que o nome registrado é o que o caso especifica para o módulo. "manual" significa que o caso não tem teste automatizado associado.
 
 ## Por Feature
 
@@ -31,8 +31,8 @@ A coluna "Teste automatizado" diz qual teste do repositório cobre o caso. "exis
 | F04 | [TC-F04-03](casos-de-teste.md#tc-f04-03) | Negativo | INV-Idoso-6 | `docs/arquitetura/referencia/dados/testes.sql::Idoso inv. 6: vizinho sem a data em que aceitou` (existe) |
 | F04 | [TC-F04-04](casos-de-teste.md#tc-f04-04) | Positivo | `PUT /idosos/{id}/vizinho`, IDEM-Cadastro-IndicarVizinho | `api/tests/Corredor.Cadastro.Testes/VizinhoTestes.cs::IndicarDeNovo_SubstituiVizinho` (proposto) |
 | F04 | [TC-F04-05](casos-de-teste.md#tc-f04-05) | Negativo | IDEM-Cadastro-IndicarVizinho | `docs/arquitetura/referencia/dados/testes.sql::Idoso: no maximo um vizinho` (existe) |
-| F04 | [TC-F04-06](casos-de-teste.md#tc-f04-06) | Positivo | INV-Idoso-7 | `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::DestinatariosDoAviso_ComVizinho_TrazVizinho` (proposto) |
-| F04 | [TC-F04-07](casos-de-teste.md#tc-f04-07) | Negativo | INV-Idoso-7 | `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::Caso34_SemAvisarFamilia_FamiliaNaoAparece` (proposto) |
+| F04 | [TC-F04-06](casos-de-teste.md#tc-f04-06) | Positivo | INV-Idoso-7 | `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::DestinatariosDoAviso_ComVizinho_TrazVizinho` (existe) |
+| F04 | [TC-F04-07](casos-de-teste.md#tc-f04-07) | Negativo | INV-Idoso-7 | `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::Caso34_SemAvisarFamilia_FamiliaNaoAparece` (existe) |
 | F05 | [TC-F05-01](casos-de-teste.md#tc-f05-01) | Positivo | `PUT /idosos/{id}/perfil`, P21, IDEM-Motor-DefinirPerfil | `api/tests/Corredor.Cadastro.Testes/PerfilTestes.cs::TokenAtivo_TrocaPerfilNoMotor` (proposto) |
 | F05 | [TC-F05-02](casos-de-teste.md#tc-f05-02) | Positivo | `PUT /idosos/{id}/perfil`, IDEM-Motor-DefinirPerfil, IDEM-Cadastro-IndicarVizinho | `api/tests/Corredor.Motor.Testes/MotorDeCasasTestes.cs::DefinirPerfil_UltimoValorVale` (proposto) |
 | F05 | [TC-F05-03](casos-de-teste.md#tc-f05-03) | Negativo | `PUT /idosos/{id}/perfil`, P21 | `api/tests/Corredor.Cadastro.Testes/PerfilTestes.cs::SemToken_GravaPerfil_NaoChamaMotor` (proposto) |
@@ -173,8 +173,8 @@ A coluna "Teste automatizado" diz qual teste do repositório cobre o caso. "exis
 | F24 | [TC-F24-06](casos-de-teste.md#tc-f24-06) | Positivo | CANAL-MensagemDeErro | `api/tests/Corredor.Guarda.Testes/TratadorDeErrosTestes.cs::ErroDeDominioSemRotulo_SaiInteiro` (proposto) |
 | F24 | [TC-F24-07](casos-de-teste.md#tc-f24-07) | Positivo | CANAL-Mqtt | `api/tests/Corredor.Guarda.Testes/SaidaSeguraTestes.cs::Mqtt_ComandoSemRotulo_Liberado` (proposto) |
 | F24 | [TC-F24-08](casos-de-teste.md#tc-f24-08) | Negativo | CANAL-Mqtt, NC-9 | `api/tests/Corredor.Guarda.Testes/SaidaSeguraTestes.cs::Mqtt_TextoComEndereco_Bloqueado` (proposto) |
-| F24 | [TC-F24-09](casos-de-teste.md#tc-f24-09) | Positivo | CANAL-PromptDoLlm | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptSemRotulo_ChegaAoLlm` (proposto) |
-| F24 | [TC-F24-10](casos-de-teste.md#tc-f24-10) | Negativo | CANAL-PromptDoLlm, NC-9 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptComRotulo_BloqueadoNaSaidaSegura` (proposto) |
+| F24 | [TC-F24-09](casos-de-teste.md#tc-f24-09) | Positivo | CANAL-PromptDoLlm | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptSemRotulo_ChegaAoLlm` (existe) |
+| F24 | [TC-F24-10](casos-de-teste.md#tc-f24-10) | Negativo | CANAL-PromptDoLlm, NC-9 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptComRotulo_BloqueadoNaSaidaSegura` (existe) |
 | F24 | [TC-F24-11](casos-de-teste.md#tc-f24-11) | Positivo | INV-EventoDeSeguranca-5, NC-9 | `api/tests/Corredor.Guarda.Testes/EventoDeSegurancaTestes.cs::Evento_SobreviveAoReinicio_SemMudar` (proposto) |
 | F24 | [TC-F24-12](casos-de-teste.md#tc-f24-12) | Negativo | INV-EventoDeSeguranca-5 | `api/tests/Corredor.Guarda.Testes/EventoDeSegurancaTestes.cs::Gatilho_RecusaDeleteEUpdate` (proposto) |
 | F25 | [TC-F25-01](casos-de-teste.md#tc-f25-01) | Negativo | `POST /mensagens/verificar`, INV-MensagemSaida-2, INV-MensagemSaida-5, P16, NC-8, CANAL-GrupoDoBairro | `api/tests/Corredor.Cadastro.Testes/VerificarMensagemTestes.cs::Caso39_MoraSozinhoEDiuretico_Bloqueada` (proposto) |
@@ -187,14 +187,14 @@ A coluna "Teste automatizado" diz qual teste do repositório cobre o caso. "exis
 | F25 | [TC-F25-08](casos-de-teste.md#tc-f25-08) | Positivo | IDEM-Cadastro-CadastrarIdoso, INV-MensagemSaida-4, `POST /mensagens/verificar` | `api/tests/Corredor.Cadastro.Testes/VerificarMensagemTestes.cs::MesmoTextoDuasVezes_DuasMensagens` (proposto) |
 | F25 | [TC-F25-09](casos-de-teste.md#tc-f25-09) | Negativo | INV-MensagemSaida-4, IDEM-Cadastro-CadastrarIdoso | `api/tests/Corredor.Cadastro.Testes/VerificarMensagemTestes.cs::NovaTentativa_NaoMudaVereditoAnterior` (proposto) |
 | F25 | [TC-F25-10](casos-de-teste.md#tc-f25-10) | Negativo | CANAL-GrupoDoBairro, P16, INV-MensagemSaida-2, NC-8 | `api/tests/Corredor.Cadastro.Testes/VerificarMensagemTestes.cs::TelefoneNoGrupo_Bloqueado` (proposto) |
-| F26 | [TC-F26-01](casos-de-teste.md#tc-f26-01) | Positivo | `GET /painel`, FAROL-Verde | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::SemEvento_Verde` (proposto) |
-| F26 | [TC-F26-02](casos-de-teste.md#tc-f26-02) | Positivo | `GET /painel`, FAROL-Amarelo | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso38_SoMascaramento_Amarelo` (proposto) |
-| F26 | [TC-F26-03](casos-de-teste.md#tc-f26-03) | Negativo | FAROL-Vermelho, FAROL-Verde | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoSeveridade5EBloqueio3_NuncaVermelho` (proposto) |
-| F26 | [TC-F26-04](casos-de-teste.md#tc-f26-04) | Positivo | `GET /painel`, FAROL-Vermelho, P17, INV-EventoDeSeguranca-3 | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso39_BloqueioSeveridade4_Vermelho` (proposto) |
-| F26 | [TC-F26-05](casos-de-teste.md#tc-f26-05) | Negativo | FAROL-Amarelo, FAROL-Vermelho | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoMaisBloqueio4_Vermelho` (proposto) |
-| F26 | [TC-F26-06](casos-de-teste.md#tc-f26-06) | Negativo | P17, INV-EventoDeSeguranca-3 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Caso42_LlmFora_FraseFixa` (proposto) |
-| F26 | [TC-F26-07](casos-de-teste.md#tc-f26-07) | Negativo | INV-EventoDeSeguranca-3, P17 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::RespostaTardia_NaoTrocaFraseFixa` (proposto) |
-| F26 | [TC-F26-08](casos-de-teste.md#tc-f26-08) | Negativo | P17 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Prompt_SoTipoCanalModulo` (proposto) |
+| F26 | [TC-F26-01](casos-de-teste.md#tc-f26-01) | Positivo | `GET /painel`, FAROL-Verde | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::SemEvento_Verde` (existe) |
+| F26 | [TC-F26-02](casos-de-teste.md#tc-f26-02) | Positivo | `GET /painel`, FAROL-Amarelo | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso38_SoMascaramento_Amarelo` (existe) |
+| F26 | [TC-F26-03](casos-de-teste.md#tc-f26-03) | Negativo | FAROL-Vermelho, FAROL-Verde | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoSeveridade5EBloqueio3_NuncaVermelho` (existe) |
+| F26 | [TC-F26-04](casos-de-teste.md#tc-f26-04) | Positivo | `GET /painel`, FAROL-Vermelho, P17, INV-EventoDeSeguranca-3 | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso39_BloqueioSeveridade4_Vermelho` (existe) |
+| F26 | [TC-F26-05](casos-de-teste.md#tc-f26-05) | Negativo | FAROL-Amarelo, FAROL-Vermelho | `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoMaisBloqueio4_Vermelho` (existe) |
+| F26 | [TC-F26-06](casos-de-teste.md#tc-f26-06) | Negativo | P17, INV-EventoDeSeguranca-3 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Caso42_LlmFora_FraseFixa` (existe) |
+| F26 | [TC-F26-07](casos-de-teste.md#tc-f26-07) | Negativo | INV-EventoDeSeguranca-3, P17 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::RespostaTardia_NaoTrocaFraseFixa` (existe) |
+| F26 | [TC-F26-08](casos-de-teste.md#tc-f26-08) | Negativo | P17 | `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Prompt_SoTipoCanalModulo` (existe) |
 | F26 | [TC-F26-09](casos-de-teste.md#tc-f26-09) | Negativo | `GET /painel` | `api/tests/Corredor.Guarda.Testes/PainelTestes.cs::Painel_SemValorPessoal` (proposto) |
 | F27 | [TC-F27-01](casos-de-teste.md#tc-f27-01) | Positivo | APP-FILA-1, APP-CACHE-5 | `app/src/banco/__tests__/fila.test.ts::resposta201_marcaEnviadoEApagaObservacao` (proposto) |
 | F27 | [TC-F27-02](casos-de-teste.md#tc-f27-02) | Negativo | APP-FILA-1, APP-FILA-2, APP-CACHE-5, APP-CACHE-2 | `app/src/banco/__tests__/fila.test.ts::semRede_continuaPendenteESomaTentativa` (proposto) |
@@ -233,7 +233,7 @@ A coluna "Teste automatizado" diz qual teste do repositório cobre o caso. "exis
 
 ## Por regra e por rota
 
-Cada linha é um item que `docs/qa/ferramentas/registro.py` lê de `docs/arquitetura/`. Os casos do modelo (CT) precisam de um Test Case. Os outros precisam de uma Feature, um caso positivo e um negativo.
+Cada linha corresponde a um item que `docs/qa/ferramentas/registro.py` extrai de `docs/arquitetura/`. Cada caso do modelo (CT) exige um Test Case. Os demais itens exigem uma Feature, um caso positivo e um caso negativo.
 
 | Item | Origem | Features | Positivos | Negativos |
 |---|---|---|---|---|
@@ -358,16 +358,16 @@ Cada linha é um item que `docs/qa/ferramentas/registro.py` lê de `docs/arquite
 | IDEM-Cadastro-RegistrarResposta | 03 §4.5 | F18 | TC-F18-06 | TC-F18-07 |
 | IDEM-Cadastro-CadastrarIdoso | 03 §4.5 | F01, F25 | TC-F01-04, TC-F25-08 | TC-F01-05, TC-F25-09 |
 | IDEM-Guarda-Registrar | 03 §4.5 | F23 | TC-F23-08 | TC-F23-09 |
-| NC-1 | 03 §8.3 | F07 | TC-F07-03 | TC-F07-02, TC-F07-04 |
-| NC-2 | 03 §8.3 | F09 | TC-F09-03 | TC-F09-01, TC-F09-06 |
-| NC-3 | 03 §8.3 | F12 | TC-F12-03, TC-F12-05 | TC-F12-01 |
-| NC-4 | 03 §8.3 | F13 | TC-F13-02 | TC-F13-01, TC-F13-03, TC-F13-04, TC-F13-05 |
-| NC-5 | 03 §8.3 | F08 | TC-F08-01, TC-F08-04 | TC-F08-03, TC-F08-05, TC-F08-07 |
-| NC-6 | 03 §8.3 | F02 | TC-F02-01 | TC-F02-02 |
-| NC-7 | 03 §8.3 | F17 | TC-F17-03 | TC-F17-02, TC-F17-04 |
-| NC-8 | 03 §8.3 | F25 | TC-F25-04 | TC-F25-01, TC-F25-02, TC-F25-03, TC-F25-10 |
-| NC-9 | 03 §8.3 | F24 | TC-F24-11 | TC-F24-01, TC-F24-03, TC-F24-05, TC-F24-08, TC-F24-10 |
-| NC-10 | 03 §8.3 | F21 | TC-F21-01, TC-F21-02, TC-F21-05 | TC-F21-03, TC-F21-04 |
+| NC-1 | 03 §8.1 | F07 | TC-F07-03 | TC-F07-02, TC-F07-04 |
+| NC-2 | 03 §8.1 | F09 | TC-F09-03 | TC-F09-01, TC-F09-06 |
+| NC-3 | 03 §8.1 | F12 | TC-F12-03, TC-F12-05 | TC-F12-01 |
+| NC-4 | 03 §8.1 | F13 | TC-F13-02 | TC-F13-01, TC-F13-03, TC-F13-04, TC-F13-05 |
+| NC-5 | 03 §8.1 | F08 | TC-F08-01, TC-F08-04 | TC-F08-03, TC-F08-05, TC-F08-07 |
+| NC-6 | 03 §8.1 | F02 | TC-F02-01 | TC-F02-02 |
+| NC-7 | 03 §8.1 | F17 | TC-F17-03 | TC-F17-02, TC-F17-04 |
+| NC-8 | 03 §8.1 | F25 | TC-F25-04 | TC-F25-01, TC-F25-02, TC-F25-03, TC-F25-10 |
+| NC-9 | 03 §8.1 | F24 | TC-F24-11 | TC-F24-01, TC-F24-03, TC-F24-05, TC-F24-08, TC-F24-10 |
+| NC-10 | 03 §8.1 | F21 | TC-F21-01, TC-F21-02, TC-F21-05 | TC-F21-03, TC-F21-04 |
 | P1 | 02 Políticas | F02 | TC-F02-01 | TC-F02-02 |
 | P2 | 02 Políticas | F07 | TC-F07-07 | TC-F07-06 |
 | P3 | 02 Políticas | F06 | TC-F06-01 | TC-F06-02, TC-F06-04 |

@@ -18,11 +18,11 @@ O Corredor Aceso põe um nó com sensores na casa de idosos que moram sozinhos. 
 | INMET, estação automática A701, Mirante de Santana, ZIP anual em `portal.inmet.gov.br/uploads/dadoshistoricos/AAAA.zip` | temperatura e umidade de hora em hora | 2014 a out/2026 |
 | SIH/SUS, AIH Reduzida de SP, `ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados/RDSPaamm.dbc` | internações | 141 competências, jan/2015 a set/2026 |
 
-O pipeline (`dados/baixar_dados.py` e `dados/processar.py`) baixou tudo de verdade e trata as armadilhas: hora em UTC no INMET, vírgula decimal e latin1, município com 6 dígitos (`355030`), arquivo por competência de pagamento (empilhado e agrupado por `DT_INTER`, com a AIH repetida contada uma vez) e meses recentes incompletos. Com 4 competências de atraso chega 99,8% das internações de um mês, então a base vai até maio de 2026. São 317.329 internações em 4.141 dias, de 29/01/2015 a 31/05/2026. Fonte, link, licença e dicionário estão em `dados/README.md`.
+O pipeline (`dados/baixar_dados.py` e `dados/processar.py`) baixou todos os arquivos das fontes originais e trata as armadilhas: hora em UTC no INMET, vírgula decimal e latin1, município com 6 dígitos (`355030`), arquivo por competência de pagamento (empilhado e agrupado por `DT_INTER`, com a AIH repetida contada uma vez) e meses recentes incompletos. Com 4 competências de atraso chega 99,8% das internações de um mês, então a base vai até maio de 2026. São 317.329 internações em 4.141 dias, de 29/01/2015 a 31/05/2026. Fonte, link, licença e dicionário estão em `dados/README.md`.
 
 ## 3. Variáveis e divisão
 
-As variáveis são só o que se conhece às 05h: mínima da noite (18h a 05h), mínima da noite anterior, máxima e umidade de ontem, noites quentes seguidas (acima do P90 do mês, medido só no treino), mês e dia da semana. A internação de ontem ficou de fora de propósito: o SIH só a publica meses depois, então usá-la seria vazamento.
+As variáveis são só o que se conhece às 05h: mínima da noite (18h a 05h), mínima da noite anterior, máxima e umidade de ontem, noites quentes seguidas (acima do P90 do mês, medido só no treino), mês e dia da semana. A internação de ontem foi excluída deliberadamente, porque o SIH só a publica meses depois e usá-la seria vazamento.
 
 A divisão é no tempo. **Treino:** 29/01/2015 a 31/12/2023, 3.259 dias, 14,0% de excesso. **Teste:** 01/01/2024 a 31/05/2026, 882 dias, 13,0% de excesso. Nenhuma data se repete.
 
@@ -61,9 +61,9 @@ No calor, nada passa com folga do acaso.
 
 - **A grade empata na validação.** As 24 combinações ficam entre 0,149 e 0,175 de PR-AUC, com desvio de 0,01 a 0,02 entre dobras. A ordem do ranking é quase ruído, e a busca escolheu a mais simples.
 - **Complexidade decora.** Nas dobras de treino, a PR-AUC vai de 0,438 na combinação escolhida a 1,000 nas mais complexas, enquanto a validação cai para cerca de 0,15.
-- **O modelo escolhido cai no teste:** PR-AUC 0,307 no treino contra 0,150 no teste, e recall 0,274 contra 0,122. Sem sinal forte, o que o modelo pega no treino é coincidência daqueles anos.
+- **O modelo escolhido cai no teste:** PR-AUC 0,307 no treino contra 0,150 no teste, e recall 0,274 contra 0,122. Sem sinal forte, o que o modelo captura no treino é coincidência daqueles anos.
 - **O modelo só de verão é o caso extremo:** a validação escolheu a combinação mais complexa, que acerta 100% no treino (PR-AUC 1,000) e cai para 0,105 no teste, abaixo do acaso.
-- **Não há vazamento.** Com o alvo embaralhado, a validação dá 0,154, quase o acaso (0,140). Com o alvo real, 0,175. Um vazamento daria um resultado bom demais, e o que se vê é o contrário.
+- **Não há vazamento.** Com o alvo embaralhado, a validação dá 0,154, quase o acaso (0,140). Com o alvo real, 0,175. Um vazamento produziria um resultado bom demais, e o observado é o contrário.
 
 ## 7. Decisão
 
@@ -72,7 +72,7 @@ O critério da descoberta era: o modelo vai para produção se, no teste, tiver 
 1. **A vantagem cabe no ruído.** Reamostrando o teste em blocos de 28 dias, 2.000 vezes, a diferença de PR-AUC contra a regra é +0,034, com intervalo de 95% de -0,017 a +0,080. Contra o acaso, +0,019, de -0,001 a +0,055.
 2. **O modelo acerta pelo motivo errado.** Ele abre o radar em 30%, 28%, 37% e 26% dos dias de maio a agosto, e quase nunca no verão. Aprendeu um efeito da própria régua: no outono a internação sobe mês a mês, a média das 4 semanas anteriores fica para trás e sobra mais excesso no inverno. Não é sinal de calor.
 
-O resultado é tratado como **empate**, e o job usa a regra: `origem = REGRA_BASE` em `modelo/metadados.json`. O filtro do intervalo de confiança foi escrito depois de ver o primeiro resultado do teste, e o notebook registra isso. Ele só torna a decisão mais conservadora: nunca promove o modelo. A probabilidade que o job envia é a chance de excesso medida no treino quando a regra dispara (0,110).
+O resultado é tratado como **empate**, e o job usa a regra: `origem = REGRA_BASE` em `modelo/metadados.json`. O filtro do intervalo de confiança foi escrito depois de ver o primeiro resultado do teste, e o notebook registra isso. Esse filtro só torna a decisão mais conservadora, porque nunca promove o modelo. A probabilidade que o job envia é a chance de excesso medida no treino quando a regra dispara (0,110).
 
 ## 8. Limites
 
@@ -86,4 +86,4 @@ O resultado é tratado como **empate**, e o job usa a regra: `origem = REGRA_BAS
 
 **Em São Paulo, a noite quente não avisa, sozinha, que mais idosos vão ser internados por problema do coração.** Com 11 anos de dados reais, nem a regra simples nem o XGBoost previram bem os dias de excesso. O XGBoost ficou um pouco acima do acaso, dentro do ruído, e aprendeu o inverno, não o calor.
 
-Para o Corredor Aceso, isso quer dizer três coisas. O job das 05h usa a regra da noite quente, que é simples de explicar à ACS e liga o radar nos dias de calor, quando quem mora sozinho corre risco direto. O produto **não promete** reduzir internação cardiovascular, e a frase para a ACS é "a noite não esfriou; passe nas casas que ficaram em silêncio". E o resultado negativo também protege o cidadão: evita que a prefeitura confie num alerta que, medido com dado real, não se sustenta.
+Para o Corredor Aceso, o resultado tem três consequências. O job das 05h usa a regra da noite quente, que é simples de explicar à ACS e liga o radar nos dias de calor, quando quem mora sozinho corre risco direto. O produto **não promete** reduzir internação cardiovascular, e a frase para a ACS é "a noite não esfriou; passe nas casas que ficaram em silêncio". Por fim, o resultado negativo também protege o cidadão, porque evita que a prefeitura confie num alerta que, medido com dado real, não se sustenta.

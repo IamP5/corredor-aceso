@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guia de avaliação · Corredor Aceso · Global Solution FIAP 2026.2</title>
+  <meta name="description" content="Como a banca avaliadora confere os requisitos de cada disciplina no Corredor Aceso, a CitizenTech da Global Solution FIAP 2026.2.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="topo">
+    <div class="topo__barra">
+      <a class="marca" href="./" aria-label="Guia de avaliação do Corredor Aceso"><span class="marca__fiap">FIAP</span><span class="marca__sep" aria-hidden="true"></span><span class="marca__gs">Global Solution 2026.2</span></a>
+      <nav class="topo__links" aria-label="Links do projeto">
+        <a class="topo__repo" href="https://github.com/IamP5/corredor-aceso">Repositório</a>
+        <a href="?ler=REQUISITOS.md">Requisitos</a>
+        <a href="?ler=docs/arquitetura/README.md">Arquitetura</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <section class="heroi">
+      <p class="sobretitulo">CitizenTech · Engenharia de Software · 3º ano</p>
+      <h1>Corredor Aceso<span class="ponto">.</span></h1>
+      <p class="heroi__lead">Guia de avaliação para a banca. Cada disciplina reúne os critérios, os comandos de validação e as evidências. As marcações de conferência ficam salvas neste navegador.</p>
+    </section>
+
+    <section class="bloco" id="ficha" aria-labelledby="ficha-titulo">
+      <header class="bloco__cabeca">
+        <p class="sobretitulo">A base comum do projeto</p>
+        <h2 id="ficha-titulo">Ficha da CitizenTech</h2>
+      </header>
+      <div class="tabela-rolagem">
+        <table class="tabela tabela--ficha">
+          <tbody>
+            <tr><th scope="row">Nome da CitizenTech</th><td>Corredor Aceso</td></tr>
+            <tr><th scope="row">Cidade e bairro</th><td>São Paulo (SP), Zona Leste. Piloto em uma microárea de UBS da Estratégia Saúde da Família, com o Jardim Helena como referência.</td></tr>
+            <tr><th scope="row">Cidadão beneficiado</th><td>Idosos de 60 anos ou mais que moram sozinhos, e casas com pessoa que depende de aparelho na tomada. Quem opera é a agente comunitária de saúde (ACS).</td></tr>
+            <tr><th scope="row">Problema, em uma frase</th><td>Em dia de calor extremo ou de apagão, a agente comunitária de saúde (ACS) não tem tempo de visitar todos os idosos que moram sozinhos na microárea e não tem como saber quais deles estão sem dar sinal de vida.</td></tr>
+            <tr><th scope="row">Como funciona</th><td>
+              <ol class="lista lista--partes">
+                <li>Um aparelho instalado no corredor da casa acende a luz quando a pessoa idosa passa à noite. Cada passagem fica registrada como sinal de vida daquela casa.</li>
+                <li>Às 05h, o sistema verifica, com dados públicos do INMET, se a noite foi quente. Quando foi, o dia é declarado crítico.</li>
+                <li>No dia crítico, o aplicativo da ACS lista apenas as casas que ficaram sem sinal de vida, e são essas que ela visita.</li>
+                <li>A casa cujo aparelho parou de transmitir aparece em cinza e nunca é mostrada como verde.</li>
+              </ol>
+              <p>Um modelo de ML treinado com dados do INMET e do SIH/DATASUS foi comparado à regra da noite quente e não a superou. Por isso, a regra decide o dia crítico.</p>
+              <p>A luz também atende a um ponto levantado na descoberta, feita com personas simuladas: com o corredor escuro e o interruptor longe, a pessoa idosa bebe menos água para não precisar levantar à noite. Com o caminho iluminado, ela pode se hidratar sem medo de cair.</p>
+            </td></tr>
+            <tr><th scope="row">O que cada parte faz</th><td>
+              <ul class="lista lista--partes">
+                <li><strong>Motor</strong> (<code>api/src/Corredor.Motor</code>): regras de contato e radar. Só conhece o token da casa.</li>
+                <li><strong>Cadastro</strong> (<code>api/src/Corredor.Cadastro</code>): idoso, consentimento, vizinho de confiança e visita. Único dono de dado pessoal.</li>
+                <li><strong>Guarda</strong> (<code>api/src/Corredor.Guarda</code>): detecção de PII na entrada, bloqueio nas saídas e tradução por LLM.</li>
+                <li><strong>App</strong> (<code>app/</code>): app Expo da ACS, com o radar e o banco local.</li>
+                <li><strong>Nó do corredor</strong> (<code>iot/</code>): ESP32 no Wokwi e simulador de casas.</li>
+                <li><strong>Modelo de dia crítico</strong> (<code>ml/</code>): notebook, relatório e job das 05h.</li>
+                <li><strong>Infraestrutura</strong> (<code>infra/</code>): scripts Bash, units do systemd e Terraform da VM Linux.</li>
+              </ul>
+            </td></tr>
+            <tr><th scope="row">Link do repositório</th><td><a href="https://github.com/IamP5/corredor-aceso">github.com/IamP5/corredor-aceso</a></td></tr>
+            <tr><th scope="row">Indicador de impacto</th><td>Percentual de idosos sozinhos da microárea com contato confirmado até as 10h em dia crítico. Meta: 100%. Indicador de segurança: nenhuma casa em verde sem sinal de vida.</td></tr>
+            <tr><th scope="row">ODS conectados</th><td>ODS 3 (metas 3.4 e 3.d), ODS 10 (meta 10.2), ODS 11 (meta 11.5) e ODS 13 (meta 13.1).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <nav class="disciplinas" aria-label="Disciplinas">
+      <ul id="lista-disciplinas"></ul>
+    </nav>
+
+    <section class="bloco" id="comecar" aria-labelledby="comecar-titulo">
+      <header class="bloco__cabeca">
+        <p class="sobretitulo">Passo zero · vale para todas</p>
+        <h2 id="comecar-titulo">Execução da solução em 5 minutos</h2>
+      </header>
+      <div class="colunas">
+        <div>
+          <h3>Pré-requisitos</h3>
+          <ul class="lista">
+            <li>Docker com o Docker Compose</li>
+          </ul>
+          <p class="nota">O .NET, o Node e o Python rodam dentro das imagens. Só os testes da API e do app pedem o SDK do .NET 10 e o Node 22 instalados.</p>
+          <p class="nota">Dados de pessoas são simulados. Clima e internações são públicos, do INMET e do SIH/DATASUS. Para a Guarda traduzir com o LLM, copie <code>.env.example</code> para <code>.env</code> e preencha <code>OPENROUTER_API_KEY</code> antes do <code>up</code>. Sem a chave, a Guarda usa uma frase fixa e o resto funciona igual.</p>
+          <p class="nota">Token da ACS para as rotas fechadas e para o app: <code>dev-acs-demo-01-so-no-notebook</code>, microárea 3.</p>
+        </div>
+        <ol class="passos" id="passos-comuns"></ol>
+      </div>
+    </section>
+
+    <div id="secoes"></div>
+
+    <section class="bloco" id="documentos" aria-labelledby="documentos-titulo">
+      <header class="bloco__cabeca">
+        <p class="sobretitulo">Documentação</p>
+        <h2 id="documentos-titulo">Requisitos e arquitetura</h2>
+        <p class="disciplina__resumo">Os requisitos de cada disciplina e a arquitetura da solução. Os textos e os desenhos são renderizados a partir do repositório.</p>
+      </header>
+      <div class="evidencias evidencias--docs" id="lista-documentos"></div>
+      <h3>Requisitos comuns a todas as disciplinas</h3>
+      <ul class="lista lista--links">
+        <li>Ficha no início do README: <a href="https://github.com/IamP5/corredor-aceso#ficha-da-citizentech">README.md</a></li>
+        <li>Registro dos prompts de IA: <a href="https://github.com/IamP5/corredor-aceso/blob/main/prompts.md">prompts.md</a></li>
+        <li>Fonte dos dados públicos e nenhum dado pessoal real: <a href="https://github.com/IamP5/corredor-aceso/blob/main/ml/dados/README.md">ml/dados/README.md</a></li>
+        <li>Nomes dos integrantes: <a href="https://github.com/IamP5/corredor-aceso/blob/main/integrantes.txt">integrantes.txt</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <main class="leitor" id="leitor" hidden></main>
+
+  <footer class="rodape">
+    <div>
+      <p class="rodape__titulo">Integrantes</p>
+      <ul class="rodape__nomes">
+        <li>Bruno Dominicheli <span>RM 554981</span></li>
+        <li>Miguel Kapicius <span>RM 556198</span></li>
+        <li>Thiago Ferreira <span>RM 555608</span></li>
+      </ul>
+    </div>
+    <p class="rodape__nota">Projeto acadêmico da Global Solution FIAP 2026.2.</p>
+  </footer>
+
+  <dialog class="gaveta" id="gaveta" aria-labelledby="gaveta-titulo">
+    <header class="gaveta__topo">
+      <button type="button" class="gaveta__voltar" hidden>← Voltar</button>
+      <div class="gaveta__titulos">
+        <p class="gaveta__caminho"></p>
+        <h2 id="gaveta-titulo"></h2>
+      </div>
+      <a class="gaveta__fonte" target="_blank" rel="noopener">Ver no GitHub <span aria-hidden="true">↗</span></a>
+      <button type="button" class="gaveta__fechar" aria-label="Fechar">×</button>
+    </header>
+    <div class="gaveta__corpo"></div>
+  </dialog>
+
+  <script src="guia.js"></script>
+</body>
+</html>

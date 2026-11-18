@@ -991,7 +991,7 @@ Convenções que valem para todos os casos:
 
 **Cobre:** INV-Idoso-7
 
-**Teste automatizado:** `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::DestinatariosDoAviso_ComVizinho_TrazVizinho` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::DestinatariosDoAviso_ComVizinho_TrazVizinho` (existe)
 
 ### TC-F04-07
 
@@ -1033,7 +1033,7 @@ Convenções que valem para todos os casos:
 
 **Caso do modelo:** CT-34
 
-**Teste automatizado:** `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::Caso34_SemAvisarFamilia_FamiliaNaoAparece` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Cadastro.Testes/IdosoTestes.cs::Caso34_SemAvisarFamilia_FamiliaNaoAparece` (existe)
 
 ## F05 Perfil da casa
 
@@ -6889,7 +6889,7 @@ Convenções que valem para todos os casos:
 
 **Cobre:** CANAL-PromptDoLlm
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptSemRotulo_ChegaAoLlm` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptSemRotulo_ChegaAoLlm` (existe)
 
 ### TC-F24-10
 
@@ -6928,7 +6928,7 @@ Convenções que valem para todos os casos:
 
 **Cobre:** CANAL-PromptDoLlm, NC-9
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptComRotulo_BloqueadoNaSaidaSegura` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::PromptComRotulo_BloqueadoNaSaidaSegura` (existe)
 
 ### TC-F24-11
 
@@ -7452,7 +7452,7 @@ Convenções que valem para todos os casos:
 
 **Cobre:** `GET /painel`, FAROL-Verde
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::SemEvento_Verde` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::SemEvento_Verde` (existe)
 
 ### TC-F26-02
 
@@ -7491,7 +7491,7 @@ Convenções que valem para todos os casos:
 
 **Caso do modelo:** CT-38
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso38_SoMascaramento_Amarelo` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso38_SoMascaramento_Amarelo` (existe)
 
 ### TC-F26-03
 
@@ -7534,7 +7534,7 @@ Convenções que valem para todos os casos:
 
 **Caso do modelo:** CT-38, CT-40
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoSeveridade5EBloqueio3_NuncaVermelho` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoSeveridade5EBloqueio3_NuncaVermelho` (existe)
 
 ### TC-F26-04
 
@@ -7578,7 +7578,7 @@ Convenções que valem para todos os casos:
 
 **Caso do modelo:** CT-39
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso39_BloqueioSeveridade4_Vermelho` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::Caso39_BloqueioSeveridade4_Vermelho` (existe)
 
 ### TC-F26-05
 
@@ -7616,7 +7616,7 @@ Convenções que valem para todos os casos:
 
 **Cobre:** FAROL-Amarelo, FAROL-Vermelho
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoMaisBloqueio4_Vermelho` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/FarolTestes.cs::MascaramentoMaisBloqueio4_Vermelho` (existe)
 
 ### TC-F26-06
 
@@ -7659,7 +7659,7 @@ Convenções que valem para todos os casos:
 
 **Caso do modelo:** CT-42
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Caso42_LlmFora_FraseFixa` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Caso42_LlmFora_FraseFixa` (existe)
 
 ### TC-F26-07
 
@@ -7699,7 +7699,7 @@ Convenções que valem para todos os casos:
 
 **Cobre:** INV-EventoDeSeguranca-3, P17
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::RespostaTardia_NaoTrocaFraseFixa` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::RespostaTardia_NaoTrocaFraseFixa` (existe)
 
 ### TC-F26-08
 
@@ -7738,7 +7738,7 @@ Convenções que valem para todos os casos:
 
 **Cobre:** P17
 
-**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Prompt_SoTipoCanalModulo` (proposto)
+**Teste automatizado:** `api/tests/Corredor.Guarda.Testes/TradutorTestes.cs::Prompt_SoTipoCanalModulo` (existe)
 
 ### TC-F26-09
 

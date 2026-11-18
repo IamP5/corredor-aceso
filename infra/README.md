@@ -146,7 +146,7 @@ O script monta o pacote do commit atual, sobe um contêiner Ubuntu 24.04 com sys
 
 ## Vídeo
 
-O roteiro de 7 minutos, com a sequência gravada e o item da rubrica de cada trecho, está na seção 6.4 de [05-infra-e-entrega.md](../docs/arquitetura/05-infra-e-entrega.md#64-gravar-o-vídeo-de-operating-systems).
+O roteiro de 7 minutos, com a sequência gravada e o item da rubrica de cada trecho, está em [roteiro-os.md](../docs/entrega/roteiro-os.md).
 
 ## O que nunca rodou
 

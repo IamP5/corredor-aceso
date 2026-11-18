@@ -37,3 +37,4 @@ kit/
 docs/discovery/raw.json
 docs/discovery/workflow-discovery.js
 .demo/
+_site/

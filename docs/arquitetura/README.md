@@ -1,25 +1,22 @@
 # Arquitetura do Corredor Aceso
 
-Esta pasta guarda todos os documentos e todos os desenhos da arquitetura do Corredor Aceso, a solução da equipe para a Global Solution FIAP 2026.2. Quem lê os cinco documentos na ordem abaixo entende o produto, o domínio, os dados e a entrega.
-
-Para ler com os desenhos em tamanho natural, abra `site/index.html` com dois cliques. O site não precisa de servidor nem de rede. O GitHub não desenha a referência a um arquivo `.mmd`. Lá, use a tabela de desenhos abaixo, que liga o SVG já renderizado.
+Esta pasta guarda todos os documentos e todos os desenhos da arquitetura do Corredor Aceso, a solução da equipe para a Global Solution FIAP 2026.2. Os cinco documentos, lidos na ordem abaixo, descrevem o produto, o domínio, os dados e a entrega.
 
 ## Documentos, em ordem de leitura
 
 | # | Documento | O que responde |
 |---|---|---|
-| 1 | [01-visao-geral.md](01-visao-geral.md) | O que o produto faz, quais são as partes, quem é dono de cada dado, as decisões e os motivos, as três cenas da demo e onde cada disciplina pontua. |
+| 1 | [01-visao-geral.md](01-visao-geral.md) | O que o produto faz, quais são as partes, quem é dono de cada dado, as decisões e os motivos, as três cenas da demo e os critérios de avaliação por disciplina. |
 | 2 | [02-event-storming.md](02-event-storming.md) | Quais fatos acontecem no domínio, quem os causa, quais políticas reagem e quais dúvidas foram fechadas. Tem os oito fluxos, passo a passo. |
-| 3 | [03-modelo-de-dominio.md](03-modelo-de-dominio.md) | Contextos, projetos .NET, glossário, agregados, regras da situação da casa, contratos MQTT e HTTP, casos de teste e ordem de corte. |
+| 3 | [03-modelo-de-dominio.md](03-modelo-de-dominio.md) | Contextos, projetos .NET, glossário, agregados, regras da situação da casa, contratos MQTT e HTTP, casos de teste e escopo da entrega. |
 | 4 | [04-modelo-de-dados.md](04-modelo-de-dados.md) | Tabelas do Postgres, mapeamento do EF Core, consultas, retenção, classificação dos dados, SQLite do app e carga da demo. |
-| 5 | [05-infra-e-entrega.md](05-infra-e-entrega.md) | VM, provisionamento por Bash, CI, releases, deploy com rollback, operação, roteiro do vídeo de Operating Systems e plano até 19/11. |
-| 6 | [diagramas/GUIA.md](diagramas/GUIA.md) | Qual tipo de diagrama cada vista usa, como escrever o `.mmd`, o tema e como renderizar. |
+| 5 | [05-infra-e-entrega.md](05-infra-e-entrega.md) | VM, provisionamento por Bash, CI, releases, deploy com rollback, operação, medições e limitações. |
 
 O glossário da seção 3 do [modelo de domínio](03-modelo-de-dominio.md#3-linguagem-ubíqua) vale para todos os documentos, para os desenhos e para o código.
 
 ## Desenhos
 
-Cada desenho é um arquivo `.mmd` em `diagramas/`, com o SVG claro e o SVG escuro ao lado. A coluna "Documento" diz onde ele aparece.
+A arquitetura tem 27 desenhos. Cada desenho é um arquivo `.mmd` em `diagramas/`, com o SVG claro e o SVG escuro ao lado. A tabela liga o SVG de cada desenho, e a coluna "Documento" indica onde ele aparece.
 
 | # | Desenho | Tipo | Documento |
 |---|---|---|---|
@@ -48,28 +45,7 @@ Cada desenho é um arquivo `.mmd` em `diagramas/`, com o SVG claro e o SVG escur
 | 23 | [Pipeline de CI](diagramas/23-ci.svg) | `flowchart LR` | 05, seção 1.12 |
 | 24 | [Release e rollback](diagramas/24-release-e-rollback.svg) | `swimlane-beta LR` | 05, seção 1.6 |
 | 25 | [Árvore do repositório](diagramas/25-repositorio.svg) | `treeView-beta` | 05, seção 2 |
-| 26 | [Plano até 19/11](diagramas/26-plano.svg) | `gantt` | 05, seção 8.1 |
 | 27 | [Telas do app da ACS](diagramas/27-telas-do-app.svg) | `flowchart LR` | 01, "App da ACS" |
 | 28 | [Fluxo da Guarda numa saída bloqueada](diagramas/28-fluxo-da-guarda.svg) | `sequenceDiagram` | 03, seção 4.4 |
 
-O SVG escuro de cada desenho tem o mesmo nome, com `.escuro.svg` no fim. O fluxo 3 do event storming tem dois desenhos, porque inteiro ele passa de 30 quadros.
-
-## Outras pastas
-
-| Pasta | O que tem |
-|---|---|
-| `diagramas/` | Os 28 arquivos `.mmd`, os SVG, o `render.mjs`, o `site.mjs`, o tema em `tema/`, um modelo por tipo de diagrama em `modelos/` e a galeria de exemplos em `galeria/`. |
-| `referencia/repo/` | Os arquivos de infra, de CI e de configuração, nos caminhos que têm no repositório. O documento 05 aponta para eles. |
-| `referencia/dados/` | O SQL, o projeto do EF Core e os scripts que conferem o documento 04. O `montar.py` de lá gera o documento 04, então edite `modelo-de-dados.fonte.md`, não o documento. |
-| `site/` | A versão em HTML dos documentos. É só saída. Apague e gere de novo. |
-
-## Como gerar os desenhos e o site
-
-```bash
-cd docs/arquitetura/diagramas
-npm install
-npm run render    # cada .mmd vira nome.svg e nome.escuro.svg
-npm run site      # apaga e gera docs/arquitetura/site/
-```
-
-Os dois comandos saem com código 1 se algum desenho não renderizar. Depois de mudar um `.mmd`, rode os dois e abra o desenho no tema claro e no escuro.
+O SVG escuro de cada desenho tem o mesmo nome, com `.escuro.svg` no fim. O fluxo 3 do event storming tem dois desenhos, porque o fluxo completo passa de 30 quadros.

@@ -2,13 +2,13 @@
 
 Este documento define onde cada dado do Corredor Aceso fica gravado, com que forma, por quanto tempo e quem pode ver. Ele cobre o Postgres, o mapeamento do EF Core, as consultas, a retenção, a classificação dos dados, o SQLite do app, as mensagens, os arquivos de ML e a carga da demo.
 
-A fonte de verdade é [03-modelo-de-dominio.md](03-modelo-de-dominio.md). Quando este documento cita "invariante 2 de `EventoSensor`" ou "caso 31", o número é o daquele documento. As mudanças que o modelo de dados pediu ao modelo de domínio estão na seção 9.1 de lá, e a seção 11.2 daqui resume cada uma.
+A fonte de verdade é [03-modelo-de-dominio.md](03-modelo-de-dominio.md). Quando este documento cita "invariante 2 de `EventoSensor`" ou "caso 31", o número é o daquele documento.
 
-Quem programa o Motor lê as seções 1.2, 1.5, 2, 3 e 4. Quem programa o Cadastro lê 1.3, 1.5, 2, 3 e 5. Quem programa a Guarda lê 1.4, 1.8, 2.5 e 5. Quem programa o app lê 6 e 7.2. Quem cuida do nó lê 7.1. Quem cuida do ML lê 7.3. Quem cuida da infra lê 1.7, 1.8, 2.8 e 8.
+O Motor depende das seções 1.2, 1.5, 2, 3 e 4. O Cadastro depende das seções 1.3, 1.5, 2, 3 e 5, e a Guarda, das seções 1.4, 1.8, 2.5 e 5. O app depende das seções 6 e 7.2. O nó depende da seção 7.1, o ML da seção 7.3 e a infra das seções 1.7, 1.8, 2.8 e 8.
 
-Cada bloco de SQL e de C# deste documento é cópia de um arquivo que rodou contra um Postgres 16 ou um SQLite. Os arquivos estão em [referencia/dados/](referencia/dados/), e o `montar.py` de lá monta este documento a partir deles. O [LEIA-ME.md](referencia/dados/LEIA-ME.md) diz como rodar tudo de novo.
+Cada bloco de SQL e de C# deste documento é cópia de um arquivo que rodou contra um Postgres 16 ou um SQLite. Os arquivos estão em [referencia/dados/](referencia/dados/). O [LEIA-ME.md](referencia/dados/LEIA-ME.md) descreve como repetir cada execução.
 
-## O que foi executado e o que não foi
+## Verificação realizada e limitações
 
 Todos os números desta seção saem da última rodada de `verificar_tudo.sh`, num contêiner `postgres:16` (16.16), com o SDK do .NET 10.0.103, EF Core 10.0.15, Npgsql 10.0.3, EFCore.NamingConventions 10.0.1, `dotnet-ef` 10.0.15, `sqlite3` 3.51 e Python 3.14.
 
@@ -24,13 +24,24 @@ Todos os números desta seção saem da última rodada de `verificar_tudo.sh`, n
 | `montar.py --conferir` | Todo bloco de código deste documento é cópia do arquivo conferido | passa |
 | `log_do_servidor.sh` | O log do Postgres com e sem as duas linhas da seção 1.8 | saída na seção 1.8 |
 
-O que não rodou:
+Esta conferência não cobriu os seguintes pontos:
 
-- Quando esta conferência rodou, o código dos módulos não existia. A API, o `Corredor.Api --semear` da seção 8.2, o deslocamento de `ocorridaEm` em `POST /visitas` e a fila de desfechos em TypeScript não rodaram aqui. Eles foram escritos depois e rodaram juntos na demo integrada: veja o [relatório da integração](../evidencias/integracao/RELATORIO.md).
+- Quando esta conferência rodou, o código dos módulos não existia. A API, o `Corredor.Api --semear` da seção 8.2, o deslocamento de `ocorridaEm` em `POST /visitas` e a fila de desfechos em TypeScript não rodaram aqui. Eles foram escritos depois e rodaram juntos na demo integrada, documentada no [relatório da integração](../evidencias/integracao/RELATORIO.md).
 - O modo de CI de `conferir_migracao_aditiva.sh`, que compara com a `main` por `git diff`, não rodou. Rodou só o modo `--sql`.
 - O SQL do app rodou no `sqlite3` 3.51, não no `expo-sqlite`.
 - Os diagramas Mermaid da seção 9 não foram renderizados.
-- O custo de ler a linha inteira com `ComplexProperty`, que decidiu o mapeamento de `Casa` na seção 2.3, foi medido pelo candidato 2 no EF Core 8. Esta rodada usou o EF Core 10 e conferiu só que o mapeamento escolhido lê cinco colunas.
+- O custo de ler a linha inteira com `ComplexProperty`, que decidiu o mapeamento de `Casa` na seção 2.3, foi medido no EF Core 8, numa versão anterior deste modelo. Esta rodada usou o EF Core 10 e conferiu só que o mapeamento escolhido lê cinco colunas.
+
+O modelo tem as seguintes limitações conhecidas:
+
+- **Nome e campos de saúde ficam sem cifra no banco.** A chave ficaria na mesma VM do banco, o que protege pouco, e uma chave perdida derrubaria a demo. As colunas são `varchar`, e o `ConversorDeTextoRotulado` é o único ponto por onde o valor entra e sai do banco. Cifrar exigiria trocar o corpo do conversor por AES-GCM com uma chave fora do banco, alargar as colunas numa migração aditiva para caber o texto cifrado em base64 e regravar as linhas existentes. Os `CHECK` `sem_cpf_em_claro` e `btrim(nome) <> ''` deixariam de enxergar o texto e sairiam. A lista de nomes não mudaria, porque decifra na leitura.
+- **A revogação não apaga `condicoes` e `medicamentos`.** O dado de saúde fica sem uso depois que o monitoramento acaba. Apagá-lo exige um `UPDATE` no caso de uso e uma linha a mais no caso 33.
+- **`aviso_ao_vizinho` e `mensagem_saida` não têm prazo fora da revogação.** O `Expurgo` atual só toca o schema `motor`. Um prazo exigiria duas instruções num expurgo do Cadastro.
+- **A linha do tempo não mostra a leitura baixa guardada além de 24 horas.** No caso 31, a casa fica vermelha por uma leitura de 25 horas que a tela de detalhe não mostra. A correção é a mesma condição do radar em `LinhaDoTempo`.
+- **`CasaToken.ToString()` devolve o token inteiro.** Um token interpolado num log por engano sai completo. Abreviá-lo muda `Corredor.Contratos`.
+- **`dia_critico.motivo` é o único texto livre do Motor, e o Motor não rotula nome nem saúde.** No escopo atual, só o job escreve o motivo. A origem `Manual` precisaria de uma lista fechada de motivos antes de ganhar tela.
+- **O app não lê a probabilidade nem o motivo do dia crítico.** `GET /radar` não tem o campo `diaCritico`, e o `radar_cabecalho` não tem a coluna.
+- **Num apagão de mais de 24 horas, o `Desde` da regra de energia anda uma hora por vez.** Cada passo é um episódio novo para o vizinho. A bateria do nó não dura esse tempo.
 
 ## 1. Postgres
 
@@ -38,7 +49,7 @@ O que não rodou:
 
 - **Um banco, três schemas.** O banco se chama `corredor`. Os schemas são `motor`, `cadastro` e `guarda`. Nenhuma chave estrangeira cruza schema. `casa_token` e `microarea_id` aparecem em `motor` e em `cadastro` sem ligação no banco, porque nenhum módulo lê o schema de outro. A seção 1.7 faz o Postgres garantir isso.
 - **Nomes.** Tabela e coluna em `snake_case`, sem acento. A coluna de um objeto de valor leva o nome da propriedade como prefixo: `perfil_contato`, `casa_token`, `resumo_atendidas`, `autorizacoes_avisar_vizinho`, `mensagem_texto`.
-- **`CasaToken`.** Coluna `text` com `CHECK (casa_token ~ '^[0-9a-f]{32}$')`. O valor gravado é o mesmo texto do tópico MQTT, do JSON e do SQLite. Quem depura copia o token do log e cola no `psql`.
+- **`CasaToken`.** Coluna `text` com `CHECK (casa_token ~ '^[0-9a-f]{32}$')`. O valor gravado é o mesmo texto do tópico MQTT, do JSON e do SQLite. Na depuração, o token copiado do log entra direto no `psql`.
 - **Enum.** Coluna `text` com `CHECK (... IN (...))`. O valor gravado é o nome do membro em C#, como `Sozinho` e `PessoaVista`.
 - **Instante.** Coluna `timestamptz`, sempre em UTC, com precisão de microssegundo. A data do dia crítico é `date`.
 - **Texto digitado por pessoa.** Coluna `varchar(n)`. O `n` é o mesmo limite que a rota valida. A seção 7.2 tem a tabela.
@@ -55,7 +66,7 @@ O que não rodou:
 | `evento_sensor` | raiz `EventoSensor` | cerca de 300 por casa por dia, com telemetria a cada 5 minutos. Some em 24 horas. |
 | `dia_critico` | raiz `DiaCritico`, com o `ResumoDoTurno` | uma por dia crítico |
 
-O Motor não tem tabela de alerta, de situação, de turno, de pedido de contato nem de heartbeat. O deslocamento do `RelogioDeDemo` fica em memória. Depois de reiniciar a API, repita o `PUT /api/demo/relogio`.
+O Motor não tem tabela de alerta, de situação, de turno, de pedido de contato nem de heartbeat. O deslocamento do `RelogioDeDemo` fica em memória, e um reinício da API o perde. Depois do reinício, o `PUT /api/demo/relogio` precisa ser chamado de novo.
 
 O que cada restrição e cada índice garante:
 
@@ -437,7 +448,7 @@ COMMENT ON COLUMN cadastro.aviso_ao_vizinho.respondido_em IS 'classe=pseudonimiz
 
 ### 1.4 Schema `guarda`
 
-Uma tabela, como decidiu o hotspot H44. `RegraDePii` fica no arquivo `Regras/pii.json`. `PoliticaDeCanal` fica num dicionário no código.
+A Guarda tem uma tabela só, como decidiu o hotspot H44 do [event storming](02-event-storming.md). `RegraDePii` fica no arquivo `Regras/pii.json`. `PoliticaDeCanal` fica num dicionário no código.
 
 | Objeto | Garante |
 |---|---|
@@ -674,7 +685,7 @@ O [bd-modulo.sql](referencia/repo/infra/config/bd-modulo.sql) da infra cria dois
 | `corredor_cadastro` altera visita, ou grava token sem consentimento | recusado pelo gatilho |
 | `corredor_guarda` grava evento e depois tenta apagar | grava, e o gatilho recusa o `DELETE` |
 
-As 32 conferências do EF Core rodam conectadas como os três papéis da API. A API usa três strings de conexão, `ConnectionStrings__Motor`, `ConnectionStrings__Cadastro` e `ConnectionStrings__Guarda`. No notebook, as três podem apontar para o `postgres`.
+As 32 conferências do EF Core rodam conectadas como os três papéis da API. A API usa três strings de conexão, `ConnectionStrings__Motor`, `ConnectionStrings__Cadastro` e `ConnectionStrings__Guarda`. Na máquina de desenvolvimento, as três podem apontar para o `postgres`.
 
 ### 1.8 Configuração do servidor que este modelo exige
 
@@ -695,10 +706,10 @@ log_min_error_statement = panic
 
 Com as duas, o mesmo `INSERT` deixou só a linha `ERROR`, sem `DETAIL` e sem `STATEMENT`. A mensagem do gatilho do token não tem valor de coluna.
 
-Na API, vale a mesma regra para o EF Core e para o Npgsql:
+Na API, a mesma regra vale para o EF Core e para o Npgsql:
 
-- Nunca chame `EnableSensitiveDataLogging()`. Ele escreve no log o valor de cada parâmetro, depois que o conversor já tirou o texto de dentro do `TextoRotulado`.
-- Não ponha `Include Error Detail=true` na string de conexão. Esse parâmetro copia o `DETAIL` do Postgres para a mensagem da exceção.
+- A API nunca chama `EnableSensitiveDataLogging()`. Esse método escreve no log o valor de cada parâmetro, depois que o conversor já tirou o texto de dentro do `TextoRotulado`.
+- A string de conexão não leva `Include Error Detail=true`. Esse parâmetro copia o `DETAIL` do Postgres para a mensagem da exceção.
 
 ## 2. Mapeamento no EF Core
 
@@ -789,7 +800,7 @@ public readonly record struct TensaoV(decimal Valor)
 
 Os conversores de `CasaToken` e de `MicroareaId` aparecem no Motor e no Cadastro, três linhas em cada um. `Corredor.Contratos` não referencia o EF Core e não pode guardá-los.
 
-O `timestamptz` guarda microssegundos, e o .NET guarda décimos de microssegundo. O Npgsql corta a hora no microssegundo ao gravar e ao mandar o parâmetro de uma consulta. A conferência gravou um `Desde` com 7 décimos de microssegundo e achou o aviso pela chave do episódio com o mesmo valor em memória, sem código de corte. O valor que fica no objeto rastreado depois do `SaveChanges` continua com os décimos. Compare horas de duas leituras do banco, não uma hora da memória com uma do banco.
+O `timestamptz` guarda microssegundos, e o .NET guarda décimos de microssegundo. O Npgsql corta a hora no microssegundo ao gravar e ao mandar o parâmetro de uma consulta. A conferência gravou um `Desde` com 7 décimos de microssegundo e achou o aviso pela chave do episódio com o mesmo valor em memória, sem código de corte. O valor que fica no objeto rastreado depois do `SaveChanges` continua com os décimos. Uma comparação de horas usa duas leituras do banco, nunca uma hora da memória e uma do banco.
 
 ### 2.3 Tipo possuído, tipo complexo ou tabela
 
@@ -806,7 +817,7 @@ O `timestamptz` guarda microssegundos, e o .NET guarda décimos de microssegundo
 | `Visita`, `MensagemSaida`, `AvisoAoVizinho`, `Microarea` | entidades | uma tabela cada |
 | `EventoDeSeguranca` | entidade | `evento_de_seguranca` |
 
-`Casa` é `OwnsOne`, não `ComplexProperty`. O candidato 2 mediu no EF Core 8 que a projeção de `i.Casa.Endereco`, com `Casa` como tipo complexo, trazia a linha inteira do idoso, com `condicoes` e `medicamentos`. Com `OwnsOne`, a lista de nomes lê cinco colunas, e uma conferência do EF Core falha se o SQL da lista citar `condicoes` ou `medicamentos`.
+`Casa` é `OwnsOne`, não `ComplexProperty`. Uma medição no EF Core 8, numa versão anterior deste modelo, mostrou que a projeção de `i.Casa.Endereco`, com `Casa` como tipo complexo, trazia a linha inteira do idoso, com `condicoes` e `medicamentos`. Com `OwnsOne`, a lista de nomes lê cinco colunas, e uma conferência do EF Core falha se o SQL da lista citar `condicoes` ou `medicamentos`.
 
 O tipo possuído é carregado sempre junto com a raiz. É o que o agregado pede. `CasaMonitorada` chega com as confirmações, e `Idoso` chega com a casa, os consentimentos e o vizinho.
 
@@ -920,7 +931,7 @@ public sealed class ConversorDeTextoRotulado(params TipoDeDado[] rotulosDaColuna
 
 ### 2.5 Classificação no comentário da coluna
 
-A classificação de cada coluna mora numa tabela por contexto, em `ef/Classificacao.cs`. Uma convenção do EF Core grava o texto como comentário da coluna, e a migração cria o `COMMENT ON COLUMN`. Uma coluna mapeada sem entrada na tabela derruba a montagem do modelo, então ninguém esquece de classificar uma coluna nova.
+A classificação de cada coluna mora numa tabela por contexto, em `ef/Classificacao.cs`. Uma convenção do EF Core grava o texto como comentário da coluna, e a migração cria o `COMMENT ON COLUMN`. Uma coluna mapeada sem entrada na tabela derruba a montagem do modelo, então nenhuma coluna nova fica sem classificação.
 
 ```csharp
 public static readonly IReadOnlyDictionary<string, string> Guarda = new Dictionary<string, string>
@@ -970,7 +981,7 @@ public sealed class ConvencaoDeClassificacao(IReadOnlyDictionary<string, string>
 				propriedade.Builder.HasComment(classe);
 ```
 
-O catálogo do Postgres vira evidência para o PDF de Cyber com uma consulta:
+Uma consulta ao catálogo do Postgres lista a classificação de todas as colunas:
 
 ```sql
 SELECT n.nspname AS schema, c.relname AS tabela, a.attname AS coluna, d.description AS classe
@@ -1002,27 +1013,27 @@ O `xmin` é a coluna de sistema do Postgres que muda a cada escrita da linha. No
 e.Property(d => d.Versao).IsRowVersion();
 ```
 
-Duas regras para os casos de uso:
+Os casos de uso seguem duas regras:
 
-1. **Conflito de versão.** Com `DbUpdateConcurrencyException`, chame `ChangeTracker.Clear()` e execute o caso de uso de novo, uma vez. Todo comando do modelo é idempotente, então repetir é seguro. Não use `Entry(x).ReloadAsync()`, que não recarrega o tipo possuído.
-2. **Chave de idempotência repetida.** Com `DbUpdateException` cuja causa é `PostgresException` de `SqlState` `23505`, o comando é uma repetição. Leia a linha que já existe e devolva o mesmo resultado. Isso vale para `AtivarCasa`, `DeclararDiaCritico`, `Confirmar`, `RegistrarVisita` e `RegistrarAviso`.
+1. **Conflito de versão.** Com `DbUpdateConcurrencyException`, o caso de uso chama `ChangeTracker.Clear()` e executa de novo, uma vez. Todo comando do modelo é idempotente, então repetir é seguro. `Entry(x).ReloadAsync()` não serve, porque não recarrega o tipo possuído.
+2. **Chave de idempotência repetida.** Com `DbUpdateException` cuja causa é `PostgresException` de `SqlState` `23505`, o comando é uma repetição. O caso de uso lê a linha que já existe e devolve o mesmo resultado. A regra vale para `AtivarCasa`, `DeclararDiaCritico`, `Confirmar`, `RegistrarVisita` e `RegistrarAviso`.
 
-`IndicarVizinho` muda só a tabela filha e não passa pela conferência do `xmin`. A entrega aceita essa corrida, porque a rota é do Swagger e uma pessoa só a usa.
+`IndicarVizinho` muda só a tabela filha e não passa pela conferência do `xmin`. O modelo aceita essa corrida, porque a rota só é chamada pelo Swagger, por uma pessoa de cada vez.
 
 ### 2.7 Armadilhas que a conferência encontrou
 
-- `OwnedNavigationBuilder` não tem `ComplexProperty`. Use `OwnsOne` para um objeto de valor dentro de um tipo possuído.
+- `OwnedNavigationBuilder` não tem `ComplexProperty`. Um objeto de valor dentro de um tipo possuído usa `OwnsOne`.
 - Um tipo de valor que embrulha um número só entra numa comparação do LINQ se declarar o operador. `TempC` e `TensaoV` declaram `<`, `>`, `<=` e `>=`.
 - A chave de um `OwnsOne` com `ToTable` nasce com o nome `id`. `HasColumnName("idoso_id")` conserta.
 - Com `HasConversion` numa propriedade `TextoRotulado?`, o compilador avisa sobre nulidade. O método `Rotulado(...)` devolve o conversor como `ValueConverter` e o aviso some.
-- SQL escrito à mão não passa pelo `UtcConverter`. O Npgsql recusa um `DateTimeOffset` com `-03:00` como parâmetro. Passe `.ToUniversalTime()`.
+- SQL escrito à mão não passa pelo `UtcConverter`. O Npgsql recusa um `DateTimeOffset` com `-03:00` como parâmetro, então o parâmetro passa por `.ToUniversalTime()`.
 - O script idempotente do EF Core recua cada linha do `migrationBuilder.Sql`. O corpo de uma função criada pela migração difere, por espaços, do corpo criado pelo DDL. `catalogo.sql` compara o corpo sem os espaços.
 
 ### 2.8 Migrações
 
 As migrações do EF Core são a fonte de verdade do banco. Cada contexto tem uma pasta e uma tabela de histórico. A ordem em cada contexto é `Inicial`, com as tabelas e os comentários da seção 1, e `Gatilhos`, com a seção 1.5. As seis migrações conferidas estão em `ef/Migrations/`.
 
-Criar uma migração, na máquina de quem programa:
+Uma migração nova nasce na máquina de desenvolvimento, com estes comandos:
 
 ```bash
 dotnet ef migrations add <Nome> --project api/src/Corredor.Motor \
@@ -1040,12 +1051,12 @@ O caminho até a VM é o da [seção 1.7 de 05-infra-e-entrega.md](05-infra-e-en
 
 `--no-transactions` é obrigatório. Sem ele, o script traz um `START TRANSACTION` e um `COMMIT` por migração, e o primeiro `COMMIT` encerra a transação do `psql --single-transaction`. `conferir_migracoes.sh` mede os dois casos com um erro no fim do script de `motor`. Com `--no-transactions`, nenhuma tabela ficou em `motor`. Sem ele, ficaram cinco: as quatro tabelas e a de histórico. O mesmo script aplica cada SQL duas vezes e confere o catálogo depois da segunda rodada.
 
-Regra das migrações até 19/11, 23h55:
+Regras das migrações:
 
-1. **Só uma pessoa gera migração em cada contexto.** É a dona do módulo. Duas migrações paralelas no mesmo contexto dão conflito no arquivo `ModelSnapshot`.
+1. **Um autor de migração por contexto.** É o responsável pelo módulo. Duas migrações paralelas no mesmo contexto geram conflito no arquivo `ModelSnapshot`.
 2. **Migração que entrou na `main` não muda e não some.** Um erro se conserta com outra migração.
 3. **Toda migração é aditiva.** Ela cria tabela, coluna anulável, índice ou restrição que as linhas atuais cumprem, ou troca um `CHECK` de enum por outro com mais valores. Ela não apaga, não renomeia e não muda o tipo de nada.
-4. **O CI bloqueia a migração destrutiva.** `conferir_migracao_aditiva.sh`, adaptado do candidato 2, gera o SQL das migrações que entraram depois da `main` e recusa `DROP`, `RENAME` e `ALTER COLUMN ... TYPE`. Ele lê o SQL, então pega também o `DROP` escrito dentro de `migrationBuilder.Sql` e a troca de tipo. A seção 11.4 compara com o script da infra.
+4. **O CI bloqueia a migração destrutiva.** `conferir_migracao_aditiva.sh` gera o SQL das migrações que entraram depois da `main` e recusa `DROP`, `RENAME` e `ALTER COLUMN ... TYPE`. Ele lê o SQL, então pega também o `DROP` escrito dentro de `migrationBuilder.Sql` e a troca de tipo. O `tools/conferir-migracoes.sh` da infra lê o `Up()` em C# e recusa `DropTable`, `DropColumn`, `RenameTable` e `RenameColumn`, mas não pega `AlterColumn` que muda tipo nem `DROP` dentro de `migrationBuilder.Sql`, que a migração `Gatilhos` usa. O CI pode rodar os dois scripts.
 
 ```bash
 #!/usr/bin/env bash
@@ -1180,7 +1191,7 @@ public static IQueryable<EventoSensor> LinhaDoTempo(MotorDbContext db, CasaToken
 		.OrderBy(e => e.OcorridoEm).ThenBy(e => e.Seq);
 ```
 
-As confirmações vêm de `casa.Confirmacoes`, filtradas por `Quando >= desde` e ordenadas na memória. Uma casa desconhecida ou desativada devolve 404 `CASA_DESCONHECIDA`. A leitura baixa guardada além das 24 horas entra na avaliação e não aparece aqui. A seção 11.3 deixa essa escolha para a equipe.
+As confirmações vêm de `casa.Confirmacoes`, filtradas por `Quando >= desde` e ordenadas na memória. Uma casa desconhecida ou desativada devolve 404 `CASA_DESCONHECIDA`. A leitura baixa guardada além das 24 horas entra na avaliação e não aparece aqui. A seção [Verificação realizada e limitações](#verificação-realizada-e-limitações) registra essa limitação.
 
 ### 3.5 Lista de nomes
 
@@ -1204,7 +1215,7 @@ public static IQueryable<AvisoAoVizinho> AvisosDoDia(CadastroDbContext db, Micro
 		.OrderBy(a => a.RegistradoEm);
 ```
 
-`desde` é `agora` menos 24 horas. O modelo de domínio dizia "avisos de hoje", e "hoje" pediria a meia-noite de São Paulo no Cadastro. O fuso fica num lugar só, o corte das janelas do Motor.
+`desde` é `agora` menos 24 horas. Uma janela de "avisos de hoje" exigiria a meia-noite de São Paulo no Cadastro. O fuso fica num lugar só, o corte das janelas do Motor.
 
 ### 3.7 Eventos de segurança para o painel
 
@@ -1243,11 +1254,11 @@ public static IQueryable<ContagemDoPainel> ContagemDoPainel(GuardaDbContext db, 
 | `cadastro.idoso.casa_token` | Vira nulo na revogação | `RevogarConsentimento` |
 | `cadastro.vizinho_de_confianca` | Até a revogação ou a troca do vizinho | `RevogarConsentimento`, `IndicarVizinho` |
 | `cadastro.aviso_ao_vizinho` | Até a revogação | `RevogarConsentimento` |
-| `cadastro.mensagem_saida` | Fica na entrega. É evidência da auditoria de Cyber. | |
+| `cadastro.mensagem_saida` | Fica. É evidência de auditoria. | |
 | `guarda.evento_de_seguranca` | Fica. O painel só lê as últimas 24 horas. | |
 | Heartbeat | Nunca é gravado | |
 
-O prazo de `aviso_ao_vizinho` e de `mensagem_saida` fora da revogação é decisão em aberto, na seção 11.3.
+Fora da revogação, `aviso_ao_vizinho` e `mensagem_saida` não têm prazo. A seção [Verificação realizada e limitações](#verificação-realizada-e-limitações) registra essa limitação.
 
 Um backup estende a retenção. O `pg_dump` que o deploy guarda leva `motor.evento_sensor` e `motor.confirmacao`. A infra guarda os cinco mais recentes, e cada um vive até ser trocado.
 
@@ -1383,7 +1394,7 @@ Nenhuma coluna do Motor é `TextoRotulado`. A proteção do Motor é a ausência
 | `confirmacao.*` | `pseudonimizado`. O `id` é o da visita, e a visita tem o idoso. | Linha do tempo, sem o `id`. Some em 24 horas. |
 | `dia_critico.*` | `nenhum` | `PUT /dias-criticos`. O `motivo` passa pelo interceptador como qualquer corpo. |
 
-Três limites que o vídeo e o PDF de Cyber dizem:
+Essa proteção tem três limites:
 
 - O perfil sai no radar sem passar pela `SaidaSegura`, porque é enum e não texto. O que protege é o token, porque a resposta do radar não tem nome. O nome e o perfil só se encontram no SQLite do celular.
 - Quem tem acesso aos dois schemas liga o token à pessoa pela coluna `idoso.casa_token`. Na VM, só o `postgres` tem esse acesso.
@@ -1499,7 +1510,7 @@ PRAGMA user_version = 1;
 | `lista_de_nomes` | Uma linha por casa com token | `GET /api/lista-de-nomes` |
 | `radar_cabecalho` | Uma linha: turno, hora do servidor e verdes | `GET /api/radar` |
 | `radar_card` | Um card por casa pendente, atendida ou aguardando, na ordem do servidor | `GET /api/radar` |
-| `aviso` | Os avisos das últimas 24 horas. Sai junto com o corte 3 da seção 8.2 do modelo de domínio. | `GET /api/avisos` |
+| `aviso` | Os avisos das últimas 24 horas | `GET /api/avisos` |
 | `desfecho` | Cada desfecho que a ACS registrou, com o estado do envio | O app |
 
 Regras de forma:
@@ -1549,7 +1560,7 @@ ORDER BY CASE c.lista WHEN 'pendente' THEN 0 WHEN 'atendida' THEN 1 ELSE 2 END, 
 
 - **`LEFT JOIN` com a lista de nomes.** Um card cujo token não está na lista aparece com o texto "Casa sem nome. Atualize a lista." Um card vermelho escondido é a pior falha do produto.
 - **O app nunca muda `situacao`.** Depois de registrar um desfecho, o card mostra o desfecho local e continua onde o servidor o pôs. A situação só muda no próximo radar.
-- **Radar velho se declara velho.** A tela sempre mostra a hora de `sincronizacao.baixado_em`. Com mais de 2 minutos, o título vira "Radar das 10h31, sem conexão" e a contagem vira "27 verdes às 10h31". Um verde guardado no celular não prova nada sobre agora.
+- **Radar velho se declara velho.** A tela sempre mostra a hora de `sincronizacao.baixado_em`. Com mais de 2 minutos, o título vira "Radar das 10h31, sem conexão" e a contagem vira "27 verdes às 10h31". Um verde guardado no celular não indica o estado atual da casa.
 
 ### 6.3 Fila de desfechos
 
@@ -1571,7 +1582,7 @@ A fila são as linhas de `desfecho` com `estado = 'pendente'`.
 
 `ultimo_erro` guarda só o código, nunca a mensagem. Na saída da conta, o app apaga as seis tabelas. Se existir desfecho pendente, o app avisa antes.
 
-O SQLite do celular não é cifrado na entrega. A proteção é a área privada do app e o bloqueio do aparelho. O README de Mobile declara isso.
+O SQLite do celular não é cifrado nesta entrega. A proteção é a área privada do app e o bloqueio do aparelho. O [README do app](../../app/README.md) registra a mesma limitação.
 
 ## 7. Mensagens e arquivos
 
@@ -1677,7 +1688,7 @@ ml/
 | `base_modelo.csv` | as colunas de clima, `mes`, `dia_da_semana`, `internacoes`, `excesso` | junção das duas |
 
 - **O microdado do SIH não entra no Git.** Cada linha de `RDSPaamm.dbc` é uma internação de uma pessoa real, com data de nascimento, CEP e diagnóstico. O `.gitignore` tem `ml/dados/brutos/`. O notebook lê só `DT_INTER`, `CAR_INT`, `MUNIC_RES`, `COD_IDADE`, `IDADE` e `DIAG_PRINC`, e grava uma contagem por dia.
-- **O notebook roda sem baixar nada.** Ele lê `processados/`. Uma célula no começo refaz `processados/` a partir de `brutos/`, para quem quiser conferir.
+- **O notebook roda sem baixar nada.** Ele lê `processados/`. Uma célula no começo refaz `processados/` a partir de `brutos/`, para conferência.
 - **`manifesto.csv` é a prova da fonte.** Cada arquivo bruto tem o link e o `sha256`. O `README.md` de `dados/` tem o período e a data do download.
 - **O modelo é JSON, não pickle.** O formato JSON do XGBoost abre em outra versão da biblioteca e não executa código ao carregar.
 - **`metadados.json`** tem a ordem das variáveis, o limiar de decisão, o período de treino e de teste, as métricas do teste, as versões das bibliotecas, o `sha256` de `base_modelo.csv`, o limite da regra da noite quente e a origem que o job deve mandar, `MODELO` ou `REGRA_BASE`.
@@ -1736,7 +1747,7 @@ Os campos da casa 1:
 | 10 | aparelho mudo desde as 09h10 |
 | as outras 32 | movimento normal |
 
-A casa 1 é eletrodependente, então o nó mudo do Wokwi deixa o card vermelho. O cinza do pitch aparece na casa 10. Para trocar, use `PUT /api/idosos/{id}/perfil`.
+A casa 1 é eletrodependente, então o nó mudo do Wokwi deixa o card vermelho. O card cinza aparece na casa 10. A rota `PUT /api/idosos/{id}/perfil` troca o perfil de uma casa e muda esse resultado.
 
 ### 8.2 Como a carga entra
 
@@ -1761,15 +1772,13 @@ A microárea 3 e o código `acs-demo-01` entram pela migração `Inicial` do Cad
 
 1. **Origem única.** Todo dado com forma de pessoa sai de `gerar_semente.py`. `gerar_semente.py --verificar` gera de novo e compara com `casas.json`. Se alguém editar o arquivo à mão, a conferência falha.
 2. **Dado visivelmente fabricado.** `verificar_semente.py` confere as 40 casas: `id` único no formato UUID 5, nenhum valor com forma de token, todo sobrenome da lista de árvores, todo endereço em `Vila Exemplo`, todo telefone com DDD 00 e nenhum CPF.
-3. **Varredura do repositório.** `verificar_dados_pessoais.py` lê todo arquivo de texto e falha com CPF pontuado, CPF sem pontuação com dígito verificador válido, CNS, telefone com DDD que existe ou e-mail fora de domínio de exemplo. A lista `permitidos.txt` tem os dois literais de teste: `123.456.789-00`, que é o exemplo do professor e tem dígito verificador inválido, e `123.456.789-09`, para o teste do validador. A conferência planta um CPF válido, um telefone com DDD 11 e um e-mail real e exige que a varredura falhe.
+3. **Varredura do repositório.** `verificar_dados_pessoais.py` lê todo arquivo de texto e falha com CPF pontuado, CPF sem pontuação com dígito verificador válido, CNS, telefone com DDD que existe ou e-mail fora de domínio de exemplo. A lista `permitidos.txt` tem os dois literais de teste: `123.456.789-00`, um exemplo didático com dígito verificador inválido, e `123.456.789-09`, para o teste do validador. A conferência planta um CPF válido, um telefone com DDD 11 e um e-mail real e exige que a varredura falhe.
 4. **Dado público fica do lado de fora.** `ml/dados/brutos/` está no `.gitignore`. `manifesto.csv` diz de onde cada arquivo veio.
-5. **A conferência não depende de lembrar.** Os três comandos entram no passo de teste do CI.
-
-A varredura rodou na pasta `docs/` do projeto depois das mudanças em `03-modelo-de-dominio.md`. A seção 11.4 diz o que ela achou.
+5. **A conferência é automática.** Os três comandos entram no passo de teste do CI.
 
 ### 8.4 Reinício da demo
 
-Mover o `RelogioDeDemo` para trás deixa no futuro horas que já estão gravadas. `UltimoPacoteEm` só anda para frente, então a casa nunca ficaria cinza nem vermelha por silêncio. O farol do painel ficaria vermelho com eventos "de amanhã". Cada linha abaixo diz o que acontece com cada hora gravada:
+Mover o `RelogioDeDemo` para trás deixa no futuro horas que já estão gravadas. `UltimoPacoteEm` só anda para frente, então a casa nunca ficaria cinza nem vermelha por silêncio. O farol do painel ficaria vermelho com eventos "de amanhã". A tabela mostra o efeito sobre cada hora gravada:
 
 | Dado gravado | Depois de mover o relógio para trás | No reinício |
 |---|---|---|
@@ -1783,11 +1792,11 @@ Mover o `RelogioDeDemo` para trás deixa no futuro horas que já estão gravadas
 
 O procedimento, nesta ordem:
 
-1. Pare o simulador das 39 casas.
-2. Chame `PUT /api/demo/relogio` com a hora nova.
-3. Rode o script abaixo como `postgres`, com `-v agora="'<hora nova em UTC>'"`. O papel da API não tem `TRUNCATE`.
-4. No app, saia da conta. Isso apaga o radar, os avisos e os desfechos do celular.
-5. Ligue o simulador.
+1. Parar o simulador das 39 casas.
+2. Chamar `PUT /api/demo/relogio` com a hora nova.
+3. Rodar o script abaixo como `postgres`, com `-v agora="'<hora nova em UTC>'"`. O papel da API não tem `TRUNCATE`.
+4. Sair da conta no app. A saída apaga o radar, os avisos e os desfechos do celular.
+5. Ligar o simulador.
 
 ```sql
 -- arquivo: consultas/reiniciar_demo.sql
@@ -1818,7 +1827,7 @@ O `TRUNCATE` passa pelos gatilhos de `evento_sensor` e de `evento_de_seguranca`,
 
 Os diagramas mostram as chaves e as colunas que explicam cada relação. A lista completa de colunas está na seção 1. Não existe relação entre schemas no banco.
 
-O primeiro desenho junta os três schemas. Veja que nenhuma linha sai de um schema para outro.
+O primeiro desenho junta os três schemas. Nenhuma linha liga um schema a outro.
 
 ![Os três schemas do banco corredor](diagramas/20-modelo-de-dados.mmd)
 
@@ -2005,7 +2014,7 @@ O SQLite não declara chave estrangeira. Cada tabela é trocada inteira numa hor
 
 ## 10. Como repetir a conferência
 
-Tudo roda a partir de [referencia/dados/](referencia/dados/), com Docker, o SDK do .NET 10, `sqlite3` e Python 3. O [LEIA-ME.md](referencia/dados/LEIA-ME.md) tem os comandos. O Postgres é a imagem `postgres:16`, num contêiner chamado `corredor-dados`, na porta 55470. `verificar_tudo.sh` roda os scripts da tabela do começo deste documento, nesta ordem: catálogo, migrações, SQL, papéis, carga de volume, EF Core, SQLite, semente, varredura e montagem.
+Tudo roda a partir de [referencia/dados/](referencia/dados/), com Docker, o SDK do .NET 10, `sqlite3` e Python 3. O [LEIA-ME.md](referencia/dados/LEIA-ME.md) tem os comandos. O Postgres é a imagem `postgres:16`, num contêiner chamado `corredor-dados`, na porta 55470. `verificar_tudo.sh` roda os scripts da tabela da seção [Verificação realizada e limitações](#verificação-realizada-e-limitações), nesta ordem: catálogo, migrações, SQL, papéis, carga de volume, EF Core, SQLite, semente, varredura e montagem.
 
 ## 11. Justificativa
 
@@ -2013,85 +2022,21 @@ Tudo roda a partir de [referencia/dados/](referencia/dados/), com Docker, o SDK 
 
 | Decisão | Alternativa recusada | Motivo |
 |---|---|---|
-| Token em `idoso.casa_token`, com gatilho de restrição adiado | Token na linha do consentimento, com `CHECK` ligando token e vigência, do candidato 2 | A forma do candidato 2 muda o agregado e o caso 33, que falam em token da `Casa`. O gatilho dá a mesma garantia sobre a forma do modelo de domínio. |
+| Token em `idoso.casa_token`, com gatilho de restrição adiado | Token na linha do consentimento, com `CHECK` ligando token e vigência | Essa forma muda o agregado e o caso 33, que falam em token da `Casa`. O gatilho dá a mesma garantia sobre a forma do modelo de domínio. |
 | Token em `text` com `CHECK` | `uuid` ou `bytea` | O `uuid` mostra hifens no `psql`, e o tópico MQTT não tem. Com `text`, o token tem uma forma só em todo lugar. |
 | Enum em `text` com `CHECK` | Tipo `enum` do Postgres, ou inteiro | O tipo nativo pede `ALTER TYPE` e registro no Npgsql. O inteiro não se lê no `psql` e quebra se alguém reordenar o enum. |
-| `AcsId` em texto, como `acs-demo-01` | `uuid`, dos candidatos 2 e 3 | O código se lê no `psql` e no log de auditoria. Nenhuma regra precisa de `uuid`. |
+| `AcsId` em texto, como `acs-demo-01` | `uuid` | O código se lê no `psql` e no log de auditoria. Nenhuma regra precisa de `uuid`. |
 | `ultimo_pacote_em` na linha da casa, escrito por uma instrução condicional | Tabela separada só para o último pacote | O modelo de domínio põe o campo na raiz. A instrução única já separa o heartbeat dos comandos, sem tabela nova. |
 | Sem `xmin` em `casa_monitorada` | `xmin` em toda raiz | O heartbeat muda a linha duas vezes por segundo. Todo comando do Cadastro teria de repetir por conflito com uma escrita que não disputa nada. |
 | Rótulo calculado pela coluna | Coluna `rotulos` ao lado de cada texto | O modelo de domínio diz que rótulo é calculado. Um rótulo gravado fica velho quando o `pii.json` muda. |
-| Classificação na tabela do C# e no comentário | Só numa tabela deste documento | O comentário mora no catálogo, onde o professor de Cyber consulta, e a montagem do modelo falha com uma coluna sem classe. |
+| Classificação na tabela do C# e no comentário | Só numa tabela deste documento | O comentário mora no catálogo, onde uma auditoria consulta, e a montagem do modelo falha com uma coluna sem classe. |
 | `tipos_de_dado` em `text[]` | Tabela filha | H44 pede uma tabela na Guarda. Nenhuma consulta filtra por tipo de dado. |
-| Gatilhos e papéis juntos | Só papéis, sem gatilho, do candidato 3 | O papel impede que um módulo leia o schema do outro. O gatilho impede que o próprio módulo altere a visita. São duas regras. |
-| Canal `Banco` no mascaramento na entrada | Canal nulo, do candidato 2 | A pontuação é a mesma, o `NOT NULL` fica e o `Farol` não trata nulo. |
-| Sem corte de microssegundo no código | Corte no `RelogioDeDemo`, do candidato 1, ou no `UtcConverter`, do candidato 2 | O Npgsql já corta ao gravar e no parâmetro. A conferência achou o aviso pela chave com o `Desde` de 7 décimos. O `RelogioDeDemo` vira `TimeProvider.System` em produção e não cortaria lá. |
-| Carga pelos casos de uso, com `--semear` | Script que chama as rotas, do candidato 1 | `POST /idosos` não tem chave, então o script por HTTP dependia de comparar nome e endereço. O `id` fixo torna a carga repetível. |
+| Gatilhos e papéis juntos | Só papéis, sem gatilho | O papel impede que um módulo leia o schema do outro. O gatilho impede que o próprio módulo altere a visita. São duas regras. |
+| Canal `Banco` no mascaramento na entrada | Canal nulo | A pontuação é a mesma, o `NOT NULL` fica e o `Farol` não trata nulo. |
+| Sem corte de microssegundo no código | Corte no `RelogioDeDemo` ou no `UtcConverter` | O Npgsql já corta ao gravar e no parâmetro. A conferência achou o aviso pela chave com o `Desde` de 7 décimos. O `RelogioDeDemo` vira `TimeProvider.System` em produção e não cortaria lá. |
+| Carga pelos casos de uso, com `--semear` | Script que chama as rotas | `POST /idosos` não tem chave, então o script por HTTP dependia de comparar nome e endereço. O `id` fixo torna a carga repetível. |
 | `Expurgo` em SQL | LINQ com `ExecuteDeleteAsync` | `Confirmacao` é tipo possuído e não tem `DbSet`. A condição conferida é o texto do SQL. |
 | Sem índice em `evento_sensor.ocorrido_em` | Índice para o expurgo e para o radar | Depois do expurgo, a tabela é a janela. O filtro por hora pega quase toda linha. |
 | Sem partição por dia | Partição de `evento_sensor` com `DROP PARTITION` | A exceção da leitura baixa impede apagar a partição inteira. O volume é de dezenas de milhares de linhas. |
 | Radar em duas tabelas no SQLite | Um JSON numa linha | A junção de token com nome é a consulta que define o produto. Em tabela, ela é um `SELECT` que a tela mostra. |
-| Deslocamento da visita no servidor | Deslocamento calculado no app pelo desvio do radar, do candidato 1 | O servidor já sabe o deslocamento, e o app fica sem regra do relógio de demo. |
-
-### 11.2 Mudanças no modelo de domínio
-
-Os três candidatos propuseram 41 mudanças ao modelo de domínio. Sem as repetidas, sobram 28. Vinte foram aplicadas, quatro foram recusadas e quatro ficaram em aberto. Em quatro das 28, uma variante de outro candidato foi recusada ou um pedaço ficou para a equipe, e as tabelas abaixo mostram esses pedaços. A seção 9.1 de [03-modelo-de-dominio.md](03-modelo-de-dominio.md) lista as aplicadas e o lugar de cada uma.
-
-As aplicadas que o modelo de dados não consegue gravar sem:
-
-| Mudança | Por quê |
-|---|---|
-| `AvisoAoVizinho` grava `MicroareaId` | `GET /avisos` filtra por microárea, e o token some na revogação. |
-| A exceção do `Expurgo` vale só para casa ativa e eletrodependente, só `Acs` com `PessoaVista` solta, e os eventos saem antes das confirmações | Sem o recorte, a leitura de 0 V de toda casa fica para sempre. Sem a ordem, a trava nunca solta. |
-| A avaliação lê as leituras baixas pelo critério, não pelo que sobrou | O radar acerta com o expurgo atrasado ou cortado. |
-| `POST /visitas` soma o deslocamento do relógio de demo, e o reinício da seção 8.4 vale depois de mover o relógio para trás | Sem isso, a visita gravada na demo cai fora da janela ou recebe `VISITA_NO_FUTURO`. |
-| `ToleranciaDoRelogio` fica em `ParametrosDoRelogio`, e o deslocamento em `IDeslocamentoDoRelogio`, os dois em `Corredor.Contratos` | O Cadastro precisa dos dois e não referencia o Motor. |
-| `AvisosDoDia` lê as últimas 24 horas | "Hoje" poria o fuso no Cadastro. |
-| Revogar apaga os avisos do token | O aviso guarda o token que a revogação promete apagar. |
-| `CadastrarIdoso` aceita um `IdosoId` só na carga | A carga pelos casos de uso precisa ser repetível. |
-| CPF mascarado pelo formato, credencial que nunca casa com `casaToken`, observação com o rótulo `Saude` pelo campo | O caso 38 e o `POST /visitas` falhariam na frente da banca. |
-| `AcsId` com formato, rota como modelo, canal `Banco` no mascaramento | Quatro colunas, a restrição da rota e o `NOT NULL` do canal dependem disso. |
-| Telefones de exemplo com DDD 00 | A varredura do repositório falharia no próprio modelo de domínio. |
-
-As recusadas:
-
-| Proposta | Quem propôs | Motivo |
-|---|---|---|
-| O token mora na linha do consentimento | candidato 2 | A decisão da equipe manteve o token na `Casa`. O gatilho da seção 1.5 dá a mesma garantia no banco. |
-| `TempC` e `TensaoV` viram `decimal?` no `EventoSensor` | candidato 1 | Com o operador declarado, o objeto de valor entra na comparação do LINQ. A conferência traduziu `e.TensaoV < tensaoMinima` para `tensao_v < @tensaoMinima`. |
-| `AcsId` como `uuid` | candidatos 2 e 3 | O código em texto se lê no `psql` e no log, e nenhuma regra precisa de `uuid`. |
-| Canal nulo no mascaramento na entrada | candidato 2 | O canal `Banco` dá a mesma pontuação e mantém o `NOT NULL`. |
-| Cortar a hora no microssegundo no `RelogioDeDemo` ou no `UtcConverter` | candidatos 1 e 2 | O Npgsql já corta ao gravar e no parâmetro, medido na seção 2.2. Em produção o `RelogioDeDemo` é `TimeProvider.System`. |
-| `CasaToken.Parse(string)` para o conversor | candidato 2 | O conversor chama `TryParse` dentro de um método privado e compila assim. |
-
-### 11.3 Decisões em aberto para a equipe
-
-| Decisão | O que já se sabe | O que custa decidir depois |
-|---|---|---|
-| Cifrar nome e campos de saúde no banco | Fica fora de 19/11. A chave ficaria na mesma VM do banco, o que protege pouco, e uma chave perdida derruba a demo. | As colunas são `varchar`, e o `ConversorDeTextoRotulado` é o único lugar por onde o valor entra e sai do banco. Cifrar é trocar o corpo do conversor por AES-GCM com uma chave fora do banco, alargar as colunas numa migração aditiva para caber o texto cifrado em base64 e regravar as linhas existentes. Os `CHECK` `sem_cpf_em_claro` e `btrim(nome) <> ''` deixam de enxergar o texto e saem. A lista de nomes continua igual, porque decifra na leitura. |
-| Apagar `condicoes` e `medicamentos` na revogação | O dado de saúde fica sem uso depois que o monitoramento acaba. | Um `UPDATE` no caso de uso. O caso 33 ganha uma linha. |
-| Prazo de `aviso_ao_vizinho` e de `mensagem_saida` fora da revogação | A proposta do candidato 3 é 24 horas para os dois. A mensagem é evidência da auditoria de Cyber. | Duas instruções no `Expurgo` do Cadastro, ou um serviço novo, porque o `Expurgo` atual só toca `motor`. |
-| A linha do tempo mostra a leitura baixa guardada além de 24 horas | No caso 31, a casa fica vermelha por uma leitura de 25 horas que a tela de detalhe não mostra. | Uma condição a mais em `LinhaDoTempo`, a mesma do radar. |
-| `CasaToken.ToString()` abreviado para log | O token interpolado num log por engano sairia inteiro. | Muda `Corredor.Contratos`, com o acordo das duas pessoas. |
-| `dia_critico.motivo` com origem `Manual` | É o único texto livre do Motor, e o Motor não rotula nome nem saúde. Para 19/11, só o job escreve o motivo. | Uma lista fechada de motivos antes de a origem `Manual` ganhar tela. |
-| Campo `diaCritico` em `GET /radar` | O app não tem rota para ler a probabilidade e o motivo do dia. | Um campo a mais numa resposta que já existe, e uma coluna no `radar_cabecalho`. |
-| `Desde` da regra de energia num apagão de mais de 24 horas | O início da sequência baixa anda uma hora por vez, e cada passo é um episódio novo para o vizinho. A bateria do nó não dura isso. | Nada para 19/11. Fica registrado. |
-
-### 11.4 Conflitos com outros documentos
-
-- **Versão do .NET.** Os três candidatos conferiram no EF Core 8. A [infra](05-infra-e-entrega.md) fixou `net10.0` e `dotnet-ef` 10.0.15. Este modelo foi conferido de novo no EF Core 10, e a referência usa as versões da infra.
-- **Conferência de migração aditiva.** O `tools/conferir-migracoes.sh` da infra lê o `Up()` em C# e recusa `DropTable`, `DropColumn`, `RenameTable` e `RenameColumn`. Ele não pega `AlterColumn` que muda tipo nem `DROP` dentro de `migrationBuilder.Sql`, que a migração `Gatilhos` usa. `conferir_migracao_aditiva.sh` lê o SQL gerado e pega os dois. O CI pode rodar os dois scripts.
-- **HTML do site.** A varredura na pasta `docs/` acha o telefone de exemplo com DDD 11 na cópia HTML do modelo de domínio, em `docs/arquitetura/site/`. O HTML some quando o site for gerado de novo a partir do `03-modelo-de-dominio.md` corrigido.
-
-### 11.5 O que cortar primeiro neste modelo
-
-Se o prazo apertar, corte nesta ordem. Cada item diz o que sobra.
-
-| # | Corta | O que sobra |
-|---|---|---|
-| 1 | A migração `Gatilhos` | A regra no domínio, sem método que altere, e o papel por módulo. |
-| 2 | Os `CHECK` `sem_cpf_em_claro` | O interceptador, que é quem mascara. |
-| 3 | A tabela `aviso` do SQLite | Sai junto com `GET /avisos`, no corte 3 do modelo de domínio. |
-| 4 | Os índices parciais por microárea | Com 40 casas, a leitura sequencial atende. |
-| 5 | `ContagemDoPainel` | O painel calcula o farol sobre os 50 eventos da lista. |
-
-Seis itens não saem: a chave primária de `evento_sensor`, o índice `ux_consentimento_vigente`, o índice `ux_aviso_ao_vizinho_episodio`, as duas linhas do `postgresql.conf`, o papel por módulo e a varredura da seção 8.3.
+| Deslocamento da visita no servidor | Deslocamento calculado no app pelo desvio do radar | O servidor já sabe o deslocamento, e o app fica sem regra do relógio de demo. |

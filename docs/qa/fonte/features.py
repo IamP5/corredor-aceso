@@ -397,7 +397,7 @@ FEATURES = [
     dict(
         id="F21", modulo="Motor",
         titulo="Relógio de demo",
-        descricao="Para gravar as janelas das 10h e das 15h sem esperar, a equipe move a hora do Motor por "
+        descricao="Para exercitar as janelas das 10h e das 15h sem esperar, a equipe move a hora do Motor por "
                   "`PUT /api/demo/relogio`. O mesmo deslocamento vale para o `ts` dos pacotes e para a hora das visitas. "
                   "A rota só existe no ambiente `Development`.",
         criterios=[

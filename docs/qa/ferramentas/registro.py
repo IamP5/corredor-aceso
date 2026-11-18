@@ -132,9 +132,9 @@ def regras() -> list[Regra]:
             cmd = "PedidoDeContato"
         saida.append(Regra(f"IDEM-{c[0]}-{cmd}", "Idempotência", "03 §4.5", f"{c[1]}: {c[2]}"))
 
-    # Nunca corta, 03 seção 8.3
-    for j, item in enumerate(_lista_numerada(_secao(dom, r"8\.3 Nunca corta")), 1):
-        saida.append(Regra(f"NC-{j}", "Nunca corta", "03 §8.3", item))
+    # Regras essenciais, 03 seção 8.1
+    for j, item in enumerate(_lista_numerada(_secao(dom, r"8\.1 Regras essenciais")), 1):
+        saida.append(Regra(f"NC-{j}", "Regra essencial", "03 §8.1", item))
 
     # Políticas, 02 sessão 1
     for c in _linhas_tabela(_secao(eve, r"Políticas")):

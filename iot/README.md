@@ -2,7 +2,7 @@
 
 Esta pasta tem as duas fontes de pacote do Corredor Aceso:
 
-- `no/`: o nó do corredor, um ESP32 simulado no Wokwi. É a entrega de Physical Computing.
+- `no/`: o nó do corredor, um ESP32 simulado no Wokwi, que constitui a entrega de Physical Computing.
 - `simulador/`: um programa em Python que faz as outras 39 casas da microárea na demo.
 
 Os dois falam o mesmo contrato MQTT, da seção 6.2 de
@@ -16,15 +16,15 @@ Nenhum nome, endereço ou telefone sai do nó.
 | Circuito ESP32 com sensores | `no/diagram.json` e `no/no.ino`: sensor de presença, DHT22, potenciômetro no papel do sensor de tensão, botão, dois LEDs e buzzer. Ver "Peças e por que cada uma existe". |
 | Integrado à solução | O nó fala o contrato MQTT que o Motor da API consome, e cada movimento é o sinal de vida da casa no radar da ACS. O simulador, com o mesmo contrato, falou com o Motor real na demo integrada. Ver "O que já rodou no Wokwi" e o [relatório da integração](../docs/evidencias/integracao/RELATORIO.md). |
 | Evidências | [docs/evidencias/iot/](../docs/evidencias/iot/README.md): o monitor serial, a captura do broker e os prints da rodada no wokwi.com. |
-| Link do projeto no Wokwi | Ver "Publicar o projeto no wokwi.com". |
-| Vídeo de até 4 minutos | Ver "Roteiro do vídeo de Physical Computing". |
+| Link do projeto no Wokwi | Ainda não publicado. O projeto pode ser montado pelos passos de "Abrir e rodar no wokwi.com". |
+| Vídeo de até 4 minutos | O link consta na seção "Vídeos" do [README da raiz](../README.md#vídeos). |
 | Nomes dos integrantes | `integrantes.txt`, na raiz do repositório. |
 
 ## O nó do corredor
 
 A idosa mora sozinha. Um aparelho pequeno fica no corredor entre o quarto e o banheiro. Quando ela passa,
-a luz de caminho acende e o aparelho manda um `MOVIMENTO`. Esse movimento é o "estou bem" que ninguém
-precisa lembrar de dar. Num dia crítico de calor, a ACS vê no radar só as casas que ficaram em silêncio.
+a luz de caminho acende e o aparelho manda um `MOVIMENTO`. Esse movimento vale como um "estou bem" que
+não depende de a pessoa lembrar de nada. Num dia crítico de calor, a ACS vê no radar só as casas que ficaram em silêncio.
 
 ### Peças e por que cada uma existe
 
@@ -37,7 +37,7 @@ precisa lembrar de dar. Num dia crítico de calor, a ACS vê no radar só as cas
 | Botão grande verde | GPIO 25, pull-up interno | Um toque: "estou bem". Dois toques: "hoje vou sair". Um bipe confirma o toque, dois bipes o duplo toque. | `BOTAO_BEM` e `BOTAO_SAIR`. A saída avisada suspende a regra de silêncio até o fim do turno. |
 | LED laranja (âmbar) com resistor de 220 Ω | GPIO 33 | Aceso: hoje é dia crítico, beba água. Piscando: a UBS pediu um toque no botão. | Comandos `DIA_CRITICO` e `PEDIR_TOQUE`. |
 | Buzzer | GPIO 32 | Às 14h30, se ela não deu sinal desde as 10h, o buzzer chama até ela apertar o botão. | Comando `PEDIR_TOQUE`. O toque no botão para o buzzer e manda `BOTAO_BEM`. |
-| Chave deslizante | GPIO 14, pull-up interno | Não existe no aparelho real. | Chave da demo: desligada, o firmware desliga o Wi-Fi de verdade (`WiFi.mode(WIFI_OFF)`). Serve para mostrar o buffer no vídeo. |
+| Chave deslizante | GPIO 14, pull-up interno | Não existe no aparelho real. | Chave da demo: desligada, o firmware desliga o Wi-Fi de verdade (`WiFi.mode(WIFI_OFF)`). Permite demonstrar o buffer. |
 
 ### O que o firmware faz
 
@@ -46,8 +46,8 @@ precisa lembrar de dar. Num dia crítico de calor, a ACS vê no radar só as cas
   Com rede, sai na hora com `"bufferizado": false`. Sem rede, fica guardado. Na volta, sai na ordem, com o
   `seq` e o `ts` do momento do fato e `"bufferizado": true`. O Motor grava cada evento uma vez, pela chave
   `(casaToken, seq, ts)`.
-- O `HEARTBEAT` sai a cada 20 s, só com rede, e nunca entra no buffer. Ele diz que o aparelho está ligado
-  agora, então um heartbeat atrasado não teria sentido.
+- O `HEARTBEAT` sai a cada 20 s, só com rede, e nunca entra no buffer. Ele indica que o aparelho está ligado
+  naquele instante, e por isso um heartbeat atrasado não teria sentido.
 - A `TELEMETRIA` sai ao ligar, a cada 5 min e na hora em que a tensão cruza 100 V, para cima ou para baixo.
 - O `ts` vem do NTP, em UTC. Um evento que acontece antes do NTP responder guarda o `millis()` e ganha o
   `ts` certo quando a hora chega. Nenhum pacote sai sem hora.
@@ -69,8 +69,8 @@ inverso. A seção 1.11 de [05-infra-e-entrega.md](../docs/arquitetura/05-infra-
 
 O prefixo e o broker vêm de [corredor.conf.padrao](../infra/config/corredor.conf.padrao)
 (`MQTT_PUBLICO_HOST`, `MQTT_PUBLICO_PORTA`, `MQTT_PREFIXO_PUBLICO`). Em [no/config.h](no/config.h),
-`MQTT_PREFIXO` precisa ter o mesmo valor da VM. O padrão do repositório, `gs26-TROQUE-ISTO`, é um marcador:
-troque nos dois lugares por um valor da equipe.
+`MQTT_PREFIXO` precisa ter o mesmo valor da VM. O padrão do repositório, `gs26-TROQUE-ISTO`, é um marcador
+que deve ser substituído, nos dois arquivos, por um prefixo próprio.
 
 ### Token da casa
 
@@ -78,7 +78,8 @@ troque nos dois lugares por um valor da equipe.
 (`CASA_TESTE_TOKEN`) que o seed do Motor ativa. Para a demo, troque pelo token da casa 1 de
 `api/semente/tokens.local.json`, que o `Corredor.Api --semear` escreve na VM. Faça a troca só no projeto do
 wokwi.com. O token real nunca entra no Git: o broker é público, e quem tem o token pode mandar um
-`MOVIMENTO` falso.
+`MOVIMENTO` falso. Um projeto público no wokwi.com expõe o `config.h`, por isso a versão pública
+do projeto deve usar a casa de teste.
 
 ### Compilar fora do Wokwi
 
@@ -109,7 +110,7 @@ extensão do Wokwi no VS Code ou o Wokwi CLI.
 3. Na aba `diagram.json`, apague tudo e cole [no/diagram.json](no/diagram.json).
 4. Em `Library Manager`, clique em `+` e adicione `PubSubClient` e `DHT sensor library for ESPx`. Isso gera
    o mesmo `libraries.txt` de [no/libraries.txt](no/libraries.txt).
-5. Em `config.h`, ponha o prefixo da equipe em `MQTT_PREFIXO` e o token da casa 1 em `CASA_TOKEN`.
+5. Em `config.h`, defina o prefixo escolhido em `MQTT_PREFIXO` e o token da casa 1 em `CASA_TOKEN`.
 6. Clique no botão verde de iniciar. No monitor serial aparecem `[wifi] conectando`, `[mqtt] conectado` e um
    `[mqtt] {...}` para cada evento.
 
@@ -122,25 +123,10 @@ Para mexer no circuito durante a simulação:
 - Tensão: gire o potenciômetro, ou clique nele e use `Home` e `End`. Ele começa em 127 V. Abaixo de
   100 V, o serial mostra `[energia] tensão cruzou 100 V`.
 - Temperatura: clique no DHT22 e mude a temperatura.
-- Wi-Fi: a chave começa na posição "Wi-Fi ligado". Mude de posição: o serial mostra
+- Wi-Fi: a chave começa na posição "Wi-Fi ligado". Ao mudar a chave de posição, o serial mostra
   `[wifi] chave desligada`, e cada evento
-  seguinte mostra `sem rede: guardado (N no buffer)`. Volte a chave: o serial mostra
+  seguinte mostra `sem rede: guardado (N no buffer)`. Ao voltar a chave, o serial mostra
   `[buffer] N evento(s) reenviados com a hora original`.
-
-### Publicar o projeto no wokwi.com (equipe)
-
-O link do projeto é entregável de Physical Computing. Publicar exige uma conta da equipe:
-
-1. Entre em <https://wokwi.com> com a conta da equipe.
-2. Monte o projeto pelos passos de "Abrir e rodar no wokwi.com", com o prefixo da equipe e o token da casa 1.
-3. Clique em `Save`. Dê o nome `Corredor Aceso - nó do corredor`.
-4. Clique em `Share` e copie o link `https://wokwi.com/projects/<id>`.
-5. Antes de entregar o link, confira se o projeto público pode levar o token. Quem abre o projeto vê o
-   `config.h`. Se não puder, troque `CASA_TOKEN` de volta para a casa de teste antes de salvar a versão
-   pública, e use uma cópia privada para gravar o vídeo.
-6. Cole o link aqui, no lugar da linha abaixo, e no arquivo de entrega da disciplina.
-
-Link do projeto: ainda não publicado.
 
 ### O que já rodou no Wokwi
 
@@ -165,11 +151,11 @@ O que a rodada mostrou:
 6. Os pacotes ao vivo chegaram ao assinante de 1 a 8 s depois do `ts`, dentro da tolerância de 2 min do
    Motor.
 
-A rodada achou três defeitos, todos consertados antes da versão final: a chave do Wi-Fi começava na
+A rodada revelou três defeitos, corrigidos na versão atual: a chave do Wi-Fi começava na
 posição desligada, o potenciômetro começava no fim da escala (o atributo `value` vai de 0 a 1023) e a
 primeira `TELEMETRIA` de cada boot saía marcada como bufferizada, porque nascia antes de a rede subir.
 
-Não rodou: a ponte do Mosquitto da VM até o Motor com este nó, e o Wokwi CLI, que pede um token de conta.
+Não foram executados a ponte do Mosquitto da VM até o Motor com este nó e o Wokwi CLI, que exige um token de conta.
 
 ## O simulador das 39 casas
 
@@ -249,20 +235,3 @@ bash iot/simulador/provar_no_fio.sh corredor-iot-fio 18839 docs/evidencias/iot/f
 ```bash
 docker rm -f corredor-iot-fio
 ```
-
-## Roteiro do vídeo de Physical Computing (até 4 minutos)
-
-Antes de gravar: VM local de pé com a última versão, simulador parado, relógio de demo às 08h00
-(`PUT /api/demo/relogio`), projeto do Wokwi com o prefixo da equipe e o token da casa 1, app aberto no
-radar da microárea 3. Tela dividida: Wokwi à esquerda, app ou Swagger à direita, monitor serial visível.
-
-| Tempo | Na tela | Fala |
-|---|---|---|
-| 0:00 a 0:25 | Foto ou desenho do corredor. Depois, o circuito no Wokwi. | "Dona Efigênia mora sozinha. Se ela cair, ninguém sabe. Este aparelho fica no corredor. Ela não precisa usar celular nem lembrar de nada." |
-| 0:25 a 0:55 | Aponta cada peça do circuito. | "O sensor de presença acende a luz de caminho. O DHT22 mede o calor dentro da casa. O potenciômetro faz o papel do sensor de tensão da tomada, porque ela usa concentrador de oxigênio. O botão grande é o 'estou bem'. O LED âmbar e o buzzer são o recado da UBS." |
-| 0:55 a 1:30 | Inicia a simulação. Serial: `[mqtt] conectado`, a `TELEMETRIA` inicial. Clica no PIR. A luz acende. Serial mostra o `MOVIMENTO`. | "Ela passa, a luz acende, e o aparelho manda este pacote. Só o token da casa, nunca o nome. A hora é a do fato, em UTC." |
-| 1:30 a 1:55 | Liga o simulador na VM (`sudo systemctl start corredor-simulador`). Radar no app enche de casas. Abre a linha do tempo da casa 1 com o `MOVIMENTO`. | "As outras 39 casas da microárea vêm do simulador, com o mesmo contrato. O movimento da Dona Efigênia já está na linha do tempo dela." |
-| 1:55 a 2:45 | Muda a chave do Wi-Fi. Serial: `Wi-Fi cortado`. Clica no PIR, aperta o botão. Serial: `sem rede: guardado (1 no buffer)`, `(2 no buffer)`. A luz acende mesmo assim. Volta a chave. Serial: `reenviados com a hora original` e os pacotes com `"bufferizado":true`. Linha do tempo mostra os dois eventos com a hora em que aconteceram, marcados como bufferizados. | "A internet da casa caiu. A luz continua. O aparelho guarda o que aconteceu. Quando a rede volta, ele manda tudo com a hora original, e o servidor grava cada evento uma vez só." |
-| 2:45 a 3:15 | Declara o dia crítico (job de ML ou Swagger). O LED âmbar acende. Move o relógio para 14h30. Âmbar pisca, buzzer toca. Aperta o botão: buzzer para, serial mostra `BOTAO_BEM`. | "Num dia crítico de calor, a UBS acende o âmbar em todas as casas. Às 14h30, quem não deu sinal desde as 10h ouve o buzzer. Um toque e a casa volta ao verde." |
-| 3:15 a 3:45 | Gira o potenciômetro abaixo de 100 V. Serial: `tensão cruzou 100 V`. Radar mostra a casa 1 vermelha com o motivo de energia. | "Se a luz da rua cai, o concentrador para. O aparelho avisa na hora, e a casa sobe para o topo do radar da ACS." |
-| 3:45 a 4:00 | Radar com as casas silenciosas no topo. | "A ACS não liga para 40 casas. Ela vê só as que ficaram em silêncio." |

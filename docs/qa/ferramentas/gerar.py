@@ -79,12 +79,10 @@ def md_features(features, casos) -> str:
     out = [
         "# Features do Corredor Aceso",
         "",
-        "Arquivo gerado por `docs/qa/ferramentas/gerar.py` a partir de `docs/qa/fonte/features.py`. Edite a fonte, não este arquivo.",
-        "",
-        "Cada Feature vira um work item do tipo Feature no Azure Boards, filho do épico "
-        f"\"{EPICO}\". A importação está em [README.md](README.md). Os critérios de aceite seguem a forma dado, quando, então. "
-        "A linha **Cobre** lista as regras e as rotas de `docs/arquitetura/` que a Feature cobre, com os nomes que a "
-        "[rastreabilidade](rastreabilidade.md) explica.",
+        "Cada Feature corresponde a um work item do tipo Feature no Azure Boards, filho do épico "
+        f"\"{EPICO}\". O procedimento de importação está em [README.md](README.md). Os critérios de aceite seguem a forma dado, quando, então. "
+        "A linha **Cobre** lista as regras e as rotas de `docs/arquitetura/` que a Feature cobre, com os identificadores explicados na "
+        "[rastreabilidade](rastreabilidade.md).",
         "",
         "| Feature | Módulo | Test Cases |",
         "|---|---|---|",
@@ -189,12 +187,12 @@ def md_rastreabilidade(features, casos, registro) -> str:
     out = [
         "# Rastreabilidade",
         "",
-        "Arquivo gerado por `docs/qa/ferramentas/gerar.py`. A conferência `docs/qa/ferramentas/conferir.py` lê este arquivo, "
-        "as Features e os Test Cases e aponta qualquer regra ou rota sem cobertura.",
+        "A matriz liga cada Feature aos seus Test Cases, às regras e rotas que eles cobrem e ao teste automatizado correspondente. "
+        "O script `docs/qa/ferramentas/conferir.py` lê esta matriz, as Features e os Test Cases e aponta qualquer regra ou rota sem cobertura.",
         "",
-        "A coluna \"Teste automatizado\" diz qual teste do repositório cobre o caso. \"existe\" quer dizer que o arquivo já está no "
-        "repositório. \"proposto\" quer dizer que o código ainda não chegou e o nome é o que este documento pede ao módulo. "
-        "Quando o arquivo existir, gere de novo e o status muda sozinho.",
+        "A coluna \"Teste automatizado\" indica o teste do repositório que cobre o caso. \"existe\" significa que o arquivo do teste está no "
+        "repositório. \"proposto\" significa que o teste ainda não foi escrito e que o nome registrado é o que o caso especifica para o módulo. "
+        "\"manual\" significa que o caso não tem teste automatizado associado.",
         "",
         "## Por Feature",
         "",
@@ -210,8 +208,8 @@ def md_rastreabilidade(features, casos, registro) -> str:
         "",
         "## Por regra e por rota",
         "",
-        "Cada linha é um item que `docs/qa/ferramentas/registro.py` lê de `docs/arquitetura/`. "
-        "Os casos do modelo (CT) precisam de um Test Case. Os outros precisam de uma Feature, um caso positivo e um negativo.",
+        "Cada linha corresponde a um item que `docs/qa/ferramentas/registro.py` extrai de `docs/arquitetura/`. "
+        "Cada caso do modelo (CT) exige um Test Case. Os demais itens exigem uma Feature, um caso positivo e um caso negativo.",
         "",
         "| Item | Origem | Features | Positivos | Negativos |",
         "|---|---|---|---|---|",

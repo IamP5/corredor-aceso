@@ -1,6 +1,6 @@
 # Relatório da integração
 
-As sete partes do Corredor Aceso foram feitas em separado: os módulos Motor, Cadastro e Guarda da API, o app Expo, o nó ESP32 com o simulador de casas, o job de ML e os documentos de QA. Este relatório mostra as partes rodando juntas no notebook, em 17/11/2026: o que foi rodado, com qual comando, o que se viu e onde está a evidência. Tudo pode ser repetido com os comandos daqui.
+As sete partes do Corredor Aceso foram desenvolvidas em separado: os módulos Motor, Cadastro e Guarda da API, o app Expo, o nó ESP32 com o simulador de casas, o job de ML e os documentos de QA. Este relatório registra a execução conjunta dessas partes num notebook de desenvolvimento, em 17/11/2026: o que foi executado, com qual comando, o que se observou e onde está a evidência. Os comandos deste relatório reproduzem cada cena.
 
 Os dados de pessoas são simulados. Os tokens das casas aparecem nos logs só pelo número da casa na semente.
 
@@ -55,13 +55,13 @@ O que o `tools/demo.sh` faz, na ordem:
 5. Sobe a API em `Development` na porta 5080, conectada com os papéis `corredor_<modulo>`. No macOS, a porta 5000 é do receptor do AirPlay, que responde 403 no lugar da API.
 6. Roda `tools/demo/cenas.py`, que chama a API por HTTP, liga o simulador real de `iot/simulador/` contra o Mosquitto e roda `ml/prever_hoje.py`.
 
-O relógio de demo só anda para frente, então cada `subir` recria o banco. Depois de um salto do relógio, toda casa parece muda até o próximo heartbeat, porque `UltimoPacoteEm` é a hora do servidor. As cenas esperam 25 segundos depois de cada salto. Quem grava o vídeo precisa da mesma espera.
+O relógio de demo só anda para frente, então cada `subir` recria o banco. Depois de um salto do relógio, toda casa parece muda até o próximo heartbeat, porque `UltimoPacoteEm` é a hora do servidor. As cenas esperam 25 segundos depois de cada salto.
 
 ## 1. Subida e carga da demo
 
 Comando: `bash tools/demo.sh subir`.
 
-Visto em `demo-completa.log`:
+Observado em `demo-completa.log`:
 
 - Os seis papéis foram criados e os três scripts de migração foram aplicados duas vezes, sem erro, cada um pelo dono do seu schema.
 - Primeira carga: 40 idosos cadastrados, 26 vizinhos indicados, 40 tokens. Segunda carga: 0 cadastrados, 40 que já existiam, 0 vizinhos.
@@ -72,7 +72,7 @@ Visto em `demo-completa.log`:
 
 Comando: `bash tools/demo.sh cenas dia-critico desfechos movimento`.
 
-Passos e o que se viu:
+Passos e resultados observados:
 
 1. Relógio às 05h00 (`PUT /api/demo/relogio`). Simulador no cenário `demo`, com os papéis da semente.
 2. Antes do dia crítico: turno fechado, 38 casas `Aguardando`, 0 verdes. Sem turno não existe verde.
@@ -180,7 +180,7 @@ Conferidos na junção e sem defeito:
 - O job de ML chama `PUT /api/dias-criticos/{data}` sem token, e a rota aceita.
 - O contrato MQTT do simulador e o do Motor batem: os seis campos, `ts` em UTC com `Z` e os comandos `DIA_CRITICO` e `PEDIR_TOQUE`.
 
-## 9. O que ainda não funciona ou não foi visto
+## 9. Limitações e correções posteriores
 
 - Corrigido depois desta rodada: o resumo do encerramento contava todas as casas ativas do Motor, e o app mostrava "24 de 41 casas" por causa da casa do teste de falha, na microárea 999. Agora `POST /api/dias-criticos/{data}/encerramento?microarea=3` conta só as casas da microárea da ACS, como o radar, e o app manda a microárea da sessão. O resumo gravado continua o do dia. Contra a API da demo, a resposta com `?microarea=3` deu 40 casas, a sem o parâmetro deu 41, a com `?microarea=4` deu 403, e o radar da microárea 3 tem 40 casas. O print `11-turno-encerrado.png` é de antes da correção.
 - No app, com o relógio de demo deslocado, a hora da visita aparece na hora do celular ("Estava fora às 02h04") e o resto da tela na hora do Motor ("10h02"). Em produção o deslocamento é zero e as horas batem.

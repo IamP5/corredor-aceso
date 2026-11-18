@@ -1,16 +1,16 @@
 # Infraestrutura, CI/CD, releases e repositório do Corredor Aceso
 
-Este documento fecha onde a VM roda, como ela nasce e é provisionada, como o código vira release, como a release chega à VM e como a equipe opera o que está no ar até a entrega de 19/11/2026 às 23h55. Ele vale junto com a [visão geral](01-visao-geral.md), que substituiu `docs/arquitetura.md`, e com o [modelo de domínio](03-modelo-de-dominio.md). A seção 10 lista cada ponto em que este documento muda o modelo de domínio ou `docs/arquitetura.md`.
+Este documento descreve onde a VM roda, como ela é criada e provisionada, como o código se torna uma release, como a release chega à VM e como a equipe opera o ambiente em execução. Ele complementa a [visão geral](01-visao-geral.md) e o [modelo de domínio](03-modelo-de-dominio.md).
 
-Os 60 arquivos estão em [referencia/repo/](referencia/repo/), nos caminhos que terão no repositório. O [LEIA-ME](referencia/repo/LEIA-ME.md) de lá diz como copiar e quais checagens rodar. Este texto mostra só trechos curtos e aponta para o arquivo.
+Os 60 arquivos de infraestrutura estão em [referencia/repo/](referencia/repo/), com os mesmos caminhos que ocupam na raiz do repositório. O [LEIA-ME](referencia/repo/LEIA-ME.md) dessa pasta descreve a cópia dos arquivos e as checagens. Este texto mostra apenas trechos curtos e aponta para o arquivo completo.
 
-A regra que organiza tudo vem da rubrica de Operating Systems. Quem trabalha dentro da VM são scripts Bash. O Terraform só cria a VM do Azure. O cloud-init só clona o repositório e chama um script. O GitHub Actions só chama um comando por SSH. Nenhuma dessas ferramentas instala pacote, escreve unit ou configura rede.
+A organização da infraestrutura segue a rubrica de Operating Systems, que exige o provisionamento por script dentro da VM. Dentro da VM, todo o trabalho é feito por scripts Bash. O Terraform apenas cria a VM do Azure. O cloud-init apenas clona o repositório e chama um script. O GitHub Actions apenas executa um comando por SSH. Nenhuma dessas ferramentas instala pacotes, escreve units ou configura a rede.
 
-Cada afirmação traz a origem. "Medido" quer dizer que rodou no ensaio descrito na seção 9. "Só lint" quer dizer que passou em `shellcheck`, `actionlint` ou `terraform validate`, mas não rodou. "Nunca rodou" quer dizer o que diz.
+Cada afirmação indica a sua origem. "Medido" significa que a afirmação foi verificada no ensaio descrito na seção 8. "Só lint" significa que o arquivo passou em `shellcheck`, `actionlint` ou `terraform validate`, mas não foi executado. "Nunca rodou" significa que o item não foi executado.
 
 ## Visão geral
 
-O desenho mostra o que roda dentro da VM e o que vem de fora. Veja que só o Nginx recebe conexão de fora. A API, o Postgres e o Mosquitto escutam em `127.0.0.1`.
+O desenho mostra o que roda dentro da VM e o que vem de fora. Somente o Nginx recebe conexões externas. A API, o Postgres e o Mosquitto escutam em `127.0.0.1`.
 
 ![VM corredor-ubs e seus serviços](diagramas/21-vm-e-servicos.mmd)
 
@@ -29,41 +29,41 @@ notebook                          GitHub                                   VM co
                                                                           └────────────────────────────────────────────┘
 VM local:  multipass launch (sem cloud-init) -> git clone -> sudo infra/provisionar.sh -> 01-rede, 02-app, 03-monitor, verificar
 Azure:     terraform apply -> cloud-init -> git clone -> o mesmo infra/provisionar.sh
-HTTPS dos vídeos: sudo corredor tunel -> https://<aleatorio>.trycloudflare.com
+HTTPS da demo:   sudo corredor tunel -> https://<aleatorio>.trycloudflare.com
 ```
 
 ## 1. Decisões
 
 ### 1.1 Local primeiro, Azure como acréscimo
 
-**Escolha.** A VM oficial é a do Multipass no notebook de quem grava: Ubuntu 24.04, 2 CPUs, 4 GB e 20 GB. O vídeo de Operating Systems é gravado nela. A VM do Azure for Students é um acréscimo, com duas horas de prazo em 17/11. Se nenhuma VM do Azure estiver de pé até as 18h de 17/11, ela sai do plano e o Terraform fica no repositório como código não aplicado, dito assim no README.
+**Escolha.** A VM oficial roda no Multipass, em um notebook da equipe: Ubuntu 24.04, 2 CPUs, 4 GB de memória e 20 GB de disco. A demonstração de Operating Systems usa essa VM. A VM do Azure for Students é opcional. O Terraform que a cria está no repositório, mas nunca foi aplicado (seção 8).
 
-**Motivo.** Nenhum item avaliado depende da nuvem. A rubrica pede o provisionamento automático dentro da VM, e a VM local mostra isso sem depender da política de regiões da assinatura de estudante, que nenhuma pessoa da equipe testou. A VM local alcança o GitHub e o broker MQTT público por saída, então o deploy por pacote e a ponte MQTT funcionam atrás do NAT do notebook. O celular alcança a VM local pelo túnel HTTPS da seção 1.8.
+**Motivo.** Nenhum item da rubrica depende da nuvem. O enunciado pede o provisionamento automático dentro da VM, e a VM local o executa sem depender da política de regiões da assinatura de estudante, que a equipe não testou. A VM local alcança o GitHub e o broker MQTT público por conexões de saída, então o deploy por pacote e a ponte MQTT funcionam atrás do NAT do notebook. O celular alcança a VM local pelo túnel HTTPS da seção 1.8.
 
 **Rejeitado.**
 
-- Azure como ambiente oficial. Um problema de região ou de cota na véspera derrubaria a demo inteira.
+- Azure como ambiente oficial. Um problema de região ou de cota inviabilizaria a demonstração inteira.
 - Oracle Cloud, AWS e GCP. Pedem cartão.
-- Vagrant com VirtualBox. É limitado em Mac com Apple Silicon (pesquisa de IaC).
+- Vagrant com VirtualBox. Tem suporte limitado em Mac com Apple Silicon, segundo o levantamento de ferramentas de IaC feito pela equipe.
 
 ### 1.2 Terraform, cloud-init e Bash, cada um no seu papel
 
-**Escolha.** O Terraform com `azurerm` 4.x cria grupo, rede, NSG, IP público e VM em [infra/nuvem/](referencia/repo/infra/nuvem/main.tf). O arquivo [corredor.yaml](referencia/repo/infra/cloud-init/corredor.yaml) do cloud-init tem dois comandos: `git clone` e `bash /opt/corredor/repo/infra/provisionar.sh`. Na VM local o mesmo `provisionar.sh` roda à mão, na frente da câmera. Não há Ansible.
+**Escolha.** O Terraform com `azurerm` 4.x cria grupo, rede, NSG, IP público e VM em [infra/nuvem/](referencia/repo/infra/nuvem/main.tf). O arquivo [corredor.yaml](referencia/repo/infra/cloud-init/corredor.yaml) do cloud-init tem dois comandos: `git clone` e `bash /opt/corredor/repo/infra/provisionar.sh`. Na VM local, o operador executa o mesmo `provisionar.sh` manualmente. Não há Ansible.
 
-**Motivo.** Uma ferramenta nova já é muito para três dias. O cloud-init não tem variável nem segredo, então os bytes são os mesmos na nuvem e no Multipass. O ambiente é descoberto dentro da VM. O `cloud-id` igual a `azure` dá `producao`, o resto dá `local`, e o arquivo `/etc/corredor/ambiente` vale mais que a detecção. Mudar o `custom_data` no `azurerm` recria a VM e apaga o banco, por isso o `main.tf` ignora mudanças nele depois da criação.
+**Motivo.** O prazo curto do projeto comporta apenas uma ferramenta nova. O cloud-init não tem variável nem segredo, então o arquivo é idêntico na nuvem e no Multipass. O ambiente é detectado dentro da VM. O `cloud-id` igual a `azure` resulta em `producao`, qualquer outro valor resulta em `local`, e o arquivo `/etc/corredor/ambiente` tem precedência sobre a detecção. Uma mudança no `custom_data` do `azurerm` recria a VM e apaga o banco, por isso o `main.tf` ignora mudanças nesse campo depois da criação.
 
 **Rejeitado.**
 
-- Ansible. Seria a terceira ferramenta, e o avaliador pode entender que o Ansible fez o provisionamento.
+- Ansible. Seria a terceira ferramenta, e o provisionamento deixaria de ser feito pelos scripts Bash.
 - `templatefile()` no Terraform e `envsubst` no Multipass. Dois caminhos de preenchimento para o mesmo arquivo.
 - Provisioner `remote-exec`. A documentação do Terraform o trata como último recurso.
-- State remoto no Azure Storage. O state tem oito recursos e nenhum segredo. Ele fica no notebook do dono da infra, fora do Git.
+- State remoto no Azure Storage. O state tem oito recursos e nenhum segredo. Ele fica no notebook do responsável pela infraestrutura, fora do Git.
 
 ### 1.3 .NET 10 e pacote self-contained para x64 e arm64
 
 **Escolha.** `net10.0` em todos os projetos e `global.json` em 10.0.100. A release tem dois pacotes, `corredor-linux-x64.tar.gz` e `corredor-linux-arm64.tar.gz`, publicados self-contained a partir de um runner x64 só. Cada pacote traz a API publicada, os scripts SQL das migrações, a página do painel, `VERSION` e `COMMIT`.
 
-**Motivo.** O .NET 8 saiu de suporte em 10/11/2026. Com self-contained a VM não instala runtime. O pacote arm64 existe porque uma VM do Multipass num Mac com Apple Silicon é arm64. No ensaio, [empacotar.sh](referencia/repo/tools/empacotar.sh) gerou os dois pacotes em 13 a 14 s num Mac arm64, e o pacote arm64 subiu como serviço (medido). O C# compila igual para as duas arquiteturas.
+**Motivo.** O .NET 8 saiu de suporte em 10/11/2026. Com a publicação self-contained, a VM não instala runtime. O pacote arm64 existe porque uma VM do Multipass num Mac com Apple Silicon é arm64. No ensaio, [empacotar.sh](referencia/repo/tools/empacotar.sh) gerou os dois pacotes em 13 a 14 s num Mac arm64, e o pacote arm64 subiu como serviço (medido). O C# compila igual para as duas arquiteturas.
 
 **Atenção.** `dotnet tool install dotnet-ef` sem versão instala a 11.x. O [dotnet-tools.json](referencia/repo/dotnet-tools.json) fixa a 10.0.15. O SDK 10 cria `Corredor.slnx`, não `.sln`.
 
@@ -75,19 +75,18 @@ HTTPS dos vídeos: sudo corredor tunel -> https://<aleatorio>.trycloudflare.com
 
 **Motivo.** As partes conversam por HTTP e MQTT, não por import. Um grafo de dependências não mudaria o que é testado. Um check obrigatório por workflow com filtro `paths` fica pendente quando o workflow é pulado e trava o merge. O `ci-ok` trata job pulado como sucesso.
 
-**Rejeitado.** Nx, Turborepo e Bazel (horas a dias de configuração, segundo a pesquisa de monorepo). npm workspaces, cujo hoisting quebra o Expo. Makefile, porque o `make` não vem no Windows.
+**Rejeitado.** Nx, Turborepo e Bazel (horas a dias de configuração, segundo o levantamento de ferramentas de monorepo feito pela equipe). npm workspaces, cujo hoisting quebra o Expo. Makefile, porque o `make` não vem no Windows.
 
 ### 1.5 Branches, tags e releases
 
 **Escolha.**
 
 - Uma branch longa, a `main`, protegida: PR, uma aprovação e o check `ci-ok`. Branches curtas `tipo/descricao`, merge por squash.
-- Release é uma tag `vX.Y.Z` criada na `main` pelo dono da release. O [release.yml](referencia/repo/.github/workflows/release.yml) confere a tag, testa, gera o SQL das migrações, empacota, confere os pacotes e publica a GitHub Release.
-- Marcos: `v0.1.0` na primeira fatia de ponta a ponta (17/11), `v0.2.0` com app e nó ligados (18/11), `v1.0.0-rc.1` na noite de 18/11, que é a versão dos vídeos, e `v1.0.0` na entrega.
+- Uma release é uma tag `vX.Y.Z` criada na `main` pelo responsável pela release. O [release.yml](referencia/repo/.github/workflows/release.yml) confere a tag, testa, gera o SQL das migrações, empacota, confere os pacotes e publica a GitHub Release.
 
-**Motivo.** Cinco pessoas e três dias pedem um ponto de controle só. A tag diz o que foi testado, o que foi empacotado e o que está no ar, e `GET /api/versao` responde a mesma versão.
+**Motivo.** Uma equipe de cinco pessoas precisa de um único ponto de controle. A tag identifica o que foi testado, o que foi empacotado e o que está no ar, e `GET /api/versao` responde a mesma versão.
 
-**Rejeitado.** Git Flow. Deploy a cada merge, que com uma VM só deixa um merge ruim derrubar a demo. release-please e changesets, porque a tag criada por bot não dispara outro workflow.
+**Rejeitado.** Git Flow. Deploy a cada merge, porque, com uma única VM, um merge defeituoso derrubaria o ambiente de demonstração. release-please e changesets, porque a tag criada por bot não dispara outro workflow.
 
 ### 1.6 Deploy pelo workflow de release, com aprovação
 
@@ -98,7 +97,7 @@ Quem dispara:
 - Na VM local, a pessoa no terminal.
 - Na VM do Azure, o job `implantar` do `release.yml`, por SSH, como o usuário `deploy`, só depois que uma pessoa aprova o ambiente `producao` no GitHub. Uma tag sozinha nunca implanta. Sem a variável `VM_HOST`, o job nem roda.
 
-O desenho mostra a release inteira. Veja a pergunta de saúde no fim do deploy. Com a resposta não, o `deploy.sh` volta o link sozinho.
+O desenho mostra a release inteira. A verificação de saúde fica no fim do deploy. Se ela falhar, o `deploy.sh` restaura o link sem intervenção.
 
 ![Release e rollback: do que roda no GitHub ao que roda na VM](diagramas/24-release-e-rollback.mmd)
 
@@ -108,24 +107,24 @@ O desenho mostra a release inteira. Veja a pergunta de saúde no fim do deploy. 
 deploy ALL=(root) NOPASSWD: /usr/local/sbin/corredor ^deploy v[0-9]+[.][0-9]+[.][0-9]+(-[0-9A-Za-z.]+)?$, /usr/local/sbin/corredor voltar, ...
 ```
 
-A versão do candidato C usava `corredor deploy *`, que também deixava passar `deploy --arquivo <qualquer arquivo>`, ou seja, um pacote arbitrário rodando como root. A expressão regular do sudo 1.9.10 em diante compara a linha de argumentos inteira. No sudo 1.9.15p5 do Ubuntu 24.04, `deploy v0.3.0` e `deploy v1.0.0-rc.1` passaram, e `deploy --arquivo /etc/shadow`, `deploy v0.3.0 --arquivo /etc/shadow`, `deploy --ultima`, `deploy v0.3.0x`, `voltar x` e `infra main` foram negados (medido).
+Um curinga como `corredor deploy *` também aceitaria `deploy --arquivo <qualquer arquivo>`, ou seja, um pacote arbitrário executado como root. A expressão regular do sudo 1.9.10 em diante compara a linha de argumentos inteira. No sudo 1.9.15p5 do Ubuntu 24.04, `deploy v0.3.0` e `deploy v1.0.0-rc.1` passaram, e `deploy --arquivo /etc/shadow`, `deploy v0.3.0 --arquivo /etc/shadow`, `deploy --ultima`, `deploy v0.3.0x`, `voltar x` e `infra main` foram negados (medido).
 
 **Rejeitado.**
 
 - Runner self-hosted na VM. O GitHub desaconselha em repositório público.
 - `git pull` e `dotnet publish` na VM. O binário não seria o testado, e a VM precisaria do SDK.
-- Docker na VM. Esconderia do avaliador o systemd e o provisionamento por script.
-- Deploy por polling num timer da VM. Ninguém veria o log do deploy no workflow.
+- Docker na VM. Os serviços passariam a depender do runtime de contêineres, e não de units do systemd e do provisionamento por script.
+- Deploy por polling num timer da VM. O log do deploy não apareceria no workflow.
 
 ### 1.7 Migrações: EF Core é a fonte, o SQL é gerado, o dono do schema aplica
 
 **Escolha.**
 
-1. As migrações são do EF Core: uma pasta `Migrations/` e uma tabela `__EFMigrationsHistory` por `DbContext`, nos schemas `motor`, `cadastro` e `guarda`, criadas com `dotnet ef migrations add`. É isso que o professor de SOA e o de C# veem no repositório.
-2. O [migracoes.sh](referencia/repo/tools/migracoes.sh) gera um script por contexto com `dotnet ef migrations script --idempotent --no-transactions`. Nenhum SQL é escrito à mão. Quem chama é o `empacotar.sh`, dentro do `release.yml`, e o script vai no pacote.
+1. As migrações são do EF Core: uma pasta `Migrations/` e uma tabela `__EFMigrationsHistory` por `DbContext`, nos schemas `motor`, `cadastro` e `guarda`, criadas com `dotnet ef migrations add`.
+2. O [migracoes.sh](referencia/repo/tools/migracoes.sh) gera um script por contexto com `dotnet ef migrations script --idempotent --no-transactions`. Nenhum SQL é escrito à mão. O `empacotar.sh` chama o `migracoes.sh` dentro do `release.yml`, e o script gerado vai no pacote.
 3. O CI aplica os scripts gerados duas vezes num Postgres 16 de teste ([verificar-api.sh](referencia/repo/tools/verificar-api.sh)). A segunda rodada prova que o script é idempotente.
 4. O deploy guarda um `pg_dump` e aplica cada `<modulo>.sql` com `psql --single-transaction`, conectado como `corredor_<modulo>_migra`, o dono do schema daquele módulo.
-5. Até 19/11 só entra migração aditiva: criar tabela ou criar coluna que aceita nulo. O [conferir-migracoes.sh](referencia/repo/tools/conferir-migracoes.sh) roda no CI e recusa `DropTable`, `DropColumn`, `RenameTable` e `RenameColumn` no `Up()` de qualquer migração. A regra se desliga sozinha em 20/11.
+5. Nesta entrega, só são aceitas migrações aditivas: criar tabela ou criar coluna que aceita nulo. O [conferir-migracoes.sh](referencia/repo/tools/conferir-migracoes.sh) roda no CI e recusa `DropTable`, `DropColumn`, `RenameTable` e `RenameColumn` no `Up()` de qualquer migração. A regra expira na data definida pela variável `FIM_DA_REGRA` do script.
 
 Trecho do deploy:
 
@@ -135,24 +134,24 @@ PGPASSWORD="$(segredo_bd "$m-migra")" psql -X -q -v ON_ERROR_STOP=1 --single-tra
 	-c 'SET client_min_messages = warning' -f "$sql" >/dev/null
 ```
 
-**Motivo.** O script SQL é texto, serve às duas arquiteturas e só precisa do `psql` na VM. A migração aditiva deixa a versão anterior do binário rodar no schema novo, então o rollback nunca mexe no banco. O candidato C aplicava as migrações como o superusuário `postgres` com `SET ROLE`, e um `RESET ROLE` dentro do SQL voltava a ser superusuário. Agora quem conecta é um papel sem superusuário. No ensaio, `corredor_motor_migra` fez `RESET ROLE` e continuou `corredor_motor_migra` sem superusuário, e foi recusado ao tentar `SET ROLE postgres`, criar tabela em `cadastro` e criar papel (medido). O mesmo [bd-modulo.sql](referencia/repo/infra/config/bd-modulo.sql) cria os papéis na VM e no CI, então o CI prova o caminho que o deploy usa.
+**Motivo.** O script SQL é texto, serve às duas arquiteturas e só precisa do `psql` na VM. A migração aditiva permite que a versão anterior do binário rode no schema novo, então o rollback nunca altera o banco. Aplicar as migrações como o superusuário `postgres` com `SET ROLE` não isola o módulo, porque um `RESET ROLE` dentro do SQL restaura o superusuário. Por isso a conexão usa um papel sem superusuário. No ensaio, `corredor_motor_migra` fez `RESET ROLE` e continuou `corredor_motor_migra` sem superusuário, e foi recusado ao tentar `SET ROLE postgres`, criar tabela em `cadastro` e criar papel (medido). O mesmo [bd-modulo.sql](referencia/repo/infra/config/bd-modulo.sql) cria os papéis na VM e no CI, então o CI prova o caminho que o deploy usa.
 
 **Rejeitado.**
 
 - Bundle `efbundle`. É um executável por arquitetura, e a release teria quatro artefatos.
 - `Database.Migrate()` na partida da API. A API ganharia permissão de mudar tabela.
-- SQL escrito à mão. Tiraria das migrações do EF Core o papel de fonte, que é o que as rubricas de SOA e de C# avaliam.
+- SQL escrito à mão. As migrações do EF Core deixariam de ser a fonte única do schema.
 
-### 1.8 HTTPS: túnel para os vídeos, HTTP como caminho estável
+### 1.8 HTTPS por túnel, HTTP como caminho estável
 
 **Escolha.**
 
-- Os vídeos usam HTTPS pelo quick tunnel do cloudflared. `sudo corredor tunel` roda o [tunel.sh](referencia/repo/infra/tunel.sh), que instala o cloudflared, liga o [corredor-tunel.service](referencia/repo/infra/systemd/corredor-tunel.service) e mostra a URL `https://<aleatorio>.trycloudflare.com`. A URL muda a cada partida do serviço, então ligue o túnel uma vez antes de gravar.
+- O acesso HTTPS da demonstração usa o quick tunnel do cloudflared. `sudo corredor tunel` roda o [tunel.sh](referencia/repo/infra/tunel.sh), que instala o cloudflared, liga o [corredor-tunel.service](referencia/repo/infra/systemd/corredor-tunel.service) e mostra a URL `https://<aleatorio>.trycloudflare.com`. A URL muda a cada partida do serviço, por isso o túnel é ligado uma única vez antes da demonstração.
 - Na VM do Azure, o HTTP no nome `<rotulo>.<regiao>.cloudapp.azure.com` é o caminho estável.
 - O `02-app.sh` ainda tenta um certificado Let's Encrypt quando há nome público, mas a falha nunca bloqueia o provisionamento. O Nginx não redireciona HTTP para HTTPS e não manda HSTS, então um app configurado com `http://` continua funcionando.
-- O app não tem URL padrão escrita no código. `app/src/config.ts` lê `EXPO_PUBLIC_API_URL` e para com erro claro se a variável faltar. Cada pessoa põe a URL em `app/.env.local`.
+- O app não tem URL padrão escrita no código. `app/src/config.ts` lê `EXPO_PUBLIC_API_URL` e para com erro claro se a variável faltar. Cada desenvolvedor define a URL em `app/.env.local`.
 
-**Motivo.** O sufixo `cloudapp.azure.com` não está na Public Suffix List (pesquisa do candidato A), então o limite de emissão do Let's Encrypt é dividido com todo o `azure.com` e a emissão pode falhar sem aviso. O túnel funciona na VM local atrás do NAT, sem conta e sem porta aberta. Um padrão `https://` no app apontaria para um endereço que pode não existir, e o HSTS prenderia o navegador ao HTTPS por um dia mesmo quando só o HTTP funciona.
+**Motivo.** O sufixo `cloudapp.azure.com` não está na Public Suffix List, então o limite de emissão do Let's Encrypt é dividido com todo o `azure.com` e a emissão pode falhar sem aviso. O túnel funciona na VM local atrás do NAT, sem conta e sem porta aberta. Um padrão `https://` no app apontaria para um endereço que pode não existir, e o HSTS prenderia o navegador ao HTTPS por um dia mesmo quando só o HTTP funciona.
 
 **Rejeitado.** Let's Encrypt como caminho principal. Nome próprio com DNS pago. Expor a porta 1883 ou a 5000.
 
@@ -162,7 +161,7 @@ PGPASSWORD="$(segredo_bd "$m-migra")" psql -X -q -v ON_ERROR_STOP=1 --single-tra
 
 Com `CORREDOR_DNS_ZONA="sim"` em `/etc/corredor/corredor.conf`, o mesmo script instala o dnsmasq, que responde por `corredor.internal` só no IP de serviço. A configuração entra antes do pacote, então o dnsmasq sobe sem disputar a porta 53 com o systemd-resolved. O bloco do `/etc/hosts` continua valendo. No ensaio, o dnsmasq respondeu `10.77.0.1` para os dois nomes e nada para `example.com` (medido, com o systemd-resolved inativo no contêiner).
 
-**Motivo.** Um script que grava IP fixo na placa principal de uma VM de nuvem pode derrubar o SSH. A interface própria dá um IP fixo de verdade, igual nos dois ambientes. O sufixo `.local` é do mDNS (RFC 6762), e o celular e o systemd-resolved o tratam como multicast. O `.internal` é reservado para uso privado.
+**Motivo.** Um script que grava IP fixo na placa principal de uma VM de nuvem pode derrubar o SSH. A interface própria garante um IP fixo real, igual nos dois ambientes. O sufixo `.local` é do mDNS (RFC 6762), e o celular e o systemd-resolved o tratam como multicast. O `.internal` é reservado para uso privado.
 
 **Rejeitado.** Netplan com IP estático na placa principal. dnsmasq como única fonte de nomes, porque o caminho com o systemd-resolved ativo não foi medido.
 
@@ -179,17 +178,17 @@ As senhas são geradas dentro da VM na primeira execução e ficam em `/etc/corr
 
 **Motivo.** O modelo de domínio diz que nenhum módulo lê o schema de outro. Com um papel por módulo, o Postgres também impede. No ensaio, `corredor_motor` leu `motor."Eventos"`, foi recusado em `cadastro."Idosos"` e não conseguiu criar tabela em `motor` (medido).
 
-**Rejeitado.** Um papel só para a API. Senha vinda do Terraform ou do GitHub, que seria mais um lugar para vazar.
+**Rejeitado.** Um papel só para a API. Senha vinda do Terraform ou do GitHub, que seria mais um ponto de vazamento.
 
 ### 1.11 App, nó do Wokwi, simulador e relógio de demo
 
 **Nó do Wokwi.** O nó publica no broker público `broker.hivemq.com:1883`, no tópico `<prefixo>/corredor/v1/{casaToken}/evento`. O Mosquitto da VM abre uma ponte de saída, com client id próprio por VM derivado do `/etc/machine-id`, e traz os eventos para `corredor/v1/{casaToken}/evento`. Os comandos fazem o caminho inverso. A VM não abre porta MQTT, e o Mosquitto escuta só em `127.0.0.1`.
 
-**O que foi medido na ponte, e o que não foi.** No ensaio do candidato C, um evento publicado no broker público chegou ao Motor em 2 s, e um comando local chegou ao broker público (medido). Num teste único, um evento publicado no broker público com o Mosquitto da VM parado por 20 s chegou ao Motor 2 s depois da volta (medido uma vez). O log não registra a QoS com que esse evento foi publicado. O nó do Wokwi publica com QoS 0, porque o PubSubClient só publica assim, e nem o MQTT nem o broker público garantem guardar uma mensagem QoS 0 para uma sessão desconectada. Portanto nada aqui afirma que os eventos do nó do Wokwi sobrevivem a uma parada do Mosquitto da VM. O buffer do próprio nó aparece no vídeo de Physical Computing, com o Wi-Fi do Wokwi cortado.
+**O que foi medido na ponte, e o que não foi.** Em um ensaio preliminar, um evento publicado no broker público chegou ao Motor em 2 s, e um comando local chegou ao broker público (medido). Num teste único, um evento publicado no broker público com o Mosquitto da VM parado por 20 s chegou ao Motor 2 s depois da volta (medido uma vez). O log não registra a QoS com que esse evento foi publicado. O nó do Wokwi publica com QoS 0, porque o PubSubClient só publica assim, e nem o MQTT nem o broker público garantem guardar uma mensagem QoS 0 para uma sessão desconectada. Portanto este documento não afirma que os eventos do nó do Wokwi sobrevivem a uma parada do Mosquitto da VM. O buffer do próprio nó é demonstrado na entrega de Physical Computing, com o Wi-Fi do Wokwi desligado.
 
-**Simulador de 39 casas.** Roda dentro da VM como `corredor-simulador.service`, ligado à mão, e publica no Mosquitto local.
+**Simulador de 39 casas.** Roda dentro da VM como `corredor-simulador.service`, ligado manualmente, e publica no Mosquitto local.
 
-**Relógio de demo e parâmetros.** O modelo de domínio diz que `PUT /api/demo/relogio` e os valores de demo de `ParametrosDoMotor` só existem no ambiente `Development`. Por isso a variável `API_AMBIENTE_ASPNET` define o `ASPNETCORE_ENVIRONMENT` do `api.env`: `Production` por padrão e `Development` na VM local, onde os vídeos são gravados ([local.conf](referencia/repo/infra/config/ambientes/local.conf)). Sem isso, nenhum vídeo mostra as janelas das 10h e das 15h. O preço é que o ambiente `Development` também liga a página de exceção do ASP.NET Core. O `TratadorDeErros` da Guarda precisa cobrir esse caminho, e a VM do Azure fica em `Production`.
+**Relógio de demo e parâmetros.** Pelo modelo de domínio, `PUT /api/demo/relogio` e os valores de demo de `ParametrosDoMotor` só existem no ambiente `Development`. Por isso a variável `API_AMBIENTE_ASPNET` define o `ASPNETCORE_ENVIRONMENT` do `api.env`: `Production` por padrão e `Development` na VM local, que hospeda a demonstração ([local.conf](referencia/repo/infra/config/ambientes/local.conf)). Sem essa configuração, a demonstração não alcança as janelas das 10h e das 15h. Em contrapartida, o ambiente `Development` também liga a página de exceção do ASP.NET Core. O `TratadorDeErros` da Guarda precisa cobrir esse caminho, e a VM do Azure fica em `Production`.
 
 ### 1.12 CI
 
@@ -202,15 +201,15 @@ As senhas são geradas dentro da VM na primeira execução e ficam em `/etc/corr
 | `app` | `app/` | `typecheck` e `lint` |
 | `ml`, `iot` | `ml/`, `iot/` | compila os `.py` e exige o notebook executado |
 
-No desenho, veja que o `ci-ok` é o único portão da `main` e que cada job só roda quando a pasta dele muda.
+No desenho, o `ci-ok` é o único check obrigatório da `main`, e cada job só roda quando a pasta dele muda.
 
 ![Pipeline de CI: ci.yml](diagramas/23-ci.mmd)
 
-Ficam fora do check obrigatório: lock de NuGet, `dotnet format`, compilação do ESP32 e o job de ponta a ponta do candidato B, que provisiona um runner do GitHub. Cada um é um motivo a mais para a `main` travar na véspera. O job do B também pediria um ramo `ci` nos scripts que nunca rodou, e o ensaio em contêiner da seção 9 cobre a mesma afirmação.
+Ficam fora do check obrigatório: lock de NuGet, `dotnet format`, compilação do ESP32 e um job de ponta a ponta que provisionaria um runner do GitHub. Cada um deles aumentaria o risco de bloqueio da `main`. O job de ponta a ponta também exigiria nos scripts um ramo `ci` nunca executado, e o ensaio em contêiner da seção 8 cobre a mesma verificação.
 
 ## 2. Árvore do repositório
 
-As pastas `api/`, `app/`, `ml/` e `iot/` aparecem até o nível que a infra e o CI usam. O resto delas é do modelo de domínio. Os arquivos marcados com `*` estão em [referencia/repo/](referencia/repo/).
+As pastas `api/`, `app/`, `ml/` e `iot/` aparecem até o nível que a infra e o CI usam. O restante dessas pastas está descrito no modelo de domínio. Os arquivos marcados com `*` estão em [referencia/repo/](referencia/repo/).
 
 O desenho resume a árvore em uma linha por parte. A lista completa vem logo abaixo.
 
@@ -332,7 +331,7 @@ Na VM:
 | | `dev` | `local` | `producao` |
 |---|---|---|---|
 | Onde | notebook de cada pessoa | VM do Multipass | VM do Azure, opcional |
-| Para quê | escrever código | vídeos de todas as disciplinas, ensaio, infra | endereço estável para o celular, se existir |
+| Para quê | escrever código | demonstração de todas as disciplinas, ensaio, infra | endereço estável para o celular, se existir |
 | Como nasce | `npm run dev:deps` e `npm run dev:api` | `multipass launch` e `provisionar.sh` à mão | `terraform apply` e cloud-init |
 | Migrações | `dotnet ef database update` | SQL gerado, da release | SQL gerado, da release |
 | Recebe versão | código da branch | `sudo corredor deploy vX.Y.Z` | `release.yml` com aprovação |
@@ -348,8 +347,8 @@ Na VM:
 | Ajuste local de uma VM, como `CORREDOR_DNS_ZONA=sim` | `/etc/corredor/corredor.conf` | não |
 | Limites do monitor | `/etc/corredor/monitor.env` | não |
 | Região, tamanho e rótulo de DNS do Azure | `infra/nuvem/producao.auto.tfvars` | sim |
-| Assinatura do Azure | `ARM_SUBSCRIPTION_ID` no notebook do dono da infra | não |
-| State do Terraform | notebook do dono da infra | não |
+| Assinatura do Azure | `ARM_SUBSCRIPTION_ID` no notebook do responsável pela infraestrutura | não |
+| State do Terraform | notebook do responsável pela infraestrutura | não |
 | Chaves públicas da equipe e do CI | `infra/chaves/` | só `.pub` |
 | Chave privada do CI | segredo `VM_CHAVE_DEPLOY` do ambiente `producao` | não |
 | Nome da VM e linha de `known_hosts` | variáveis `VM_HOST` e `VM_HOSTS_CONHECIDOS` | não, e não são segredo |
@@ -358,13 +357,13 @@ Na VM:
 | URL da API para o app | `app/.env.local` | não |
 | Senha do Postgres do `compose.dev.yml` | o próprio arquivo, só vale em `localhost` | sim, de propósito |
 
-Nunca entram no Git: chave privada de qualquer tipo, `terraform.tfstate`, `.terraform/`, arquivos `.env`, senha de banco de VM, token do GitHub e dado real de pessoa. O [.gitignore](referencia/repo/.gitignore) recusa em `infra/chaves/` todo arquivo que não termine em `.pub`. Ligue o secret scanning e a push protection do GitHub, que são gratuitos em repositório público.
+Nunca entram no Git: chave privada de qualquer tipo, `terraform.tfstate`, `.terraform/`, arquivos `.env`, senha de banco de VM, token do GitHub e dado real de pessoa. O [.gitignore](referencia/repo/.gitignore) recusa em `infra/chaves/` todo arquivo que não termine em `.pub`. O secret scanning e a push protection do GitHub, gratuitos em repositório público, devem ficar ligados.
 
 ### 3.3 Configuração do GitHub, feita uma vez
 
 1. Repositório público, merge por squash como único método.
 2. Proteção da `main`: PR, uma aprovação, check obrigatório `ci-ok`, sem force-push.
-3. Ambiente `producao` com duas pessoas como revisoras obrigatórias e tags permitidas `v*`. Sem revisor obrigatório, a tag implantaria sozinha, então não grave `VM_HOST` antes deste passo.
+3. Ambiente `producao` com duas pessoas como revisoras obrigatórias e tags permitidas `v*`. Sem revisor obrigatório, a tag implantaria sozinha, por isso `VM_HOST` só é gravada depois deste passo.
 4. Segredo `VM_CHAVE_DEPLOY` no ambiente `producao`. Variáveis `VM_HOST` e `VM_HOSTS_CONHECIDOS` no repositório. Os passos 3 e 4 só existem se houver VM do Azure.
 
 ## 4. Controle de runtime
@@ -420,7 +419,7 @@ O [monitor.sh](referencia/repo/infra/monitor.sh) roda a cada 15 s como `corredor
 | `corredor-ml` | `oneshot`, `OnFailure=corredor-alerta@%n.service` | Uma falha do job das 05h vira alerta. |
 | Postgres, Mosquitto, Nginx | units da distribuição | O monitor alerta se pararem. |
 
-Dois cuidados que o ensaio mostrou na unit de alerta, que veio do candidato B:
+O ensaio revelou dois cuidados necessários na unit de alerta:
 
 - Sem `RestartMode=direct`, cada queda da API passa pelo estado `failed` antes do religamento, e o `OnFailure` disparou o alerta de falha definitiva cinco vezes num rollback comum e num `kill -9` (medido). Com `RestartMode=direct`, disponível no systemd 254 em diante, o alerta só sai quando o systemd desiste.
 - A unit de alerta roda como `corredor-mon`. Rodando como root, ela criou o `alertas.log` com dono root, e o monitor parou de gravar os próprios alertas sem erro visível (medido).
@@ -452,18 +451,18 @@ Estes itens são contrato entre a infra e quem escreve `Corredor.Api` e os módu
 5. A API não chama `Database.Migrate()`, e o `dotnet ef migrations script` constrói o host sem banco e sem broker.
 6. O índice único de `EventoSensor` é `(CasaToken, Seq, OcorridoEm)`, e uma repetição conta como sucesso.
 7. O cliente MQTT do Motor usa client id fixo, QoS 1 e reconexão automática. Para o broker guardar as mensagens enquanto o Motor reconecta, a sessão precisa sobreviver à desconexão. No MQTT 3.1.1 isso é `CleanSession = false`. No MQTT 5, que é o padrão provável do MQTTnet 5, `CleanSession = false` não basta e falta um `SessionExpiryInterval` maior que zero (inferido). No ensaio, a API mínima reconectou 2 s depois da volta do Mosquitto, e as mensagens publicadas antes disso não chegaram (medido).
-8. O seed do Motor ativa a casa `fa11fa11fa11fa11fa11fa11fa11fa11` (`CASA_TESTE_TOKEN`), usada pelo teste de falha. Se a linha do tempo exigir autenticação, ponha `TESTE_AUTORIZACAO="Bearer ..."` em `/etc/corredor/teste-de-falha.env`.
+8. O seed do Motor ativa a casa `fa11fa11fa11fa11fa11fa11fa11fa11` (`CASA_TESTE_TOKEN`), usada pelo teste de falha. Se a linha do tempo exigir autenticação, o valor `TESTE_AUTORIZACAO="Bearer ..."` deve ser definido em `/etc/corredor/teste-de-falha.env`.
 9. A página do painel fica em `api/src/Corredor.Guarda/painel/index.html`. O pacote a leva, e o Nginx a serve em `/painel/`.
 10. Os valores de demo de `ParametrosDoMotor` e a rota `PUT /api/demo/relogio` ligam com `ASPNETCORE_ENVIRONMENT=Development`.
 11. A API escreve log só na saída padrão.
 
 ## 6. Runbooks
 
-Há dois papéis. O dono da infra responde por `infra/`, `tools/` e `.github/`. O dono da release cria as tags. Cada papel tem uma segunda pessoa que já rodou os mesmos passos uma vez.
+Há dois papéis. O responsável pela infraestrutura responde por `infra/`, `tools/` e `.github/`. O responsável pela release cria as tags.
 
 ### 6.1 Primeiro provisionamento, do zero
 
-O desenho mostra a ordem. Veja que a VM local e a do Azure chegam ao mesmo `provisionar.sh`, e que o `lib/auditoria.sh` registra cada etapa.
+O desenho mostra a ordem. A VM local e a do Azure chegam ao mesmo `provisionar.sh`, e o `lib/auditoria.sh` registra cada etapa.
 
 ![Ordem de provisionamento da VM](diagramas/22-provisionamento.mmd)
 
@@ -473,7 +472,7 @@ Repositório, uma vez:
 2. Cada pessoa cria uma chave com `ssh-keygen -t ed25519` e envia o `.pub` em `infra/chaves/equipe/<nome>.pub`, por PR.
 3. Aplique a configuração do GitHub da seção 3.3, passos 1 e 2.
 
-VM local, no notebook que vai gravar:
+VM local:
 
 1. Rode `multipass launch 24.04 --name corredor-ubs --cpus 2 --memory 4G --disk 20G`.
 2. Rode `multipass shell corredor-ubs`.
@@ -482,7 +481,7 @@ VM local, no notebook que vai gravar:
 5. Depois da primeira release, rode `sudo corredor deploy v0.1.0` e `sudo corredor semear`, que ativa a casa do teste de falha.
 6. Rode `sudoedit /etc/corredor/segredos.env`, preencha `Llm__ApiKey=` e rode `sudo corredor reiniciar api`.
 
-VM do Azure, pelo dono da infra, só em 17/11 e dentro do prazo de duas horas:
+VM do Azure, pelo responsável pela infraestrutura:
 
 1. Rode `az login` com a conta da FIAP e `infra/nuvem/preflight.sh eastus`. Se a região ou o tamanho não aparecerem, ajuste `producao.auto.tfvars`.
 2. Rode `export ARM_SUBSCRIPTION_ID=$(az account show --query id -o tsv)`.
@@ -537,49 +536,13 @@ sudo -u postgres pg_restore --clean --if-exists -d corredor /var/backups/corredo
 sudo corredor deploy <tag anterior>
 ```
 
-Ensaie o rollback uma vez em 18/11 com `sudo corredor deploy <tag nova> --simular-falha`.
-
-### 6.4 Gravar o vídeo de Operating Systems
-
-A gravação começa numa VM criada sem cloud-init, para o provisionamento acontecer na tela. A VM precisa de internet para o `apt`, o GitHub e o broker público. Ela não precisa do Azure. Grave com a `v1.0.0-rc.1` publicada.
-
-Preparo, fora da gravação:
-
-1. Ensaie a sequência inteira uma vez no notebook que vai gravar e anote o tempo do provisionamento.
-2. Rode `multipass delete --purge corredor-ubs`.
-3. Abra dois terminais com letra grande e uma aba do navegador.
-
-Sequência gravada:
-
-1. `multipass launch 24.04 --name corredor-ubs --cpus 2 --memory 4G --disk 20G`, depois `multipass shell corredor-ubs`. Mostre `hostname` e `systemctl status nginx`, que ainda não existe.
-2. `sudo git clone --depth 1 https://github.com/<org>/corredor-aceso.git /opt/corredor/repo && sudo bash /opt/corredor/repo/infra/provisionar.sh`. Pare a câmera em `01-rede` e em `02-app`.
-3. `sudo corredor deploy v1.0.0-rc.1`, `sudo corredor semear` e `sudo corredor status`.
-4. `curl http://api.corredor.internal/api/versao`, `ip addr show corredor0` e `getent hosts api.corredor.internal`.
-5. No navegador do notebook, `http://<IP da VM>/painel/`.
-6. `sudo bash /opt/corredor/repo/infra/provisionar.sh` de novo. O fim mostra `0 mudança(s)` em cada etapa e as linhas `corredor-api: não reiniciou` e `corredor-monitor: não reiniciou`, com o mesmo `InvocationID` antes e depois.
-7. `systemctl status corredor-monitor`, `cat /opt/corredor/repo/infra/systemd/corredor-monitor.service` e `sudo corredor logs monitor`.
-8. Num terminal, `sudo tail -f /var/log/corredor/monitor/alertas.log`. No outro, `sudo corredor teste-de-falha`.
-9. `sudo corredor logs auditoria`, `ls /var/log/corredor/execucao` e `sudo corredor logs deploy`.
-
-Roteiro para 7 minutos. Os trechos de espera são acelerados na edição.
-
-| Tempo | Passos | Item da rubrica |
-|---|---|---|
-| 0:00 a 0:30 | o que é o Corredor Aceso e o que a VM hospeda | contexto |
-| 0:30 a 2:30 | 1 e 2 | provisionamento de infra (2) e da aplicação (2) |
-| 2:30 a 3:20 | 3, 4 e 5 | funcionamento completo (2) |
-| 3:20 a 3:50 | 6 | idempotência, clareza dos scripts |
-| 3:50 a 4:30 | 7 | monitoramento (2) e serviço tolerante a falhas (1) |
-| 4:30 a 6:20 | 8 | teste de falha e funcionamento completo |
-| 6:20 a 7:00 | 9 e o link do repositório | logs de auditoria (1) |
-
-Se o notebook que grava for um Mac com Apple Silicon, a VM é arm64 e baixa o pacote `corredor-linux-arm64.tar.gz`.
+Para ensaiar o rollback, rode `sudo corredor deploy <tag nova> --simular-falha`.
 
 ## 7. Como cada item da rubrica de Operating Systems é atendido
 
-A rubrica está nas páginas 35 a 37 do enunciado. O vídeo tem até 7 minutos e deve mostrar o provisionamento automático dentro da VM.
+A rubrica está nas páginas 35 a 37 do enunciado, que exige o provisionamento automático dentro da VM. A tabela relaciona cada item da rubrica aos arquivos que o implementam e aos comandos que o evidenciam.
 
-| Item da rubrica | Pontos | Arquivo | O que mostrar |
+| Item da rubrica | Pontos | Arquivo | Como verificar |
 |---|---|---|---|
 | Script de provisionamento de infra (redes, DNS, IP) | 2 | [01-rede.sh](referencia/repo/infra/01-rede.sh) | `hostname`, `ip addr show corredor0`, `getent hosts api.corredor.internal`, `sudo ufw status`. Com a zona ligada, `dig @10.77.0.1 api.corredor.internal`. |
 | Script de provisionamento da aplicação (dependências, configurações, orquestração) | 2 | [02-app.sh](referencia/repo/infra/02-app.sh), [provisionar.sh](referencia/repo/infra/provisionar.sh), [bd-modulo.sql](referencia/repo/infra/config/bd-modulo.sql) | saída do provisionamento, `sudo corredor status`, `/etc/corredor/api.env` sem as senhas |
@@ -588,69 +551,13 @@ A rubrica está nas páginas 35 a 37 do enunciado. O vídeo tem até 7 minutos e
 | Logs de auditoria e execução dos scripts | 1 | [auditoria.sh](referencia/repo/infra/lib/auditoria.sh) | `sudo corredor logs auditoria`, `ls /var/log/corredor/execucao` |
 | Funcionamento completo | 2 | [teste-de-falha.sh](referencia/repo/infra/teste-de-falha.sh), [verificar.sh](referencia/repo/infra/verificar.sh), [deploy.sh](referencia/repo/infra/deploy.sh) | `sudo corredor teste-de-falha`, o painel no navegador, a segunda execução sem mudança |
 
-As migrações do banco não pontuam em Operating Systems, mas o professor de SOA e o de C# as procuram. Para eles, o README aponta as pastas `Migrations/` do EF Core de cada módulo, o `tools/migracoes.sh` que gera o SQL a partir delas e o job `api` do CI que aplica o SQL duas vezes.
+As migrações do banco não fazem parte da rubrica de Operating Systems. O README aponta as pastas `Migrations/` do EF Core de cada módulo, o `tools/migracoes.sh`, que gera o SQL a partir delas, e o job `api` do CI, que aplica o SQL duas vezes.
 
-## 8. Plano por etapas e ordem de corte
+## 8. Medições e limitações
 
-Hoje é 16/11, noite. Os arquivos de infra estão prontos para copiar. O trabalho é rodar, conferir e corrigir o que o ambiente real mostrar. Cada portão tem hora. Quem não passar no portão aplica a ordem de corte.
+O ensaio rodou num contêiner Docker `ubuntu:24.04` arm64 privilegiado, com systemd 255 como PID 1, num Mac arm64, com os 60 arquivos finais. A API de ensaio é uma versão mínima da API com os três `DbContext`, o índice único `(CasaToken, Seq, Ts)`, a linha do tempo no formato do modelo de domínio e uma página `painel/index.html`. Os pacotes foram gerados pelo `empacotar.sh` final. Os logs do ensaio não estão no repositório.
 
-### 8.1 Portões
-
-No desenho, cada barra da primeira seção termina na hora de um portão, e as barras vermelhas são o caminho crítico. Os passos dos módulos vêm da seção 8.1 do [modelo de domínio](03-modelo-de-dominio.md#81-ordem-de-construção). Eles ocupam o dia inteiro, porque lá não têm hora.
-
-![Plano até a entrega de 19/11, 23h55](diagramas/26-plano.mmd)
-
-**16/11, até 23h59.** Repositório público com os arquivos de [referencia/repo/](referencia/repo/), `main` protegida, primeiro PR com `ci-ok` verde.
-
-**17/11, até 10h.**
-
-- Esqueleto de `api/` com os cinco projetos e os três de teste em `net10.0`, `Corredor.slnx`, e as rotas `/healthz/live`, `/healthz/ready` e `/api/versao`.
-- Primeira migração de cada `DbContext` com `dotnet ef migrations add Inicial`. Sem o schema `guarda` ainda, `MODULOS_BD` continua com os três e o `migracoes.sh` pula o módulo sem migração.
-- VM local de pé com `provisionar.sh`, `sudo corredor status` em `tudo certo`, a API em `[PENDENTE]`.
-
-**17/11, das 14h às 16h. Prazo do Azure.** `preflight.sh` e `terraform apply`. Às 18h, sem VM respondendo por SSH, o Azure sai do plano. Nada mais depende dele.
-
-**17/11, até 22h.**
-
-- `v0.1.0` publicada pelo `release.yml` e implantada na VM local. `GET /api/versao` responde `0.1.0`.
-- `sudo corredor teste-de-falha api monitor carga memoria disco` passando na VM local.
-- Túnel testado uma vez: `sudo corredor tunel` mostra a URL, e o celular abre `<url>/api/versao`.
-
-**18/11, até 18h.**
-
-- `v0.2.0` com o app e o nó do Wokwi ligados. Teste de falha completo, com o Motor mostrando cada evento uma vez.
-- Ensaio do rollback com `--simular-falha`.
-- Se houver Azure, deploy pelo GitHub com aprovação.
-
-**18/11, à noite.** `v1.0.0-rc.1`, congelamento de `infra/` e ensaio do vídeo de Operating Systems numa VM nova.
-
-**19/11.** Vídeos de manhã, na VM local, com o túnel. Até 18h, só correções, por PR. `v1.0.0` publicada e implantada. Até 20h, README fechado com a tabela da seção 7 e os links dos vídeos. Até 21h, entrega no Teams. O prazo é 23h55, e as três horas são folga.
-
-### 8.2 Ordem de corte
-
-Corte nesta ordem, do primeiro ao último:
-
-1. Zona DNS do dnsmasq. O `/etc/hosts` já resolve os nomes.
-2. Workflow `operacao.yml`. O `sudo corredor voltar` faz o mesmo.
-3. Tentativa de Let's Encrypt. O HTTP e o túnel continuam.
-4. Timer das 05h e ambiente Python na VM. O `prever_hoje.py` roda à mão.
-5. Deploy pelo GitHub. A release continua sendo publicada, e alguém roda `sudo corredor deploy` por SSH.
-6. VM do Azure. A VM local é a oficial desde o início, então só o README muda.
-7. Pacote arm64, se ninguém gravar em Mac com Apple Silicon. Tire `linux-arm64` do `release.yml`.
-
-Nunca corte:
-
-- `01-rede.sh`, `02-app.sh`, `03-monitor.sh`, `monitor.sh` e a unit do monitor.
-- `lib/auditoria.sh` e o `teste-de-falha.sh`.
-- O túnel, porque é o HTTPS dos vídeos.
-- O check `ci-ok`, a geração do SQL a partir das migrações do EF Core e a regra de migração aditiva.
-- A release por tag e o `deploy.sh` com rollback.
-
-## 9. O que foi medido e o que nunca rodou
-
-O ensaio rodou em 16/11 num contêiner Docker `ubuntu:24.04` arm64 privilegiado, com systemd 255 como PID 1, num Mac arm64. É a mesma bancada do candidato C, agora com os 60 arquivos finais. A API de ensaio é a mínima do candidato C, mais um `GuardaDbContext`, o índice único `(CasaToken, Seq, Ts)`, a linha do tempo no formato do modelo de domínio e uma página `painel/index.html`. Os pacotes saíram do `empacotar.sh` final. Os logs estão na pasta de trabalho da síntese, fora do repositório.
-
-Os arquivos rodaram quatro vezes nesta bancada, sempre numa VM nova. As três primeiras acharam cinco problemas, todos consertados: dois no enxerto do `OnFailure` (seção 4.4), um nos cenários de memória e disco quando o uso já está no limite, uma corrida no cenário do broker que já existia em C (o reenvio chegava antes de o Motor reconectar) e a permissão da pasta da release no `deploy.sh`. A quarta rodada, com os arquivos de [referencia/repo/](referencia/repo/) como estão, teve estes resultados:
+Os arquivos rodaram quatro vezes nesta bancada, sempre numa instância nova. As três primeiras rodadas encontraram cinco problemas, todos corrigidos: dois na unit de `OnFailure` (seção 4.4), um nos cenários de memória e disco quando o uso já está no limite, uma condição de corrida no cenário do broker (o reenvio chegava antes de o Motor reconectar) e a permissão da pasta da release no `deploy.sh`. A quarta rodada, com os arquivos de [referencia/repo/](referencia/repo/) na versão atual, teve estes resultados:
 
 | Passo | Código | Tempo | O que mostrou |
 |---|---|---|---|
@@ -665,7 +572,7 @@ Os arquivos rodaram quatro vezes nesta bancada, sempre numa VM nova. As três pr
 | `OnFailure` | 0 | 3 s | Uma unit de teste que falha gravou o `ALERTA falha definitiva`. Nenhum alerta desses saiu da API, que caiu e religou várias vezes. |
 | Zona DNS ligada, depois de novo | 0 | 9 s e 2 s | 5 mudanças, depois 0. `dig @10.77.0.1` respondeu os dois nomes. |
 
-Para os cenários de memória e de disco não ocuparem a VM do Docker, que outros contêineres usam, o ensaio pôs os limites do monitor perto do uso atual em `/etc/corredor/monitor.env` (memória 18%, disco 11%). A ocupação de memória e de disco foi real. Numa VM de 4 GB e 20 GB com os limites padrão, o `stress-ng` ocupa cerca de 2,5 GB e o arquivo do disco passa de 10 GB, e os dois cabem nas margens que o script confere (inferido, não rodou numa VM desse tamanho).
+Para que os cenários de memória e de disco não ocupassem a VM do Docker, compartilhada com outros contêineres, o ensaio ajustou os limites do monitor para perto do uso atual em `/etc/corredor/monitor.env` (memória 18%, disco 11%). A ocupação de memória e de disco foi real. Numa VM de 4 GB e 20 GB com os limites padrão, o `stress-ng` ocupa cerca de 2,5 GB e o arquivo do disco passa de 10 GB, e os dois cabem nas margens que o script confere (inferido, não rodou numa VM desse tamanho).
 
 **Medido à parte, nos arquivos finais.**
 
@@ -686,8 +593,8 @@ Para os cenários de memória e de disco não ocuparem a VM do Docker, que outro
 
 1. Assinatura Azure for Students: região, tamanho `Standard_B2ls_v2`, imagem, chave ed25519 em `admin_ssh_key`.
 2. O cloud-init no primeiro boot, no Azure e no Multipass, e a detecção de `producao` pelo `cloud-id`.
-3. O `multipass launch` sem cloud-init da seção 6.4 e o provisionamento numa VM do Multipass. O ensaio foi em contêiner.
-4. `infra/tunel.sh` e `corredor-tunel.service`: a instalação do cloudflared, a URL no journal e o Expo Go com a URL do túnel. É o primeiro teste de 17/11.
+3. O `multipass launch` sem cloud-init da seção 6.1 e o provisionamento numa VM do Multipass. O ensaio foi em contêiner.
+4. `infra/tunel.sh` e `corredor-tunel.service`: a instalação do cloudflared, a URL no journal e o Expo Go com a URL do túnel.
 5. O redirecionamento de `/releases/latest` do GitHub, usado por `corredor deploy --ultima`.
 6. A emissão do Let's Encrypt para um nome `cloudapp.azure.com`.
 7. O provisionamento em x64. A bancada era arm64.
@@ -696,17 +603,3 @@ Para os cenários de memória e de disco não ocuparem a VM do Docker, que outro
 10. O `OnFailure` disparado pela própria API depois de 10 partidas. O ensaio disparou a unit de alerta por uma unit de teste com o mesmo `OnFailure`.
 11. Os eventos do nó do Wokwi durante uma parada do Mosquitto, pelo motivo da seção 1.11.
 12. `infra/nuvem/preflight.sh` e `infra/local/subir.sh`.
-
-## 10. Mudanças em relação à arquitetura e ao modelo de domínio
-
-| # | O documento diz | Este documento diz | Motivo |
-|---|---|---|---|
-| 1 | `arquitetura.md`: .NET 8 | .NET 10 | O .NET 8 saiu de suporte em 10/11/2026. |
-| 2 | `arquitetura.md`: `api.corredor.local` e `painel.corredor.local` | `api.corredor.internal` e `painel.corredor.internal` | `.local` é do mDNS. |
-| 3 | `arquitetura.md`: "IP fixo" no `01-rede.sh` | IP fixo na interface dummy `corredor0` | A placa principal de uma VM de nuvem pertence ao DHCP da nuvem. |
-| 4 | `arquitetura.md`: o `02-app.sh` instala o runtime e roda as migrações | pacote self-contained. As migrações rodam no deploy, a partir do SQL gerado pelo EF Core | O binário que roda é o testado, e a VM não precisa do SDK. |
-| 5 | `arquitetura.md`: no teste de falha, o nó guarda os eventos durante a parada do Mosquitto | um publicador local faz esse papel no teste. O buffer do nó aparece no vídeo de Physical Computing | O nó publica com QoS 0 no broker público e não percebe a parada do Mosquitto da VM. |
-| 6 | `arquitetura.md`: o diagrama mostra HTTPS entre o app e o Nginx | HTTPS pelo túnel nos vídeos, HTTP no nome do Azure | `cloudapp.azure.com` não está na Public Suffix List. |
-| 7 | modelo de domínio: todas as rotas ficam sob `/api` | `/healthz/live` e `/healthz/ready` ficam fora de `/api` e o Nginx as esconde | São rotas do host para a infra, não rotas de módulo. |
-| 8 | modelo de domínio: o relógio de demo só existe em `Development` | a VM local roda a API em `Development` | Os vídeos precisam do relógio de demo. A VM do Azure fica em `Production`. |
-| 9 | `arquitetura.md`: seis arquivos em `infra/` | 39 arquivos em `infra/` | Os seis originais mantêm o papel. Os outros são a entrada única, o deploy, o comando de operação, as bibliotecas, as units e a configuração. |

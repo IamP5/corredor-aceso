@@ -19,7 +19,7 @@ Os roteiros dos vídeos estão em [roteiros.md](roteiros.md). O esqueleto do PDF
 - [x] **P1.** Criar `integrantes.txt` na raiz com o nome completo de cada integrante, um por linha. O `README.md` e a entrega de Physical Computing apontam para ele.
 - [ ] **P1.** Conferir que o repositório `IamP5/corredor-aceso` está público e abre numa janela anônima.
 - [ ] **Todos.** Rodar `npm run check` na `main` depois da junção das branches. Nenhum vídeo é gravado com o check vermelho.
-- [ ] **P1.** Publicar a release que os vídeos vão usar (`v1.0.0-rc.1`, seção 6.4 de [05-infra-e-entrega.md](../arquitetura/05-infra-e-entrega.md)).
+- [ ] **P1.** Publicar a release que os vídeos vão usar (`v1.0.0-rc.1`, [roteiro-os.md](roteiro-os.md)).
 
 ## Ordem de trabalho
 
@@ -132,7 +132,7 @@ Nota em 6 critérios: telas e navegação, consumo de dados, banco de dados, ace
 
 Nota: script de infra (rede, DNS, IP) 2, script da aplicação 2, monitoramento com alertas de CPU, disco e memória 2, monitoramento como serviço tolerante a falhas 1, logs de auditoria e execução 1, funcionamento completo 2. Entrega: link do GitHub.
 
-- [ ] **P1, 18/11.** Ensaiar a sequência da seção 6.4 de 05-infra-e-entrega.md uma vez e anotar o tempo do provisionamento.
+- [ ] **P1, 18/11.** Ensaiar a sequência de roteiro-os.md uma vez e anotar o tempo do provisionamento.
 - [ ] **P1, 18/11.** Rodar `multipass delete --purge corredor-ubs` e gravar o vídeo de **até 7 minutos** numa VM nova, pelo roteiro.
 - [ ] **P1, 18/11.** Prints em `docs/evidencias/os/`: saída do provisionamento, segunda execução com `0 mudança(s)`, `sudo corredor status`, `alertas.log` com `ALERTA` e `NORMALIZADO`, resumo do teste de falha com os PASSOU e `sudo corredor logs auditoria`.
 - [ ] **P1, 18/11.** Publicar o vídeo e pôr o link em `infra/README.md`.

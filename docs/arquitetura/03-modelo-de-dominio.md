@@ -1,10 +1,10 @@
 # Modelo de domínio do Corredor Aceso
 
-Este documento define o modelo de domínio que a equipe constrói até 19/11/2026, 23h55. Ele parte das sessões de [02-event-storming.md](02-event-storming.md) e chega aos contextos, aos projetos .NET, aos nomes de código, às regras da situação da casa, aos contratos e aos casos de teste.
+Este documento define o modelo de domínio do Corredor Aceso. Ele parte das sessões descritas em [02-event-storming.md](02-event-storming.md) e chega aos contextos, aos projetos .NET, aos nomes de código, às regras da situação da casa, aos contratos e aos casos de teste.
 
-O modelo mantém as decisões fixas da primeira versão da arquitetura, `docs/arquitetura.md`, hoje substituída por [01-visao-geral.md](01-visao-geral.md): um monólito modular .NET 10 com os módulos Motor, Cadastro e Guarda, a situação da casa calculada por função pura e o contrato MQTT. A seção 9 lista cada ponto em que este modelo muda a arquitetura.
+O modelo segue as decisões estruturais de [01-visao-geral.md](01-visao-geral.md): um monólito modular .NET 10 com os módulos Motor, Cadastro e Guarda, a situação da casa calculada por função pura e o contrato MQTT.
 
-Quem programa o Motor lê as seções 3, 4.2, 5 e 6. Quem programa o Cadastro lê 3, 4.3 e 6. Quem programa a Guarda lê 3, 4.4 e 6.3. Quem programa o nó lê 6.2. Quem programa o app lê 3, 5.6 e 6.3. Todos leem a seção 8 antes de abrir o editor.
+O Motor é descrito nas seções 3, 4.2, 5 e 6. O Cadastro, nas seções 3, 4.3 e 6. A Guarda, nas seções 3, 4.4 e 6.3. O nó, na seção 6.2. O app, nas seções 3, 5.6 e 6.3. A seção 8 delimita o escopo da entrega.
 
 ## 1. Contextos delimitados
 
@@ -26,7 +26,7 @@ A mesma casa aparece em dois contextos com dois modelos. No Cadastro ela é `Cas
 
 ### 1.2 Mapa de contexto
 
-No desenho, a borda tracejada marca os cinco contextos de fora do processo .NET. Veja que nenhuma seta liga o Motor à Guarda.
+No diagrama, a borda tracejada marca os cinco contextos externos ao processo .NET. Nenhuma seta liga o Motor à Guarda.
 
 ![Mapa de contexto do Corredor Aceso](diagramas/07-mapa-de-contextos.mmd)
 
@@ -68,11 +68,11 @@ api/
 | `Corredor.Cadastro` | `Corredor.Contratos`, `Corredor.Guarda` | `Corredor.Motor` |
 | `Corredor.Api` | os quatro | |
 
-No desenho, a seta tracejada é referência de projeto e a seta de ponta vazada é implementação. Veja que nenhuma seta liga `Corredor.Motor` a `Corredor.Cadastro`.
+No diagrama, a seta tracejada indica referência de projeto e a seta de ponta vazada indica implementação. Nenhuma seta liga `Corredor.Motor` a `Corredor.Cadastro`.
 
 ![Projetos .NET e referências permitidas](diagramas/02-modulos.mmd)
 
-O compilador garante a regra de privacidade. O Motor não tem como ler um nome, porque não referencia o Cadastro e não conhece `TextoRotulado`. O Cadastro não tem como abrir o `MotorDbContext`, porque não referencia o Motor.
+O compilador garante a regra de privacidade. O Motor não consegue ler um nome, porque não referencia o Cadastro e não conhece `TextoRotulado`. O Cadastro não consegue abrir o `MotorDbContext`, porque não referencia o Motor.
 
 Cada módulo usa as mesmas pastas:
 
@@ -85,7 +85,7 @@ Corredor.Motor/
   MotorModulo.cs   AddMotor() e MapMotor().
 ```
 
-O `Program.cs` tem uma linha de registro por módulo, e só uma pessoa edita o arquivo:
+O `Program.cs` tem uma linha de registro por módulo:
 
 ```csharp
 builder.Services.AddGuarda(cfg).AddMotor(cfg).AddCadastro(cfg);
@@ -93,7 +93,7 @@ app.UseGuarda();
 app.MapMotor(); app.MapCadastro(); app.MapGuarda();
 ```
 
-Um Postgres, três schemas: `motor`, `cadastro` e `guarda`. Três `DbContext`, cada um com as próprias migrações do EF Core. Nenhum módulo lê o schema de outro. Cada módulo conecta com um papel próprio do Postgres, que não enxerga o schema dos outros.
+A solução usa um único Postgres com três schemas: `motor`, `cadastro` e `guarda`. Cada schema tem um `DbContext` com as próprias migrações do EF Core. Nenhum módulo lê o schema de outro. Cada módulo conecta com um papel próprio do Postgres, que não enxerga o schema dos outros.
 
 ## 3. Linguagem ubíqua
 
@@ -166,7 +166,7 @@ Os nomes de domínio ficam em português, sem acento e sem cedilha no código. O
 | Farol | O indicador verde, amarelo ou vermelho do painel Risco Cidadão. | `CorDoFarol`, `Farol` | Guarda | semáforo |
 | Mensagem ao cidadão | O bloqueio explicado em duas frases simples. | `MensagemAoCidadao` | Guarda | tradução solta |
 
-Palavras que colidem, e como a equipe usa cada uma:
+Alguns termos colidem. O uso adotado para cada um é o seguinte:
 
 - "Motor" sozinho é o módulo Motor. A classe da Guarda sempre se chama `MotorDeParsing`.
 - "Verde" e "Vermelho" existem em `SituacaoDaCasa` e em `CorDoFarol`. São dois enums. Nenhum código converte um no outro.
@@ -191,7 +191,7 @@ Palavras que colidem, e como a equipe usa cada uma:
 
 ### 4.2 Motor
 
-No desenho, veja que a situação da casa não é campo de nenhum agregado. O `AvaliadorDeCasas` lê os três agregados e devolve a `Avaliacao`.
+No diagrama, a situação da casa não é campo de nenhum agregado. O `AvaliadorDeCasas` lê os três agregados e devolve a `Avaliacao`.
 
 ![Agregados do Motor](diagramas/17-agregados-motor.mmd)
 
@@ -270,7 +270,7 @@ Invariantes:
 
 `TurnoRadar` tem `AbertoEm`, `FimPrevisto`, `EncerradoEm`, a janela da manhã e a janela da tarde. `EstaAberto(agora)` é verdadeiro quando o turno não foi encerrado e `agora` vem antes de `FimPrevisto`. A seção 5.2 diz como as janelas são cortadas.
 
-`ResumoDoTurno` guarda cinco números: casas ativas, casas com sinal de vida até as 10h, casas atendidas, casas vermelhas pendentes e casas cinza pendentes. O segundo número é o indicador principal da ficha. Os eventos somem em 24 horas, então o resumo é o único lugar em que esse número sobrevive.
+`ResumoDoTurno` guarda cinco números: casas ativas, casas com sinal de vida até as 10h, casas atendidas, casas vermelhas pendentes e casas cinza pendentes. O segundo número é o principal indicador de impacto do projeto. Como os eventos são apagados em 24 horas, o resumo é o único registro que preserva esse número.
 
 #### Serviços, políticas e processos do Motor
 
@@ -309,7 +309,7 @@ O Motor não grava alerta, aviso nem pedido de contato.
 
 ### 4.3 Cadastro
 
-No desenho, veja que `Casa`, `Consentimento` e `VizinhoDeConfianca` vivem dentro do `Idoso`, e que `Visita` e `AvisoAoVizinho` apontam para ele só por identificador.
+No diagrama, `Casa`, `Consentimento` e `VizinhoDeConfianca` ficam dentro do `Idoso`, e `Visita` e `AvisoAoVizinho` apontam para ele só por identificador.
 
 ![Agregados do Cadastro](diagramas/18-agregados-cadastro.mmd)
 
@@ -419,7 +419,7 @@ Invariantes:
 
 #### Referência, políticas e leitura do Cadastro
 
-`Microarea` tem `Id`, `Nome` e `AcsResponsavel`. Ela entra por carga inicial e não tem comando na entrega.
+`Microarea` tem `Id`, `Nome` e `AcsResponsavel`. Ela entra por carga inicial e não tem comando nesta entrega.
 
 `AcsId` é um código de texto no formato `^[a-z0-9-]{3,40}$`, como `acs-demo-01`, que vem da autenticação. Não existe tabela de ACS, e o banco não guarda credencial.
 
@@ -448,7 +448,7 @@ Invariantes:
 
 A Guarda segue a tabela de arquivos de [01-visao-geral.md](01-visao-geral.md#arquivos-da-guarda). Esta seção dá os nomes de domínio e as invariantes.
 
-No desenho, veja que o `TextoRotulado` é o ponto em que o `MotorDeParsing` e a `SaidaSegura` se encontram, e que o `EventoDeSeguranca` é o único agregado.
+No diagrama, o `TextoRotulado` é o ponto de encontro entre o `MotorDeParsing` e a `SaidaSegura`, e o `EventoDeSeguranca` é o único agregado.
 
 ![Agregado, objetos de valor e serviços da Guarda](diagramas/19-agregados-guarda.mmd)
 
@@ -489,7 +489,7 @@ Invariantes:
 
 Severidades em `pii.json`: CPF 5 com dígito válido e 4 só no formato, CNS 5, credencial 5, saúde 4, mora sozinho 4, RG 4, endereço 3, telefone 3, nome 3.
 
-`PoliticaDeCanal` na entrega:
+`PoliticaDeCanal` nesta entrega:
 
 | Canal | Aceita | Exposição |
 |---|---|---|
@@ -516,7 +516,7 @@ Severidades em `pii.json`: CPF 5 com dígito válido e 4 só no formato, CNS 5, 
 | `Tradutor` | Monta o prompt com tipo de dado, canal e módulo e chama o LLM. | O prompt passa pela `SaidaSegura` com o canal `PromptDoLlm`. Roda depois da resposta HTTP, numa fila em memória lida por um `BackgroundService`. Com falha, anexa a frase fixa. |
 | `Farol` | Calcula a `CorDoFarol` sobre os eventos das últimas 24 horas. | Função pura. |
 
-O desenho mostra os serviços numa saída bloqueada. Veja que a resposta 200 sai no passo 9, antes de o `Tradutor` chamar o LLM.
+O diagrama mostra os serviços numa saída bloqueada. A resposta 200 sai no passo 9, antes de o `Tradutor` chamar o LLM.
 
 ![Fluxo da Guarda numa saída bloqueada](diagramas/28-fluxo-da-guarda.mmd)
 
@@ -548,7 +548,7 @@ Na Guarda, os eventos de segurança e o `pii.json` são gravados. Achados, rótu
 
 ## 5. Regras da situação da casa
 
-A situação da casa não é uma coluna. Ela muda com a passagem do tempo, sem evento, e uma coluna velha poderia mostrar um verde que ninguém provou. O `AvaliadorDeCasas` calcula a situação a cada leitura.
+A situação da casa não é uma coluna. Ela muda com a passagem do tempo, sem evento, e uma coluna desatualizada poderia mostrar um verde sem evidência. O `AvaliadorDeCasas` calcula a situação a cada leitura.
 
 ### 5.1 Entradas da avaliação
 
@@ -595,14 +595,14 @@ O evento do sensor conta pelo `OcorridoEm`. A confirmação conta pelo `Quando`.
 | 4 | `SemMovimentoNaJanela` | Sim | O perfil é `Sozinho` ou `Acamado`, não houve saída avisada no turno, e não existe sinal de vida desde o início da última janela vencida. | `Vermelho` | O prazo da janela vencida, ou o início dela para o `Acamado` | `Acs` com `AusenciaConfirmada`. A `PessoaVista` é sinal de vida e desfaz o alerta. |
 | 5 | `IdaNoturnaSemVolta` | | Fora da entrega. | | | |
 
-O desenho mostra a mesma ordem como uma escada. Leia da esquerda para a direita. A primeira pergunta com resposta sim decide a situação, e cada alerta traz a confirmação que o atende. A regra 4 só vale para o perfil `Sozinho` ou `Acamado`, sem saída avisada.
+O diagrama mostra a mesma ordem como uma escada, lida da esquerda para a direita. A primeira pergunta com resposta sim decide a situação, e cada alerta traz a confirmação que o atende. A regra 4 só vale para o perfil `Sozinho` ou `Acamado`, sem saída avisada.
 
 ![Regras da situação da casa, em ordem](diagramas/06-situacao-da-casa.mmd)
 
-Detalhes que evitam erro:
+Observações sobre a ordem e a implementação:
 
 - A regra 2 vem antes das regras 3 e 4. Essa ordem impede o aparelho mudo de virar verde. O `UltimoPacoteEm` é hora do servidor, então um lote do buffer com horas antigas mostra que o aparelho está ligado agora.
-- A condição (b) da regra 1 é a trava. A luz pode ter voltado, mas o concentrador ficou parado. A casa fica vermelha até a ACS ver a pessoa depois da última leitura baixa.
+- A condição (b) da regra 1 é a trava. A energia pode ter voltado enquanto o concentrador continuou parado. A casa fica vermelha até a ACS ver a pessoa depois da última leitura baixa.
 - A regra 4 olha a última janela vencida e aceita sinal de vida desde o início dela, mesmo depois do prazo. Às 10h30, um movimento às 10h20 tira o vermelho da manhã.
 - A saída avisada vale para o perfil `Sozinho` e suspende a regra 4 até o fim do turno. Ela não suspende as regras 1, 2 e 3.
 - As regras 1 e 3 usam a mesma função, "início da sequência atual em que a condição vale". Ela é escrita uma vez, em `HistoricoDaCasa`.
@@ -705,7 +705,7 @@ Casa `Acamado`, turno aberto às 05h:
 
 `IntervaloDoHeartbeat` é a cadência do nó. O Motor só usa esse valor para conferir, ao iniciar, que `SilencioMaximoEletrodependente` é pelo menos o dobro dele.
 
-Os horários das janelas não mudam na demo. Quem grava o vídeo move a hora do Motor com o `RelogioDeDemo`. `PUT /api/demo/relogio` recebe a hora desejada e guarda o deslocamento. O `TradutorDePacote` soma o mesmo deslocamento ao `ts` de cada pacote, então o nó do Wokwi e o simulador continuam coerentes com o Motor. O `POST /visitas` soma o mesmo deslocamento a `ocorridaEm`, então a visita registrada com o relógio movido cai na janela certa. O Cadastro lê o deslocamento por `IDeslocamentoDoRelogio`, de `Corredor.Contratos`. Para mover o relógio para trás, rode o reinício da seção 8.4 de [04-modelo-de-dados.md](04-modelo-de-dados.md), porque `UltimoPacoteEm` só anda para frente. A rota só existe no ambiente `Development`.
+Os horários das janelas não mudam na demonstração. Para percorrer o dia, o `RelogioDeDemo` desloca a hora do Motor. `PUT /api/demo/relogio` recebe a hora desejada e guarda o deslocamento. O `TradutorDePacote` soma o mesmo deslocamento ao `ts` de cada pacote, então o nó do Wokwi e o simulador continuam coerentes com o Motor. O `POST /visitas` soma o mesmo deslocamento a `ocorridaEm`, então a visita registrada com o relógio movido cai na janela certa. O Cadastro lê o deslocamento por `IDeslocamentoDoRelogio`, de `Corredor.Contratos`. Mover o relógio para trás exige o reinício descrito na seção 8.4 de [04-modelo-de-dados.md](04-modelo-de-dados.md), porque `UltimoPacoteEm` só anda para frente. A rota só existe no ambiente `Development`.
 
 Com esses valores, o eletrodependente mudo fica vermelho no radar 60 segundos depois do último pacote. O pedido de contato sai em até 60 segundos mais `IntervaloDoVigia`.
 
@@ -776,7 +776,7 @@ public interface IDeslocamentoDoRelogio
 
 ### 6.2 MQTT
 
-O contrato v1 não muda. Tópico de evento: `corredor/v1/{casaToken}/evento`. Tópico de comando: `corredor/v1/{casaToken}/comando`.
+O modelo usa o contrato MQTT v1. Tópico de evento: `corredor/v1/{casaToken}/evento`. Tópico de comando: `corredor/v1/{casaToken}/comando`.
 
 ```json
 {
@@ -1022,42 +1022,13 @@ Casos do Cadastro e da Guarda:
 | 41 | Rota sem autenticação que tentaria devolver `Idoso.Condicoes` | Resposta bloqueada pelo `FiltroDeResposta`. |
 | 42 | LLM fora do ar | A mensagem ao cidadão é a frase fixa. |
 
-Os mesmos casos entram no Azure Boards. Os negativos da arquitetura estão cobertos: silêncio nunca vira verde pelos casos 1, 10, 11 e 15. Família sem autorização não recebe aviso pelo caso 34. Mensagem com "mora sozinho" é bloqueada pelo caso 39. Reenvio não duplica evento pelo caso 26.
+Os casos cobrem os cenários negativos da arquitetura. Os casos 1, 10, 11 e 15 provam que o silêncio nunca vira verde. O caso 34 prova que a família sem autorização não recebe aviso. O caso 39 prova que a mensagem com "mora sozinho" é bloqueada. O caso 26 prova que o reenvio não duplica evento.
 
-## 8. O que entra em 19/11
+## 8. Escopo da entrega
 
-### 8.1 Ordem de construção
+### 8.1 Regras essenciais
 
-| Passo | Quando | Contratos e Motor | Cadastro | Guarda |
-|---|---|---|---|---|
-| 1 | 16/11, noite | A solução com os cinco projetos e os quatro de teste, contando o `Corredor.Api.Testes`, com as referências da seção 2. `Corredor.Contratos` fechado. `ParametrosDoMotor` e `RelogioDeDemo`. | `Idoso` vazio, com a migração. `Microarea` por carga inicial. | `TipoDeDado`, `Canal`, `TextoRotulado`, `Veredito`. |
-| 2 | 17/11 | `CasaMonitorada` com `AtivarCasa` e `RegistrarPacote`. `EventoSensor` com a chave única e a recusa de `ts`. `TradutorDePacote` e `ConsumidorMqtt`. `DiaCritico` com `DeclararDiaCritico`, `TurnoRadar` e as janelas. `AvaliadorDeCasas` com `SemHeartbeat`, `SemMovimentoNaJanela`, sinal de vida por perfil, `Verde` e `Aguardando`. `Radar`. | `RegistrarConsentimento` gera o token e chama `AtivarCasaAsync`. `ListaDeNomes`. `ReconciliacaoComMotor`. | `MotorDeParsing`, `PoliticaDeCanal`, `SaidaSegura`, `InterceptadorDeEntrada`. |
-| 3 | 18/11 | `EnergiaEletrodependente` com a trava. `Confirmar`, atendimento e a tabela da seção 5.7. `CalorInterno`. `LinhaDoTempo`. | `Visita` com `TradutorDeDesfecho`. `MensagemSaida`. | `EventoDeSeguranca`, `Tradutor`, `Farol`, painel, `ProvedorDeLogSeguro`, `FiltroDeResposta`, `TratadorDeErros`. |
-| 4 | 18/11, se sobrar tempo, nesta ordem | `Expurgo`. `EncerrarTurno` com o resumo. Saída avisada e `AusenciaConfirmada`. `VigiaDoRadar` com o pedido de toque e o encerramento das 18h. Pedido de contato pela porta. | Rotas de revogação e de perfil. `AvisoAoVizinho` e `ReceptorDeContato`. Resposta do vizinho e `GET /avisos`. | Schema `guarda`, se a lista em memória entrou primeiro. |
-
-Três pessoas escrevem no mesmo `api/`. Cada uma fica dentro do projeto do próprio módulo. Só uma pessoa mexe em `Corredor.Api/Program.cs`.
-
-### 8.2 Ordem de corte
-
-Se o prazo apertar, a equipe corta nesta ordem, do primeiro ao último. Cada item diz o que sobra quando ele sai.
-
-| # | Corta | O que sobra |
-|---|---|---|
-| 1 | `IdaNoturnaSemVolta` e o aviso à família | A autorização `AvisarFamilia` e o caso 34. |
-| 2 | Agrupamento de apagão por rua | Nada. O Motor não tem a rua. |
-| 3 | Envio simulado ao vizinho, resposta do vizinho e `GET /avisos` | O `VigiaDoRadar`, a porta e o registro `AvisoAoVizinho`. A origem `Vizinho` fica coberta pelo caso 23. |
-| 4 | Timer das 05h | O script de ML roda à mão. |
-| 5 | Pedido de toque | O turno sem o buzzer das 14h30. |
-| 6 | Saída avisada e `AusenciaConfirmada` | O `BOTAO_SAIR` vira só sinal de vida, sem suspender a regra 4. `EstavaFora` deixa de chamar o Motor, e a casa fica vermelha e pendente. |
-| 7 | `EncerrarTurno` e `ResumoDoTurno` | O turno fecha às 18h. O indicador sai de uma consulta feita na gravação. |
-| 8 | Rotas de revogação e de perfil | Os métodos na raiz e os testes deles. |
-| 9 | `Expurgo` | O README declara que a retenção de 24 horas não foi construída. |
-| 10 | `VigiaDoRadar`, `IReceptorDeContato` e `AvisoAoVizinho` | O card no topo do radar. Ninguém é chamado de madrugada, e o vídeo diz isso. |
-| 11 | `CalorInterno` | Três classes concretas de regra, que ainda sustentam a herança. |
-
-### 8.3 Nunca corta
-
-Estas regras são o produto. Sem uma delas, a demo mostra um verde sem sinal de vida ou um vazamento.
+O sistema aplica sempre as dez regras abaixo. Elas são invariantes do produto, porque a falta de qualquer uma delas permitiria um verde sem sinal de vida ou um vazamento.
 
 1. A chave única `(casaToken, seq, ts)` e a recusa de `ts` adiantado.
 2. `SemHeartbeat` antes de qualquer regra que olhe sinal de vida, medido por `UltimoPacoteEm`.
@@ -1068,9 +1039,9 @@ Estas regras são o produto. Sem uma delas, a demo mostra um verde sem sinal de 
 7. `NaoAbriu` não confirma a casa, e `AusenciaConfirmada` nunca é sinal de vida.
 8. O canal `GrupoDoBairro` não aceita rótulo.
 9. `EventoDeSeguranca` sem o valor, e `MensagemSaida` só com o texto mascarado.
-10. O `RelogioDeDemo`. Sem ele, não há vídeo das janelas de 10h e de 15h.
+10. O `RelogioDeDemo`, que permite demonstrar as janelas de 10h e de 15h sem esperar o horário real.
 
-### 8.4 Fora da entrega
+### 8.2 Fora do escopo
 
 - Casa com dois idosos.
 - Responsável legal no consentimento.
@@ -1082,64 +1053,4 @@ Estas regras são o produto. Sem uma delas, a demo mostra um verde sem sinal de 
 - Integração com o e-SUS e com a distribuidora de energia.
 - Tratamento da visita depois da revogação.
 
-O token viaja no nome do tópico por um broker público. Quem assina `corredor/v1/#` lê o token e pode publicar um `MOVIMENTO` falso, que o Motor trataria como sinal de vida. Só a casa do Wokwi passa por esse caminho. O modelo reduz o dano: token de 128 bits, pacote de token desconhecido descartado, e nenhum pacote muda perfil ou cadastro. A correção é assinar o pacote com um segredo por casa. O vídeo de Physical Computing e o PDF de Cyber dizem essa limitação.
-
-## 9. Mudanças em relação a `docs/arquitetura.md`
-
-| # | A arquitetura diz | Este modelo diz | Motivo |
-|---|---|---|---|
-| 1 | Cinco projetos. `Corredor.Cadastro` referencia a interface `IMotorDeCasas`. | Cinco projetos em `src/`, com `Corredor.Contratos`. `IMotorDeCasas`, `IReceptorDeContato` e os tipos compartilhados ficam em `Corredor.Contratos`. Motor e Cadastro referenciam esse projeto e nenhum referencia o outro. | A barreira fica no compilador mesmo com tudo `public`. |
-| 2 | Três situações. O radar devolve vermelhos, cinzas e a contagem de verdes. | Quatro situações, com `Aguardando`. `Verde` exige sinal de vida na janela atual e só existe com turno aberto. O radar devolve pendentes, atendidas, aguardando e a contagem de verdes. | Antes do prazo, a casa sem sinal de vida seria verde sem ninguém saber dela. |
-| 3 | `PerfilDaCasa` é um enum com `Sozinho`, `Acamado`, `Eletrodependente` e `Coabitado`. | `PerfilDaCasa(PerfilDeContato, bool Eletrodependente)`. | A eletrodependente que mora sozinha, ou acamada, não cabe num valor só. |
-| 4 | A seta "aviso neutro" sai do Motor para o vizinho. | O aviso mora no Cadastro. O Motor manda um `PedidoDeContato` pela porta `IReceptorDeContato`. O Cadastro descarta a repetição por episódio. O Motor não guarda alerta. | O Motor não tem o telefone do vizinho e não pode ter. |
-| 5 | Chave única `(casaToken, seq)`. | Chave única `(casaToken, seq, ts)`. O firmware não muda. | O `seq` volta a 1 quando o ESP32 reinicia. |
-| 6 | Todo pacote vira evento. O payload tem só `ts`. | O `HEARTBEAT` só avança `UltimoPacoteEm`. `EventoSensor` grava `OcorridoEm` e `RecebidoEm`. `ts` adiantado ou velho é recusado. | Volume, e o silêncio mede a chegada enquanto a janela mede o fato. Um relógio adiantado criaria um verde falso. |
-| 7 | `IMotorDeCasas` com `DefinirPerfilAsync(token, perfil)` e `ConfirmarAsync(token, origem)`. `OrigemDaConfirmacao` com `Acs` e `Vizinho`. | Quatro métodos: `AtivarCasaAsync` com microárea, `DefinirPerfilAsync`, `ConfirmarAsync(token, Confirmacao)` e `DesativarCasaAsync`. `Confirmacao` tem `Id`, `Origem`, `Resultado` e `Quando`. | O radar filtra por microárea. A revogação desliga a casa. Sem `Quando`, a hora seria a do envio. Sem `Id`, o reenvio duplicaria. Sem `Resultado`, "estava fora" viraria sinal de vida. |
-| 8 | `POST /visitas` grava o desfecho e confirma a casa no Motor. | Só `EstavaBem` e `Encaminhada` são sinal de vida. `EstavaFora` vira `AusenciaConfirmada`. `NaoAbriu` não chama o Motor. O corpo leva `id` e `ocorridaEm`. | "Não abriu, chamei SAMU" deixaria a casa verde. |
-| 9 | A arquitetura não diz quanto tempo vale uma confirmação. | A confirmação vale só na janela atual, para todas as regras e para o acamado. | Uma visita às 09h deixaria a tarde de um dia de 36 °C sem checagem. |
-| 10 | Janelas "das 10h ou das 15h". `PEDIR_TOQUE` às 15h. | A manhã vai da abertura às 10h. A tarde vai das 10h às 15h. O pedido de toque sai às 14h30. | Às 15h a janela já fechou. |
-| 11 | `SemHeartbeat` com 30 minutos. Regra 1 com "sem heartbeat", sem número. | Heartbeat a cada 20 segundos. Eletrodependente com 60 segundos sem pacote fica vermelho. Todo número fica em `ParametrosDoMotor`, com valor de demo, e existe o `RelogioDeDemo`. | O critério de teste pede alerta rápido para o eletrodependente, e o vídeo não pode esperar as 10h. |
-| 12 | Regra 1 com "tensão caindo". | Depois de uma leitura baixa, a casa fica vermelha até a ACS ver a pessoa depois da leitura. O `Expurgo` não apaga leitura baixa sem confirmação depois dela. | A luz voltar não mostra que a pessoa está bem. |
-| 13 | `OrigemDaConfirmacao` sem efeito por regra. | Cada regra lista as origens e os resultados que aceita. A regra de energia aceita só a ACS. | O vizinho não pode resolver um alerta de energia. |
-| 14 | O interceptador troca o valor pela máscara antes do log e do banco. | Ele mascara CPF, RG, CNS e credencial em qualquer campo. Os outros tipos de dado só ganham rótulo. | Mascarar nome e endereço apagaria o dado da lista de nomes, e a `SaidaSegura` não veria o que bloquear. |
-| 15 | `MensagemSaida` é dado do Cadastro, sem regra sobre o texto. | `MensagemSaida` guarda só o texto mascarado. | O texto bloqueado é o próprio vazamento. |
-| 16 | "Qualquer bloqueio de severidade 4 ou 5 dá vermelho." | Só uma saída bloqueada deixa o farol vermelho. O mascaramento na entrada vai até amarelo. | O mascaramento mostra o sistema funcionando, não uma tentativa de saída. |
-| 17 | Um Postgres, dois schemas. | Três schemas, com `guarda`. | O painel precisa dos eventos de segurança depois de um reinício. |
-| 18 | `TurnoRadar` é entidade do Motor ao lado de `DiaCritico`. | `TurnoRadar` é objeto de valor de `DiaCritico`. Um encerramento por data. | O turno não existe sem o dia crítico e tem a mesma chave. |
-| 19 | A tabela de rotas não tem encerramento, revogação, perfil, avisos nem relógio de demo. | Entram `POST /dias-criticos/{data}/encerramento`, `DELETE /idosos/{id}/consentimento`, `PUT /idosos/{id}/perfil`, `GET /avisos`, `POST /avisos/{id}/resposta`, `PUT /demo/relogio` e `GET /painel`. | O app tem a tela de encerramento. As outras rotas fecham fluxos que a própria arquitetura descreve. |
-| 20 | O script de ML roda na demo com uma data histórica. | `DiaCritico` só aceita a data de hoje. O script usa as variáveis da data histórica e envia a data de hoje. | Um dia crítico com data passada nunca tem turno aberto. |
-| 21 | "O módulo Motor não guarda dado pessoal." | "O Motor guarda só dado pseudonimizado." | `Acamado` e `Eletrodependente` são dado de saúde ligado a um token que o Cadastro sabe reverter. A frase exata resiste à pergunta da banca sobre LGPD. |
-| 22 | O objetivo do protótipo diz que o aparelho mudo deixa o card cinza. | Vale para toda casa, menos a do eletrodependente, que fica vermelha. | A regra 1 da arquitetura já diz vermelho. O pitch mostra o cinza em outra casa. |
-| 23 | "Perfil Acamado entra aqui direto." | O acamado fica vermelho no início de cada janela sem confirmação com `PessoaVista`. A casa `Coabitado` só fica verde com confirmação humana. | Na casa com outra pessoa, o movimento não é sinal de vida da idosa. |
-| 24 | Ordem de corte: `IdaNoturnaSemVolta`, agrupamento por rua, aviso ao vizinho com o registro, timer das 05h. | A ordem da seção 8.2. O envio ao vizinho é o terceiro corte, mas o registro do pedido de contato só sai no décimo. | Sem o registro, o fluxo da madrugada do eletrodependente perde a trilha. |
-
-Em três pontos este modelo concorda com a arquitetura por um motivo que vale registrar. A situação calculada por função pura é a decisão que mais protege contra o verde falso. O `DiaCritico` dentro do Motor evita uma chamada entre módulos às 05h. O Motor sem referência ao Cadastro transforma a regra de privacidade em erro de compilação.
-
-### 9.1 Mudanças pedidas pelo modelo de dados
-
-O [04-modelo-de-dados.md](04-modelo-de-dados.md) pediu estas mudanças para gravar o modelo. Cada linha diz onde o texto mudou neste arquivo ou em [02-event-storming.md](02-event-storming.md). O resto dos dois arquivos não mudou.
-
-| # | Mudança | Onde | Motivo |
-|---|---|---|---|
-| 1 | `AvisoAoVizinho` grava `MicroareaId`. | 4.3, agregado `AvisoAoVizinho`, linha "Gravado" | `GET /avisos` filtra por microárea, e o token some na revogação. |
-| 2 | O `Expurgo` guarda a leitura baixa só de casa ativa e eletrodependente, só uma confirmação `Acs` com `PessoaVista` solta a leitura, e os eventos saem antes das confirmações. | 4.2, tabela de serviços, `Expurgo`. Caso 31. Política P7 e hotspot H23 do event storming. | Sem o recorte, um apagão deixa leituras de 0 V para sempre nas casas comuns. Sem a ordem, a trava nunca solta. |
-| 3 | A avaliação lê as leituras baixas de qualquer idade, pelo critério do `Expurgo`, e não pelo que sobrou na tabela. | 4.2, modelo de leitura `Radar`. 5.1, `HistoricoDaCasa`. | O radar acerta com o expurgo atrasado ou cortado. |
-| 4 | `POST /visitas` soma a `ocorridaEm` o deslocamento do relógio de demo. | 4.3, invariante 3 de `Visita`. 5.9. 6.3, exemplo de `POST /api/visitas`. Hotspot H36 do event storming. | Com o relógio deslocado, a visita caía fora da janela ou recebia `VISITA_NO_FUTURO`. |
-| 5 | Depois de mover o relógio para trás, roda o reinício da seção 8.4 de 04-modelo-de-dados.md. | 5.9 | `UltimoPacoteEm` só anda para frente, e a casa nunca ficaria cinza nem vermelha por silêncio. |
-| 6 | `ToleranciaDoRelogio` sai de `ParametrosDoMotor` para `ParametrosDoRelogio`, e o deslocamento do relógio de demo ganha a interface `IDeslocamentoDoRelogio`. Os dois ficam em `Corredor.Contratos`. | 4.1, "Parâmetros". 5.9. 6.1, código e lista. | A invariante 3 da `Visita` e a mudança 4 rodam no Cadastro, que não referencia o Motor. A mudança em `Corredor.Contratos` pede o acordo das duas pessoas. |
-| 7 | `AvisosDoDia` lê as últimas 24 horas, não o dia de hoje. | 4.3, tabela de leitura do Cadastro | "Hoje" poria o fuso de São Paulo no Cadastro. O fuso fica no corte das janelas. |
-| 8 | Revogar o consentimento apaga os avisos ao vizinho daquele token. | 4.3, invariante 8 de `Idoso`. Caso 33. Fluxo 1, passo 8, do event storming. | O aviso guarda o token que a revogação promete apagar. |
-| 9 | `CadastrarIdoso` aceita um `id` opcional, que só a carga da demo informa. | 4.3, comandos de `Idoso` | A carga passa pelos casos de uso e precisa ser repetível. O token nasce na carga e não entra no Git. |
-| 10 | A regra de CPF mascara pelo formato. O dígito verificador válido só sobe a severidade de 4 para 5. | 4.4, `RegraDePii` e severidades | O exemplo `123.456.789-00`, do professor e do caso 38, tem dígito inválido e precisa ser mascarado. |
-| 11 | A regra de credencial casa com o nome inteiro da chave e nunca mascara `casaToken`. O mascaramento na entrada registra o canal `Banco`. | 4.4, `InterceptadorDeEntrada` | Um token de 32 hexadecimais parece credencial, e `POST /visitas` pararia. O canal é obrigatório e entra na pontuação. |
-| 12 | A observação da visita leva o rótulo `Saude` pelo campo, mais os rótulos do conteúdo. Lida do banco, volta com todos os rótulos de texto livre. | 4.3, invariante 5 de `Visita` | Uma frase em que as regras não acham nada sairia sem rótulo e poderia ir ao log. O banco não guarda rótulo. |
-| 13 | Se o Motor recusa a confirmação por ter mais de 24 horas, o Cadastro mantém a visita e responde 201. | 4.3, invariante 7 de `Visita` | A fila do app trataria um 422 como recusa, com a visita já gravada. |
-| 14 | `EventoDeSeguranca` grava o modelo da rota, nulo fora de uma requisição. | 4.4, agregado `EventoDeSeguranca`, linha "Gravado" | O caminho real leva o token e o `IdosoId` ao painel aberto. |
-| 15 | `AcsId` é texto no formato `^[a-z0-9-]{3,40}$`. Não existe tabela de ACS. | 4.3, parágrafo depois de `Microarea` | Quatro colunas guardam o valor. |
-| 16 | O envio simulado é a própria linha do aviso e uma linha de log sem telefone. | 4.3, política P19 | O modelo não dizia onde o envio simulado fica gravado. |
-| 17 | A linha do tempo de casa desativada responde 404 `CASA_DESCONHECIDA`. | 6.3, tabela de rotas | A linha vazia confirmaria que o token existiu. |
-| 18 | Com conflito de versão ou chave repetida, o caso de uso recarrega e repete o comando uma vez. | 4.1, "Concorrência" | O modelo dizia como repetir sem efeito, não o que fazer com duas escritas ao mesmo tempo. |
-| 19 | Cada módulo conecta com um papel próprio do Postgres. | 2, último parágrafo | O Postgres passa a impedir que um módulo leia o schema de outro. |
-| 20 | Os telefones de exemplo usam o DDD 00. | 6.3, exemplos de `PUT /api/idosos/{id}/vizinho` e de `GET /api/lista-de-nomes` | A varredura do repositório falha com DDD que existe. |
-
-As propostas recusadas e as que ficaram para a equipe estão na seção 11 de 04-modelo-de-dados.md.
+Sem a assinatura do pacote, o token viaja no nome do tópico por um broker público. Quem assina `corredor/v1/#` lê o token e pode publicar um `MOVIMENTO` falso, que o Motor trataria como sinal de vida. Só a casa do Wokwi passa por esse caminho. O modelo reduz o dano: token de 128 bits, pacote de token desconhecido descartado, e nenhum pacote muda perfil ou cadastro. A correção é assinar o pacote com um segredo por casa.

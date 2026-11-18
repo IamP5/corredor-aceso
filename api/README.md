@@ -6,7 +6,7 @@ Rode todos os comandos a partir da raiz do repositório.
 
 ## O que SOA e C# avaliam e onde está
 
-As duas disciplinas recebem este mesmo código. SOA olha principalmente o módulo Cadastro, e C# olha o Motor, os Contratos e o host.
+O mesmo código atende às duas disciplinas. Os critérios de SOA recaem principalmente sobre o módulo Cadastro, e os de C#, sobre o Motor, os Contratos e o host.
 
 ### SOA e Web Services
 
@@ -50,9 +50,9 @@ O teste `ReferenciasEntreProjetosTestes` falha se um `.csproj` de `src/` referen
 
 ## Rodar no notebook
 
-Você precisa do SDK do .NET 10, do Docker com o Docker Compose e do Python 3.11 ou mais novo, para o simulador.
+Os pré-requisitos são o SDK do .NET 10, o Docker com o Docker Compose e o Python 3.11 ou mais novo, este para o simulador.
 
-A API nunca cria as tabelas. Quem aplica as migrações é o deploy, e no notebook é o `tools/demo.sh`, que faz o mesmo caminho. Por isso, suba a API por ele.
+A API nunca cria as tabelas. O deploy aplica as migrações, e no notebook o `tools/demo.sh` percorre o mesmo caminho. Por isso, a API deve ser iniciada por esse script.
 
 1. Para usar o LLM da Guarda, copie `.env.example` para `.env` na raiz e preencha `OPENROUTER_API_KEY`. O `.env` nunca entra no Git. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação do LLM.
 
@@ -83,7 +83,7 @@ A API nunca cria as tabelas. Quem aplica as migrações é o deploy, e no notebo
 	bash tools/demo.sh parar --tudo
 	```
 
-`npm run dev:api` roda a API em `http://localhost:5000` contra o banco `corredor` do `compose.dev.yml`. Ele serve para quem já aplicou as migrações nesse banco. Para avaliar, use o `tools/demo.sh`.
+`npm run dev:api` roda a API em `http://localhost:5000` contra o banco `corredor` do `compose.dev.yml`. Esse comando pressupõe que as migrações já foram aplicadas nesse banco. Para a avaliação, o caminho indicado é o `tools/demo.sh`.
 
 ## Rotas do host
 
@@ -127,7 +127,7 @@ Rotas que ficam abertas, pela coluna "Quem chama" da seção 6.3 de `03-modelo-d
 | Rota | Módulo | Motivo |
 |---|---|---|
 | `PUT /api/dias-criticos/{data}` | Motor | O job de ML chama sem ACS. |
-| `PUT /api/demo/relogio` | Motor | Só existe em `Development`, para a equipe. |
+| `PUT /api/demo/relogio` | Motor | Só existe em `Development`, para controlar o relógio da demonstração. |
 | `POST /api/avisos/{id}/resposta` | Cadastro | É o canal simulado do vizinho, que não é ACS. |
 | `GET /api/painel` | Guarda | O painel Risco Cidadão é aberto. |
 
@@ -149,7 +149,7 @@ Na VM, o `infra/02-app.sh` grava `/etc/corredor/api.env`, e a chave do LLM fica 
 
 A seção `Llm` aceita também os nomes do `.env.example`. A ordem é esta: `Llm__*` no ambiente, `OPENROUTER_*` no ambiente, o `.env` da raiz e o padrão. O `.env` só é lido em `Development`.
 
-O modelo padrão é `openai/gpt-4o-mini`. Com `openrouter/auto`, o OpenRouter escolhia um modelo diferente a cada chamada, e às vezes um que pensa antes e devolvia a resposta cortada. Em 17/11, cinco chamadas pelo `Tradutor` da Guarda, com a chave real, alternando um bloqueio de saída e um documento mascarado, deram estes resultados (medido):
+O modelo padrão é `openai/gpt-4o-mini`. Com `openrouter/auto`, o OpenRouter escolhe um modelo diferente a cada chamada, às vezes um modelo de raciocínio que devolve a resposta cortada. Em 17/11, cinco chamadas pelo `Tradutor` da Guarda, com a chave real, alternando um bloqueio de saída e um documento mascarado, deram estes resultados (medido):
 
 | Modelo | Tradução do LLM | Duas frases | Tempo por chamada |
 |---|---|---|---|
@@ -158,7 +158,7 @@ O modelo padrão é `openai/gpt-4o-mini`. Com `openrouter/auto`, o OpenRouter es
 | `mistralai/mistral-small-3.2-24b-instruct` | 5 de 5 | 5 de 5 | 0,9 a 1,5 s |
 | `openrouter/auto` | 5 de 5 | 5 de 5 | 2,5 a 3,0 s |
 
-Os três modelos fixos responderam inteiros. O `gpt-4o-mini` ficou porque foi o único que nunca citou com quem a pessoa mora, que o prompt proíbe. Os outros dois disseram "quem mora com você" em algumas respostas. Cinco chamadas por modelo é pouco para dizer que um modelo nunca falha. Para trocar, mude `OPENROUTER_MODEL` no `.env` ou `Llm__Modelo` no `segredos.env` da VM.
+Os três modelos fixos responderam inteiros. A equipe adotou o `gpt-4o-mini` porque foi o único que nunca citou com quem a pessoa mora, informação que o prompt proíbe. Os outros dois escreveram "quem mora com você" em algumas respostas. Cinco chamadas por modelo não bastam para afirmar que um modelo nunca falha. Para trocar, mude `OPENROUTER_MODEL` no `.env` ou `Llm__Modelo` no `segredos.env` da VM.
 
 Fora de `Development`, o log sai em JSON numa linha por evento, que o journald guarda. O `dotnet run` usa o formato simples, pelo `launchSettings.json`.
 
@@ -169,7 +169,7 @@ dotnet build api/Corredor.slnx
 dotnet test api/Corredor.slnx
 ```
 
-Os testes de banco e de MQTT sobem contêineres pelo Testcontainers 4.17, que pede a API 1.44 do Docker. Numa máquina com Docker mais antigo, como o Docker Desktop 4.22, que só fala a 1.43, esses testes falham ao conectar. Rode com a versão fixada:
+Os testes de banco e de MQTT sobem contêineres pelo Testcontainers 4.17, que pede a API 1.44 do Docker. Numa máquina com Docker mais antigo, como o Docker Desktop 4.22, que só oferece a 1.43, esses testes falham ao conectar. Nesse caso, fixe a versão da API:
 
 ```bash
 DOCKER_API_VERSION=1.43 dotnet test api/Corredor.slnx
@@ -179,7 +179,7 @@ O CI do GitHub tem Docker novo e não precisa da variável.
 
 ## Demo integrada
 
-`bash tools/demo.sh` sobe tudo e roda as cenas contra o sistema de verdade: Postgres e Mosquitto do `compose.dev.yml`, os papéis de módulo, as migrações aplicadas como no deploy, a API em `Development` na porta 5080, a carga da demo duas vezes, o simulador das casas e o job de ML. Os comandos, o que foi visto e as evidências estão em [docs/evidencias/integracao/RELATORIO.md](../docs/evidencias/integracao/RELATORIO.md).
+`bash tools/demo.sh` sobe o sistema completo e executa as cenas contra os componentes reais: Postgres e Mosquitto do `compose.dev.yml`, os papéis de módulo, as migrações aplicadas como no deploy, a API em `Development` na porta 5080, a carga da demo duas vezes, o simulador das casas e o job de ML. Os comandos, as observações e as evidências estão em [docs/evidencias/integracao/RELATORIO.md](../docs/evidencias/integracao/RELATORIO.md).
 
 O CI roda a mesma verificação com o banco:
 

@@ -1,8 +1,6 @@
 # Features do Corredor Aceso
 
-Arquivo gerado por `docs/qa/ferramentas/gerar.py` a partir de `docs/qa/fonte/features.py`. Edite a fonte, não este arquivo.
-
-Cada Feature vira um work item do tipo Feature no Azure Boards, filho do épico "Corredor Aceso: radar de silêncio para a ACS em dia crítico". A importação está em [README.md](README.md). Os critérios de aceite seguem a forma dado, quando, então. A linha **Cobre** lista as regras e as rotas de `docs/arquitetura/` que a Feature cobre, com os nomes que a [rastreabilidade](rastreabilidade.md) explica.
+Cada Feature corresponde a um work item do tipo Feature no Azure Boards, filho do épico "Corredor Aceso: radar de silêncio para a ACS em dia crítico". O procedimento de importação está em [README.md](README.md). Os critérios de aceite seguem a forma dado, quando, então. A linha **Cobre** lista as regras e as rotas de `docs/arquitetura/` que a Feature cobre, com os identificadores explicados na [rastreabilidade](rastreabilidade.md).
 
 | Feature | Módulo | Test Cases |
 |---|---|---|
@@ -428,7 +426,7 @@ Cada Feature vira um work item do tipo Feature no Azure Boards, filho do épico 
 
 **Módulo:** Motor
 
-**Descrição:** Para gravar as janelas das 10h e das 15h sem esperar, a equipe move a hora do Motor por `PUT /api/demo/relogio`. O mesmo deslocamento vale para o `ts` dos pacotes e para a hora das visitas. A rota só existe no ambiente `Development`.
+**Descrição:** Para exercitar as janelas das 10h e das 15h sem esperar, a equipe move a hora do Motor por `PUT /api/demo/relogio`. O mesmo deslocamento vale para o `ts` dos pacotes e para a hora das visitas. A rota só existe no ambiente `Development`.
 
 **Critérios de aceite:**
 

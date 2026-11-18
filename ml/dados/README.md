@@ -24,7 +24,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
 - `baixar_dados.py` pode rodar de novo. O arquivo que já existe e bate com o `sha256` de `manifesto.csv` não é baixado outra vez. O ano corrente do INMET e as três competências mais novas do SIH são sempre baixados de novo, porque a fonte ainda acrescenta dados a eles.
-- `manifesto.csv` tem, para cada arquivo bruto, o link exato, o tamanho, o `sha256` e o dia do download. É a prova de origem. O DATASUS às vezes republica uma competência: se o `sha256` mudar, o script baixa de novo e atualiza a linha.
+- `manifesto.csv` tem, para cada arquivo bruto, o link exato, o tamanho, o `sha256` e o dia do download. O manifesto comprova a origem dos dados. O DATASUS às vezes republica uma competência. Se o `sha256` mudar, o script baixa o arquivo de novo e atualiza a linha.
 - `processar.py` grava em `brutos/sih_filtrado/` só as colunas do filtro por competência, para rodar de novo em segundos. Essa pasta também fica fora do Git, porque ainda tem o número da AIH.
 
 ## Armadilhas das fontes
@@ -54,6 +54,6 @@ O primeiro dia da base é 29/01/2015 porque a régua precisa de 28 dias anterior
 
 ## O que não foi baixado
 
-- O SIM (óbitos, `DOSPaaaa.dbc`), plano B da descoberta. O alvo de internação bastou.
+- O SIM (óbitos, `DOSPaaaa.dbc`), alternativa prevista na fase de descoberta. O alvo de internação foi suficiente.
 - As competências anteriores a 2015. A série do INMET começa em 2006, mas o treino começa em 2015, como a descoberta definiu.
 - O INMET de novembro de 2026. O ZIP do ano corrente ainda não traz o mês, por isso `prever_hoje.py` sem argumento não acha a linha de hoje (ver `ml/README.md`).

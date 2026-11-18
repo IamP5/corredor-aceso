@@ -1,8 +1,8 @@
 # Caminho sem rede do app da ACS
 
-Rodado em 17/11/2026 no alvo web do Expo, com o Chrome numa janela de 390 por 844 pontos. O app falou por HTTP com o servidor mock (`npm run api:mock`), que serve o mock do app nas rotas da seção 6.3 do modelo de domínio. Os dados são simulados.
+Rodado em 17/11/2026 no alvo web do Expo, com o Chrome numa janela de 390 por 844 pontos. O app se comunicou por HTTP com o servidor mock (`npm run api:mock`), que responde nas rotas da seção 6.3 do modelo de domínio. Os dados são simulados.
 
-O relógio do mock começa às 10h31 de um dia crítico. A hora da visita é a do celular, que estava perto de 00h50. Com a API real, o servidor soma o deslocamento do relógio de demo à hora da visita (seção 5.9 do modelo de domínio), e o app não sabe desse relógio.
+O relógio do mock começa às 10h31 de um dia crítico. A hora da visita é a do celular, que estava perto de 00h50. Com a API real, o servidor soma o deslocamento do relógio de demo à hora da visita (seção 5.9 do modelo de domínio), e o app desconhece esse deslocamento.
 
 ## Caso 1: celular sem internet
 

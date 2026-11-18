@@ -58,7 +58,7 @@ Mostra o app Expo rodando no celular ou no emulador, ligado à API. A rubrica ol
 
 ## Operating Systems, 7 minutos
 
-Segue a sequência gravada da seção 6.4 de [05-infra-e-entrega.md](../arquitetura/05-infra-e-entrega.md), numa VM criada sem cloud-init. Os trechos de espera são acelerados na edição. Grave com a release `v1.0.0-rc.1` publicada.
+Segue a sequência gravada de [roteiro-os.md](roteiro-os.md), numa VM criada sem cloud-init. Os trechos de espera são acelerados na edição. Grave com a release `v1.0.0-rc.1` publicada.
 
 | Tempo | Comando | Item da rubrica | Fala |
 |---|---|---|---|
