@@ -1,16 +1,37 @@
-ok   17.40:1  #1A1A1A sobre #FFFFFF  texto no fundo
-ok    8.86:1  #4A4A4A sobre #FFFFFF  texto secundário no fundo
-ok   15.80:1  #1A1A1A sobre #F2F4F7  texto no fundo suave
-ok    8.04:1  #4A4A4A sobre #F2F4F7  texto secundário no fundo suave
+ok   15.25:1  #1C1C1E sobre #F2F2F7  texto no fundo
+ok    6.63:1  #55555B sobre #F2F2F7  texto secundário no fundo
+ok   17.01:1  #1C1C1E sobre #FFFFFF  texto na superfície
+ok    7.40:1  #55555B sobre #FFFFFF  texto secundário na superfície
+ok   14.07:1  #1C1C1E sobre #E9E9EF  texto no fundo suave
+ok    6.12:1  #55555B sobre #E9E9EF  texto secundário no fundo suave
 ok    6.67:1  #FFFFFF sobre #0B5CAD  botão principal
-ok    6.67:1  #0B5CAD sobre #FFFFFF  link no fundo
-ok   15.22:1  #1A1A1A sobre #FDECEA  texto no fundo de perigo
-ok    5.72:1  #B3261E sobre #FDECEA  título de perigo no fundo de perigo
-ok   15.88:1  #1A1A1A sobre #FFF4D6  texto no fundo de aviso
-ok   15.33:1  #1A1A1A sobre #E6F4EA  texto no fundo ok
-ok    5.76:1  #1E6B34 sobre #E6F4EA  título ok no fundo ok
+ok    5.63:1  #0B5CAD sobre #E3EDF8  botão secundário
+ok    6.67:1  #0B5CAD sobre #FFFFFF  link na superfície
+ok    5.98:1  #0B5CAD sobre #F2F2F7  link no fundo
+ok    6.54:1  #B3261E sobre #FFFFFF  perigo na superfície
+ok    5.52:1  #0B5CAD sobre #E9E9EF  linha de ação pressionada
+ok    5.41:1  #B3261E sobre #E9E9EF  linha destrutiva pressionada
+ok   14.51:1  #1C1C1E sobre #FBE9E7  texto no fundo de perigo
+ok    5.58:1  #B3261E sobre #FBE9E7  título de perigo no fundo de perigo
+ok   15.39:1  #1C1C1E sobre #FFF3D1  texto no fundo de aviso
+ok    6.45:1  #7A4F00 sobre #FFF3D1  título de aviso no fundo de aviso
+ok   14.81:1  #1C1C1E sobre #E4F3E8  texto no fundo ok
+ok    5.70:1  #1E6B34 sobre #E4F3E8  título ok no fundo ok
+ok   14.37:1  #1C1C1E sobre #E3EDF8  texto no fundo primário
 ok    6.54:1  #FFFFFF sobre #B3261E  botão de perigo
-ok    6.54:1  #FFFFFF sobre #B3261E  selo Vermelho
-ok    7.56:1  #FFFFFF sobre #4B5563  selo Cinza
-ok    7.13:1  #FFFFFF sobre #7A4F00  selo Aguardando
-ok    6.55:1  #FFFFFF sobre #1E6B34  selo Verde
+ok    5.58:1  #B3261E sobre #FBE9E7  selo Vermelho
+ok    6.54:1  #B3261E sobre #FFFFFF  número Vermelho na superfície
+ok    5.41:1  #B3261E sobre #E9E9EF  motivo Vermelho na linha pressionada
+ok    6.54:1  #FFFFFF sobre #B3261E  ícone branco no quadrado Vermelho
+ok    6.46:1  #4B5563 sobre #ECEDF0  selo Cinza
+ok    7.56:1  #4B5563 sobre #FFFFFF  número Cinza na superfície
+ok    6.25:1  #4B5563 sobre #E9E9EF  motivo Cinza na linha pressionada
+ok    7.56:1  #FFFFFF sobre #4B5563  ícone branco no quadrado Cinza
+ok    6.45:1  #7A4F00 sobre #FFF3D1  selo Aguardando
+ok    7.13:1  #7A4F00 sobre #FFFFFF  número Aguardando na superfície
+ok    5.90:1  #7A4F00 sobre #E9E9EF  motivo Aguardando na linha pressionada
+ok    7.13:1  #FFFFFF sobre #7A4F00  ícone branco no quadrado Aguardando
+ok    5.70:1  #1E6B34 sobre #E4F3E8  selo Verde
+ok    6.55:1  #1E6B34 sobre #FFFFFF  número Verde na superfície
+ok    5.41:1  #1E6B34 sobre #E9E9EF  motivo Verde na linha pressionada
+ok    6.55:1  #FFFFFF sobre #1E6B34  ícone branco no quadrado Verde

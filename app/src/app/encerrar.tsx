@@ -1,68 +1,100 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
-import { ScrollView, View } from 'react-native';
-import type { Encerramento } from '../api/contratos';
-import { dataDeSp, horaCurta } from '../dominio/hora';
-import { textoDoErro } from '../dominio/textos';
-import { useCorredor } from '../estado/corredor';
-import { Botao, estilo, Faixa, Paragrafo, Subtitulo, Titulo } from '../ui/componentes';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { encerramento, type Encerramento } from '../api/contratos';
+import { horaCurta } from '../dominio/hora';
+import { BarraDeAcao, Botao, Cartao, estilo, Faixa, Grupo, Icone, Linha, Paragrafo, Titulo, useRespiroDaBarra } from '../ui/componentes';
+import { Barra, Entra, Salta, useContagem } from '../ui/movimento';
+import { COR, COR_DA_SITUACAO, ESPACO, TAMANHO } from '../ui/tema';
+
+/** Lê o resumo que a tela do dia mandou no parâmetro. Quem chega por link, sem resumo, volta para o dia:
+ *  esta tela só mostra o resultado, o turno é encerrado na tela do dia, depois da confirmação. */
+function lerResultado(texto: string | undefined): Encerramento | null {
+  if (!texto) return null;
+  try {
+    const lido = encerramento.safeParse(JSON.parse(texto));
+    return lido.success ? lido.data : null;
+  } catch {
+    return null;
+  }
+}
 
 export default function Encerrar() {
-  const { api, sessao, sincronizar, pendentes } = useCorredor();
-  const [resultado, setResultado] = useState<Encerramento | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
-  const [encerrando, setEncerrando] = useState(false);
+  const { resultado: texto } = useLocalSearchParams<{ resultado?: string }>();
+  const resultado = lerResultado(texto);
+  if (!resultado) return <Redirect href="/dia" />;
+  return <Resumo resultado={resultado} />;
+}
 
-  async function encerrar() {
-    if (!sessao) return;
-    setEncerrando(true);
-    try {
-      setResultado(await api.encerrarTurno(dataDeSp(new Date()), sessao.microarea));
-      setErro(null);
-      void sincronizar();
-    } catch (e) {
-      setErro((e as { codigo?: string }).codigo ?? 'ERRO');
-    } finally {
-      setEncerrando(false);
-    }
-  }
-
-  if (resultado) {
-    const r = resultado.resumo;
-    const pct = r.casasAtivas > 0 ? Math.round((100 * r.comSinalDeVidaAte10h) / r.casasAtivas) : 0;
-    return (
-      <ScrollView style={estilo.tela} contentContainerStyle={estilo.conteudo}>
-        <Titulo>{`Turno encerrado às ${horaCurta(resultado.encerradoEm)}`}</Titulo>
-        <View style={estilo.cartao} accessible accessibilityLabel={`${pct} por cento das casas deram sinal de vida até as 10 horas. ${r.comSinalDeVidaAte10h} de ${r.casasAtivas}.`}>
-          <Subtitulo>{`${pct}% com sinal de vida até as 10h`}</Subtitulo>
-          <Paragrafo>{`${r.comSinalDeVidaAte10h} de ${r.casasAtivas} casas. A meta é 100%.`}</Paragrafo>
-        </View>
-        <Paragrafo>{`${r.atendidas} ${r.atendidas === 1 ? 'casa atendida' : 'casas atendidas'} com alerta.`}</Paragrafo>
-        <Paragrafo>{r.vermelhasPendentes === 1 ? '! 1 casa urgente ficou sem atendimento.' : `! ${r.vermelhasPendentes} casas urgentes ficaram sem atendimento.`}</Paragrafo>
-        <Paragrafo>{r.cinzasPendentes === 1 ? '? 1 casa com aparelho sem sinal ficou sem atendimento.' : `? ${r.cinzasPendentes} casas com aparelho sem sinal ficaram sem atendimento.`}</Paragrafo>
-        {r.vermelhasPendentes + r.cinzasPendentes > 0 ? (
-          <Faixa tipo="aviso" titulo="Ainda tem casa sem resposta">
-            Avise a UBS. Fora do turno, só os alertas de energia e de aparelho mudo continuam no radar.
-          </Faixa>
-        ) : null}
-        <Botao rotulo="Voltar ao início" aoTocar={() => router.replace('/dia')} />
-      </ScrollView>
-    );
-  }
-
+function Resumo({ resultado }: { resultado: Encerramento }) {
+  const r = resultado.resumo;
+  const pct = r.casasAtivas > 0 ? Math.round((100 * r.comSinalDeVidaAte10h) / r.casasAtivas) : 0;
+  const pctNaTela = useContagem(pct);
+  const respiro = useRespiroDaBarra();
   return (
-    <ScrollView style={estilo.tela} contentContainerStyle={estilo.conteudo}>
-      <Titulo>Encerrar o turno de hoje?</Titulo>
-      <Paragrafo>O sistema guarda o resumo do dia. Depois disso, as casas não ficam mais vermelhas por silêncio ou calor.</Paragrafo>
-      <Paragrafo>Só a falta de energia e o aparelho mudo continuam no radar.</Paragrafo>
-      {pendentes > 0 ? (
-        <Faixa tipo="aviso" titulo="Visitas ainda no celular">
-          {`${pendentes} ${pendentes === 1 ? 'visita ainda não foi enviada' : 'visitas ainda não foram enviadas'}. Elas saem quando a internet voltar e contam no resumo do servidor só depois disso.`}
-        </Faixa>
-      ) : null}
-      {erro ? <Faixa tipo="perigo" titulo="Não deu para encerrar">{erro === 'DIA_CRITICO_DESCONHECIDO' ? 'Hoje não tem turno aberto.' : textoDoErro(erro)}</Faixa> : null}
-      <Botao rotulo="Encerrar o turno" tipo="perigo" aoTocar={() => void encerrar()} ocupado={encerrando} />
-      <Botao rotulo="Voltar" tipo="secundario" aoTocar={() => router.back()} />
-    </ScrollView>
+    <View style={estilo.tela}>
+      <ScrollView contentContainerStyle={[estilo.conteudo, { paddingBottom: ESPACO.g + respiro }]} contentInsetAdjustmentBehavior="automatic">
+        <Entra ordem={0} style={local.cabeca}>
+          <Salta>
+            <Icone nome="checkmark-circle" cor={COR.ok} tamanho={32} />
+          </Salta>
+          <View style={{ flex: 1 }}>
+            <Titulo>{`Turno encerrado às ${horaCurta(resultado.encerradoEm)}`}</Titulo>
+          </View>
+        </Entra>
+        <Entra ordem={1}>
+          <Cartao>
+            <View
+              accessible
+              accessibilityLabel={`${pct} por cento das casas deram sinal de vida até as 10 horas. ${r.comSinalDeVidaAte10h} de ${r.casasAtivas}.`}
+              style={{ gap: ESPACO.p }}
+            >
+              <Text style={local.kpi}>{`${pctNaTela}%`}</Text>
+              <Text style={[estilo.corpo, { fontWeight: '600' }]}>com sinal de vida até as 10h</Text>
+              <View style={{ marginVertical: ESPACO.pp }}>
+                <Barra fracao={pct / 100} cor={COR.primario} trilho={COR.fundoSuave} />
+              </View>
+              <Paragrafo secundario>{`${r.comSinalDeVidaAte10h} de ${r.casasAtivas} casas. A meta é 100%.`}</Paragrafo>
+            </View>
+          </Cartao>
+        </Entra>
+        <Entra ordem={2}>
+          <Grupo>
+            <Linha
+              titulo={r.atendidas === 1 ? 'Casa atendida com alerta' : 'Casas atendidas com alerta'}
+              valor={String(r.atendidas)}
+              icone="checkmark"
+              corDoIcone={COR_DA_SITUACAO.Verde}
+            />
+            <Linha
+              titulo={r.vermelhasPendentes === 1 ? 'Casa urgente sem atendimento' : 'Casas urgentes sem atendimento'}
+              valor={String(r.vermelhasPendentes)}
+              icone="alert"
+              corDoIcone={COR_DA_SITUACAO.Vermelho}
+            />
+            <Linha
+              titulo={r.cinzasPendentes === 1 ? 'Casa com aparelho sem sinal, sem atendimento' : 'Casas com aparelho sem sinal, sem atendimento'}
+              valor={String(r.cinzasPendentes)}
+              icone="help"
+              corDoIcone={COR_DA_SITUACAO.Cinza}
+            />
+          </Grupo>
+        </Entra>
+        {r.vermelhasPendentes + r.cinzasPendentes > 0 ? (
+          <Entra ordem={3}>
+            <Faixa tipo="aviso" titulo="Ainda tem casa sem resposta">
+              Avise a UBS. Fora do turno, só os alertas de energia e de aparelho mudo continuam no radar.
+            </Faixa>
+          </Entra>
+        ) : null}
+      </ScrollView>
+      <BarraDeAcao>
+        <Botao rotulo="Voltar ao início" icone="home-outline" aoTocar={() => router.replace('/dia')} />
+      </BarraDeAcao>
+    </View>
   );
 }
+
+const local = StyleSheet.create({
+  cabeca: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  kpi: { fontSize: TAMANHO.destaque, lineHeight: TAMANHO.destaque * 1.1, fontWeight: '700', color: COR.primario, fontVariant: ['tabular-nums'] },
+});

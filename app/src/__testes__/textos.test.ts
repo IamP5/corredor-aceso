@@ -1,5 +1,6 @@
 import type { MotivoDoAlerta } from '../api/contratos';
 import {
+  motivoCurto,
   ROTULO_DA_SITUACAO,
   textoDoDesfechoNoCard,
   textoDoErro,
@@ -26,6 +27,14 @@ describe('situação em texto', () => {
     ['SemMovimentoNaJanela', 'Ninguém passou no corredor. Sem sinal de vida desde 09h52.'],
   ])('%s vira frase com a hora de São Paulo', (motivo, frase) => {
     expect(textoDoMotivo(motivo, '2026-11-18T12:52:00Z')).toBe(frase);
+  });
+
+  it('cada motivo curto é diferente e traz a hora', () => {
+    const motivos: MotivoDoAlerta[] = ['EnergiaEletrodependente', 'SemHeartbeat', 'CalorInterno', 'SemMovimentoNaJanela'];
+    const frases = motivos.map((m) => motivoCurto(m, '2026-11-18T12:52:00Z'));
+    expect(new Set(frases).size).toBe(motivos.length);
+    for (const f of frases) expect(f).toContain('09h52');
+    expect(motivoCurto('SemHeartbeat', '2026-11-18T12:40:00Z', '2026-11-18T09:10:00-03:00')).toBe('Aparelho sem sinal desde 09h10');
   });
 
   it('o cinza mostra a hora do último pacote', () => {

@@ -1,89 +1,150 @@
 import * as Clipboard from 'expo-clipboard';
-import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { VerificacaoDeMensagem } from '../api/contratos';
 import { textoDoErro } from '../dominio/textos';
 import { useCorredor } from '../estado/corredor';
-import { Botao, estilo, Faixa, Paragrafo, Subtitulo, Titulo } from '../ui/componentes';
+import { BarraDeAcao, useRespiroDaBarra, Botao, CaixaDeTexto, estilo, Faixa, Grupo, vibrar } from '../ui/componentes';
+import { Surge } from '../ui/movimento';
+import { COR, ESPACO } from '../ui/tema';
+
+const LIMITE = 500;
+
+/** Escrever, conferir, ver o resultado. Mexer no texto volta ao rascunho. */
+type Passo =
+  | { passo: 'rascunho' }
+  | { passo: 'verificando' }
+  | { passo: 'erro'; codigo: string }
+  | { passo: 'bloqueada'; resultado: Extract<VerificacaoDeMensagem, { veredito: 'Bloqueada' }> }
+  | { passo: 'liberada'; copiada: boolean };
+
+/** Texto com cada [TELEFONE], [ENDERECO]... marcado em vermelho, para a ACS ver o que expõe a pessoa. */
+function TextoMascarado({ texto }: { texto: string }) {
+  // O split com grupo de captura deixa as marcas nas posições ímpares.
+  const partes = texto.split(/(\[[A-Z_]+\])/);
+  return (
+    <Text selectable style={estilo.corpo}>
+      {partes.map((parte, i) =>
+        i % 2 === 1 ? (
+          <Text key={i} style={local.marca}>
+            {parte}
+          </Text>
+        ) : (
+          parte
+        ),
+      )}
+    </Text>
+  );
+}
 
 export default function Mensagem() {
+  const respiro = useRespiroDaBarra();
   const { api } = useCorredor();
   const [texto, setTexto] = useState('');
-  const [resultado, setResultado] = useState<VerificacaoDeMensagem | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
-  const [verificando, setVerificando] = useState(false);
-  const [copiado, setCopiado] = useState(false);
+  const [passo, setPasso] = useState<Passo>({ passo: 'rascunho' });
+  // Uma resposta que chega depois de a ACS mexer no texto já não vale.
+  const pedido = useRef(0);
 
   async function verificar(mensagem: string) {
-    setVerificando(true);
-    setCopiado(false);
+    const este = ++pedido.current;
+    Keyboard.dismiss();
+    setPasso({ passo: 'verificando' });
     try {
-      setResultado(await api.verificarMensagem('GrupoDoBairro', mensagem.trim()));
-      setErro(null);
+      const resultado = await api.verificarMensagem('GrupoDoBairro', mensagem.trim());
+      if (este !== pedido.current) return;
+      if (resultado.veredito === 'Bloqueada') {
+        vibrar('aviso');
+        setPasso({ passo: 'bloqueada', resultado });
+      } else {
+        vibrar('sucesso');
+        setPasso({ passo: 'liberada', copiada: false });
+      }
     } catch (e) {
-      setErro((e as { codigo?: string }).codigo ?? 'ERRO');
-    } finally {
-      setVerificando(false);
+      if (este !== pedido.current) return;
+      setPasso({ passo: 'erro', codigo: (e as { codigo?: string }).codigo ?? 'ERRO' });
     }
   }
 
-  async function copiar(mensagem: string) {
-    await Clipboard.setStringAsync(mensagem);
-    setCopiado(true);
+  function aoEditar(t: string) {
+    pedido.current++;
+    setTexto(t);
+    setPasso({ passo: 'rascunho' });
   }
+
+  async function copiar() {
+    await Clipboard.setStringAsync(texto);
+    setPasso({ passo: 'liberada', copiada: true });
+  }
+
+  const acao =
+    passo.passo === 'bloqueada' ? (
+      <Botao
+        rotulo="Usar a versão segura"
+        icone="swap-horizontal"
+        dica="Troca o texto e confere de novo"
+        aoTocar={() => {
+          setTexto(passo.resultado.versaoSegura);
+          void verificar(passo.resultado.versaoSegura);
+        }}
+      />
+    ) : passo.passo === 'liberada' ? (
+      <Botao rotulo={passo.copiada ? 'Copiada' : 'Copiar mensagem'} icone={passo.copiada ? 'checkmark' : 'copy-outline'} aoTocar={() => void copiar()} />
+    ) : (
+      <Botao
+        rotulo="Verificar mensagem"
+        icone="shield-checkmark-outline"
+        aoTocar={() => void verificar(texto)}
+        ocupado={passo.passo === 'verificando'}
+        desligado={!texto.trim()}
+      />
+    );
 
   return (
     <KeyboardAvoidingView style={estilo.tela} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={estilo.conteudo} keyboardShouldPersistTaps="handled">
-        <Titulo>Antes de mandar no grupo</Titulo>
-        <Paragrafo>O app confere se a mensagem expõe a pessoa. O sistema não manda nada: você copia e cola no grupo.</Paragrafo>
-        <View style={{ gap: 6 }}>
-          <Text nativeID="rotulo-msg" style={estilo.rotuloDoCampo}>Sua mensagem</Text>
-          <TextInput
-            accessibilityLabelledBy="rotulo-msg"
-            accessibilityLabel="Sua mensagem"
-            value={texto}
-            onChangeText={(t) => {
-              setTexto(t);
-              setResultado(null);
-            }}
-            maxLength={500}
-            multiline
-            style={[estilo.campo, { minHeight: 120, textAlignVertical: 'top' }]}
-          />
-        </View>
-        <Botao rotulo="Verificar mensagem" aoTocar={() => void verificar(texto)} ocupado={verificando} desligado={!texto.trim()} />
-        {erro ? <Faixa tipo="aviso" titulo="Não deu para verificar">{textoDoErro(erro)}</Faixa> : null}
+      <ScrollView contentContainerStyle={[estilo.conteudo, { paddingBottom: ESPACO.g + respiro }]} contentInsetAdjustmentBehavior="automatic" keyboardShouldPersistTaps="handled">
+        <CaixaDeTexto
+          rotulo="Sua mensagem"
+          dicaNoCampo="Escreva a mensagem para o grupo"
+          nota="O app confere se a mensagem expõe a pessoa. O sistema não manda nada: você copia e cola no grupo."
+          valor={texto}
+          aoMudar={aoEditar}
+          limite={LIMITE}
+          focoAoAbrir
+        />
 
-        {resultado?.veredito === 'Bloqueada' ? (
-          <>
-            <Faixa tipo="perigo" titulo="✕ Esta mensagem não pode ir para o grupo">
-              {resultado.explicacao}
+        {passo.passo === 'erro' ? <Faixa tipo="aviso" titulo="Não deu para verificar">{textoDoErro(passo.codigo)}</Faixa> : null}
+
+        {passo.passo === 'bloqueada' ? (
+          <Surge style={{ gap: ESPACO.g }}>
+            <Faixa tipo="perigo" titulo="Esta mensagem não pode ir para o grupo">
+              {passo.resultado.explicacao}
             </Faixa>
-            <Subtitulo>O que o sistema viu</Subtitulo>
-            <Paragrafo>{resultado.textoMascarado}</Paragrafo>
-            <Subtitulo>Mande esta no lugar</Subtitulo>
-            <View style={estilo.cartao}>
-              <Paragrafo>{resultado.versaoSegura}</Paragrafo>
-            </View>
-            <Botao
-              rotulo="Usar esta versão"
-              dica="Troca o texto e confere de novo"
-              aoTocar={() => {
-                setTexto(resultado.versaoSegura);
-                void verificar(resultado.versaoSegura);
-              }}
-            />
-          </>
+            <Grupo titulo="O que o sistema viu">
+              <View style={{ padding: ESPACO.m }}>
+                <TextoMascarado texto={passo.resultado.textoMascarado} />
+              </View>
+            </Grupo>
+            <Grupo titulo="Versão segura">
+              <View style={{ padding: ESPACO.m }}>
+                <Text selectable style={estilo.corpo}>
+                  {passo.resultado.versaoSegura}
+                </Text>
+              </View>
+            </Grupo>
+          </Surge>
         ) : null}
 
-        {resultado?.veredito === 'Liberada' ? (
-          <>
-            <Faixa tipo="ok" titulo="✓ Pode mandar">A mensagem não expõe ninguém. Copie e cole no grupo.</Faixa>
-            <Botao rotulo={copiado ? 'Copiada' : 'Copiar mensagem'} tipo="secundario" aoTocar={() => void copiar(texto)} />
-          </>
+        {passo.passo === 'liberada' ? (
+          <Faixa tipo="ok" titulo="Pode mandar">
+            A mensagem não expõe ninguém. Copie e cole no grupo.
+          </Faixa>
         ) : null}
       </ScrollView>
+      <BarraDeAcao>{acao}</BarraDeAcao>
     </KeyboardAvoidingView>
   );
 }
+
+const local = StyleSheet.create({
+  marca: { color: COR.perigo, fontWeight: '700', backgroundColor: COR.fundoPerigo },
+});

@@ -37,6 +37,18 @@ export function textoDoMotivo(motivo: MotivoDoAlerta, desde: string, ultimoPacot
   }
 }
 
+/** Motivo em poucas palavras, para a linha do radar. Mesma regra de hora de textoDoMotivo. */
+export function motivoCurto(motivo: MotivoDoAlerta, desde: string, ultimoPacoteEm: string | null = null): string {
+  const h = horaCurta(motivo === 'SemHeartbeat' ? (ultimoPacoteEm ?? desde) : desde);
+  const frase: Record<MotivoDoAlerta, string> = {
+    EnergiaEletrodependente: `Sem energia desde ${h}`,
+    SemHeartbeat: `Aparelho sem sinal desde ${h}`,
+    CalorInterno: `Calor forte em casa desde ${h}`,
+    SemMovimentoNaJanela: `Sem movimento desde ${h}`,
+  };
+  return frase[motivo];
+}
+
 export function textoDoPerfil(perfil: PerfilDaCasa): string {
   const contato = { Sozinho: 'A pessoa mora só', Acamado: 'A pessoa está acamada', Coabitado: 'A pessoa mora com mais alguém' }[perfil.contato];
   return perfil.eletrodependente ? `${contato}. Usa aparelho de saúde na tomada.` : `${contato}.`;
