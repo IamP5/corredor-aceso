@@ -12,6 +12,8 @@ on:
       - 'REQUISITOS.md'
       - 'docs/evidencias/**'
       - 'docs/arquitetura/**'
+      - 'docs/entrega/roteiro-os.md'
+      - 'infra/README.md'
       - 'tools/montar-site.sh'
       - '.github/workflows/pages.yml'
   workflow_dispatch:

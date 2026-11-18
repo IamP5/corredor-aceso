@@ -1,0 +1,58 @@
+# Validação estática existente de infraestrutura
+# Primeira tentativa: shellcheck ausente (código 127); instalado somente na VM para executar o validador.
+Selecting previously unselected package shellcheck.
+(Reading database ...
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 79999 files and directories currently installed.)
+Preparing to unpack .../shellcheck_0.9.0-1_arm64.deb ...
+Unpacking shellcheck (0.9.0-1) ...
+Setting up shellcheck (0.9.0-1) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+
+In infra/teste-de-falha.sh line 89:
+  [[ $pid =~ ^[0-9]+$ ]] && ((pid > 1)) || {
+                         ^-- SC2015 (info): Note that A && B || C is not if-then-else. C may run when A is true.
+
+For more information:
+  https://www.shellcheck.net/wiki/SC2015 -- Note that A && B || C is not if-t...
+
+# Ajuste de forma exigido pelo ShellCheck SC2015, seguido de nova validação
+ok: 24 scripts passam em bash -n e shellcheck
+ok: o cloud-init clona IamP5/corredor-aceso
+ok: o job de ML da VM usa o clima de 2025-12-29, que existe nos dados processados
+ok: nenhum arquivo com CRLF
+
+# Validação final após preservar códigos de sinais na auditoria
+ok: 24 scripts passam em bash -n e shellcheck
+ok: o cloud-init clona IamP5/corredor-aceso
+ok: o job de ML da VM usa o clima de 2025-12-29, que existe nos dados processados
+ok: nenhum arquivo com CRLF

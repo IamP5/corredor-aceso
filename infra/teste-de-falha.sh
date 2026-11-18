@@ -36,13 +36,24 @@ TOPICO="corredor/v1/$CASA_TESTE_TOKEN/evento"
 ARQ_DISCO=/var/tmp/corredor-teste-disco.img
 RESULTADOS=()
 FALHOU=0
+PIDS_CARGA=()
+PID_STRESS=""
 
 limpar() {
-  pkill -f 'stress-ng --vm' 2>/dev/null || true
+  if ((${#PIDS_CARGA[@]})); then
+    kill "${PIDS_CARGA[@]}" 2>/dev/null || true
+    wait "${PIDS_CARGA[@]}" 2>/dev/null || true
+  fi
+  if [[ -n $PID_STRESS ]]; then
+    kill "$PID_STRESS" 2>/dev/null || true
+    wait "$PID_STRESS" 2>/dev/null || true
+  fi
   rm -f "$ARQ_DISCO"
   systemctl is-active --quiet mosquitto || systemctl start mosquitto || true
 }
 trap 'codigo=$?; limpar; auditoria_fim "$codigo"' EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
 
 titulo() { printf '\n== %s ==\n' "$*"; }
 passou() {
@@ -74,8 +85,19 @@ esperar() {
 linhas_de_alerta() { wc -l 2>/dev/null <"$ALERTAS" || echo 0; }
 alerta_novo() { tail -n +"$(($1 + 1))" "$ALERTAS" 2>/dev/null | grep -q "$2"; }
 primeiro_alerta() { tail -n +"$(($1 + 1))" "$ALERTAS" | grep -m1 "$2"; }
-pid_de() { systemctl show -p MainPID --value "$1"; }
-religado() { systemctl is-active --quiet "$1" && [[ "$(pid_de "$1")" != "$2" && "$(pid_de "$1")" != 0 ]]; }
+pid_de() {
+  local pid
+  pid="$(systemctl show -p MainPID --value "$1")" || return 1
+  if [[ ! $pid =~ ^[0-9]+$ ]] || ((pid <= 1)); then
+    printf 'serviço %s sem PID válido: %s\n' "$1" "$pid" >&2
+    return 1
+  fi
+  printf '%s\n' "$pid"
+}
+religado() {
+  local novo
+  systemctl is-active --quiet "$1" && novo="$(pid_de "$1")" && [[ $novo != "$2" ]]
+}
 api_pronta() { curl -fsS --max-time 2 "http://127.0.0.1:$API_PORTA/healthz/ready"; }
 linha_do_tempo() {
   local cabecalho=()
@@ -215,21 +237,22 @@ cenario_travado() {
 }
 
 cenario_carga() {
-  local antes pids=() n
+  local antes n
   titulo "Carga de CPU: o monitor alerta e depois normaliza"
   antes="$(linhas_de_alerta)"
   for n in $(seq 1 "$(nproc)"); do
     timeout 120 bash -c 'while :; do :; done' &
-    pids+=($!)
+    PIDS_CARGA+=($!)
   done
-  echo "  ${#pids[@]} processo(s) ocupando a CPU"
+  echo "  ${#PIDS_CARGA[@]} processo(s) ocupando a CPU"
   if esperar 90 alerta_novo "$antes" "ALERTA CPU em"; then
     passou "monitor gerou o alerta: $(primeiro_alerta "$antes" 'ALERTA CPU')"
   else
     falhou "o monitor não alertou a CPU alta em 90 s"
   fi
-  kill "${pids[@]}" 2>/dev/null || true
-  wait "${pids[@]}" 2>/dev/null || true
+  kill "${PIDS_CARGA[@]}" 2>/dev/null || true
+  wait "${PIDS_CARGA[@]}" 2>/dev/null || true
+  PIDS_CARGA=()
   if esperar 60 alerta_novo "$antes" "NORMALIZADO cpu"; then
     passou "monitor registrou a CPU de volta ao normal"
   else
@@ -240,7 +263,7 @@ cenario_carga() {
 # Memória de verdade: o stress-ng ocupa o que falta para passar 5 pontos do limite
 # do monitor, sem chegar perto do OOM killer.
 cenario_memoria() {
-  local antes total disp alvo_kb stress
+  local antes total disp alvo_kb
   titulo "Memória acima de ${MONITOR_LIMITE_MEM}%: o monitor alerta e depois normaliza"
   total="$(awk '/^MemTotal:/ {print $2}' /proc/meminfo)"
   disp="$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)"
@@ -257,15 +280,16 @@ cenario_memoria() {
   instalar_pacotes stress-ng
   antes="$(linhas_de_alerta)"
   stress-ng --vm 1 --vm-bytes "${alvo_kb}k" --vm-keep --timeout 120s --quiet &
-  stress=$!
+  PID_STRESS=$!
   echo "  stress-ng ocupando $((alvo_kb / 1024)) MB"
   if esperar 60 alerta_novo "$antes" "ALERTA memória em"; then
     passou "monitor gerou o alerta: $(primeiro_alerta "$antes" 'ALERTA memória')"
   else
     falhou "o monitor não alertou a memória alta em 60 s"
   fi
-  kill "$stress" 2>/dev/null || true
-  wait "$stress" 2>/dev/null || true
+  kill "$PID_STRESS" 2>/dev/null || true
+  wait "$PID_STRESS" 2>/dev/null || true
+  PID_STRESS=""
   if esperar 45 alerta_novo "$antes" "NORMALIZADO memoria"; then
     passou "monitor registrou a memória de volta ao normal"
   else

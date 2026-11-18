@@ -1,0 +1,24 @@
+# Watchdog: monitor congelado, recuperação automática
+$ sudo corredor teste-de-falha travado
+
+== Monitor travado com kill -STOP: o watchdog do systemd mata e religa ==
+  processo 7647 congelado. Aguardando o WatchdogSec de 60 s.
+  [PASSOU] watchdog religou o monitor, novo processo 9266
+
+== Resumo do teste de falha ==
+  PASSOU  watchdog religou o monitor, novo processo 9266
+Restart=always
+RestartUSec=3s
+WatchdogUSec=1min
+NRestarts=2
+2026-11-18T10:07:23-03:00 corredor-ubs corredor-monitor[5270]: monitor iniciado: a cada 15s, limites cpu=85% mem=85% disco=80%
+2026-11-18T10:07:23-03:00 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+2026-11-18T10:09:52-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=killed, status=9/KILL
+2026-11-18T10:09:55-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Scheduled restart job, restart counter is at 1.
+2026-11-18T10:09:55-03:00 corredor-ubs corredor-monitor[7647]: monitor iniciado: a cada 15s, limites cpu=85% mem=85% disco=80%
+2026-11-18T10:09:55-03:00 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+2026-11-18T10:14:25-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Watchdog timeout (limit 1min)!
+2026-11-18T10:14:25-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=dumped, status=6/ABRT
+2026-11-18T10:14:28-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Scheduled restart job, restart counter is at 2.
+2026-11-18T10:14:28-03:00 corredor-ubs corredor-monitor[9266]: monitor iniciado: a cada 15s, limites cpu=85% mem=85% disco=80%
+2026-11-18T10:14:28-03:00 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.

@@ -8,6 +8,8 @@ A organização da infraestrutura segue a rubrica de Operating Systems, que exig
 
 Cada afirmação indica a sua origem. "Medido" significa que a afirmação foi verificada no ensaio descrito na seção 8. "Só lint" significa que o arquivo passou em `shellcheck`, `actionlint` ou `terraform validate`, mas não foi executado. "Nunca rodou" significa que o item não foi executado.
 
+**Atualização de validação, 18/11/2026:** a seção 8 preserva o ensaio anterior em contêiner. Depois dele, os scripts foram validados numa [VM real Ubuntu 24.04 no Lima/VZ](../evidencias/os/vm/README.md), com rede/DNS, aplicação, limites padrão de recursos, recuperação, watchdog e início automático após novo boot. Consulte esse relatório para a comprovação atual; Multipass, Azure e o cloud-init do projeto continuam não executados.
+
 ## Visão geral
 
 O desenho mostra o que roda dentro da VM e o que vem de fora. Somente o Nginx recebe conexões externas. A API, o Postgres e o Mosquitto escutam em `127.0.0.1`.
@@ -36,7 +38,7 @@ HTTPS da demo:   sudo corredor tunel -> https://<aleatorio>.trycloudflare.com
 
 ### 1.1 Local primeiro, Azure como acréscimo
 
-**Escolha.** A VM oficial roda no Multipass, em um notebook da equipe: Ubuntu 24.04, 2 CPUs, 4 GB de memória e 20 GB de disco. A demonstração de Operating Systems usa essa VM. A VM do Azure for Students é opcional. O Terraform que a cria está no repositório, mas nunca foi aplicado (seção 8).
+**Escolha.** A entrega usa VM local Ubuntu 24.04, 2 CPUs, 4 GB de memória e 20 GB de disco. O ambiente efetivamente validado em 18/11 usa Lima/VZ; os comandos de Multipass permanecem como alternativa não executada. A VM do Azure for Students é opcional. O Terraform que a cria está no repositório, mas nunca foi aplicado (seção 8).
 
 **Motivo.** Nenhum item da rubrica depende da nuvem. O enunciado pede o provisionamento automático dentro da VM, e a VM local o executa sem depender da política de regiões da assinatura de estudante, que a equipe não testou. A VM local alcança o GitHub e o broker MQTT público por conexões de saída, então o deploy por pacote e a ponte MQTT funcionam atrás do NAT do notebook. O celular alcança a VM local pelo túnel HTTPS da seção 1.8.
 

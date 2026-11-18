@@ -1,0 +1,118 @@
+# Primeiro provisionamento em VM real Ubuntu 24.04
+$ sudo bash /opt/corredor/repo/infra/provisionar.sh
+== 01-rede: ambiente local ==
+  [++] hostname definido como corredor-ubs
+  [++] /etc/cloud/cloud.cfg.d/99-corredor.cfg
+  [ok] pacotes presentes: tzdata
+  [++] fuso definido como America/Sao_Paulo
+  [++] /etc/systemd/network/10-corredor0.netdev
+  [++] /etc/systemd/network/10-corredor0.network
+  [++] IP fixo 10.77.0.1/24 em corredor0
+  [++] bloco gerenciado em /etc/hosts
+  [++] /etc/systemd/resolved.conf.d/corredor.conf
+  [..] zona DNS do dnsmasq desligada: os nomes vêm do /etc/hosts
+  [ok] pacotes presentes: ufw
+  [ok] firewall: entrada negada por padrão
+  [++] firewall: porta 22/tcp liberada
+  [++] firewall: porta 80/tcp liberada
+  [++] firewall: porta 443/tcp liberada
+  [++] firewall ativado
+  [..] sem usuário de uid 1000: chaves SSH não instaladas
+== 01-rede: 12 mudança(s) ==
+== 02-app: ambiente local ==
+  [ok] memória ou swap suficientes
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+  [++] pacotes instalados: postgresql mosquitto mosquitto-clients nginx
+  [++] usuário de serviço corredor criado
+  [++] diretório /opt/corredor/releases (755 root:root)
+  [++] diretório /etc/corredor (750 root:corredor)
+  [++] diretório /etc/corredor/segredos (700 root:root)
+  [++] /etc/corredor/segredos.env
+  [..] sem infra/chaves/deploy.pub: deploy pelo GitHub Actions desligado
+  [ok] serviço postgresql ativo
+  [++] banco corredor criado
+  [ok] banco corredor: papéis, schemas e permissões de motor, cadastro, guarda
+  [++] /etc/corredor/api.env
+  [++] /etc/mosquitto/conf.d/corredor.conf
+  [ok] serviço mosquitto ativo
+  [++] diretório /var/www/certbot (755 root:root)
+  [++] site padrão do Nginx removido
+  [++] /etc/nginx/snippets/corredor-rotas.conf
+  [++] /etc/nginx/conf.d/corredor.conf
+  [ok] serviço nginx ativo
+  [..] ambiente sem nome público: TLS não configurado
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+  [++] pacotes instalados: python3-venv
+  [++] dependências Python instaladas em /opt/corredor/venv
+  [++] /etc/systemd/system/corredor-api.service
+  [++] /etc/systemd/system/corredor-ml.service
+  [++] /etc/systemd/system/corredor-ml.timer
+  [++] /etc/systemd/system/corredor-simulador.service
+  [++] serviço corredor-ml.timer habilitado e iniciado
+  [++] /usr/local/sbin/corredor
+  [..] o repositório IamP5/corredor-aceso ainda não tem release publicada
+  [..] AVISO: nenhuma release implantada ainda. Depois rode: sudo corredor deploy vX.Y.Z
+== 02-app: 21 mudança(s) ==
+== 03-monitor: ambiente local ==
+  [ok] pacotes presentes: curl logrotate
+  [++] usuário de serviço corredor-mon criado
+  [++] diretório /var/log/corredor/monitor (750 corredor-mon:corredor-mon)
+  [++] /usr/local/lib/corredor/monitor.sh
+  [++] /etc/systemd/system/corredor-monitor.service
+  [++] /etc/systemd/system/corredor-alerta@.service
+  [++] serviço corredor-monitor habilitado e iniciado
+  [++] /etc/logrotate.d/corredor
+== 03-monitor: 7 mudança(s) ==
+== Corredor Aceso em corredor-ubs, ambiente local, 2026-11-18T10:07:23-03:00 ==
+Versão
+  nenhuma versão implantada
+Rede
+  [OK]       hostname corredor-ubs
+  [OK]       fuso America/Sao_Paulo
+  [OK]       IP fixo 10.77.0.1 em corredor0
+  [OK]       api.corredor.internal resolve para 10.77.0.1
+  [OK]       painel.corredor.internal resolve para 10.77.0.1
+  [OK]       firewall ativo
+  [OK]       firewall libera 22/tcp
+  [OK]       firewall libera 80/tcp
+  [OK]       firewall libera 443/tcp
+Serviços
+  [OK]       Postgres aceita conexão
+  [OK]       banco corredor tem o schema motor
+  [OK]       banco corredor tem o schema cadastro
+  [OK]       banco corredor tem o schema guarda
+  [OK]       Mosquitto ativo
+  [OK]       Mosquitto entrega mensagem local
+  [OK]       ponte MQTT conectada a broker.hivemq.com:1883
+  [OK]       Nginx ativo
+  [OK]       monitor ativo
+  [OK]       monitor mediu nos últimos 90 s
+Aplicação
+  [PENDENTE] API sem versão implantada. Rode: sudo corredor deploy vX.Y.Z
+Auditoria
+  [OK]       auditoria.log tem registros
+  últimos alertas:
+== tudo certo ==
+== processos antes e depois ==
+  corredor-api: não está rodando
+  corredor-monitor: subiu nesta execução (InvocationID 925d6b5303ca4365abf274e16898f3ed)
+== provisionamento concluído em 176 s, 40 mudança(s) ==
+codigo_provisionamento=0

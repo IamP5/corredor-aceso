@@ -1,0 +1,32 @@
+# Controle administrativo, PID inválido e erro controlado
+PASSOU: stop deixou monitor inactive
+
+== Monitor morto com kill -9: o systemd religa (Restart=always) ==
+serviço corredor-monitor sem PID válido: 0
+PASSOU: serviço sem PID rejeitado com código 1, sem sinalizar grupo de processos
+PASSOU: start deixou monitor active
+PASSOU: restart trocou InvocationID de 42322289ef0b458ab959065f40251ff7 para b08db80865bb4c43b3e8717af7a7292b
+  [ERRO] informe uma tag como v0.3.0, ou --ultima, --arquivo PACOTE, --voltar
+PASSOU: tag inválida recusada com código 1
+2026-11-18T10:13:37-03:00 id=20261118T101337-8967 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="travado"
+2026-11-18T10:14:28-03:00 id=20261118T101337-8967 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=51 mudancas=0
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="monitor"
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=erro linha=211 comando="return 1"
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=erro linha=211 comando="pid="$(pid_de corredor-monitor)""
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:14:56-03:00 id=20261118T101456-9437 script=deploy.sh usuario=tolive75 ambiente=local evento=inicio args="tag-invalida"
+2026-11-18T10:14:56-03:00 id=20261118T101456-9437 script=deploy.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+● corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços
+     Loaded: loaded (/etc/systemd/system/corredor-monitor.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-11-18 10:14:56 -03; 157ms ago
+   Main PID: 9429 (bash)
+      Tasks: 3 (limit: 4600)
+     Memory: 964.0K (peak: 1.8M)
+        CPU: 6ms
+     CGroup: /system.slice/corredor-monitor.service
+             ├─9429 /bin/bash /usr/local/lib/corredor/monitor.sh
+             ├─9433 /bin/bash /usr/local/lib/corredor/monitor.sh
+             └─9435 sleep 1
+
+Nov 18 10:14:56 corredor-ubs corredor-monitor[9429]: monitor iniciado: a cada 15s, limites cpu=85% mem=85% disco=80%
+Nov 18 10:14:56 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.

@@ -1,0 +1,56 @@
+# VM Ubuntu 24.04 nova - Lima/VZ, não contêiner
+2026-11-18T10:04:10-03:00
+Commit base: b17795139c3b23d9611be1445d244426579fb44c
+Scripts locais com alterações não commitadas: teste-de-falha.sh
+10d97ecc194936ced3cd554a6ca181fb248f194d8eae53adec4cc05fa2d8ea89  infra/01-rede.sh
+c8a61b87cfff459a3906d55f0e1fc5f828ce6002fa5493d973f6b34833ef9777  infra/02-app.sh
+65e9d8fe1f0d931cfd1caebd01194dadd1c2920323b69807fa999d2aa7e8918e  infra/03-monitor.sh
+3639a1a05d3cc46ba67183c4319954f203d1a16915f324be641e6ecc4edca30d  infra/deploy.sh
+54074304819ed8688f54218159fc2d52d30e64abe4bfa8cbe68161f6760f72d0  infra/monitor.sh
+d29653194b13a71a236e7f0812610fd2879bc28ab7ecc7bd919215fe0b3f18ec  infra/provisionar.sh
+cb8a33536191d2e818384d2f08aa9e993aba861520f32751815ea75d92dc30b5  infra/teste-de-falha.sh
+917298190b223037358e85780fbb4c6dd113a5a594aef2d9af1789bd31480081  infra/tunel.sh
+d88c5e4b5a8922834bc8b5b90fcb1f3e03652942d1d9223a8c6584e40dd7ae26  infra/verificar.sh
+d7720c3a586771571ac6f7b4c7a07c6868c8c038b32ddae5d7b3118db8e283e9  infra/lib/auditoria.sh
+54c51d0facfeacf8c28b6384da690c9e35d07c2c7b7502b2a17342921fa340a4  infra/lib/comum.sh
+1b3aa9d44cf84ca2efaa3b55ac8f21aad032125f9141dd88454e18d69b441cf2  infra/systemd/corredor-alerta@.service
+26209bec6e7d10ef178f73d8289df6991b944bcd1dcbded21ccd1a8c7773f054  infra/systemd/corredor-api.service
+76a7c7f4b378b485e6926c1330c882e420a88cc4c19e31fccd8e666edbdf5d6d  infra/systemd/corredor-ml.service
+f8c3456b32c9a293f16f71129854bfde63d9a780a452440569aa33c16a9ea659  infra/systemd/corredor-monitor.service
+d08a5f06a1e115137b35ad9ad529c2357109023390e3bee8ebec9d19b745e2f5  infra/systemd/corredor-simulador.service
+d12cf8bf864aae58e0e1466b7e6fdb41a65c715a1bbafc4a9840cfafc63fe66e  infra/systemd/corredor-tunel.service
+PRETTY_NAME="Ubuntu 24.04.5 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.5 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+Linux lima-corredor-os-validacao 6.8.0-147-generic #147-Ubuntu SMP PREEMPT_DYNAMIC Thu Sep 24 11:39:52 UTC 2026 aarch64 aarch64 aarch64 GNU/Linux
+Virtualização: apple
+CPUs: 2
+               total        used        free      shared  buff/cache   available
+Mem:           3.8Gi       297Mi       3.3Gi       980Ki       347Mi       3.5Gi
+Swap:             0B          0B          0B
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        19G  1.8G   17G  10% /
+systemd-networkd: active
+systemd-resolved: active
+Aplicação antes do provisionamento: ausente
+UNIT FILE STATE PRESET
+
+0 unit files listed.
+
+# Hash final de teste-de-falha.sh após ajuste do ShellCheck
+6105af8464d9f3bee356b357cfc80f6a305723af7c77b515b98129210d8c0f9a  infra/teste-de-falha.sh
+6105af8464d9f3bee356b357cfc80f6a305723af7c77b515b98129210d8c0f9a  /opt/corredor/repo/infra/teste-de-falha.sh
+
+# Hash final incluindo handlers TERM/INT
+313947ec6bac4b8dc2bf2a3c2250058951b4f0d5ead9cb85b042de47324c5344  infra/teste-de-falha.sh
+313947ec6bac4b8dc2bf2a3c2250058951b4f0d5ead9cb85b042de47324c5344  /opt/corredor/repo/infra/teste-de-falha.sh

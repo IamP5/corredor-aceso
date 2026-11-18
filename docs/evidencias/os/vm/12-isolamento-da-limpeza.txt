@@ -1,0 +1,39 @@
+# Regressão: limpeza limitada aos PIDs do próprio teste e interrupção controlada
+  [ERRO] cenário desconhecido: cenario-invalido
+PASSOU: limpeza preservou outro stress-ng (PID 10157)
+PASSOU: interrupção TERM limpou 2 cargas de CPU; código=143
+
+== Carga de CPU: o monitor alerta e depois normaliza ==
+  2 processo(s) ocupando a CPU
+
+== API morta com kill -9: o systemd religa ==
+  processo 7592 morto
+  [PASSOU] API religada e pronta em 5 s, novo processo 10290
+
+== Monitor morto com kill -9: o systemd religa (Restart=always) ==
+  processo 9429 morto
+  [PASSOU] monitor religado em 3 s, novo processo 10361
+
+== Resumo do teste de falha ==
+  PASSOU  API religada e pronta em 5 s, novo processo 10290
+  PASSOU  monitor religado em 3 s, novo processo 10361
+
+# Regressão final: interrupção TERM também precisa constar como código 143 na auditoria
+  [ERRO] cenário desconhecido: cenario-invalido
+PASSOU: limpeza preservou outro stress-ng (PID 2826)
+PASSOU: interrupção TERM limpou 2 cargas de CPU e foi auditada; código=143
+
+== Carga de CPU: o monitor alerta e depois normaliza ==
+  2 processo(s) ocupando a CPU
+
+== API morta com kill -9: o systemd religa ==
+  processo 1685 morto
+  [PASSOU] API religada e pronta em 4 s, novo processo 2966
+
+== Monitor morto com kill -9: o systemd religa (Restart=always) ==
+  processo 1738 morto
+  [PASSOU] monitor religado em 4 s, novo processo 3022
+
+== Resumo do teste de falha ==
+  PASSOU  API religada e pronta em 4 s, novo processo 2966
+  PASSOU  monitor religado em 4 s, novo processo 3022

@@ -2,7 +2,7 @@
 
 Fonte: PDF "GS CitizenTech - 3ES Fev - FIAP 2026" e o documento "Explicação: Global Solutions" do professor de Cybersecurity. Prazo de todas as entregas: 19/11/2026 às 23h55, na tarefa de cada disciplina no Teams ou no Portal do Aluno. Um integrante envia cada disciplina.
 
-A coluna "Quem faz" separa o que sai do repositório do que só uma pessoa da equipe consegue fazer, como gravar um vídeo ou enviar no Teams. A coluna "Situação" diz o que existe hoje no repositório, conferido em 17/11/2026 com as peças rodando juntas ([relatório da integração](evidencias/integracao/RELATORIO.md)):
+A coluna "Quem faz" separa o que sai do repositório do que só uma pessoa da equipe consegue fazer, como gravar um vídeo ou enviar no Teams. A coluna "Situação" tem como base a conferência integrada de 17/11/2026 ([relatório da integração](evidencias/integracao/RELATORIO.md)); a seção de Operating Systems foi atualizada com a validação em VM de 18/11 e suas pendências:
 
 - **pronto**: o arquivo existe e foi visto funcionando.
 - **parcial**: existe, mas falta uma parte, dita na linha.
@@ -91,18 +91,19 @@ Nota em 6 critérios: telas e navegação, consumo de dados, banco de dados, ace
 
 ## Operating Systems
 
-Nota: script de infra (rede, DNS, IP) 2, script da aplicação 2, script de monitoramento com alertas de CPU, disco e memória 2, monitoramento como serviço tolerante a falhas 1, logs de auditoria e execução 1, funcionamento completo 2. Entrega: link do GitHub.
+Nota: script de infra (rede, DNS, IP) 2, script da aplicação 2, script de monitoramento com alertas de CPU, disco e memória 2, monitoramento como serviço tolerante a falhas 1, logs de auditoria e execução 1, funcionamento completo 2. Entrega: link do GitHub, vídeo de até 7 minutos e capturas organizadas. O Pages é o índice das provas, não um substituto do vídeo.
 
 | Item pedido | Onde | Quem faz | Situação |
 |---|---|---|---|
-| Provisionamento de rede, DNS, IP e hostname | `infra/01-rede.sh` | repositório | pronto: rodou num contêiner com systemd, não numa VM ([05-rede.txt](evidencias/os/05-rede.txt)) |
-| Provisionamento da aplicação | `infra/02-app.sh` | repositório | pronto: rodou no contêiner, do zero e de novo sem mudança ([01](evidencias/os/01-provisionamento.txt), [03](evidencias/os/03-reprovisionamento.txt)) |
-| Monitor de CPU, disco e memória com alertas | `infra/monitor.sh`, `infra/03-monitor.sh` | repositório | pronto: alertas de CPU, memória e disco vistos no contêiner, com limites de memória e disco baixados ([07](evidencias/os/07-monitor-e-alertas.txt)) |
-| Monitor como serviço tolerante a falhas | `infra/systemd/corredor-monitor.service` | repositório | pronto: religado pelo systemd depois de `kill -9` e pelo watchdog ([08](evidencias/os/08-monitor-religado.txt)) |
-| Logs de auditoria e de execução | `infra/lib/auditoria.sh` | repositório | pronto ([09](evidencias/os/09-auditoria.txt)) |
-| Teste de falha | `infra/teste-de-falha.sh` | repositório | pronto: os seis cenários e o `travado` passaram no contêiner ([06](evidencias/os/06-teste-de-falha.txt)) |
-| README e evidências técnicas | `infra/README.md`, `docs/evidencias/os/` | repositório | pronto. A VM, o Azure e o túnel nunca rodaram, como dizem os dois READMEs |
-| Vídeo de até 7 minutos com o provisionamento automático na VM | roteiro em `docs/arquitetura/05-infra-e-entrega.md` | equipe | equipe |
+| Provisionamento de rede, DNS, IP e hostname | `infra/01-rede.sh` | repositório | validado em VM Lima/VZ, inclusive resolved ativo ([rede](evidencias/os/vm/05-rede-e-dns.txt)) |
+| Provisionamento da API | `infra/02-app.sh`, `infra/deploy.sh` | repositório | validado em VM nova, com migrações, carga e zero mudanças ao repetir ([01](evidencias/os/vm/01-provisionamento.txt), [02](evidencias/os/vm/02-aplicacao.txt), [03](evidencias/os/vm/03-reprovisionamento.txt)) |
+| Monitor de CPU, disco e memória com alertas | `infra/monitor.sh`, `infra/03-monitor.sh` | repositório | validado na VM com os limites padrão ([07](evidencias/os/vm/07-monitor-e-alertas.txt)) |
+| Monitor como serviço tolerante a falhas | `infra/systemd/corredor-monitor.service` | repositório | recuperação e início após novo boot comprovados ([08](evidencias/os/vm/08-recuperacao-e-watchdog.txt), [11](evidencias/os/vm/11-reinicializacao.txt)) |
+| Logs de auditoria e de execução | `infra/lib/auditoria.sh` | repositório | validados, inclusive erro controlado e interrupção auditada ([09](evidencias/os/vm/09-auditoria.txt), [10](evidencias/os/vm/10-controle-e-erro.txt)) |
+| Teste de falha | `infra/teste-de-falha.sh` | repositório | seis cenários antes/depois do boot e watchdog aprovados na VM ([06](evidencias/os/vm/06-teste-de-falha.txt)) |
+| App da ACS consumindo a API da VM | `app/`, `api/` | repositório e captura | parcial: API validada; faltam navegação e capturas desse cliente. O print de `/painel/` é de Cyber |
+| README e evidências técnicas | `infra/README.md`, `docs/evidencias/os/` | repositório | parcial: infra/API documentadas; faltam a prova visual ACS/API e conferir a publicação no Pages. Multipass/Azure não testados |
+| Vídeo de até 7 minutos com provisionamento, app/API, serviços, logs e recuperação | [roteiro](entrega/roteiro-os.md) | gravação e narração | falta: gravação ainda não iniciada |
 
 ## Physical Computing: IoT e IoB
 

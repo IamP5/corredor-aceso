@@ -1,0 +1,121 @@
+# Teste completo de falha em VM real, limites padrão CPU=85% RAM=85% disco=80%
+$ sudo corredor teste-de-falha
+
+== Mosquitto parado: o monitor alerta, o publicador local guarda e reenvia, o Motor não duplica ==
+  mosquitto parado
+  evento 1795007372 das 2026-11-18T13:09:31Z guardado no buffer
+  evento 1795007373 das 2026-11-18T13:09:32Z guardado no buffer
+  evento 1795007374 das 2026-11-18T13:09:33Z guardado no buffer
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:09:32-03:00 ALERTA serviço mosquitto parado
+  mosquitto religado
+  Motor reconectado ao broker
+  rodada 1 do reenvio feita
+  rodada 2 do reenvio feita
+  [PASSOU] 3 eventos do buffer reenviados duas vezes com a hora original e bufferizado: true
+  [PASSOU] o Motor gravou cada um dos 3 eventos uma vez só (linha do tempo de fa11fa11fa11fa11fa11fa11fa11fa11)
+  [PASSOU] monitor registrou a volta do mosquitto
+
+== API morta com kill -9: o systemd religa ==
+  processo 5593 morto
+  [PASSOU] API religada e pronta em 4 s, novo processo 7592
+
+== Monitor morto com kill -9: o systemd religa (Restart=always) ==
+  processo 5270 morto
+  [PASSOU] monitor religado em 4 s, novo processo 7647
+
+== Carga de CPU: o monitor alerta e depois normaliza ==
+  2 processo(s) ocupando a CPU
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:10:28-03:00 ALERTA CPU em 100% (limite 85%)
+  [PASSOU] monitor registrou a CPU de volta ao normal
+
+== Memória acima de 85%: o monitor alerta e depois normaliza ==
+
+Running kernel seems to be up-to-date.
+
+No services need to be restarted.
+
+No containers need to be restarted.
+
+No user sessions are running outdated binaries.
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.
+  [++] pacotes instalados: stress-ng
+  stress-ng ocupando 3022 MB
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:12:04-03:00 ALERTA memória em 89% (limite 85%)
+  [PASSOU] monitor registrou a memória de volta ao normal
+
+== Disco / acima de 80%: o monitor alerta e depois normaliza ==
+  arquivo de 11677 MB em /var/tmp/corredor-teste-disco.img
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:12:36-03:00 ALERTA disco / em 82% (limite 80%)
+  [PASSOU] monitor registrou o disco de volta ao normal
+
+== Resumo do teste de falha ==
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:09:32-03:00 ALERTA serviço mosquitto parado
+  PASSOU  3 eventos do buffer reenviados duas vezes com a hora original e bufferizado: true
+  PASSOU  o Motor gravou cada um dos 3 eventos uma vez só (linha do tempo de fa11fa11fa11fa11fa11fa11fa11fa11)
+  PASSOU  monitor registrou a volta do mosquitto
+  PASSOU  API religada e pronta em 4 s, novo processo 7592
+  PASSOU  monitor religado em 4 s, novo processo 7647
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:10:28-03:00 ALERTA CPU em 100% (limite 85%)
+  PASSOU  monitor registrou a CPU de volta ao normal
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:12:04-03:00 ALERTA memória em 89% (limite 85%)
+  PASSOU  monitor registrou a memória de volta ao normal
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:12:36-03:00 ALERTA disco / em 82% (limite 80%)
+  PASSOU  monitor registrou o disco de volta ao normal
+codigo_testes=0
+
+# Repetição após boot, com versão final de teste-de-falha.sh
+$ sudo corredor teste-de-falha
+
+== Mosquitto parado: o monitor alerta, o publicador local guarda e reenvia, o Motor não duplica ==
+  mosquitto parado
+  evento 1795007926 das 2026-11-18T13:18:45Z guardado no buffer
+  evento 1795007927 das 2026-11-18T13:18:46Z guardado no buffer
+  evento 1795007928 das 2026-11-18T13:18:47Z guardado no buffer
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:18:53-03:00 ALERTA serviço mosquitto parado
+  mosquitto religado
+  Motor reconectado ao broker
+  rodada 1 do reenvio feita
+  rodada 2 do reenvio feita
+  [PASSOU] 3 eventos do buffer reenviados duas vezes com a hora original e bufferizado: true
+  [PASSOU] o Motor gravou cada um dos 3 eventos uma vez só (linha do tempo de fa11fa11fa11fa11fa11fa11fa11fa11)
+  [PASSOU] monitor registrou a volta do mosquitto
+
+== API morta com kill -9: o systemd religa ==
+  processo 1146 morto
+  [PASSOU] API religada e pronta em 4 s, novo processo 1685
+
+== Monitor morto com kill -9: o systemd religa (Restart=always) ==
+  processo 716 morto
+  [PASSOU] monitor religado em 4 s, novo processo 1738
+
+== Carga de CPU: o monitor alerta e depois normaliza ==
+  2 processo(s) ocupando a CPU
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:19:49-03:00 ALERTA CPU em 100% (limite 85%)
+  [PASSOU] monitor registrou a CPU de volta ao normal
+
+== Memória acima de 85%: o monitor alerta e depois normaliza ==
+  [ok] pacotes presentes: stress-ng
+  stress-ng ocupando 3082 MB
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:20:21-03:00 ALERTA memória em 90% (limite 85%)
+  [PASSOU] monitor registrou a memória de volta ao normal
+
+== Disco / acima de 80%: o monitor alerta e depois normaliza ==
+  arquivo de 11689 MB em /var/tmp/corredor-teste-disco.img
+  [PASSOU] monitor gerou o alerta: 2026-11-18T10:20:53-03:00 ALERTA disco / em 82% (limite 80%)
+  [PASSOU] monitor registrou o disco de volta ao normal
+
+== Resumo do teste de falha ==
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:18:53-03:00 ALERTA serviço mosquitto parado
+  PASSOU  3 eventos do buffer reenviados duas vezes com a hora original e bufferizado: true
+  PASSOU  o Motor gravou cada um dos 3 eventos uma vez só (linha do tempo de fa11fa11fa11fa11fa11fa11fa11fa11)
+  PASSOU  monitor registrou a volta do mosquitto
+  PASSOU  API religada e pronta em 4 s, novo processo 1685
+  PASSOU  monitor religado em 4 s, novo processo 1738
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:19:49-03:00 ALERTA CPU em 100% (limite 85%)
+  PASSOU  monitor registrou a CPU de volta ao normal
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:20:21-03:00 ALERTA memória em 90% (limite 85%)
+  PASSOU  monitor registrou a memória de volta ao normal
+  PASSOU  monitor gerou o alerta: 2026-11-18T10:20:53-03:00 ALERTA disco / em 82% (limite 80%)
+  PASSOU  monitor registrou o disco de volta ao normal
+codigo_testes_pos_boot=0

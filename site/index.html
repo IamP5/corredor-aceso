@@ -89,7 +89,7 @@
 
     <section class="bloco" id="comecar" aria-labelledby="comecar-titulo">
       <header class="bloco__cabeca">
-        <p class="sobretitulo">Passo zero · vale para todas</p>
+        <p class="sobretitulo">Passo zero · aplicação e integrações</p>
         <h2 id="comecar-titulo">Execução da solução em 5 minutos</h2>
       </header>
       <div class="colunas">
@@ -99,6 +99,7 @@
             <li>Docker com o Docker Compose</li>
           </ul>
           <p class="nota">O .NET, o Node e o Python rodam dentro das imagens. Só os testes da API e do app pedem o SDK do .NET 10 e o Node 22 instalados.</p>
+          <p class="nota"><strong>Operating Systems tem outro caminho:</strong> use a <a href="#os">VM Ubuntu da seção de OS</a>. O Docker deste passo zero executa a aplicação, mas não substitui a demonstração de provisionamento, boot e serviços Linux na VM.</p>
           <p class="nota">Dados de pessoas são simulados. Clima e internações são públicos, do INMET e do SIH/DATASUS. Para a Guarda traduzir com o LLM, copie <code>.env.example</code> para <code>.env</code> e preencha <code>OPENROUTER_API_KEY</code> antes do <code>up</code>. Sem a chave, a Guarda usa uma frase fixa e o resto funciona igual. A chave sai de uma conta no <a href="https://openrouter.ai">OpenRouter</a>: crie a conta, coloque créditos e gere a chave em <a href="https://openrouter.ai/keys">openrouter.ai/keys</a>. O passo a passo está no <a href="https://github.com/IamP5/corredor-aceso/blob/main/README.md#chave-do-openrouter">README</a>.</p>
           <p class="nota">Token da ACS para as rotas fechadas e para o app: <code>dev-acs-demo-01-so-no-notebook</code>, microárea 3.</p>
         </div>

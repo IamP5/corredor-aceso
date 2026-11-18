@@ -140,7 +140,7 @@ O app é Expo com React Native, TypeScript e Expo Router.
 
 ## Operating Systems
 
-Entrega: link do GitHub e vídeo de até 7 minutos com o provisionamento automático na VM. Total: 10 pontos.
+Entrega: link do GitHub, vídeo de até 7 minutos e capturas de tela organizadas no repositório. O enunciado aceita WSL com todas as configurações ou VM local/Azure. O projeto validou uma VM local Ubuntu 24.04 no Lima/VZ; Multipass é uma alternativa documentada e Azure não é necessário. Total: 10 pontos.
 
 | Critério | Pontos | Onde está |
 |---|---|---|
@@ -152,6 +152,10 @@ Entrega: link do GitHub e vídeo de até 7 minutos com o provisionamento automá
 | Funcionamento completo | 2 | `infra/teste-de-falha.sh`, `infra/verificar.sh` |
 
 Evidências em [docs/evidencias/os/](docs/evidencias/os/README.md). Detalhe em [infra/README.md](infra/README.md).
+
+Além da rubrica acima, a demonstração deve cobrir hostname, rede e resolução de nomes; dependências, usuários, diretórios, variáveis e permissões; aplicação Web funcionando; monitoramento periódico com limites e alertas; controle dos serviços, início automático e recuperação; logs com data, operação e resultado; e testes de falha. O vídeo deve mostrar o provisionamento, a aplicação, o monitor, os serviços, os logs e a recuperação.
+
+O [índice das evidências](docs/evidencias/os/README.md#requisitos-e-comprovação) relaciona esses itens aos arquivos e explica por que o Pages sozinho não conclui a entrega. A [validação em VM Ubuntu 24.04 no Lima/VZ](docs/evidencias/os/vm/README.md) comprovou provisionamento, API, limites padrão, falhas, auditoria e início após reinicialização. A captura da interface atual é do painel de Cyber, não do app da ACS consumindo essa API: essa prova visual e o vídeo ainda faltam. Os nove logs anteriores em contêiner foram preservados. A publicação de todas as provas no [Pages](https://iamp5.github.io/corredor-aceso/#os) também deve ser conferida. Multipass é alternativa documentada, não o hipervisor executado.
 
 ## Physical Computing: IoT e IoB
 

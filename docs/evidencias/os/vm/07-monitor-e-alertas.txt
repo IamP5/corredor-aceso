@@ -1,0 +1,105 @@
+# Métricas, alertas e normalização com limites padrão
+2026-11-18T10:09:32-03:00 ALERTA serviço mosquitto parado
+2026-11-18T10:09:32-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:09:48-03:00 NORMALIZADO servico:mosquitto voltou ao normal
+2026-11-18T10:09:48-03:00 NORMALIZADO api voltou ao normal
+2026-11-18T10:10:28-03:00 ALERTA CPU em 100% (limite 85%)
+2026-11-18T10:10:44-03:00 NORMALIZADO cpu voltou ao normal
+2026-11-18T10:12:04-03:00 ALERTA memória em 89% (limite 85%)
+2026-11-18T10:12:20-03:00 NORMALIZADO memoria voltou ao normal
+2026-11-18T10:12:36-03:00 ALERTA disco / em 82% (limite 80%)
+2026-11-18T10:12:52-03:00 NORMALIZADO disco:/ voltou ao normal
+2026-11-18T10:17:38-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:07:24-03:00 cpu=23% mem=11% disco:/=17% mosquitto=ok nginx=ok postgres=ok
+2026-11-18T10:07:40-03:00 cpu=0% mem=10% disco:/=17% mosquitto=ok nginx=ok postgres=ok
+2026-11-18T10:07:56-03:00 cpu=1% mem=10% disco:/=17% mosquitto=ok nginx=ok postgres=ok
+2026-11-18T10:08:12-03:00 cpu=2% mem=14% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:08:28-03:00 cpu=5% mem=12% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:08:44-03:00 cpu=1% mem=15% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:09:00-03:00 cpu=1% mem=13% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:09:16-03:00 cpu=1% mem=13% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:09:32-03:00 cpu=2% mem=13% disco:/=18% mosquitto=parado nginx=ok postgres=ok api=falhou
+2026-11-18T10:09:48-03:00 cpu=3% mem=13% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:09:56-03:00 cpu=3% mem=12% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:10:12-03:00 cpu=100% mem=12% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:10:28-03:00 cpu=100% mem=12% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:10:44-03:00 cpu=2% mem=12% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:11:00-03:00 cpu=3% mem=15% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:11:16-03:00 cpu=6% mem=15% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:11:32-03:00 cpu=4% mem=15% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:11:48-03:00 cpu=7% mem=15% disco:/=18% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:12:04-03:00 cpu=51% mem=89% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:12:20-03:00 cpu=2% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:12:36-03:00 cpu=2% mem=12% disco:/=82% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:12:52-03:00 cpu=1% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:13:09-03:00 cpu=1% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:13:25-03:00 cpu=1% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:14:29-03:00 cpu=4% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:14:45-03:00 cpu=1% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:14:57-03:00 cpu=13% mem=13% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:15:13-03:00 cpu=2% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:15:29-03:00 cpu=2% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:15:45-03:00 cpu=2% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:16:02-03:00 cpu=1% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:16:18-03:00 cpu=1% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:16:34-03:00 cpu=52% mem=16% disco:/=20% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:16:50-03:00 cpu=1% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:17:06-03:00 cpu=3% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:17:22-03:00 cpu=0% mem=12% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:17:38-03:00 cpu=5% mem=9% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=falhou
+2026-11-18T10:17:43-03:00 cpu=3% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:17:59-03:00 cpu=3% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+METRICAS cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+               total        used        free      shared  buff/cache   available
+Mem:            3905         457        2760          70         924        3447
+Swap:              0           0           0
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        19G  3.5G   15G  19% /
+arquivo de carga de disco removido
+2026-11-18T10:09:32-03:00 corredor-ubs corredor-monitor[5270]: ALERTA serviço mosquitto parado
+2026-11-18T10:09:32-03:00 corredor-ubs corredor-monitor[5270]: ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:09:52-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=killed, status=9/KILL
+2026-11-18T10:09:52-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Failed with result 'signal'.
+2026-11-18T10:10:28-03:00 corredor-ubs corredor-monitor[7647]: ALERTA CPU em 100% (limite 85%)
+2026-11-18T10:12:04-03:00 corredor-ubs corredor-monitor[7647]: ALERTA memória em 89% (limite 85%)
+2026-11-18T10:12:36-03:00 corredor-ubs corredor-monitor[7647]: ALERTA disco / em 82% (limite 80%)
+2026-11-18T10:14:25-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Watchdog timeout (limit 1min)!
+2026-11-18T10:14:25-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=dumped, status=6/ABRT
+2026-11-18T10:14:25-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Failed with result 'watchdog'.
+2026-11-18T10:17:38-03:00 corredor-ubs corredor-monitor[9429]: ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:17:39-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Main process exited, code=killed, status=9/KILL
+2026-11-18T10:17:39-03:00 corredor-ubs systemd[1]: corredor-monitor.service: Failed with result 'signal'.
+
+# Métricas após a segunda execução completa
+2026-11-18T10:09:32-03:00 ALERTA serviço mosquitto parado
+2026-11-18T10:09:32-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:09:48-03:00 NORMALIZADO servico:mosquitto voltou ao normal
+2026-11-18T10:09:48-03:00 NORMALIZADO api voltou ao normal
+2026-11-18T10:10:28-03:00 ALERTA CPU em 100% (limite 85%)
+2026-11-18T10:10:44-03:00 NORMALIZADO cpu voltou ao normal
+2026-11-18T10:12:04-03:00 ALERTA memória em 89% (limite 85%)
+2026-11-18T10:12:20-03:00 NORMALIZADO memoria voltou ao normal
+2026-11-18T10:12:36-03:00 ALERTA disco / em 82% (limite 80%)
+2026-11-18T10:12:52-03:00 NORMALIZADO disco:/ voltou ao normal
+2026-11-18T10:17:38-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:18:21-03:00 ALERTA serviço mosquitto parado
+2026-11-18T10:18:21-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:18:37-03:00 NORMALIZADO servico:mosquitto voltou ao normal
+2026-11-18T10:18:37-03:00 NORMALIZADO api voltou ao normal
+2026-11-18T10:18:53-03:00 ALERTA serviço mosquitto parado
+2026-11-18T10:18:53-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+2026-11-18T10:19:09-03:00 NORMALIZADO servico:mosquitto voltou ao normal
+2026-11-18T10:19:49-03:00 ALERTA CPU em 100% (limite 85%)
+2026-11-18T10:20:05-03:00 NORMALIZADO cpu voltou ao normal
+2026-11-18T10:20:21-03:00 ALERTA memória em 90% (limite 85%)
+2026-11-18T10:20:37-03:00 NORMALIZADO memoria voltou ao normal
+2026-11-18T10:20:53-03:00 ALERTA disco / em 82% (limite 80%)
+2026-11-18T10:21:09-03:00 NORMALIZADO disco:/ voltou ao normal
+2026-11-18T10:22:13-03:00 cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:22:29-03:00 cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:22:46-03:00 cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:23:02-03:00 cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:23:18-03:00 cpu=2% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:23:34-03:00 cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:23:50-03:00 cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok
+2026-11-18T10:24:06-03:00 cpu=1% mem=11% disco:/=19% mosquitto=ok nginx=ok postgres=ok api=ok

@@ -1,0 +1,132 @@
+# Serviços, usuários, permissões e variáveis de ambiente
+enabled
+enabled
+enabled
+enabled
+enabled
+● corredor-api.service - Corredor Aceso - API .NET (Motor, Cadastro e Guarda)
+     Loaded: loaded (/etc/systemd/system/corredor-api.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-11-18 10:08:07 -03; 1min 14s ago
+   Main PID: 5593 (Corredor.Api)
+      Tasks: 19 (limit: 4600)
+     Memory: 95.2M (peak: 95.7M)
+        CPU: 3.164s
+     CGroup: /system.slice/corredor-api.service
+             └─5593 /opt/corredor/current/api/Corredor.Api
+
+Nov 18 10:08:08 corredor-ubs corredor-api[5593]: {"Timestamp":"2026-11-18T13:08:08.188Z","EventId":0,"LogLevel":"Information","Category":"Corredor.Motor.Infra.ConsumidorMqtt","Message":"MQTT conectado em 127.0.0.1:1883, sessao retomada: False","State":{"Host":"127.0.0.1","Porta":1883,"Retomada":false,"{OriginalFormat}":"MQTT conectado em {Host}:{Porta}, sessao retomada: {Retomada}"}}
+Nov 18 10:08:08 corredor-ubs corredor-api[5593]: {"Timestamp":"2026-11-18T13:08:08.292Z","EventId":0,"LogLevel":"Information","Category":"Corredor.Cadastro.Aplicacao.ReconciliacaoComMotor","Message":"reconcilia\u00E7\u00E3o com o Motor: 0 casas ativas reenviadas","State":{"Casas":0,"{OriginalFormat}":"reconcilia\u00E7\u00E3o com o Motor: {Casas} casas ativas reenviadas"}}
+
+● corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços
+     Loaded: loaded (/etc/systemd/system/corredor-monitor.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-11-18 10:07:23 -03; 1min 58s ago
+   Main PID: 5270 (bash)
+      Tasks: 2 (limit: 4600)
+     Memory: 1.0M (peak: 5.2M)
+        CPU: 450ms
+     CGroup: /system.slice/corredor-monitor.service
+             ├─5270 /bin/bash /usr/local/lib/corredor/monitor.sh
+             └─6881 sleep 15
+
+Nov 18 10:07:23 corredor-ubs corredor-monitor[5270]: monitor iniciado: a cada 15s, limites cpu=85% mem=85% disco=80%
+Nov 18 10:07:23 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded (/usr/lib/systemd/system/nginx.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-11-18 10:05:21 -03; 4min 0s ago
+       Docs: man:nginx(8)
+   Main PID: 2435 (nginx)
+      Tasks: 3 (limit: 4600)
+     Memory: 2.5M (peak: 5.1M)
+        CPU: 19ms
+     CGroup: /system.slice/nginx.service
+             ├─2435 "nginx: master process /usr/sbin/nginx -g daemon on; master_process on;"
+             ├─4710 "nginx: worker process"
+             └─4711 "nginx: worker process"
+
+Nov 18 10:05:31 corredor-ubs nginx[4708]: 2026/11/18 10:05:31 [notice] 4708#4708: signal process started
+Nov 18 10:05:31 corredor-ubs systemd[1]: Reloaded nginx.service - A high performance web server and a reverse proxy server.
+
+● mosquitto.service - Mosquitto MQTT Broker
+     Loaded: loaded (/usr/lib/systemd/system/mosquitto.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-11-18 10:05:31 -03; 3min 51s ago
+       Docs: man:mosquitto.conf(5)
+             man:mosquitto(8)
+   Main PID: 4686 (mosquitto)
+      Tasks: 1 (limit: 4600)
+     Memory: 1.2M (peak: 1.7M)
+        CPU: 194ms
+     CGroup: /system.slice/mosquitto.service
+             └─4686 /usr/sbin/mosquitto -c /etc/mosquitto/mosquitto.conf
+
+Nov 18 10:05:30 corredor-ubs mosquitto[4686]: 1795007130: Loading config file /etc/mosquitto/conf.d/corredor.conf
+Nov 18 10:05:31 corredor-ubs systemd[1]: Started mosquitto.service - Mosquitto MQTT Broker.
+
+● postgresql@16-main.service - PostgreSQL Cluster 16-main
+     Loaded: loaded (/usr/lib/systemd/system/postgresql@.service; enabled-runtime; preset: enabled)
+     Active: active (running) since Wed 2026-11-18 10:05:27 -03; 3min 54s ago
+   Main PID: 4463 (postgres)
+      Tasks: 10 (limit: 4600)
+     Memory: 48.1M (peak: 54.3M)
+        CPU: 677ms
+     CGroup: /system.slice/system-postgresql.slice/postgresql@16-main.service
+             ├─4463 /usr/lib/postgresql/16/bin/postgres -D /var/lib/postgresql/16/main -c config_file=/etc/postgresql/16/main/postgresql.conf
+             ├─4464 "postgres: 16/main: checkpointer "
+             ├─4465 "postgres: 16/main: background writer "
+             ├─4467 "postgres: 16/main: walwriter "
+             ├─4468 "postgres: 16/main: autovacuum launcher "
+             ├─4469 "postgres: 16/main: logical replication launcher "
+             ├─5621 "postgres: 16/main: corredor_motor corredor 127.0.0.1(46322) idle"
+             ├─5622 "postgres: 16/main: corredor_guarda corredor 127.0.0.1(46320) idle"
+             ├─5623 "postgres: 16/main: corredor_motor corredor 127.0.0.1(46334) idle"
+             └─5625 "postgres: 16/main: corredor_cadastro corredor 127.0.0.1(46344) idle"
+
+Nov 18 10:05:25 corredor-ubs systemd[1]: Starting postgresql@16-main.service - PostgreSQL Cluster 16-main...
+Nov 18 10:05:27 corredor-ubs systemd[1]: Started postgresql@16-main.service - PostgreSQL Cluster 16-main.
+Restart=always
+RestartUSec=3s
+WatchdogUSec=1min
+NRestarts=0
+User=corredor-mon
+corredor:x:999:988::/home/corredor:/usr/sbin/nologin
+corredor-mon:x:997:987::/home/corredor-mon:/usr/sbin/nologin
+755 root:root /opt/corredor
+755 root:root /opt/corredor/releases
+750 root:corredor /etc/corredor
+640 root:corredor /etc/corredor/api.env
+700 root:root /etc/corredor/segredos
+750 corredor-mon:corredor-mon /var/log/corredor/monitor
+# Gerado por infra/02-app.sh. Não edite: mude infra/config/ ou segredos.env.
+ASPNETCORE_ENVIRONMENT=<configurado>
+ASPNETCORE_URLS=<configurado>
+Corredor__Ambiente=<configurado>
+Mqtt__Host=<configurado>
+Mqtt__Porta=<configurado>
+Mqtt__ClienteId=<configurado>
+ConnectionStrings__Motor=<configurado>
+ConnectionStrings__Cadastro=<configurado>
+ConnectionStrings__Guarda=<configurado>
+[Unit]
+Description=Corredor Aceso - monitor de CPU, memória, disco e serviços
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=notify
+NotifyAccess=all
+User=corredor-mon
+Group=corredor-mon
+EnvironmentFile=-/etc/corredor/monitor.env
+ExecStart=/bin/bash /usr/local/lib/corredor/monitor.sh
+Restart=always
+RestartSec=3
+WatchdogSec=60
+SyslogIdentifier=corredor-monitor
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/log/corredor/monitor
+
+[Install]
+WantedBy=multi-user.target

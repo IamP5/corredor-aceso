@@ -1,0 +1,53 @@
+# Deploy da aplicação na VM real
+$ sudo corredor deploy --arquivo /tmp/corredor-linux-arm64.tar.gz
+288e4a2d8765a74305351729b8f4bdc7bcf38a564dc674980020dab28d22de7d  /tmp/corredor-linux-arm64.tar.gz
+2026-11-18T10:08:07-03:00 usuario=tolive75 evento=inicio versao=v0.0.1-vm de=nenhuma
+  [ok] migração cadastro.sql aplicada como corredor_cadastro_migra
+  [ok] migração guarda.sql aplicada como corredor_guarda_migra
+  [ok] migração motor.sql aplicada como corredor_motor_migra
+2026-11-18T10:08:08-03:00 usuario=tolive75 evento=deploy_ok versao=v0.0.1-vm
+2026-11-18T13:08:09.905Zinfo: Corredor.Cadastro.Aplicacao.Semeadura[0]
+      semente: 40 idosos cadastrados, 0 já existiam, 26 vizinhos indicados, 40 tokens
+{"versao":"0.0.1-vm","commit":"b17795139c3b23d9611be1445d244426579fb44c","ambiente":"local"}
+curl: (22) The requested URL returned error: 404
+
+# Complemento: saúde na porta interna; aplicação e painel pelo Nginx
+Healthy
+painel_http=200
+== Corredor Aceso em corredor-ubs, ambiente local, 2026-11-18T10:08:20-03:00 ==
+Versão
+  no ar:     v0.0.1-vm (commit b177951)
+  anterior:  nenhuma
+  último registro: 2026-11-18T10:08:08-03:00 usuario=tolive75 evento=deploy_ok versao=v0.0.1-vm
+Rede
+  [OK]       hostname corredor-ubs
+  [OK]       fuso America/Sao_Paulo
+  [OK]       IP fixo 10.77.0.1 em corredor0
+  [OK]       api.corredor.internal resolve para 10.77.0.1
+  [OK]       painel.corredor.internal resolve para 10.77.0.1
+  [FALHA]    dnsmasq em 10.77.0.1 responde api.corredor.internal
+  [OK]       firewall ativo
+  [OK]       firewall libera 22/tcp
+  [OK]       firewall libera 80/tcp
+  [OK]       firewall libera 443/tcp
+Serviços
+  [OK]       Postgres aceita conexão
+  [OK]       banco corredor tem o schema motor
+  [OK]       banco corredor tem o schema cadastro
+  [OK]       banco corredor tem o schema guarda
+  [OK]       Mosquitto ativo
+  [OK]       Mosquitto entrega mensagem local
+  [OK]       ponte MQTT conectada a broker.hivemq.com:1883
+  [OK]       Nginx ativo
+  [OK]       monitor ativo
+  [OK]       monitor mediu nos últimos 90 s
+Aplicação
+  [OK]       API pronta em /healthz/ready
+  [OK]       corredor-api ativa
+  [OK]       Nginx entrega /api/versao em api.corredor.internal
+  [OK]       Nginx esconde /healthz
+  [OK]       Nginx entrega /painel/ em painel.corredor.internal
+Auditoria
+  [OK]       auditoria.log tem registros
+  últimos alertas:
+== 1 item(ns) com falha ==

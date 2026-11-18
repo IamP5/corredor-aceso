@@ -1,0 +1,146 @@
+# Reinicialização real da VM: comparar boot_id e conferir serviços sem start manual
+boot_id_antes=73dae9ce-ba22-4164-99da-e9a1f5ae0563
+time="2026-11-18T10:18:12-03:00" level=info msg="Sending SIGINT to hostagent process 81356"
+time="2026-11-18T10:18:12-03:00" level=info msg="Waiting for the host agent and the driver processes to shut down"
+time="2026-11-18T10:18:12-03:00" level=info msg="[hostagent] Received SIGINT, shutting down the host agent"
+time="2026-11-18T10:18:12-03:00" level=info msg="[hostagent] Shutting down the host agent"
+time="2026-11-18T10:18:12-03:00" level=info msg="[hostagent] Shutting down VZ"
+time="2026-11-18T10:18:13-03:00" level=info msg="[hostagent] [VZ] - vm state change: stopped"
+time="2026-11-18T10:18:13-03:00" level=error msg="[hostagent] accept tcp 127.0.0.1:58490: use of closed network connection"
+time="2026-11-18T10:18:13-03:00" level=info msg="[hostagent] gvproxy API request" component=services-api endpoint=/services/forwarder/unexpose local="127.0.0.1:58490" method=POST outcome=success protocol=tcp source=
+time="2026-11-18T10:18:13-03:00" level=info msg="Waiting for the instance to shut down"
+time="2026-11-18T10:18:14-03:00" level=info msg="The instance corredor-os-validacao has shut down"
+time="2026-11-18T10:18:14-03:00" level=info msg="Using the existing instance `corredor-os-validacao`"
+time="2026-11-18T10:18:14-03:00" level=info msg="Starting the instance `corredor-os-validacao` with internal VM driver `vz`"
+time="2026-11-18T10:18:14-03:00" level=info msg="[hostagent] hostagent socket created at <lima>/corredor-os-validacao/ha.sock"
+time="2026-11-18T10:18:14-03:00" level=info msg="[hostagent] Starting VZ (hint: to watch the boot progress, see `<lima>/corredor-os-validacao/serial*.log`)"
+time="2026-11-18T10:18:14-03:00" level=info msg="[hostagent] [VZ] - vm state change: running"
+time="2026-11-18T10:18:15-03:00" level=info msg="[hostagent] gvproxy API request" component=services-api endpoint=/services/dhcp/leases method=GET outcome=success source=
+time="2026-11-18T10:18:20-03:00" level=info msg="[hostagent] SSH server does not seem to be running on vsock port, using usernet forwarder"
+time="2026-11-18T10:18:21-03:00" level=info msg="[hostagent] gvproxy API request" component=services-api endpoint=/services/dhcp/leases method=GET outcome=success source=
+time="2026-11-18T10:18:21-03:00" level=info msg="[hostagent] gvproxy API request" component=services-api endpoint=/services/forwarder/expose local="127.0.0.1:59551" method=POST outcome=success protocol=tcp remote="192.168.5.15:22" source=
+time="2026-11-18T10:18:21-03:00" level=info msg="[hostagent] gvproxy API request" component=services-api endpoint=/services/dns/add method=POST outcome=success source= zone=internal.
+time="2026-11-18T10:18:21-03:00" level=info msg="SSH Local Port: 59551"
+time="2026-11-18T10:18:21-03:00" level=info msg="[hostagent] Running in plain mode. Mounts, dynamic port forwarding, containerd, etc. will be ignored. Guest agent will not be running."
+time="2026-11-18T10:18:21-03:00" level=info msg="( 1/3) 🕐 SSH connection (essential)"
+time="2026-11-18T10:18:21-03:00" level=info msg="( 1/3) ✅ SSH connection"
+time="2026-11-18T10:18:21-03:00" level=info msg="( 2/3) 🕐 Persistent SSH ControlMaster (essential)"
+time="2026-11-18T10:18:21-03:00" level=info msg="( 2/3) ✅ Persistent SSH ControlMaster"
+time="2026-11-18T10:18:21-03:00" level=info msg="( 3/3) 🕐 Boot scripts to be finished"
+time="2026-11-18T10:18:24-03:00" level=info msg="( 3/3) ✅ Boot scripts to be finished"
+time="2026-11-18T10:18:24-03:00" level=info msg="READY. Run `ssh -F `<lima>/corredor-os-validacao/ssh.config` lima-corredor-os-validacao` to open the shell."
+boot_id_depois=3be824f9-e656-49ed-9ef0-2e260877fd23
+running
+corredor-ubs
+enabled
+enabled
+active
+active
+active
+active
+active
+active
+active
+== Corredor Aceso em corredor-ubs, ambiente local, 2026-11-18T10:18:25-03:00 ==
+Versão
+  no ar:     v0.0.1-vm (commit b177951)
+  anterior:  nenhuma
+  último registro: 2026-11-18T10:08:08-03:00 usuario=tolive75 evento=deploy_ok versao=v0.0.1-vm
+Rede
+  [OK]       hostname corredor-ubs
+  [OK]       fuso America/Sao_Paulo
+  [OK]       IP fixo 10.77.0.1 em corredor0
+  [OK]       api.corredor.internal resolve para 10.77.0.1
+  [OK]       painel.corredor.internal resolve para 10.77.0.1
+  [OK]       dnsmasq em 10.77.0.1 responde api.corredor.internal
+  [OK]       firewall ativo
+  [OK]       firewall libera 22/tcp
+  [OK]       firewall libera 80/tcp
+  [OK]       firewall libera 443/tcp
+Serviços
+  [OK]       Postgres aceita conexão
+  [OK]       banco corredor tem o schema motor
+  [OK]       banco corredor tem o schema cadastro
+  [OK]       banco corredor tem o schema guarda
+  [OK]       Mosquitto ativo
+  [OK]       Mosquitto entrega mensagem local
+  [OK]       ponte MQTT conectada a broker.hivemq.com:1883
+  [OK]       Nginx ativo
+  [OK]       monitor ativo
+  [OK]       monitor mediu nos últimos 90 s
+Aplicação
+  [OK]       API pronta em /healthz/ready
+  [OK]       corredor-api ativa
+  [OK]       Nginx entrega /api/versao em api.corredor.internal
+  [OK]       Nginx esconde /healthz
+  [OK]       Nginx entrega /painel/ em painel.corredor.internal
+Auditoria
+  [OK]       auditoria.log tem registros
+  últimos alertas:
+    2026-11-18T10:17:38-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+    2026-11-18T10:18:21-03:00 ALERTA serviço mosquitto parado
+    2026-11-18T10:18:21-03:00 ALERTA API não está pronta (processo, banco ou MQTT)
+== tudo certo ==
+Nov 18 10:18:20 corredor-ubs systemd[1]: Starting corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços...
+Nov 18 10:18:20 corredor-ubs corredor-monitor[716]: monitor iniciado: a cada 15s, limites cpu=85% mem=85% disco=80%
+Nov 18 10:18:20 corredor-ubs systemd[1]: Started corredor-monitor.service - Corredor Aceso - monitor de CPU, memória, disco e serviços.
+Nov 18 10:18:21 corredor-ubs corredor-monitor[716]: ALERTA serviço mosquitto parado
+Nov 18 10:18:21 corredor-ubs corredor-monitor[716]: ALERTA API não está pronta (processo, banco ou MQTT)
+Nov 18 10:18:22 corredor-ubs systemd[1]: Started corredor-api.service - Corredor Aceso - API .NET (Motor, Cadastro e Guarda).
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.225Z","EventId":50,"LogLevel":"Warning","Category":"Microsoft.AspNetCore.DataProtection.Repositories.EphemeralXmlRepository","Message":"Using an in-memory repository. Keys will not be persisted to storage.","State":{"{OriginalFormat}":"Using an in-memory repository. Keys will not be persisted to storage."}}
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.227Z","EventId":59,"LogLevel":"Warning","Category":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager","Message":"Neither user profile nor HKLM registry available. Using an ephemeral key repository. Protected data will be unavailable when application exits.","State":{"{OriginalFormat}":"Neither user profile nor HKLM registry available. Using an ephemeral key repository. Protected data will be unavailable when application exits."}}
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.279Z","EventId":35,"LogLevel":"Warning","Category":"Microsoft.AspNetCore.DataProtection.KeyManagement.XmlKeyManager","Message":"No XML encryptor configured. Key {c80c496b-2001-4857-a9d8-3676b7d59638} may be persisted to storage in unencrypted form.","State":{"KeyId":"c80c496b-2001-4857-a9d8-3676b7d59638","{OriginalFormat}":"No XML encryptor configured. Key {KeyId:B} may be persisted to storage in unencrypted form."}}
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.367Z","EventId":14,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Now listening on: http://127.0.0.1:5000","State":{"address":"http://127.0.0.1:5000","{OriginalFormat}":"Now listening on: {address}"}}
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.368Z","EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Application started. Press Ctrl\u002BC to shut down.","State":{"{OriginalFormat}":"Application started. Press Ctrl\u002BC to shut down."}}
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.368Z","EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Hosting environment: Development","State":{"EnvName":"Development","{OriginalFormat}":"Hosting environment: {EnvName}"}}
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.368Z","EventId":0,"LogLevel":"Information","Category":"Microsoft.Hosting.Lifetime","Message":"Content root path: /opt/corredor/releases/v0.0.1-vm/api","State":{"ContentRoot":"/opt/corredor/releases/v0.0.1-vm/api","{OriginalFormat}":"Content root path: {ContentRoot}"}}
+Nov 18 10:18:23 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:23.780Z","EventId":0,"LogLevel":"Information","Category":"Corredor.Motor.Infra.ConsumidorMqtt","Message":"MQTT conectado em 127.0.0.1:1883, sessao retomada: True","State":{"Host":"127.0.0.1","Porta":1883,"Retomada":true,"{OriginalFormat}":"MQTT conectado em {Host}:{Porta}, sessao retomada: {Retomada}"}}
+Nov 18 10:18:24 corredor-ubs corredor-api[1146]: {"Timestamp":"2026-11-18T13:18:24.000Z","EventId":0,"LogLevel":"Information","Category":"Corredor.Cadastro.Aplicacao.ReconciliacaoComMotor","Message":"reconcilia\u00E7\u00E3o com o Motor: 40 casas ativas reenviadas","State":{"Casas":40,"{OriginalFormat}":"reconcilia\u00E7\u00E3o com o Motor: {Casas} casas ativas reenviadas"}}
+
+# Estado final após repetir todos os cenários no novo boot
+== Corredor Aceso em corredor-ubs, ambiente local, 2026-11-18T10:24:14-03:00 ==
+Versão
+  no ar:     v0.0.1-vm (commit b177951)
+  anterior:  nenhuma
+  último registro: 2026-11-18T10:08:08-03:00 usuario=tolive75 evento=deploy_ok versao=v0.0.1-vm
+Rede
+  [OK]       hostname corredor-ubs
+  [OK]       fuso America/Sao_Paulo
+  [OK]       IP fixo 10.77.0.1 em corredor0
+  [OK]       api.corredor.internal resolve para 10.77.0.1
+  [OK]       painel.corredor.internal resolve para 10.77.0.1
+  [OK]       dnsmasq em 10.77.0.1 responde api.corredor.internal
+  [OK]       firewall ativo
+  [OK]       firewall libera 22/tcp
+  [OK]       firewall libera 80/tcp
+  [OK]       firewall libera 443/tcp
+Serviços
+  [OK]       Postgres aceita conexão
+  [OK]       banco corredor tem o schema motor
+  [OK]       banco corredor tem o schema cadastro
+  [OK]       banco corredor tem o schema guarda
+  [OK]       Mosquitto ativo
+  [OK]       Mosquitto entrega mensagem local
+  [OK]       ponte MQTT conectada a broker.hivemq.com:1883
+  [OK]       Nginx ativo
+  [OK]       monitor ativo
+  [OK]       monitor mediu nos últimos 90 s
+Aplicação
+  [OK]       API pronta em /healthz/ready
+  [OK]       corredor-api ativa
+  [OK]       Nginx entrega /api/versao em api.corredor.internal
+  [OK]       Nginx esconde /healthz
+  [OK]       Nginx entrega /painel/ em painel.corredor.internal
+Auditoria
+  [OK]       auditoria.log tem registros
+  últimos alertas:
+    2026-11-18T10:20:37-03:00 NORMALIZADO memoria voltou ao normal
+    2026-11-18T10:20:53-03:00 ALERTA disco / em 82% (limite 80%)
+    2026-11-18T10:21:09-03:00 NORMALIZADO disco:/ voltou ao normal
+== tudo certo ==
+PASSOU: sem stress-ng residual e arquivo de disco removido
+               total        used        free      shared  buff/cache   available
+Mem:            3905         466        3256          65         393        3438
+Swap:              0           0           0
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        19G  3.5G   15G  19% /

@@ -1,0 +1,90 @@
+# Auditoria: execuções, resultados, erros esperados e logs por script
+2026-11-18T13:04:29+00:00 id=20261118T130429-1319 script=provisionar.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T13:04:29+00:00 id=20261118T130429-1345 script=01-rede.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:04:30-03:00 id=20261118T130429-1345 script=01-rede.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=1 mudancas=12
+2026-11-18T10:04:30-03:00 id=20261118T100430-1639 script=02-app.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:07:21-03:00 id=20261118T100721-5051 script=deploy.sh usuario=tolive75 ambiente=local evento=inicio args="--ultima"
+2026-11-18T10:07:22-03:00 id=20261118T100721-5051 script=deploy.sh usuario=tolive75 ambiente=local evento=fim codigo=3 duracao_s=1 mudancas=0
+2026-11-18T10:07:22-03:00 id=20261118T100430-1639 script=02-app.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=172 mudancas=21
+2026-11-18T10:07:22-03:00 id=20261118T100722-5086 script=03-monitor.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:07:23-03:00 id=20261118T100722-5086 script=03-monitor.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=1 mudancas=7
+2026-11-18T10:07:25-03:00 id=20261118T130429-1319 script=provisionar.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=176 mudancas=40
+2026-11-18T10:08:06-03:00 id=20261118T100806-5449 script=deploy.sh usuario=tolive75 ambiente=local evento=inicio args="--arquivo /tmp/corredor-linux-arm64.tar.gz"
+2026-11-18T10:08:08-03:00 id=20261118T100806-5449 script=deploy.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=2 mudancas=0
+2026-11-18T10:08:36-03:00 id=20261118T100836-5841 script=01-rede.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:08:51-03:00 id=20261118T100836-5841 script=01-rede.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=15 mudancas=5
+2026-11-18T10:09:20-03:00 id=20261118T100920-6891 script=provisionar.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:09:20-03:00 id=20261118T100920-6917 script=01-rede.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:09:20-03:00 id=20261118T100920-6917 script=01-rede.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=0
+2026-11-18T10:09:20-03:00 id=20261118T100920-7020 script=02-app.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:09:20-03:00 id=20261118T100920-7020 script=02-app.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=0
+2026-11-18T10:09:20-03:00 id=20261118T100920-7187 script=03-monitor.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:09:20-03:00 id=20261118T100920-7187 script=03-monitor.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=0 mudancas=0
+2026-11-18T10:09:21-03:00 id=20261118T100920-6891 script=provisionar.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=1 mudancas=0
+2026-11-18T10:09:31-03:00 id=20261118T100931-7369 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:12:53-03:00 id=20261118T100931-7369 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=202 mudancas=1
+2026-11-18T10:13:37-03:00 id=20261118T101337-8967 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="travado"
+2026-11-18T10:14:28-03:00 id=20261118T101337-8967 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=51 mudancas=0
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="monitor"
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=erro linha=211 comando="return 1"
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=erro linha=211 comando="pid="$(pid_de corredor-monitor)""
+2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:14:56-03:00 id=20261118T101456-9437 script=deploy.sh usuario=tolive75 ambiente=local evento=inicio args="tag-invalida"
+2026-11-18T10:14:56-03:00 id=20261118T101456-9437 script=deploy.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:17:31-03:00 id=20261118T101731-10161 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="cenario-invalido"
+2026-11-18T10:17:31-03:00 id=20261118T101731-10161 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:17:31-03:00 id=20261118T101731-10189 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="carga"
+2026-11-18T10:17:34-03:00 id=20261118T101731-10189 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=3 mudancas=0
+2026-11-18T10:17:34-03:00 id=20261118T101734-10244 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="api monitor"
+2026-11-18T10:17:42-03:00 id=20261118T101734-10244 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=8 mudancas=0
+total 76
+-rw-r--r-- 1 root root 2011 Nov 18 10:07 20261118T100430-1639-02-app.log
+-rw-r--r-- 1 root root   76 Nov 18 10:07 20261118T100721-5051-deploy.log
+-rw-r--r-- 1 root root  464 Nov 18 10:07 20261118T100722-5086-03-monitor.log
+-rw-r--r-- 1 root root  359 Nov 18 10:08 20261118T100806-5449-deploy.log
+-rw-r--r-- 1 root root 1064 Nov 18 10:08 20261118T100836-5841-01-rede.log
+-rw-r--r-- 1 root root 4012 Nov 18 10:09 20261118T100920-6891-provisionar.log
+-rw-r--r-- 1 root root  841 Nov 18 10:09 20261118T100920-6917-01-rede.log
+-rw-r--r-- 1 root root 1091 Nov 18 10:09 20261118T100920-7020-02-app.log
+-rw-r--r-- 1 root root  353 Nov 18 10:09 20261118T100920-7187-03-monitor.log
+-rw-r--r-- 1 root root 3019 Nov 18 10:12 20261118T100931-7369-teste-de-falha.log
+-rw-r--r-- 1 root root  283 Nov 18 10:14 20261118T101337-8967-teste-de-falha.log
+-rw-r--r-- 1 root root  113 Nov 18 10:14 20261118T101456-9367-teste-de-falha.log
+-rw-r--r-- 1 root root   78 Nov 18 10:14 20261118T101456-9437-deploy.log
+-rw-r--r-- 1 root root   49 Nov 18 10:17 20261118T101731-10161-teste-de-falha.log
+-rw-r--r-- 1 root root   88 Nov 18 10:17 20261118T101731-10189-teste-de-falha.log
+-rw-r--r-- 1 root root  423 Nov 18 10:17 20261118T101734-10244-teste-de-falha.log
+-rw-r--r-- 1 root root 4576 Nov 18 10:07 20261118T130429-1319-provisionar.log
+-rw-r--r-- 1 root root  794 Nov 18 10:04 20261118T130429-1345-01-rede.log
+2026-11-18T10:14:56-03:00 corredor-ubs corredor-auditoria[9395]: 2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="monitor"
+2026-11-18T10:14:56-03:00 corredor-ubs corredor-auditoria[9403]: 2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=erro linha=211 comando="return 1"
+2026-11-18T10:14:56-03:00 corredor-ubs corredor-auditoria[9407]: 2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=erro linha=211 comando="pid="$(pid_de corredor-monitor)""
+2026-11-18T10:14:56-03:00 corredor-ubs corredor-auditoria[9415]: 2026-11-18T10:14:56-03:00 id=20261118T101456-9367 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:14:56-03:00 corredor-ubs corredor-auditoria[9457]: 2026-11-18T10:14:56-03:00 id=20261118T101456-9437 script=deploy.sh usuario=tolive75 ambiente=local evento=inicio args="tag-invalida"
+2026-11-18T10:14:56-03:00 corredor-ubs corredor-auditoria[9464]: 2026-11-18T10:14:56-03:00 id=20261118T101456-9437 script=deploy.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:17:31-03:00 corredor-ubs corredor-auditoria[10181]: 2026-11-18T10:17:31-03:00 id=20261118T101731-10161 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="cenario-invalido"
+2026-11-18T10:17:31-03:00 corredor-ubs corredor-auditoria[10188]: 2026-11-18T10:17:31-03:00 id=20261118T101731-10161 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:17:31-03:00 corredor-ubs corredor-auditoria[10210]: 2026-11-18T10:17:31-03:00 id=20261118T101731-10189 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="carga"
+2026-11-18T10:17:34-03:00 corredor-ubs corredor-auditoria[10242]: 2026-11-18T10:17:34-03:00 id=20261118T101731-10189 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=3 mudancas=0
+2026-11-18T10:17:34-03:00 corredor-ubs corredor-auditoria[10264]: 2026-11-18T10:17:34-03:00 id=20261118T101734-10244 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="api monitor"
+2026-11-18T10:17:42-03:00 corredor-ubs corredor-auditoria[10382]: 2026-11-18T10:17:42-03:00 id=20261118T101734-10244 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=8 mudancas=0
+2026-11-18T10:08:07-03:00 usuario=tolive75 evento=inicio versao=v0.0.1-vm de=nenhuma
+2026-11-18T10:08:08-03:00 usuario=tolive75 evento=deploy_ok versao=v0.0.1-vm
+
+# Auditoria após a segunda execução completa
+2026-11-18T10:17:31-03:00 id=20261118T101731-10189 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="carga"
+2026-11-18T10:17:34-03:00 id=20261118T101731-10189 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=3 mudancas=0
+2026-11-18T10:17:34-03:00 id=20261118T101734-10244 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="api monitor"
+2026-11-18T10:17:42-03:00 id=20261118T101734-10244 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=8 mudancas=0
+2026-11-18T10:18:45-03:00 id=20261118T101845-1438 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:21:10-03:00 id=20261118T101845-1438 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=145 mudancas=0
+
+# Auditoria após correção e teste do código de interrupção
+2026-11-18T10:18:45-03:00 id=20261118T101845-1438 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args=""
+2026-11-18T10:21:10-03:00 id=20261118T101845-1438 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=145 mudancas=0
+2026-11-18T10:25:02-03:00 id=20261118T102502-2834 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="cenario-invalido"
+2026-11-18T10:25:02-03:00 id=20261118T102502-2834 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=1 duracao_s=0 mudancas=0
+2026-11-18T10:25:02-03:00 id=20261118T102502-2862 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="carga"
+2026-11-18T10:25:05-03:00 id=20261118T102502-2862 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=143 duracao_s=3 mudancas=0
+2026-11-18T10:25:06-03:00 id=20261118T102506-2920 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=inicio args="api monitor"
+2026-11-18T10:25:14-03:00 id=20261118T102506-2920 script=teste-de-falha.sh usuario=tolive75 ambiente=local evento=fim codigo=0 duracao_s=8 mudancas=0
