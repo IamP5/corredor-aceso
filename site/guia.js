@@ -587,43 +587,79 @@ let desenhados = 0;
 async function desenharMermaid(doc) {
   const blocos = [...doc.querySelectorAll('pre > code.language-mermaid')];
   if (!blocos.length) return;
-  const cor = (nome) => getComputedStyle(document.documentElement).getPropertyValue(nome).trim();
-  mermaidP ??= import('https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs').then(({ default: m }) => {
-    m.initialize({
-      startOnLoad: false,
-      theme: 'base',
-      themeVariables: {
-        darkMode: true,
-        background: cor('--preto-atomico'),
-        primaryColor: cor('--preto-casual'),
-        primaryTextColor: cor('--branco'),
-        primaryBorderColor: cor('--ardosia'),
-        lineColor: cor('--prata'),
-        textColor: cor('--prata'),
-        attributeBackgroundColorOdd: cor('--preto-atomico'),
-        attributeBackgroundColorEven: cor('--preto-casual'),
-        fontFamily: 'Roboto, system-ui, sans-serif',
-      },
-    });
-    return m;
-  });
   try {
-    const mermaid = await mermaidP;
     for (const code of blocos) {
       const titulo = [...doc.querySelectorAll('h1, h2, h3, h4')].filter((h) => h.compareDocumentPosition(code) & Node.DOCUMENT_POSITION_FOLLOWING).pop();
-      const { svg } = await mermaid.render(`mermaid-${desenhados++}`, code.textContent);
-      const fig = figura(svg, titulo?.textContent ?? 'Diagrama', '');
-      const desenho = fig.querySelector('svg');
-      const [, , w, h] = desenho.getAttribute('viewBox').split(/\s+/).map(Number);
-      desenho.setAttribute('width', w);
-      desenho.setAttribute('height', h);
-      desenho.removeAttribute('style');
+      const fig = figura(await svgDoMermaid(code.textContent), titulo?.textContent ?? 'Diagrama', '');
+      fig.dataset.mermaid = code.textContent;
       code.parentElement.replaceWith(fig);
     }
   } catch {
     // Sem rede ou com erro no desenho, o código do bloco continua na página.
   }
 }
+
+// O Mermaid pinta as cores dentro do SVG, então cada desenho sai com as do tema atual e é refeito na troca.
+async function svgDoMermaid(fonte) {
+  mermaidP ??= import('https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs').then((m) => m.default);
+  const mermaid = await mermaidP;
+  const cor = (nome) => getComputedStyle(document.documentElement).getPropertyValue(nome).trim();
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'base',
+    themeVariables: {
+      darkMode: document.documentElement.dataset.tema !== 'claro',
+      background: cor('--preto-atomico'),
+      primaryColor: cor('--preto-casual'),
+      primaryTextColor: cor('--branco'),
+      primaryBorderColor: cor('--ardosia'),
+      lineColor: cor('--prata'),
+      textColor: cor('--prata'),
+      attributeBackgroundColorOdd: cor('--preto-atomico'),
+      attributeBackgroundColorEven: cor('--preto-casual'),
+      fontFamily: 'Roboto, system-ui, sans-serif',
+    },
+  });
+  const { svg } = await mermaid.render(`mermaid-${desenhados++}`, fonte);
+  const caixa = el('div', {}, svg);
+  const desenho = caixa.querySelector('svg');
+  const [, , w, h] = desenho.getAttribute('viewBox').split(/\s+/).map(Number);
+  desenho.setAttribute('width', w);
+  desenho.setAttribute('height', h);
+  desenho.removeAttribute('style');
+  return desenho.outerHTML;
+}
+
+async function redesenharMermaid() {
+  for (const fig of document.querySelectorAll('.diagrama[data-mermaid]')) {
+    try { fig.querySelector('.diagrama__tela').innerHTML = await svgDoMermaid(fig.dataset.mermaid); } catch {}
+  }
+}
+
+// Tema: o <head> já aplicou a escolha salva ou a do sistema. O botão alterna; se a escolha
+// coincide com a do sistema, ela não é salva, e a página volta a acompanhar o sistema.
+const TEMA = 'corredor-aceso:tema';
+const sistemaClaro = matchMedia('(prefers-color-scheme: light)');
+const temaDoSistema = () => (sistemaClaro.matches ? 'claro' : 'escuro');
+function aplicarTema(tema) {
+  document.documentElement.dataset.tema = tema;
+  const rotulo = tema === 'claro' ? 'Usar tema escuro' : 'Usar tema claro';
+  const botao = document.getElementById('tema');
+  botao.setAttribute('aria-label', rotulo);
+  botao.title = rotulo;
+  redesenharMermaid();
+}
+aplicarTema(document.documentElement.dataset.tema || temaDoSistema());
+document.getElementById('tema').addEventListener('click', () => {
+  const novo = document.documentElement.dataset.tema === 'claro' ? 'escuro' : 'claro';
+  try { novo === temaDoSistema() ? localStorage.removeItem(TEMA) : localStorage.setItem(TEMA, novo); } catch {}
+  aplicarTema(novo);
+});
+sistemaClaro.addEventListener('change', () => {
+  let salvo = null;
+  try { salvo = localStorage.getItem(TEMA); } catch {}
+  if (!salvo) aplicarTema(temaDoSistema());
+});
 
 function escapar(t) {
   return t.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]);

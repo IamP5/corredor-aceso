@@ -9,6 +9,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:ital,wght@0,400..700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="estilo.css">
+  <script>
+    // Antes do primeiro desenho, para a página não piscar no tema errado. Sem escolha salva, segue o sistema.
+    try {
+      document.documentElement.dataset.tema = localStorage.getItem('corredor-aceso:tema')
+        || (matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'escuro');
+    } catch { document.documentElement.dataset.tema = 'escuro'; }
+  </script>
 </head>
 <body>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -21,6 +28,10 @@
         <a href="?ler=REQUISITOS.md">Requisitos</a>
         <a href="?ler=docs/arquitetura/README.md">Arquitetura</a>
       </nav>
+      <button type="button" class="tema" id="tema" aria-label="Usar tema claro" title="Usar tema claro">
+        <svg class="tema__sol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+        <svg class="tema__lua" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>
+      </button>
     </div>
   </header>
 
