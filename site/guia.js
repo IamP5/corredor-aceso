@@ -104,7 +104,7 @@ const DISCIPLINAS = [
       { nome: 'Dashboard Risco Cidadão', pontos: '2,0', onde: `<a href="${arq('api/src/Corredor.Guarda/painel/index.html')}">painel/index.html</a>: farol verde, amarelo e vermelho com a mensagem traduzida.` },
     ],
     passos: [
-      { texto: 'Opcional: para a tradução vir do LLM, copie o <code>.env.example</code>, preencha <code>OPENROUTER_API_KEY</code> e suba a solução.', cmd: 'cp .env.example .env && docker compose up --build' },
+      { texto: `Opcional: para a tradução vir do LLM, copie o <code>.env.example</code>, preencha <code>OPENROUTER_API_KEY</code> e suba a solução. A chave vem de uma conta no <a href="https://openrouter.ai">OpenRouter</a>, com créditos, em <a href="https://openrouter.ai/keys">openrouter.ai/keys</a>. O passo a passo está no <a href="${arq('README.md')}#chave-do-openrouter">README</a>.`, cmd: 'cp .env.example .env && docker compose up --build' },
       { texto: `Abra o painel em <a href="${API}/api/guarda/demo/painel">${API}/api/guarda/demo/painel</a> e mantenha a aba aberta. O farol inicia em verde.`, cmd: `open ${API}/api/guarda/demo/painel` },
       { texto: '<strong>Parsing de PII.</strong> Envie um CPF. A rota recebe <code>***.456.***-00</code>, e o log só tem a máscara.', cmd: `curl -s -X POST ${API}/api/guarda/demo/documento -H 'Content-Type: application/json' -H 'Authorization: Bearer ${TOKEN}' -d '{"documento":"123.456.789-00"}'` },
       { texto: '<strong>Taint, resposta sem autenticação.</strong> A rota que devolveria condições de saúde responde <code>403</code> sem token.', cmd: `curl -s -i ${API}/api/guarda/demo/condicoes` },

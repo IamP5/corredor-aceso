@@ -104,7 +104,35 @@ Quando aparecer `corredor-api-1 ... Healthy`, abra:
 - App da ACS: `http://localhost:8081`. Entre com o código `dev-acs-demo-01-so-no-notebook` e a microárea 3.
 - Painel Risco Cidadão da Guarda: `http://localhost:5080/api/guarda/demo/painel`.
 
-Para a Guarda usar o LLM, copie `.env.example` para `.env` e preencha `OPENROUTER_API_KEY` antes do `up`. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação, e o resto funciona igual.
+Para a Guarda usar o LLM, copie `.env.example` para `.env` e preencha `OPENROUTER_API_KEY` antes do `up`. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação, e o resto funciona igual. O passo a passo para conseguir a chave está logo abaixo.
+
+### Chave do OpenRouter
+
+A chave é opcional. Ela só muda uma coisa: quando a Guarda bloqueia um dado pessoal, a explicação para o cidadão vem de um modelo de linguagem em vez de uma frase pronta.
+
+O [OpenRouter](https://openrouter.ai) é um serviço que dá acesso a vários modelos de linguagem (da OpenAI, da Anthropic, do Google e outros) por uma API só. A chave de API é uma senha que identifica a sua conta nessas chamadas. A Guarda manda a chave em cada pedido de tradução, e o OpenRouter cobra o uso da sua conta.
+
+Para conseguir a chave:
+
+1. Crie uma conta em [openrouter.ai](https://openrouter.ai). Dá para entrar com Google, GitHub ou e-mail.
+2. Coloque créditos em [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits). O modelo padrão da demo, `openai/gpt-4o-mini`, é pago. Cada tradução usa poucas centenas de tokens, então um crédito pequeno cobre muitas rodadas da demo.
+3. Abra [openrouter.ai/keys](https://openrouter.ai/keys) e clique em **Create Key**. Dê um nome, por exemplo `corredor-demo`. Se quiser, defina um limite de gasto para a chave.
+4. Copie a chave assim que ela aparecer. Ela começa com `sk-or-v1-`, e o site só mostra o valor completo uma vez. Se perder, apague e crie outra.
+5. Na raiz do repositório, copie o modelo e cole a chave depois do `=`, sem aspas e sem espaços:
+
+	```bash
+	cp .env.example .env
+	```
+
+	```dotenv
+	OPENROUTER_API_KEY=sk-or-v1-...
+	```
+
+6. Suba a solução de novo com `docker compose up --build`. Se ela já estava de pé, `docker compose up -d api` recria a API com a chave.
+
+Trate a chave como senha. O `.env` está no `.gitignore` e nunca entra no Git. Não cole a chave em issue, chat ou print.
+
+Para conferir, rode o passo de canal inseguro do roteiro da Guarda e olhe `docker compose logs api`. Se a chave falhar, a API registra `LLM respondeu 401` (chave errada ou apagada) ou `LLM respondeu 402` (conta sem crédito), e o painel mostra a frase fixa.
 
 ### Ver o dia crítico em 2 minutos
 

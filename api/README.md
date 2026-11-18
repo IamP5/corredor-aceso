@@ -54,7 +54,7 @@ Os pré-requisitos são o SDK do .NET 10, o Docker com o Docker Compose e o Pyth
 
 A API nunca cria as tabelas. O deploy aplica as migrações, e no notebook o `tools/demo.sh` percorre o mesmo caminho. Por isso, a API deve ser iniciada por esse script.
 
-1. Para usar o LLM da Guarda, copie `.env.example` para `.env` na raiz e preencha `OPENROUTER_API_KEY`. O `.env` nunca entra no Git. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação do LLM.
+1. Para usar o LLM da Guarda, copie `.env.example` para `.env` na raiz e preencha `OPENROUTER_API_KEY`. O passo a passo para criar a chave está na seção [Chave do OpenRouter](../README.md#chave-do-openrouter) do README da raiz. O `.env` nunca entra no Git. Sem a chave, a Guarda usa uma frase fixa no lugar da explicação do LLM.
 
 2. Suba o banco, as migrações, a carga das 40 casas e a API:
 
