@@ -115,7 +115,7 @@ O [OpenRouter](https://openrouter.ai) é um serviço que dá acesso a vários mo
 Para conseguir a chave:
 
 1. Crie uma conta em [openrouter.ai](https://openrouter.ai). Dá para entrar com Google, GitHub ou e-mail.
-2. Coloque créditos em [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits). O modelo padrão da demo, `openai/gpt-4o-mini`, é pago. Cada tradução usa poucas centenas de tokens, então um crédito pequeno cobre muitas rodadas da demo.
+2. Coloque créditos em [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits). O modelo padrão da demo, `openai/gpt-6-luna`, é pago. Cada tradução usa poucas centenas de tokens, então um crédito pequeno cobre muitas rodadas da demo.
 3. Abra [openrouter.ai/keys](https://openrouter.ai/keys) e clique em **Create Key**. Dê um nome, por exemplo `corredor-demo`. Se quiser, defina um limite de gasto para a chave.
 4. Copie a chave assim que ela aparecer. Ela começa com `sk-or-v1-`, e o site só mostra o valor completo uma vez. Se perder, apague e crie outra.
 5. Na raiz do repositório, copie o modelo e cole a chave depois do `=`, sem aspas e sem espaços:

@@ -8,7 +8,7 @@ internal static class ConfiguracaoDoLlm
     private static readonly (string Chave, string Variavel, string? Padrao)[] Mapa =
     [
         ("Llm:ApiKey", "OPENROUTER_API_KEY", null),
-        ("Llm:Modelo", "OPENROUTER_MODEL", "openai/gpt-4o-mini"),
+        ("Llm:Modelo", "OPENROUTER_MODEL", "openai/gpt-6-luna"),
         ("Llm:UrlBase", "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"),
     ];
 

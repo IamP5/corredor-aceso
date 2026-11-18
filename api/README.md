@@ -149,7 +149,7 @@ Na VM, o `infra/02-app.sh` grava `/etc/corredor/api.env`, e a chave do LLM fica 
 
 A seção `Llm` aceita também os nomes do `.env.example`. A ordem é esta: `Llm__*` no ambiente, `OPENROUTER_*` no ambiente, o `.env` da raiz e o padrão. O `.env` só é lido em `Development`.
 
-O modelo padrão é `openai/gpt-4o-mini`. Com `openrouter/auto`, o OpenRouter escolhe um modelo diferente a cada chamada, às vezes um modelo de raciocínio que devolve a resposta cortada. Em 17/11, cinco chamadas pelo `Tradutor` da Guarda, com a chave real, alternando um bloqueio de saída e um documento mascarado, deram estes resultados (medido):
+O modelo padrão é `openai/gpt-6-luna`. Com `openrouter/auto`, o OpenRouter escolhe um modelo diferente a cada chamada, às vezes um modelo de raciocínio que devolve a resposta cortada. Em 17/11, cinco chamadas pelo `Tradutor` da Guarda, com a chave real, alternando um bloqueio de saída e um documento mascarado, deram estes resultados (medido):
 
 | Modelo | Tradução do LLM | Duas frases | Tempo por chamada |
 |---|---|---|---|
@@ -158,7 +158,15 @@ O modelo padrão é `openai/gpt-4o-mini`. Com `openrouter/auto`, o OpenRouter es
 | `mistralai/mistral-small-3.2-24b-instruct` | 5 de 5 | 5 de 5 | 0,9 a 1,5 s |
 | `openrouter/auto` | 5 de 5 | 5 de 5 | 2,5 a 3,0 s |
 
-Os três modelos fixos responderam inteiros. A equipe adotou o `gpt-4o-mini` porque foi o único que nunca citou com quem a pessoa mora, informação que o prompt proíbe. Os outros dois escreveram "quem mora com você" em algumas respostas. Cinco chamadas por modelo não bastam para afirmar que um modelo nunca falha. Para trocar, mude `OPENROUTER_MODEL` no `.env` ou `Llm__Modelo` no `segredos.env` da VM.
+Os três modelos fixos responderam inteiros. O `gpt-4o-mini` foi o único que nunca citou com quem a pessoa mora, informação que o prompt proíbe. Os outros dois escreveram "quem mora com você" em algumas respostas.
+
+Em 18/11 a equipe trocou o padrão para o `openai/gpt-6-luna`, porque as respostas ficaram mais claras para o cidadão. Foram cinco chamadas direto na API do OpenRouter, com o mesmo prompt de sistema, o mesmo `max_tokens` de 1000 e a mesma temperatura do `Tradutor`, alternando um bloqueio de saída e um documento mascarado (medido):
+
+| Modelo | Terminou sem corte | Duas frases | Citou com quem a pessoa mora | Tempo por chamada | Tokens de saída |
+|---|---|---|---|---|---|
+| `openai/gpt-6-luna` | 5 de 5 | 5 de 5 | 0 de 5 | 2,5 a 3,9 s | 122 a 220 |
+
+O Luna é um modelo de raciocínio. Os tokens de saída incluem o raciocínio, por isso passam das duas frases, mas ficam longe do limite de 1000. Na tabela de preços do OpenRouter, o token dele custa menos que o do `gpt-4o-mini` (US$ 0,10 contra 0,15 por milhão na entrada e US$ 0,50 contra 0,60 na saída), mas cada chamada gasta mais tokens de saída. O tempo fica abaixo do limite de 5 s da chamada (`Llm:Limite`), com menos folga que o `gpt-4o-mini`. Se passar dos 5 s, a Guarda usa a frase fixa. Cinco chamadas por modelo não bastam para afirmar que um modelo nunca falha. Para trocar, mude `OPENROUTER_MODEL` no `.env` ou `Llm__Modelo` no `segredos.env` da VM.
 
 Fora de `Development`, o log sai em JSON numa linha por evento, que o journald guarda. O `dotnet run` usa o formato simples, pelo `launchSettings.json`.
 

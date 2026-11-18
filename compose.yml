@@ -61,7 +61,7 @@ services:
       Logging__Console__FormatterName: simple
       # Lidos do .env da raiz, se existir. Sem chave, a Guarda usa uma frase fixa.
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
-      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-6-luna}
     ports: ["127.0.0.1:5080:5080"]
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:5080/healthz/ready"]
