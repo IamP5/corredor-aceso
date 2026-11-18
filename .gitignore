@@ -38,3 +38,6 @@ docs/discovery/raw.json
 docs/discovery/workflow-discovery.js
 .demo/
 _site/
+
+# Worktrees locais do Claude Code
+.claude/worktrees/
