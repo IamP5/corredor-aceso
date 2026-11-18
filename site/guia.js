@@ -236,13 +236,13 @@ const DISCIPLINAS = [
     criterios: [
       { nome: 'Circuito ESP32 com sensores', pontos: '', onde: `<a href="${arq('iot/no/diagram.json')}">diagram.json</a> e <a href="${arq('iot/no/no.ino')}">no.ino</a>: presença, DHT22, tensão da tomada, pingente MPU6050, sensor de teto HC-SR04, tela OLED, botão, LEDs e buzzer.` },
       { nome: 'Integrado à solução', pontos: '', onde: 'O nó publica os eventos do contrato MQTT do Corredor Aceso. O <a href="painel/">painel web</a> assina o mesmo broker e é a visão da ACS sobre a casa: situação, sensores, linha do tempo e os comandos de dia crítico e de pedido de toque.' },
-      { nome: 'Link do projeto no Wokwi', pontos: '', onde: '<a href="https://wokwi.com/projects/481064362873341953">wokwi.com/projects/481064362873341953</a>' },
+      { nome: 'Link do projeto no Wokwi', pontos: '', onde: '<a href="https://wokwi.com/projects/481069519743904769">wokwi.com/projects/481069519743904769</a>' },
       { nome: 'Painel web via MQTT', pontos: '', onde: '<a href="painel/">iamp5.github.io/corredor-aceso/painel</a>' },
       { nome: 'Vídeo de até 4 minutos', pontos: '', onde: `Roteiro em <a href="${arq('docs/entrega/roteiro-iot.md')}">roteiro-iot.md</a>` },
       { nome: 'Nomes dos integrantes', pontos: '', onde: `<a href="${arq('integrantes.txt')}">integrantes.txt</a>` },
     ],
     passos: [
-      { texto: 'Abra o projeto no Wokwi e, ao lado, o <a href="painel/">painel</a>. Inicie a simulação: o serial mostra <code>[pecas] tela ok, pingente ok</code> e <code>[mqtt] conectado</code>, e o painel muda para <strong>Tudo bem</strong>. Se o Wi-Fi do Wokwi fechar a conexão, reinicie a simulação.', cmd: 'https://wokwi.com/projects/481064362873341953' },
+      { texto: 'Abra o projeto no Wokwi e, ao lado, o <a href="painel/">painel</a>. Inicie a simulação: o serial mostra <code>[pecas] tela ok, pingente ok</code> e <code>[mqtt] conectado</code>, e o painel muda para <strong>Tudo bem</strong>. Se o Wi-Fi do Wokwi fechar a conexão, reinicie a simulação.', cmd: 'https://wokwi.com/projects/481069519743904769' },
       { texto: 'Clique no PIR e em <em>Simulate motion</em>: a luz de caminho acende e o painel registra <strong>Passou no corredor</strong> como sinal de vida.', cmd: '' },
       { texto: 'Queda pelo pingente: no MPU6050, leve a aceleração Z de 1 para 2 g. A tela mostra <strong>QUEDA?</strong> com a contagem e o buzzer bipa. Sem toque no botão em 15 s, sai <code>QUEDA</code> e o painel fica vermelho. O botão verde cancela ou encerra o alarme.', cmd: '' },
       { texto: 'Queda pelo sensor de teto: no HC-SR04, ponha 220 cm, alguém deitado no chão. Depois de 30 s começa a mesma contagem. Volte para 400 cm, o corredor vazio.', cmd: '' },

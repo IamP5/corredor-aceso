@@ -84,6 +84,7 @@ const unsigned long MOVIMENTO_MINIMO = 30000;  // um MOVIMENTO por passagem, nã
 const unsigned long DEBOUNCE = 30;
 const unsigned long LEITURA_DHT = 2500;
 const unsigned long RECONEXAO = 5000;
+const unsigned long ESPERA_MAXIMA_MQTT = 60000;
 const unsigned long DURACAO_DIA_CRITICO = 12UL * 60 * 60 * 1000;
 const unsigned long DURACAO_TOQUE = 10UL * 60 * 1000;
 const unsigned long INTERVALO_ESTADO = 2000;
@@ -133,6 +134,7 @@ unsigned long ultimaTelemetria = 0;
 bool telemetriaInicial = false;
 unsigned long ultimaLeituraDht = 0;
 unsigned long ultimaTentativa = 0;
+unsigned long esperaMqtt = RECONEXAO;
 unsigned long luzAte = 0;
 unsigned long ultimoMovimento = 0;
 bool pirAntes = false;
@@ -282,6 +284,7 @@ void cuidarDaRede() {
     } else {
       Serial.println("[wifi] chave ligada: reconectando");
       ultimaTentativa = 0;
+      esperaMqtt = RECONEXAO;
     }
   }
   if (!wifiLigado) return;
@@ -297,15 +300,19 @@ void cuidarDaRede() {
     return;
   }
   if (!mqtt.connected()) {
-    if (agora - ultimaTentativa < RECONEXAO && ultimaTentativa != 0) return;
+    if (agora - ultimaTentativa < esperaMqtt && ultimaTentativa != 0) return;
     ultimaTentativa = agora;
     char cliente[40];
     snprintf(cliente, sizeof cliente, "corredor-no-%08lx", (unsigned long)(uint32_t)ESP.getEfuseMac());
     if (mqtt.connect(cliente)) {
+      esperaMqtt = RECONEXAO;
       mqtt.subscribe(topicoComando);
       Serial.printf("[mqtt] conectado em %s, %d evento(s) no buffer\n", MQTT_HOST, tamanhoBuffer);
     } else {
-      Serial.printf("[mqtt] falhou (%d)\n", mqtt.state());
+      // Cada tentativa trava o loop alguns segundos. Espaçar as tentativas mantém o botão e os
+      // sensores atendidos enquanto o broker não responde.
+      esperaMqtt = esperaMqtt * 2 > ESPERA_MAXIMA_MQTT ? ESPERA_MAXIMA_MQTT : esperaMqtt * 2;
+      Serial.printf("[mqtt] falhou (%d), nova tentativa em %lu s\n", mqtt.state(), esperaMqtt / 1000);
       return;
     }
   }
