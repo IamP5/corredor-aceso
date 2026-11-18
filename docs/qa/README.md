@@ -11,8 +11,8 @@ Entregável de Testing, Compliance e Quality Assurance. O enunciado pede Feature
 | `azure/features-agile.csv` | A mesma importação para projeto no processo Agile, com os critérios dentro da descrição |
 | `azure/casos-de-teste.csv` | Importação de todos os Test Cases no Azure Test Plans |
 | `azure/por-feature/Fnn.csv` | Os Test Cases de uma Feature, para importar na suíte baseada em requisito dela |
-| `fonte/` | A fonte em Python de que os documentos e os CSV acima são gerados |
-| `ferramentas/` | `registro.py`, `gerar.py` e `conferir.py` |
+| `fonte/` | A fonte em Python de que os documentos e os CSV acima são gerados, e os épicos e as histórias dos PBIs (`backlog.py`) |
+| `ferramentas/` | `registro.py`, `gerar.py`, `conferir.py` e `publicar_azure.py` |
 
 ## Como a cobertura é provada
 
@@ -44,6 +44,21 @@ A conferência roda com:
 ```bash
 python3 docs/qa/ferramentas/conferir.py
 ```
+
+## Publicar no Azure pela API
+
+`ferramentas/publicar_azure.py` cria o backlog direto pela API REST, sem a importação de CSV: 5 épicos ([fonte/backlog.py](fonte/backlog.py)), as Features com descrição e critérios de aceite, um PBI por Feature com a história "como, quero, para que" e os Test Cases com os passos e a descrição (objetivo, critério de aceite do teste, preparação, dados de entrada e de saída). Cada caso fica ligado à Feature e ao PBI por "Tests / Tested By", e a pasta de consultas compartilhadas "Corredor Aceso QA" lista as Features, o backlog e os casos. Rodar de novo atualiza os itens pelo título, sem duplicar.
+
+O PAT fica num arquivo fora do Git (padrão `~/.azdo-pat`, com `chmod 600`) e precisa dos escopos Work Items (read, write & manage), Test Management (read & write) e Project and Team (read, write & manage).
+
+```bash
+# piloto: um épico, a F01, o PBI-01 e um caso
+python3 docs/qa/ferramentas/publicar_azure.py --org https://dev.azure.com/ORG --projeto "Corredor Aceso" --features F01 --max-casos 1
+# tudo
+python3 docs/qa/ferramentas/publicar_azure.py --org https://dev.azure.com/ORG --projeto "Corredor Aceso"
+```
+
+Criar Test Plan exige o acesso Basic + Test Plans. Com o acesso Basic, o script pula o Test Plan e os Test Cases ficam no Boards, que é onde a aula os cria (Boards, Work items, New Test Case).
 
 ## Importar no Azure
 

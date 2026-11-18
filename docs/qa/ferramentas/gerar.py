@@ -17,6 +17,7 @@ import argparse
 import csv
 import html
 import importlib.util
+import re
 import sys
 from pathlib import Path
 
@@ -51,7 +52,8 @@ def carregar_fonte():
 
 
 def _h(texto: str) -> str:
-    return html.escape(texto, quote=False)
+    # O Azure DevOps não interpreta Markdown: a crase vira <code>.
+    return re.sub(r"`([^`]+)`", r"<code>\1</code>", html.escape(texto, quote=False))
 
 
 def _md_lista(itens) -> str:
@@ -267,12 +269,21 @@ def _html_caso(c) -> str:
     partes = [
         f"<p><strong>Feature:</strong> {_h(c['feature'])} | <strong>Tipo:</strong> {_h(c['tipo'])}</p>",
         f"<p><strong>Objetivo:</strong> {_h(c['objetivo'])}</p>",
+        f"<p><strong>Critério de aceite do teste:</strong> {CRITERIO_TC[c['tipo']]}</p>",
         f"<p><strong>Preparação:</strong></p>{lista(c['preparacao'])}",
-        f"<p><strong>Entradas:</strong></p>{lista(c['entradas'])}",
-        f"<p><strong>Saídas esperadas:</strong></p>{lista(c['saidas'])}",
+        f"<p><strong>Dados de entrada:</strong></p>{lista(c['entradas'])}",
+        f"<p><strong>Dados de saída esperados:</strong></p>{lista(c['saidas'])}",
         f"<p><strong>Cobre:</strong> {_h(_cobre(c['cobre']))}</p>",
     ]
     return "".join(partes)
+
+
+CRITERIO_TC = {
+    "Positivo": "o caso passa quando cada passo produz o resultado esperado e todos os dados de saída abaixo são "
+                "observados. Qualquer divergência reprova o caso.",
+    "Negativo": "o caso passa quando o sistema recusa a operação ou não produz o resultado indesejado, exatamente como "
+                "descrevem os dados de saída abaixo, sem efeito colateral. Aceitar a entrada inválida reprova o caso.",
+}
 
 
 def titulo_azure(c) -> str:
