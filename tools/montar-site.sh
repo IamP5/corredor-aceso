@@ -20,6 +20,8 @@ evidencias() { grep -oE "caminho: '[^']+'" site/guia.js | sed -E "s/^caminho: '(
 # Lê os documentos do leitor: imprime o que copiar (cada .md e o SVG de cada desenho citado)
 # e sai com 1 se algum link relativo ou desenho não existir.
 leituras() {
+  # O script Python vai entre aspas simples de propósito: o shell não deve expandir nada dentro dele.
+  # shellcheck disable=SC2016
   grep -oE "leitura: '[^']+'" site/guia.js | sed -E "s/^leitura: '([^']+)'$/\1/" | python3 -c '
 import os, re, sys, urllib.parse
 falhou = False

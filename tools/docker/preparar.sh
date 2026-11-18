@@ -3,6 +3,8 @@
 # Cada passo confere antes de mudar, então rodar de novo a cada "docker compose up" não muda nada.
 # Para começar do zero: docker compose down -v.
 set -euo pipefail
+# A imagem copia este arquivo de infra/config para /config (tools/docker/api.Dockerfile).
+# shellcheck source=../../infra/config/corredor.conf.padrao
 source /config/corredor.conf.padrao
 
 super() { psql "postgresql://corredor:$PGSENHA@postgres:5432/$1" -X -q -v ON_ERROR_STOP=1 "${@:2}"; }
