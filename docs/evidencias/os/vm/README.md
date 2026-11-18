@@ -10,7 +10,7 @@ A instância de ensaio se chama `corredor-os-validacao`; o Bash configurou o hos
 |---|---|
 | Provisionamento numa VM nova | Passou: rede, dependências, banco, Nginx, usuários, permissões e monitor instalados em 176 s |
 | Backend e migrações | Passou: pacote self-contained `v0.0.1-vm`, 40 casas carregadas, API pronta e painel de Cyber HTTP 200 |
-| App da ACS integrado à API da VM | Pendente: a captura atual é do painel de Cyber. Não há captura nem navegação Web da ACS comprovada neste ensaio |
+| App da ACS integrado à API da VM | Passou em VM recriada com o mesmo procedimento, mais tarde em 18/11: o app web, sem mock, abriu o dia crítico, o radar, a casa, registrou visita, teve mensagem bloqueada e manteve na fila a visita feita com a API parada, enviada uma vez só depois que ela voltou ([14](14-app-acs-integrado.txt), [capturas](#app-da-acs-contra-a-api-da-vm)) |
 | Reexecução | Passou: 0 mudanças em 1 s e mesmos InvocationIDs da API e do monitor |
 | Rede e DNS | Passou: IP `10.77.0.1/24`, nomes internos, firewall e dnsmasq com systemd-resolved ativo |
 | Broker, API e monitor interrompidos | Passou: alerta, reenvio sem duplicação e recuperação dos processos |
@@ -42,6 +42,7 @@ O limite de memória não foi reduzido. O stress-ng ocupou 3022 MB na primeira e
 | [11-reinicializacao.txt](11-reinicializacao.txt) | Boot IDs diferentes, serviços habilitados/ativos e journal do novo boot |
 | [12-isolamento-da-limpeza.txt](12-isolamento-da-limpeza.txt) | Regressão da limpeza por PID, interrupção de carga e recuperação de API/monitor |
 | [13-validacao-estatica.txt](13-validacao-estatica.txt) | Instalação do ShellCheck ausente, diagnóstico e execução final aprovada |
+| [14-app-acs-integrado.txt](14-app-acs-integrado.txt) | App da ACS contra a API da VM: caminho do túnel, cena do dia crítico, navegação, visitas no Postgres da VM e requisições do app no log do Nginx |
 
 ### Capturas
 
@@ -51,6 +52,32 @@ O limite de memória não foi reduzido. O stress-ng ocupou 3022 MB na primeira e
 - [Resultado dos testes de falha](04-falhas.png).
 - [Reinicialização e início automático](05-boot.png).
 - [Auditoria e resultados dos scripts](06-auditoria.png).
+
+#### App da ACS contra a API da VM
+
+O app Expo no alvo web, com `EXPO_PUBLIC_API_URL=http://127.0.0.1:18080`, falou com o Nginx da VM pelo túnel SSH local. Chrome headless em 390x844, como um celular. O registro [14-app-acs-integrado.txt](14-app-acs-integrado.txt) traz as requisições do app no log de acesso do Nginx da VM.
+
+| Captura | Mostra |
+|---|---|
+| [01-entrada.png](acs/01-entrada.png) | Entrada com o código de acesso da ACS |
+| [02-dia-critico.png](acs/02-dia-critico.png) | Dia crítico declarado pela regra da noite quente, com o resumo do radar |
+| [03-radar.png](acs/03-radar.png) | Radar da microárea 3: urgentes, aparelhos sem sinal e casas aguardando |
+| [04-casa-e-linha-do-tempo.png](acs/04-casa-e-linha-do-tempo.png) | Casa urgente e linha do tempo do aparelho |
+| [05-visita.png](acs/05-visita.png) | Registro da visita |
+| [06-casa-depois-da-visita.png](acs/06-casa-depois-da-visita.png) | Visita enviada à API |
+| [07-mensagem-bloqueada.png](acs/07-mensagem-bloqueada.png) | Mensagem para o grupo do bairro bloqueada pela Guarda, com versão segura |
+| [08-fila-api-fora.png](acs/08-fila-api-fora.png) | `systemctl stop corredor-api` na VM: a visita fica na fila do app |
+| [09-fila-enviada.png](acs/09-fila-enviada.png) | `systemctl start corredor-api`: a fila envia e o Postgres da VM tem uma linha só |
+
+Esta VM foi recriada em outro notebook com o mesmo comando de `limactl start` desta página, a partir do commit `8709a4b`. A cena do dia crítico rodou dentro da VM, e a navegação veio de `tools/demo/telas.mjs` com `CORREDOR_VM`, que para e sobe a API com `systemctl` na VM e lê o Postgres dela:
+
+```bash
+limactl shell --workdir=/ corredor-os-validacao -- sudo -u corredor bash -c 'cd /opt/corredor/repo && CORREDOR_API_URL=http://127.0.0.1 CORREDOR_DEMO_ESTADO=/tmp/demo /opt/corredor/venv/bin/python tools/demo/cenas.py dia-critico'
+cd app && EXPO_PUBLIC_API_URL=http://127.0.0.1:18080 npx expo start --web --port 8081   # outro terminal, com o túnel aberto
+CORREDOR_VM=corredor-os-validacao CORREDOR_API_URL=http://127.0.0.1:18080 CORREDOR_SAIDA=docs/evidencias/os/vm/acs node tools/demo/telas.mjs
+```
+
+O relógio de demo mora na memória da API. Depois das 18h (hora real), religar a API encerra o turno antes de o relógio ser restaurado, porque passa do `FimDoTurno`. Foi o que aconteceu aqui, então o encerramento pela ACS não tem captura. O [registro](14-app-acs-integrado.txt) explica.
 
 A primeira imagem é do **painel de Cybersecurity**, servido pelo Nginx da VM em `http://127.0.0.1:18080/painel/`, não da aplicação Docker em 5080. **Ela não mostra o app da ACS e não substitui a demonstração Mobile + API.** As demais são capturas do navegador exibindo os arquivos de registro reais a partir da cópia do guia; não simulam um terminal interativo. O navegador headless foi usado para capturar em resolução legível, sem editar o conteúdo dos registros.
 
@@ -118,5 +145,5 @@ Ao fim da validação, `corredor-os-validacao` foi desligada, com seu disco pres
 - Multipass e `infra/local/subir.sh` não foram executados. O ensaio comprova os scripts Bash e os serviços na VM Lima/VZ, não esse inicializador.
 - O cloud-init do projeto, Azure, x64, swap com menos de 3 GB, HTTPS público, GitHub Release e app no celular continuam fora deste ensaio.
 - O vídeo de até 7 minutos ainda precisa ser gravado e seu link publicado.
-- A demonstração visual do app da ACS consumindo a API da VM e suas capturas continuam pendentes; o painel de Cyber é apenas complementar.
+- O app da ACS foi demonstrado no alvo web, num navegador do notebook. O app no celular falando com a VM não foi testado. O encerramento do turno ficou de fora das capturas.
 - Os arquivos e as capturas precisam ser commitados e publicados na main para aparecerem no GitHub Pages público.

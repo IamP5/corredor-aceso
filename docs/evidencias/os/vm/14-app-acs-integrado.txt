@@ -1,0 +1,119 @@
+# App da ACS (alvo web) consumindo a API hospedada na VM
+# Gerado em 2026-11-18T18:41:24-03:00 num Mac; VM Lima/VZ corredor-os-validacao recriada nesta data.
+# Commit do repositório e do pacote: 8709a4b9a31a99a356547601c41e7f0eb7dc4abf
+
+## Ambiente
+hostname: corredor-ubs
+SO: Ubuntu 24.04.5 LTS aarch64
+virtualização: apple
+serviços (api monitor nginx postgres mosquitto): active active active active active
+
+## Caminho
+Chrome headless (390x844, como celular) -> app Expo web em http://localhost:8081
+EXPO_PUBLIC_API_URL=http://127.0.0.1:18080 -> túnel SSH local 127.0.0.1:18080 -> Nginx da VM :80 -> corredor-api 127.0.0.1:5000
+
+## GET /api/versao pelo túnel
+{"versao":"0.0.1-vm","commit":"8709a4b9a31a99a356547601c41e7f0eb7dc4abf","ambiente":"local"}
+
+## Preparação: cena dia-critico rodada dentro da VM (tools/demo/cenas.py, CORREDOR_API_URL=http://127.0.0.1)
+[18:33:23] == Cena 1: dia crítico declarado pelo job de ML, as casas esperam, o movimento tira os cards
+[18:33:23] OK    PUT /api/demo/relogio 05:00 -> 200, deslocamento -48803 s
+[18:33:48] simulador: cenário demo --inicio 0 (log em .demo/simulador-demo.log)
+[18:33:56] antes do dia crítico: agora 05:00:33, turno fechado: 2 pendentes, 0 atendidas, 38 aguardando, 0 verdes
+[18:33:56] OK    sem turno não existe Verde
+[18:33:56] python3 ml/prever_hoje.py --dia-das-variaveis 2025-12-29
+[18:33:56]   ml: {"dia_das_variaveis": "2025-12-29", "critico": true, "probabilidade": 0.1098, "motivo": "demo com o clima de 29/12/2025; regra da noite quente: mínimas de 22,6 e 24,3 °C nas 2 últimas noites, acima de 19,9 °C", "origem": "REGRA_BASE"}
+[18:33:56]   ml: PUT <api>/api/dias-criticos/2026-11-18 -> 200 {"data":"2026-11-18","abertoEm":"2026-11-18T05:00:33.150879-03:00","probabilidade":0.110,"motivo":"demo com o clima de 29/12/2025; regra da noite quente: mínimas de 22,6 e 24,3 °C nas 2 últimas noites, acima de 19,9 °C","origem":"REGRA_BASE","encerradoEm":null}
+[18:33:56] OK    prever_hoje.py saiu com 0
+[18:33:56] logo depois: agora 05:00:33, turno aberto: 6 pendentes, 0 atendidas, 34 aguardando, 0 verdes
+[18:33:56] OK    o turno abriu
+[18:33:59] OK    o Motor publicou DIA_CRITICO e o simulador recebeu
+[18:34:00] simulador: cenário demo --inicio 0 (log em .demo/simulador-demo.log)
+[18:34:02] OK    os acamados entram vermelhos na abertura: [2, 11, 21, 31]
+[18:35:32] 90 s depois, com movimento chegando: agora 05:02:09, turno aberto: 6 pendentes, 0 atendidas, 10 aguardando, 24 verdes
+[18:35:32] OK    casas com movimento depois da abertura ficaram Verde
+[18:35:32] OK    PUT /api/demo/relogio 10:00 -> 200, deslocamento -30933 s
+[18:35:57] às 10h: agora 10:00:25, turno aberto: 11 pendentes, 0 atendidas, 26 aguardando, 3 verdes
+[18:35:57] vermelhas por SemMovimentoNaJanela, fora os acamados: [5, 6, 7, 9]
+[18:35:57] OK    C, D e E, em silêncio desde cedo, estão vermelhas
+[18:35:57] OK    a casa 4 (B) avisou a saída e fica fora da regra 4: aguardando, saidaAvisada True
+[18:35:57] radar: agora 10:00:25, turno aberto: 11 pendentes, 0 atendidas, 26 aguardando, 3 verdes
+[18:35:57] == todas as conferências passaram
+
+## Navegação do app (tools/demo/telas.mjs adaptado: API parada/subida com systemctl na VM, Postgres da VM)
+[18:39:48] print 01-entrada.png
+[18:39:51] print 02-dia-critico.png
+[18:39:54] print 03-radar.png
+[18:39:54] cards pendentes na tela: 11
+[18:39:54] primeiro card: Urgente. Zulmira Manacá. Viela da Corruíra, 26 - Vila Exemplo. Calor forte dentro de casa desde 05h02. Precisa de visita agora.
+[18:39:57] print 04-casa-e-linha-do-tempo.png
+[18:39:59] print 05-visita.png
+[18:40:04] print 06-casa-depois-da-visita.png
+[18:40:09] print 07-mensagem-bloqueada.png
+[18:40:09] casa do teste sem rede: Zulmira Manacá
+[18:40:09] parando a API
+[18:40:09] VM: systemctl stop corredor-api
+[18:40:18] print 08-fila-api-fora.png
+[18:40:18] tela com a API fora contém "Ainda não enviad": true
+[18:40:18] subindo a API de novo
+[18:40:18] VM: systemctl start corredor-api
+[18:40:19] relógio de demo restaurado -> 200
+[18:40:30] a visita feita sem API chegou ao banco: 1 linha(s)
+[18:40:35] print 09-fila-enviada.png
+[18:40:35] a tela da casa ainda diz "não enviada": false
+[18:40:55] 20 s depois, linhas no banco para a mesma visita: 1
+
+## Turno encerrado pelo servidor no religamento
+# O relógio de demo mora na memória da API. Ao subir de novo às 18:40:19 (hora real), a API ficou alguns segundos no
+# relógio real, depois do FimDoTurno de 18h, e o Motor encerrou o turno (motor.dia_critico.encerrado_em = 18:40:19).
+# O script restaurou o relógio de demo em seguida; a fila da visita sincronizou mesmo assim (captura 09).
+# Por isso o encerramento pela ACS não foi capturado. Antes das 18h (hora real) isso não acontece.
+
+## Postgres da VM: visitas gravadas para a casa usada no teste
+# As três visitas NaoAbriu vêm de três execuções da navegação: duas pararam no script (rótulos desatualizados) depois de salvar a visita, a terceira é a completa. A EstavaFora foi feita com a API parada e gravada uma vez só.
+  desfecho  |                     observacao                      |         registrada_em         
+------------+-----------------------------------------------------+-------------------------------
+ NaoAbriu   | bati duas vezes e ninguém atendeu                   | 2026-11-18 10:02:08.221234-03
+ NaoAbriu   | bati duas vezes e ninguém atendeu                   | 2026-11-18 10:03:12.953943-03
+ NaoAbriu   | bati duas vezes e ninguém atendeu                   | 2026-11-18 10:04:27.130128-03
+ EstavaFora | registrada com a API fora, 2026-11-18T21:39:45.755Z | 2026-11-18 10:04:56.126648-03
+(4 rows)
+
+
+## Nginx da VM: requisições do app na última execução (18:39:48 em diante)
+# formato: hora método rota status origem. Origem http://localhost:8081/ é o app; "-" é o próprio script conferindo a API. Os 502 são o intervalo em que a API ficou parada de propósito. Tokens de casa com os 8 primeiros caracteres.
+18:39:48 OPTIONS /api/radar?microarea=3 204 http://localhost:8081/
+18:39:48 OPTIONS /api/lista-de-nomes?microarea=3 204 http://localhost:8081/
+18:39:48 OPTIONS /api/avisos?microarea=3 204 http://localhost:8081/
+18:39:48 GET /api/radar?microarea=3 200 http://localhost:8081/
+18:39:48 GET /api/avisos?microarea=3 200 http://localhost:8081/
+18:39:48 GET /api/lista-de-nomes?microarea=3 200 http://localhost:8081/
+18:39:54 OPTIONS /api/casas/384f7563…/linha-do-tempo 204 http://localhost:8081/
+18:39:54 GET /api/casas/384f7563…/linha-do-tempo 200 http://localhost:8081/
+18:39:59 OPTIONS /api/casas/384f7563…/linha-do-tempo 204 http://localhost:8081/
+18:39:59 GET /api/casas/384f7563…/linha-do-tempo 200 http://localhost:8081/
+18:39:59 OPTIONS /api/visitas 204 http://localhost:8081/
+18:39:59 POST /api/visitas 201 http://localhost:8081/
+18:39:59 GET /api/casas/384f7563…/linha-do-tempo 200 http://localhost:8081/
+18:40:07 OPTIONS /api/mensagens/verificar 204 http://localhost:8081/
+18:40:07 POST /api/mensagens/verificar 200 http://localhost:8081/
+18:40:09 GET /api/radar?microarea=3 200 -
+18:40:09 GET /api/lista-de-nomes?microarea=3 200 -
+18:40:11 OPTIONS /api/casas/384f7563…/linha-do-tempo 502 http://localhost:8081/
+18:40:13 OPTIONS /api/casas/384f7563…/linha-do-tempo 502 http://localhost:8081/
+18:40:13 OPTIONS /api/visitas 502 http://localhost:8081/
+18:40:13 OPTIONS /api/casas/384f7563…/linha-do-tempo 502 http://localhost:8081/
+18:40:18 GET /api/versao 502 -
+18:40:20 GET /api/versao 200 -
+18:40:20 PUT /api/demo/relogio 200 -
+18:40:28 OPTIONS /api/visitas 204 http://localhost:8081/
+18:40:28 POST /api/visitas 201 http://localhost:8081/
+18:40:28 OPTIONS /api/lista-de-nomes?microarea=3 204 http://localhost:8081/
+18:40:28 OPTIONS /api/avisos?microarea=3 204 http://localhost:8081/
+18:40:28 OPTIONS /api/radar?microarea=3 204 http://localhost:8081/
+18:40:28 GET /api/lista-de-nomes?microarea=3 200 http://localhost:8081/
+18:40:28 OPTIONS /api/casas/384f7563…/linha-do-tempo 204 http://localhost:8081/
+18:40:28 GET /api/avisos?microarea=3 200 http://localhost:8081/
+18:40:28 GET /api/radar?microarea=3 200 http://localhost:8081/
+18:40:28 GET /api/casas/384f7563…/linha-do-tempo 200 http://localhost:8081/
+18:40:28 GET /api/casas/384f7563…/linha-do-tempo 200 http://localhost:8081/

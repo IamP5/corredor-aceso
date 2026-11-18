@@ -101,8 +101,8 @@ Nota: script de infra (rede, DNS, IP) 2, script da aplicação 2, script de moni
 | Monitor como serviço tolerante a falhas | `infra/systemd/corredor-monitor.service` | repositório | recuperação e início após novo boot comprovados ([08](evidencias/os/vm/08-recuperacao-e-watchdog.txt), [11](evidencias/os/vm/11-reinicializacao.txt)) |
 | Logs de auditoria e de execução | `infra/lib/auditoria.sh` | repositório | validados, inclusive erro controlado e interrupção auditada ([09](evidencias/os/vm/09-auditoria.txt), [10](evidencias/os/vm/10-controle-e-erro.txt)) |
 | Teste de falha | `infra/teste-de-falha.sh` | repositório | seis cenários antes/depois do boot e watchdog aprovados na VM ([06](evidencias/os/vm/06-teste-de-falha.txt)) |
-| App da ACS consumindo a API da VM | `app/`, `api/` | repositório e captura | parcial: API validada; faltam navegação e capturas desse cliente. O print de `/painel/` é de Cyber |
-| README e evidências técnicas | `infra/README.md`, `docs/evidencias/os/` | repositório | parcial: infra/API documentadas; faltam a prova visual ACS/API e conferir a publicação no Pages. Multipass/Azure não testados |
+| App da ACS consumindo a API da VM | `app/`, `api/` | repositório e captura | pronto: app web, sem mock, navegou contra a API da VM, inclusive fila com a API parada ([capturas](evidencias/os/vm/README.md#app-da-acs-contra-a-api-da-vm), [registro](evidencias/os/vm/14-app-acs-integrado.txt)) |
+| README e evidências técnicas | `infra/README.md`, `docs/evidencias/os/` | repositório | parcial: infra, API e app da ACS documentados; falta conferir a publicação no Pages. Multipass/Azure não testados |
 | Vídeo de até 7 minutos com provisionamento, app/API, serviços, logs e recuperação | [roteiro](entrega/roteiro-os.md) | gravação e narração | falta: gravação ainda não iniciada |
 
 ## Physical Computing: IoT e IoB

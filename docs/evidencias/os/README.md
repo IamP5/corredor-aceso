@@ -1,10 +1,10 @@
 # Evidências de Operating Systems
 
-**Situação da entrega:** o [ensaio em VM real de 18/11/2026](vm/README.md) comprovou provisionamento, API, rede/DNS, limites padrão, recuperação, auditoria e início automático após reinicialização. As capturas atuais mostram a infraestrutura e o painel de Cyber, não o app da ACS integrado à API. Faltam essa comprovação visual e o vídeo de até 7 minutos. A publicação destes arquivos também deve ser conferida na main/Pages.
+**Situação da entrega:** o [ensaio em VM real de 18/11/2026](vm/README.md) comprovou provisionamento, API, rede/DNS, limites padrão, recuperação, auditoria e início automático após reinicialização. As [capturas do app da ACS](vm/README.md#app-da-acs-contra-a-api-da-vm) mostram o cliente web, sem mock, consumindo a API da VM. Falta o vídeo de até 7 minutos. A publicação destes arquivos também deve ser conferida na main/Pages.
 
 ## O Pages sozinho comprova 100% da entrega?
 
-**Não.** O Pages é um índice verificável de código, instruções e provas; o enunciado também exige um vídeo demonstrativo de até 7 minutos. Uma captura de `/painel/` comprova que o painel de Cyber foi servido pelo Nginx, mas não comprova o app da ACS funcionando com a API. Os serviços e a API passaram nos testes de VM; o funcionamento visual do cliente Web da ACS continua pendente.
+**Não.** O Pages é um índice verificável de código, instruções e provas; o enunciado também exige um vídeo demonstrativo de até 7 minutos. Uma captura de `/painel/` comprova que o painel de Cyber foi servido pelo Nginx, mas não comprova o app da ACS funcionando com a API. Os serviços e a API passaram nos testes de VM, e o cliente web da ACS foi capturado contra essa API ([registro](vm/14-app-acs-integrado.txt)).
 
 Para fechar a entrega, é necessário demonstrar o app real sem mock, registrar suas chamadas à API da VM, adicionar as capturas, gravar/publicar o vídeo e conferir os links no site público. As caixas de conferência do guia são marcações locais da banca, não um resultado automático dos testes nem uma garantia de nota.
 
@@ -45,12 +45,12 @@ Os registros principais abaixo são da VM real. O [relatório da VM](vm/README.m
 |---|---|---|
 | Hostname, IP, parâmetros de rede, DNS e resolução | [Rede e DNS](vm/05-rede-e-dns.txt) | Aprovado, inclusive dnsmasq com systemd-resolved ativo |
 | Dependências, componentes, usuários, diretórios, variáveis e permissões | [Provisionamento](vm/01-provisionamento.txt), [serviços e permissões](vm/04-servicos-e-permissoes.txt) | Aprovado numa VM nova |
-| Aplicação Web funcionando e serviço configurado | [Deploy da API](vm/02-aplicacao.txt), [painel de Cyber auxiliar](vm/01-aplicacao.png) | API saudável. Parcial para a demonstração completa: falta o app da ACS consumindo a API da VM |
+| Aplicação Web funcionando e serviço configurado | [Deploy da API](vm/02-aplicacao.txt), [app da ACS](vm/14-app-acs-integrado.txt), [painel de Cyber auxiliar](vm/01-aplicacao.png) | Aprovado: API saudável e app da ACS, sem mock, navegando contra ela |
 | CPU, RAM consumida/disponível, disco e alertas por limites | [Falhas e carga](vm/06-teste-de-falha.txt), [métricas](vm/07-monitor-e-alertas.txt) | Aprovado com limites padrão de 85%, 85% e 80% |
 | Serviço periódico, controle start/stop/restart e recuperação | [Watchdog](vm/08-recuperacao-e-watchdog.txt), [controle](vm/10-controle-e-erro.txt), [boot](vm/11-reinicializacao.txt) | Aprovado, com novo boot e início automático |
 | Logs de instalação, configuração, execução, verificações, alertas e resultados | [Auditoria](vm/09-auditoria.txt), [erro controlado](vm/10-controle-e-erro.txt) | Aprovado, inclusive códigos de erro esperados |
 | Reexecução reproduzível e testes de falha | [Reexecução](vm/03-reprovisionamento.txt), [falhas](vm/06-teste-de-falha.txt) | Zero mudanças; seis cenários completos aprovados e watchdog aprovado separadamente |
-| README, vídeo de até 7 minutos e capturas organizadas | [Guia](../../../infra/README.md), [capturas](vm/README.md#capturas), [roteiro](../../entrega/roteiro-os.md) | Registros de infra disponíveis; faltam capturas da integração ACS/API, vídeo e conferência da publicação |
+| README, vídeo de até 7 minutos e capturas organizadas | [Guia](../../../infra/README.md), [capturas](vm/README.md#capturas), [roteiro](../../entrega/roteiro-os.md) | Registros e capturas da infra e do app da ACS disponíveis; faltam vídeo e conferência da publicação |
 
 ## Limites do ensaio anterior em contêiner
 
@@ -77,7 +77,7 @@ O enunciado exige as evidências no repositório; o Pages funciona como índice 
 - [x] Reiniciar a VM e registrar API e monitor iniciados automaticamente e journal do novo boot.
 - [x] Salvar registros e capturas em `vm/`, preservando a origem dos registros antigos.
 - [x] Adicionar capturas da infraestrutura, dos registros reais e do painel de Cyber, identificado como evidência auxiliar.
-- [ ] Demonstrar o app da ACS, sem mock, consumindo a API hospedada na VM; registrar dia/radar e as respostas HTTP reais.
+- [x] Demonstrar o app da ACS, sem mock, consumindo a API hospedada na VM; registrar dia/radar e as respostas HTTP reais.
 - [ ] Adicionar as capturas dessa integração. O frontend Web no notebook deve ser identificado como cliente, sem alegar que foi hospedado na VM.
 - [ ] Gravar o vídeo de até 7 minutos conforme o [roteiro](../../entrega/roteiro-os.md) e publicar o link no [README principal](../../../README.md#vídeos).
 - [ ] Atualizar a situação deste índice e do Pages somente com o que foi comprovado. Publicar na `main`, aguardar o workflow do Pages e conferir que os novos arquivos abrem pela seção de OS.

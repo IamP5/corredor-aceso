@@ -3,6 +3,8 @@
 // http://localhost:8081 com EXPO_PUBLIC_API_URL apontando para a API (`bash tools/demo.sh app`).
 // O caminho sem rede para a API com `bash tools/demo.sh parar-api`, registra a visita, sobe a API de novo
 // e confere no Postgres que a visita foi gravada uma vez só.
+// Contra a VM: CORREDOR_VM=<instância do Lima> faz parar e subir a API com systemctl dentro dela e ler o Postgres
+// da VM. CORREDOR_SAIDA troca a pasta dos prints. Exemplo em docs/evidencias/os/vm/README.md.
 import { execFileSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -10,7 +12,8 @@ import { fileURLToPath } from 'node:url';
 import { abrirNavegador } from './navegador.mjs';
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const SAIDA = join(RAIZ, 'docs', 'evidencias', 'integracao');
+const SAIDA = process.env.CORREDOR_SAIDA ?? join(RAIZ, 'docs', 'evidencias', 'integracao');
+const VM = process.env.CORREDOR_VM;
 const API = process.env.CORREDOR_API_URL ?? 'http://localhost:5080';
 const APP = process.env.CORREDOR_APP_URL ?? 'http://localhost:8081';
 const TOKEN = process.env.CORREDOR_TOKEN_ACS ?? 'dev-acs-demo-01-so-no-notebook';
@@ -22,15 +25,34 @@ mkdirSync(SAIDA, { recursive: true });
 const api = (caminho, init = {}) =>
   fetch(API + caminho, { ...init, headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json', ...init.headers } })
     .then(async (r) => ({ status: r.status, corpo: await r.text().then((t) => (t ? JSON.parse(t) : null)) }));
-const demo = (...args) => execFileSync('bash', [join(RAIZ, 'tools', 'demo.sh'), ...args], { stdio: 'inherit' });
-const sql = (consulta) => execFileSync('docker', ['compose', '-f', join(RAIZ, 'compose.dev.yml'), 'exec', '-T', 'postgres',
-  'psql', '-U', 'corredor', '-d', 'corredor_demo', '-At', '-c', consulta]).toString().trim();
+const naVm = (...args) => execFileSync('limactl', ['shell', '--workdir=/', VM, '--', ...args]);
+// Para ou sobe a API: no notebook pelo tools/demo.sh, na VM pelo systemctl. Volta quando /api/versao responde.
+const demo = async (acao) => {
+  if (!VM) {
+    execFileSync('bash', [join(RAIZ, 'tools', 'demo.sh'), acao], { stdio: 'inherit' });
+    return;
+  }
+  const verbo = acao === 'parar-api' ? 'stop' : 'start';
+  naVm('sudo', 'systemctl', verbo, 'corredor-api');
+  dizer(`VM ${VM}: systemctl ${verbo} corredor-api`);
+  if (verbo === 'stop') return;
+  for (let i = 0; i < 60; i++) {
+    if ((await fetch(`${API}/api/versao`).catch(() => ({ ok: false }))).ok) return;
+    await espera(1000);
+  }
+  throw new Error('a API da VM não voltou em 60 s');
+};
+const sql = (consulta) => (VM
+  ? naVm('sudo', '-u', 'postgres', 'psql', '-d', 'corredor', '-At', '-c', consulta)
+  : execFileSync('docker', ['compose', '-f', join(RAIZ, 'compose.dev.yml'), 'exec', '-T', 'postgres',
+    'psql', '-U', 'corredor', '-d', 'corredor_demo', '-At', '-c', consulta])).toString().trim();
 
 const p = await abrirNavegador();
 // Navega só por toques: recarregar a página no alvo web disputa o arquivo do SQLite com a aba anterior.
 const inicio = async () => {
-  for (let i = 0; i < 5 && !(await p.texto()).includes('Ver o radar'); i++) await p.tocar('Voltar').catch(() => {});
-  await p.esperarTexto('Ver o radar');
+  // O texto na tela é "Ver radar"; "Ver o radar" é o rótulo de acessibilidade, que só o tocar() enxerga.
+  for (let i = 0; i < 5 && !(await p.texto()).includes('Ver radar'); i++) await p.tocar('Voltar').catch(() => {});
+  await p.esperarTexto('Ver radar');
 };
 const foto = async (nome, inteira = false) => {
   await (inteira ? p.fotoInteira(join(SAIDA, nome)) : p.foto(join(SAIDA, nome)));
@@ -50,7 +72,7 @@ try {
   await p.esperarTexto('Precisam de visita');
   await espera(1500);
   await foto('03-radar.png', true);
-  const cards = await p.avaliar(`[...document.querySelectorAll('[role=button][aria-label]')].map((e) => e.getAttribute('aria-label')).filter((t) => /Urgente|sem sinal/.test(t))`);
+  const cards = await p.avaliar(`[...document.querySelectorAll('[role=button][aria-label]')].map((e) => e.getAttribute('aria-label')).filter((t) => /Urgente|sem sinal/.test(t) && !t.startsWith('Resumo do radar'))`);
   dizer(`cards pendentes na tela: ${cards.length}`);
   dizer(`primeiro card: ${cards[0]}`);
 
@@ -71,10 +93,10 @@ try {
   // A mensagem para o grupo do bairro.
   await inicio();
   await p.tocar('Escrever para o grupo do bairro');
-  await p.esperarTexto('Antes de mandar no grupo');
+  await p.esperarTexto('O app confere se a mensagem');
   await p.digitar('Sua mensagem', 'ele mora sozinho e toma diurético');
   await p.tocar('Verificar mensagem');
-  await p.esperarTexto('versão');
+  await p.esperarTexto('Versão segura', 30000);
   await espera(1000);
   await foto('07-mensagem-bloqueada.png', true);
 
@@ -87,7 +109,7 @@ try {
   const nomeDoAlvo = nomes.find((i) => i.casaToken === alvo.casaToken).nome;
   dizer(`casa do teste sem rede: ${nomeDoAlvo}`);
   dizer('parando a API');
-  demo('parar-api');
+  await demo('parar-api');
   await inicio();
   await p.tocar('Ver o radar');
   await p.esperarTexto('Precisam de visita');
@@ -105,7 +127,7 @@ try {
   })()`);
   dizer(`tela com a API fora contém "Ainda não enviad": ${visitas.includes('inda não enviad')}`);
   dizer('subindo a API de novo');
-  demo('api');
+  await demo('api');
   // O relógio de demo mora na memória da API. Volta ao ponto em que estava, mais o tempo que passou.
   const agora = new Date(relogioAntes + (Date.now() - tempoAntes)).toISOString();
   const r = await fetch(`${API}/api/demo/relogio`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agora }) });
@@ -125,14 +147,19 @@ try {
 
   // Encerramento do turno.
   await inicio();
-  await p.tocar('Encerrar o turno');
-  await p.esperarTexto('Encerrar o turno de hoje?');
-  await foto('10-encerrar.png');
-  await p.tocar('Encerrar o turno');
-  await p.esperarTexto('Turno encerrado');
-  await espera(1000);
-  await foto('11-turno-encerrado.png', true);
-  dizer(`tela final: ${(await p.texto()).replace(/\s+/g, ' ').slice(0, 300)}`);
+  // No web a confirmação é um window.confirm, que trava o Chrome sem janela. Aceita e guarda o texto perguntado.
+  // A API religada volta por um instante ao relógio real. Depois do FimDoTurno (18h), o Motor já encerra o turno ali.
+  if (!(await p.texto()).includes('Encerrar o turno')) {
+    dizer('o turno já estava encerrado pelo servidor: a API religou com o relógio real depois do FimDoTurno');
+  } else {
+    await p.avaliar(`window.confirm = (texto) => { window.__confirmado = texto; return true; }`);
+    await p.tocar('Encerrar o turno');
+    dizer(`confirmação aceita: ${(await p.avaliar('window.__confirmado ?? ""')).split('\n')[0]}`);
+    await p.esperarTexto('Turno encerrado');
+    await espera(1000);
+    await foto('11-turno-encerrado.png', true);
+    dizer(`tela final: ${(await p.texto()).replace(/\s+/g, ' ').slice(0, 300)}`);
+  }
 } finally {
   p.fechar();
 }
