@@ -5,7 +5,7 @@
 #
 # As evidências abrem dentro do guia, então cada `caminho:` do guia.js é copiado para
 # _site/repo/<caminho>, junto com docs/evidencias inteira. _site/repo/indice.json lista
-# tudo o que foi copiado; a gaveta usa a lista para abrir pastas e seguir links internos.
+# tudo o que foi copiado; a gaveta lê esses da cópia e o resto do repositório pela API do GitHub.
 # Cada `leitura:` do guia.js (REQUISITOS.md e docs/arquitetura) abre no leitor, renderizado do Markdown.
 # Os desenhos entram pelo nome.escuro.svg que fica ao lado de cada .mmd; o guia troca as cores por CSS.
 #

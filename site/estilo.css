@@ -23,6 +23,10 @@
   /* Inter no texto corrido: x-height alta e acentos legíveis em tela. JetBrains Mono no código, com ligaduras. */
   --fonte-texto: "Inter", system-ui, sans-serif;
   --fonte-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Código em bloco: o JetBrains Mono tem olho grande, então 13,5px lê como 15px de texto corrido.
+     A entrelinha de 1,65 (22px) separa as linhas sem desmanchar a indentação como bloco. */
+  --codigo-tamanho: 13.5px;
+  --codigo-entrelinha: 1.65;
   --texto-leitura: #d3d5dc;
 
   --largura: 1180px;
@@ -67,7 +71,8 @@ p, li { text-wrap: pretty; }
 a { color: var(--branco); text-decoration-color: var(--magenta); text-underline-offset: 3px; text-decoration-thickness: 2px; }
 a:hover { color: var(--magenta); }
 :focus-visible { outline: 2px solid var(--magenta); outline-offset: 3px; }
-code, pre { font-family: var(--fonte-mono); font-variant-ligatures: contextual common-ligatures; font-feature-settings: "calt" 1, "liga" 1; tab-size: 2; }
+/* Sem ligaduras: quem lê o código vê os caracteres que estão no arquivo (=> e não ⇒), como no GitHub e no que se copia. */
+code, pre { font-family: var(--fonte-mono); font-variant-ligatures: none; font-feature-settings: "calt" 0, "liga" 0; tab-size: 4; }
 pre > code { display: block; }
 code { font-size: 0.875em; font-weight: 450; color: var(--ultrassom); background: var(--preto-casual); padding: 0.12em 0.4em; border-radius: 3px; }
 
@@ -160,7 +165,7 @@ h3 { font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: 
 
 .cmd { position: relative; background: var(--preto-atomico); border: 1px solid var(--linha); border-radius: var(--raio); }
 .cmd pre { margin: 0; padding: 14px 84px 14px 16px; overflow-x: auto; }
-.cmd code { background: none; padding: 0; color: var(--branco); font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.cmd code { background: none; padding: 0; color: var(--branco); font-size: var(--codigo-tamanho); font-weight: 400; line-height: var(--codigo-entrelinha); white-space: pre-wrap; word-break: break-word; }
 .cmd__copiar { position: absolute; top: 8px; right: 8px; padding: 5px 10px; background: var(--preto-casual); color: var(--prata); border: 1px solid var(--linha); border-radius: 3px; font: 700 11px var(--fonte-titulo); letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
 .cmd__copiar:hover { background: var(--magenta); border-color: var(--magenta); color: var(--sobre-magenta); }
 
@@ -185,7 +190,7 @@ body:has(.gaveta[open]) { overflow: hidden; }
 @keyframes gaveta-entra { from { transform: translateX(40px); opacity: 0; } }
 .gaveta__topo { display: flex; align-items: center; gap: 16px; padding: 18px 24px; border-bottom: 1px solid var(--linha); background: var(--preto); }
 .gaveta__titulos { flex: 1; min-width: 0; }
-.gaveta__caminho { margin: 0 0 4px; font: 400 12px var(--fonte-mono); color: var(--ardosia); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gaveta__caminho { margin: 0 0 4px; font: 400 12px var(--fonte-mono); color: var(--ardosia); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
 .gaveta h2 { font-size: 20px; letter-spacing: 0; text-transform: none; }
 .gaveta h2::after { display: none; }
 .gaveta__fonte, .gaveta__voltar, .gaveta__fechar { flex: none; font: 700 12px var(--fonte-titulo); letter-spacing: 0.08em; text-transform: uppercase; border-radius: 3px; cursor: pointer; }
@@ -202,8 +207,23 @@ body:has(.gaveta[open]) { overflow: hidden; }
 .vis-imagem img { display: block; max-width: 100%; margin: 0 auto; border: 1px solid var(--linha); }
 .vis-imagem--real { cursor: zoom-out; overflow: auto; }
 .vis-imagem--real img { max-width: none; }
-.vis-texto { margin: 0; padding: 20px; background: var(--preto); border: 1px solid var(--linha); overflow-x: auto; }
-.vis-texto code { background: none; padding: 0; font-size: 13.5px; line-height: 1.6; color: var(--prata); white-space: pre-wrap; word-break: break-word; }
+.gaveta__caminho button { padding: 0; background: none; border: 0; font: inherit; color: var(--prata); cursor: pointer; text-decoration: underline; text-decoration-color: var(--linha); text-underline-offset: 3px; }
+.gaveta__caminho button:hover { color: var(--magenta); text-decoration-color: var(--magenta); }
+
+/* Arquivo de código: numeração à esquerda, sem quebra de linha (a indentação é o desenho do código),
+   rolagem lateral que leva a numeração junto e a deixa presa na borda. */
+.vis-codigo { background: var(--preto); }
+.vis-codigo__rolagem { display: grid; grid-template-columns: auto minmax(0, 1fr); overflow-x: auto; scrollbar-width: thin; }
+.vis-codigo .vis-codigo__linhas { position: sticky; left: 0; z-index: 1; margin: 0; padding: 16px 12px 16px 16px; background: var(--preto-atomico); border-right: 1px solid var(--linha); color: var(--ardosia); opacity: 0.75; font-size: var(--codigo-tamanho); line-height: var(--codigo-entrelinha); text-align: right; font-variant-numeric: tabular-nums; user-select: none; }
+.vis-codigo .vis-codigo__rolagem pre:last-child { overflow: visible; padding: 16px 84px 16px 20px; }
+.vis-codigo code { color: var(--texto-leitura); white-space: pre; word-break: normal; overflow-wrap: normal; }
+.vis-lista { list-style: none; margin: 0 0 24px; padding: 0; border: 1px solid var(--linha); }
+.vis-lista li + li { border-top: 1px solid var(--linha); }
+.vis-lista button { display: flex; width: 100%; gap: 16px; align-items: baseline; padding: 11px 16px; background: none; border: 0; color: var(--branco); text-align: left; cursor: pointer; }
+.vis-lista button:hover { background: var(--preto-casual); }
+.vis-lista button:hover .vis-lista__nome { color: var(--magenta); }
+.vis-lista__tipo { flex: none; width: 76px; font: 700 10px var(--fonte-titulo); letter-spacing: 0.1em; text-transform: uppercase; color: var(--ardosia); }
+.vis-lista__nome { font: 400 var(--codigo-tamanho) var(--fonte-mono); overflow-wrap: anywhere; }
 .vis-galeria { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
 .vis-tabela th { width: auto; }
 .vis-tabela td, .vis-tabela th { padding: 8px 12px; font-size: 13px; }
@@ -228,7 +248,7 @@ body:has(.gaveta[open]) { overflow: hidden; }
 .doc th { background: var(--preto-casual); color: var(--branco); font-weight: 600; }
 .doc tbody tr:nth-child(even) td { background: var(--listra); }
 .doc pre { margin: 1.4em 0; padding: 16px 18px; background: var(--preto-atomico); border: 1px solid var(--linha); border-radius: var(--raio); overflow-x: auto; }
-.doc pre code { background: none; padding: 0; color: var(--branco); font-size: 14px; line-height: 1.6; }
+.doc pre code { background: none; padding: 0; color: var(--branco); font-size: var(--codigo-tamanho); line-height: var(--codigo-entrelinha); }
 .doc .cmd { margin: 1.4em 0; }
 .doc .cmd pre { margin: 0; border: 0; padding-right: 84px; }
 .doc .cmd code { white-space: pre; word-break: normal; }
@@ -239,7 +259,7 @@ body:has(.gaveta[open]) { overflow: hidden; }
 .doc li::marker { color: var(--magenta); }
 .notebook { max-width: none; }
 .nb-entrada { border-left: 3px solid var(--magenta) !important; }
-.nb-entrada code { font-size: 13.5px; }
+.nb-entrada code { font-size: var(--codigo-tamanho); }
 .nb-saida { font-size: 12.5px; line-height: 1.5; color: var(--ultrassom); background: transparent !important; border-style: dashed !important; white-space: pre-wrap; }
 .nb-imagem { display: block; background: #ffffff; margin: 8px 0 24px; }
 .nb-html table { display: table; }

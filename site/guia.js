@@ -381,11 +381,15 @@ function secao(d, n) {
 }
 
 // ---- Gaveta de evidências
-// Cada evidência abre aqui, a partir da cópia em repo/ que o tools/montar-site.sh faz.
-// O botão "Ver no GitHub" leva ao arquivo de verdade.
+// Todo link para um arquivo ou pasta do repositório abre aqui. A árvore do repositório vem da API do GitHub,
+// uma vez por sessão. O conteúdo vem da cópia em repo/ que o tools/montar-site.sh faz, quando o arquivo
+// foi copiado, e do raw.githubusercontent.com quando não foi. O botão "Ver no GitHub" leva ao arquivo de verdade.
 
 const RAIZ = 'repo/';
 const RAW = 'https://raw.githubusercontent.com/IamP5/corredor-aceso/main/';
+// O raw serve SVG como text/plain, que o <img> não desenha; o jsDelivr serve com o tipo certo.
+const CDN = 'https://cdn.jsdelivr.net/gh/IamP5/corredor-aceso@main/';
+const ARVORE = 'https://api.github.com/repos/IamP5/corredor-aceso/git/trees/main?recursive=1';
 const fonte = (c) => (c.endsWith('/') ? pasta(c.slice(0, -1)) : arq(c));
 const nomeDoArquivo = (c) => c.replace(/\/$/, '').split('/').pop();
 
@@ -399,7 +403,8 @@ const TIPOS = {
   markdown: { rotulo: 'Documento', exts: ['md'] },
   notebook: { rotulo: 'Notebook', exts: ['ipynb'] },
   tabela: { rotulo: 'CSV', exts: ['csv'] },
-  texto: { rotulo: 'Texto', exts: ['txt', 'log', 'json', 'sh', 'sql', 'yml', 'cs', 'py', 'ino', 'h'] },
+  binario: { rotulo: 'Arquivo', exts: ['woff2', 'woff', 'ttf', 'otf', 'pdf', 'zip', 'gz', 'ico'] },
+  texto: { rotulo: 'Código', exts: [] },
 };
 function tipoDe(c) {
   if (c.endsWith('/')) return 'pasta';
@@ -409,8 +414,27 @@ function tipoDe(c) {
 }
 const rotuloDe = (t) => (t === 'pasta' ? 'Pasta' : TIPOS[t].rotulo);
 
-let indiceP;
-const lerIndice = () => (indiceP ??= fetch(`${RAIZ}indice.json`).then((r) => r.json()));
+let locaisP, arvoreP;
+const lerLocais = () => (locaisP ??= fetch(`${RAIZ}indice.json`).then((r) => r.json()).then((l) => new Set(l), () => new Set()));
+// Todos os arquivos do repositório. A API sem login aceita 60 pedidos por hora, então a lista fica na sessão.
+// Sem a API, sobra o que foi copiado.
+const lerIndice = () => (arvoreP ??= (async () => {
+  try {
+    const salva = sessionStorage.getItem(ARVORE);
+    if (salva) return JSON.parse(salva);
+  } catch {}
+  try {
+    const r = await fetch(ARVORE, { headers: { Accept: 'application/vnd.github+json' } });
+    if (!r.ok) throw new Error(`${r.status}`);
+    const lista = (await r.json()).tree.filter((x) => x.type === 'blob').map((x) => x.path);
+    try { sessionStorage.setItem(ARVORE, JSON.stringify(lista)); } catch {}
+    return lista;
+  } catch {
+    return [...await lerLocais()];
+  }
+})());
+const urlDe = async (c) => ((await lerLocais()).has(c) ? RAIZ : RAW) + c;
+const urlDaImagem = (c, locais) => (locais.has(c) ? RAIZ : c.endsWith('.svg') ? CDN : RAW) + c;
 const scripts = new Map();
 const carregarScript = (src, global) => {
   if (!scripts.has(src)) scripts.set(src, new Promise((ok, erro) => {
@@ -424,9 +448,18 @@ const carregarScript = (src, global) => {
 };
 const carregarMarked = () => carregarScript('https://cdn.jsdelivr.net/npm/marked@18.2.1/lib/marked.umd.js', 'marked');
 
-const LINGUA_DA_EXT = { sh: 'bash', cs: 'csharp', py: 'python', ino: 'cpp', h: 'cpp', json: 'json', sql: 'sql', yml: 'yaml', yaml: 'yaml' };
+const LINGUA_DA_EXT = {
+  sh: 'bash', cs: 'csharp', py: 'python', ino: 'cpp', h: 'cpp', json: 'json', sql: 'sql', yml: 'yaml', yaml: 'yaml',
+  ts: 'typescript', tsx: 'typescript', js: 'javascript', mjs: 'javascript', cjs: 'javascript', css: 'css',
+  html: 'xml', xml: 'xml', csproj: 'xml', props: 'xml', slnx: 'xml', svg: 'xml', md: 'markdown',
+  toml: 'ini', conf: 'ini', service: 'ini', timer: 'ini', tf: 'ini', tfvars: 'ini', modelo: 'ini', padrao: 'ini',
+  dockerfile: 'bash', example: 'bash',
+};
+const linguaDe = (c) => LINGUA_DA_EXT[nomeDoArquivo(c).split('.').pop().toLowerCase()];
+// Acima disso o realce trava a aba por um tempo que não compensa (o package-lock.json, por exemplo).
+const REALCE_MAXIMO = 200_000;
 function colorir(code, lingua) {
-  if (!lingua) return;
+  if (!lingua || code.textContent.length > REALCE_MAXIMO) return;
   carregarScript('https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.11.1/highlight.min.js', 'hljs').then((hljs) => {
     if (!hljs.getLanguage(lingua)) return;
     code.innerHTML = hljs.highlight(code.textContent, { language: lingua, ignoreIllegals: true }).value;
@@ -434,16 +467,16 @@ function colorir(code, lingua) {
   }, () => {});
 }
 const lerTexto = async (c) => {
-  const r = await fetch(RAIZ + c);
+  const r = await fetch(await urlDe(c));
   if (!r.ok) throw new Error(`${r.status}`);
   return r.text();
 };
 
-function cartao(e, aoAbrir = () => gaveta.abrir(e.caminho, e.nome)) {
+function cartao(e, aoAbrir = () => gaveta.abrir(e.caminho, e.nome), locais = new Set([e.caminho])) {
   const tipo = tipoDe(e.caminho);
   const b = el('button', { type: 'button', class: tipo === 'imagem' ? 'evidencia evidencia--img' : 'evidencia' });
   b.innerHTML = tipo === 'imagem'
-    ? `<img src="${RAIZ}${e.caminho}" alt="" loading="lazy"><span>${e.nome}</span>`
+    ? `<img src="${urlDaImagem(e.caminho, locais)}" alt="" loading="lazy"><span>${e.nome}</span>`
     : `<span class="evidencia__texto"><span class="evidencia__tipo">${rotuloDe(tipo)}</span>${e.nome}</span><span class="seta" aria-hidden="true">→</span>`;
   b.addEventListener('click', aoAbrir);
   return b;
@@ -451,15 +484,25 @@ function cartao(e, aoAbrir = () => gaveta.abrir(e.caminho, e.nome)) {
 
 const RENDER = {
   async imagem(c, nome) {
-    const fig = el('figure', { class: 'vis-imagem' }, `<img src="${RAIZ}${c}" alt="${nome}">`);
+    const fig = el('figure', { class: 'vis-imagem' }, `<img src="${urlDaImagem(c, await lerLocais())}" alt="${escapar(nome)}">`);
     fig.addEventListener('click', () => fig.classList.toggle('vis-imagem--real'));
     return fig;
   },
 
   async texto(c) {
-    let t = await lerTexto(c);
-    if (c.endsWith('.json')) try { t = JSON.stringify(JSON.parse(t), null, 2); } catch {}
-    return blocoDeCodigo(t, LINGUA_DA_EXT[c.split('.').pop().toLowerCase()], 'vis-texto');
+    const t = (await lerTexto(c)).replace(/\n$/, '');
+    const linhas = el('pre', { class: 'vis-codigo__linhas', 'aria-hidden': 'true' });
+    linhas.textContent = t.split('\n').map((_, i) => i + 1).join('\n');
+    // As linhas e o código rolam juntos para o lado; o botão de copiar fica parado no canto.
+    const rolagem = el('div', { class: 'vis-codigo__rolagem' });
+    rolagem.append(linhas, blocoDeCodigo(t, linguaDe(c)));
+    const caixa = el('div', { class: 'cmd vis-codigo' });
+    caixa.append(rolagem, botaoCopiar(t, 'Copiar o arquivo'));
+    return caixa;
+  },
+
+  async binario(c) {
+    return el('p', { class: 'gaveta__estado' }, `Este arquivo não é texto. <a href="${RAW}${c}" data-github>Baixar</a> ou abrir no GitHub.`);
   },
 
   markdown: (c) => documento(c),
@@ -512,21 +555,39 @@ const RENDER = {
     return doc;
   },
 
+  // Como no GitHub: só o primeiro nível, pastas antes de arquivos, cada uma abrindo por cima desta.
   async pasta(c) {
-    const arquivos = (await lerIndice()).filter((x) => x.startsWith(c));
-    const lista = el('div', { class: 'evidencias vis-galeria' });
-    for (const a of arquivos) {
-      const relativo = a.slice(c.length);
-      lista.append(cartao({ caminho: a, nome: relativo }, () => gaveta.abrir(a, relativo, true)));
+    const [arquivos, locais] = await Promise.all([lerIndice(), lerLocais()]);
+    const filhos = new Set(arquivos.filter((x) => x.startsWith(c)).map((x) => x.slice(c.length).replace(/\/.*/s, '/')));
+    if (!filhos.size) throw new Error('pasta vazia');
+    const ordem = [...filhos].sort((a, b) => (b.endsWith('/') - a.endsWith('/')) || a.localeCompare(b, 'pt-BR'));
+    const imagens = ordem.filter((n) => tipoDe(n) === 'imagem');
+    const resto = ordem.filter((n) => tipoDe(n) !== 'imagem');
+    const abrir = (n) => () => gaveta.abrir(c + n, n.replace(/\/$/, ''), true);
+    const caixa = el('div', { class: 'vis-pasta' });
+    if (resto.length) {
+      const lista = el('ul', { class: 'vis-lista' });
+      for (const n of resto) {
+        const b = el('button', { type: 'button' }, `<span class="vis-lista__tipo">${rotuloDe(tipoDe(n))}</span><span class="vis-lista__nome">${escapar(n)}</span>`);
+        b.addEventListener('click', abrir(n));
+        lista.append(el('li'));
+        lista.lastChild.append(b);
+      }
+      caixa.append(lista);
     }
-    return lista;
+    if (imagens.length) {
+      const galeria = el('div', { class: 'evidencias vis-galeria' });
+      for (const n of imagens) galeria.append(cartao({ caminho: c + n, nome: n }, abrir(n), locais));
+      caixa.append(galeria);
+    }
+    return caixa;
   },
 };
 
 // Markdown do repositório virando página: desenhos no lugar das referências e links religados.
 // No leitor, cada título ganha o mesmo id que o GitHub dá, para as âncoras dos .md valerem aqui.
 async function documento(c, noLeitor = false) {
-  const [md, marked, indice] = await Promise.all([lerTexto(c), carregarMarked(), lerIndice()]);
+  const [md, marked, indice, locais] = await Promise.all([lerTexto(c), carregarMarked(), lerIndice(), lerLocais()]);
   // O <template> não baixa imagem, então a referência ao .mmd não vira pedido perdido antes de virar desenho.
   const molde = el('template', {}, marked.parse(md));
   const doc = molde.content;
@@ -555,7 +616,7 @@ async function documento(c, noLeitor = false) {
     code.parentElement.replaceWith(caixa);
     caixa.append(code.parentElement, botaoCopiar(code.textContent, 'Copiar código'));
   }
-  ligarLinks(doc, c, indice, noLeitor);
+  ligarLinks(doc, c, indice, locais, noLeitor);
   const artigo = el('article', { class: 'doc' });
   artigo.append(doc);
   return artigo;
@@ -690,9 +751,9 @@ const resolvedorDe = (origem) => {
   return (href) => decodeURIComponent(new URL(href, `https://x/${pastaDaOrigem}`).pathname.slice(1));
 };
 
-// Links relativos de um Markdown: documento do leitor abre no leitor, o que foi copiado abre na gaveta,
-// o resto vai para o GitHub.
-function ligarLinks(doc, origem, indice, noLeitor = false) {
+// Links relativos de um Markdown: documento do leitor abre no leitor; o resto aponta para o GitHub,
+// e o clique num link do repositório abre a gaveta.
+function ligarLinks(doc, origem, indice, locais, noLeitor = false) {
   const resolver = resolvedorDe(origem);
   const copiado = (c) => indice.includes(ehDiagrama(c) ? svgDoDiagrama(c) : c);
   const externo = (href) => /^([a-z]+:|\/\/)/i.test(href);
@@ -701,7 +762,7 @@ function ligarLinks(doc, origem, indice, noLeitor = false) {
     const src = img.getAttribute('src');
     if (externo(src)) return;
     const c = resolver(src);
-    img.src = indice.includes(c) ? RAIZ + c : RAW + c;
+    img.src = urlDaImagem(c, locais);
   });
 
   doc.querySelectorAll('a[href]').forEach((a) => {
@@ -712,15 +773,7 @@ function ligarLinks(doc, origem, indice, noLeitor = false) {
     const c = resolver(parte);
     if (ehLeitura(c)) { a.href = linkDoLeitor(c, ancora ? `#${ancora}` : ''); return; }
     const ehPasta = !copiado(c) && indice.some((x) => x.startsWith(`${c.replace(/\/$/, '')}/`));
-    const caminho = ehPasta ? `${c.replace(/\/$/, '')}/` : c;
-    if (copiado(c) || ehPasta) {
-      a.href = fonte(caminho);
-      a.addEventListener('click', (ev) => { ev.preventDefault(); gaveta.abrir(caminho, a.textContent.trim() || nomeDoArquivo(caminho), true); });
-    } else {
-      a.href = fonte(c);
-      a.target = '_blank';
-      a.rel = 'noopener';
-    }
+    a.href = fonte(ehPasta ? `${c.replace(/\/$/, '')}/` : c);
   });
 }
 
@@ -738,7 +791,17 @@ const gaveta = (() => {
     const minha = ++vez;
     const tipo = tipoDe(caminho);
     titulo.textContent = nome;
-    caminhoEl.textContent = `${rotuloDe(tipo)} · ${caminho}`;
+    caminhoEl.replaceChildren(`${rotuloDe(tipo)} · `);
+    const partes = caminho.replace(/\/$/, '').split('/');
+    partes.forEach((parte, i) => {
+      if (i) caminhoEl.append('/');
+      const ultima = i === partes.length - 1;
+      if (ultima) { caminhoEl.append(parte); return; }
+      const b = el('button', { type: 'button' });
+      b.textContent = parte;
+      b.addEventListener('click', () => gaveta.abrir(`${partes.slice(0, i + 1).join('/')}/`, parte, true));
+      caminhoEl.append(b);
+    });
     linkFonte.href = fonte(caminho);
     voltar.hidden = pilha.length < 2;
     corpo.replaceChildren(el('p', { class: 'gaveta__estado' }, 'Carregando…'));
@@ -747,7 +810,7 @@ const gaveta = (() => {
       const n = await RENDER[tipo](caminho, nome);
       if (minha === vez) corpo.replaceChildren(n);
     } catch {
-      if (minha === vez) corpo.replaceChildren(el('p', { class: 'gaveta__estado' }, `Não deu para abrir aqui. <a href="${fonte(caminho)}" target="_blank" rel="noopener">Ver no GitHub</a>.`));
+      if (minha === vez) corpo.replaceChildren(el('p', { class: 'gaveta__estado' }, `Não deu para abrir aqui. <a href="${fonte(caminho)}" target="_blank" rel="noopener" data-github>Ver no GitHub</a>.`));
     }
   }
 
@@ -756,6 +819,20 @@ const gaveta = (() => {
   // O evento close chega depois; se a gaveta já reabriu, não apaga o que está nela.
   dlg.addEventListener('close', () => { if (!dlg.open) { pilha = []; corpo.replaceChildren(); } });
   voltar.addEventListener('click', () => { pilha.pop(); mostrar(pilha.at(-1)); });
+
+  // Um clique comum num link do repositório abre a gaveta; Cmd, Ctrl, Shift ou o botão do meio seguem para o GitHub,
+  // como em qualquer link. Os links marcados com data-github são os que levam ao GitHub de propósito.
+  const DO_REPO = new RegExp(`^${REPO.replace(/[.]/g, '\\.')}/(blob|tree)/main/([^?#]+)`);
+  document.addEventListener('click', (ev) => {
+    if (ev.defaultPrevented || ev.button !== 0 || ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.altKey) return;
+    const a = ev.target.closest('a[href]');
+    if (!a || a.hasAttribute('data-github')) return;
+    const m = a.href.match(DO_REPO);
+    if (!m) return;
+    ev.preventDefault();
+    const caminho = decodeURIComponent(m[2]).replace(/\/$/, '') + (m[1] === 'tree' ? '/' : '');
+    gaveta.abrir(caminho, nomeDoArquivo(caminho), dlg.contains(a));
+  });
 
   return {
     abrir(caminho, nome, empilhar = false) {
@@ -835,7 +912,7 @@ async function leitor(caminho) {
     <div class="leitor__texto">
       <header class="leitor__cabeca">
         <p class="sobretitulo">${atual ? `${atual.grupo} · ${atual.leitura}` : 'Documento'}</p>
-        ${atual ? `<a class="leitor__fonte" href="${fonte(atual.leitura)}" target="_blank" rel="noopener">Ver no GitHub <span aria-hidden="true">↗</span></a>` : ''}
+        ${atual ? `<a class="leitor__fonte" href="${fonte(atual.leitura)}" target="_blank" rel="noopener" data-github>Ver no GitHub <span aria-hidden="true">↗</span></a>` : ''}
       </header>
       <div class="leitor__corpo"><p class="gaveta__estado">Carregando…</p></div>
     </div>`;
@@ -855,7 +932,7 @@ async function leitor(caminho) {
   try {
     doc = await documento(caminho, true);
   } catch {
-    corpo.innerHTML = `<p class="gaveta__estado">Não deu para abrir aqui. <a href="${fonte(caminho)}" target="_blank" rel="noopener">Ver no GitHub</a>.</p>`;
+    corpo.innerHTML = `<p class="gaveta__estado">Não deu para abrir aqui. <a href="${fonte(caminho)}" target="_blank" rel="noopener" data-github>Ver no GitHub</a>.</p>`;
     return;
   }
   corpo.replaceChildren(doc);
