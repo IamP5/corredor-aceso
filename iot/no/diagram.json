@@ -12,7 +12,7 @@
     { "type": "wokwi-pushbutton", "id": "botao", "top": 230, "left": 230, "attrs": { "color": "green", "key": "b", "label": "Estou bem", "bounce": "0" } },
     { "type": "wokwi-led", "id": "ambar", "top": -140, "left": 330, "attrs": { "color": "orange", "label": "Dia crítico" } },
     { "type": "wokwi-resistor", "id": "r_ambar", "top": -60, "left": 290, "rotate": 90, "attrs": { "value": "220" } },
-    { "type": "wokwi-buzzer", "id": "buzzer", "top": 100, "left": 330, "attrs": { "volume": "0.3", "mode": "accurate" } },
+    { "type": "wokwi-buzzer", "id": "buzzer", "top": 100, "left": 330, "attrs": { "volume": "0.15" } },
     { "type": "wokwi-slide-switch", "id": "wifi", "top": 230, "left": -90, "attrs": { "value": "1" } },
     { "type": "board-ssd1306", "id": "tela", "top": -260, "left": 90, "attrs": { "i2cAddress": "0x3c" } },
     { "type": "wokwi-mpu6050", "id": "pingente", "top": 330, "left": 40, "attrs": {} },

@@ -410,9 +410,15 @@ void cuidarDaTelemetria() {
 // instante, então o padrão não depende do tempo de cada volta do loop.
 bool buzzerLigado = false;
 
+// O buzzer do Wokwi em modo "smooth" soa limpo, mas segura o som um pouco depois que o sinal para.
+// Por isso o bipe é curto e o silêncio entre bipes é longo.
+const unsigned long BIPE_MS = 150;
+const unsigned long ENTRE_BIPES_MS = 650;
+
 void bipes(unsigned long agora, unsigned long periodo, int quantos, unsigned int frequencia) {
+  const unsigned long passo = BIPE_MS + ENTRE_BIPES_MS;
   unsigned long fase = agora % periodo;
-  bool ligar = fase < (unsigned long)quantos * 200 && fase % 200 < 90;
+  bool ligar = fase < (unsigned long)quantos * passo && fase % passo < BIPE_MS;
   if (ligar && !buzzerLigado) somLigar(frequencia);
   if (!ligar && buzzerLigado) somDesligar();
   buzzerLigado = ligar;
@@ -430,16 +436,16 @@ void cuidarDosAvisos() {
   bool piscar = (agora / 500) % 2 == 0;
   if (queda == QUEDA_AVISADA) {
     digitalWrite(PINO_AMBAR, (agora / 150) % 2 == 0 ? HIGH : LOW);
-    bipes(agora, 1000, 3, 2600);
+    bipes(agora, 3200, 3, 2600);
   } else if (queda == PERGUNTANDO) {
     digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
-    bipes(agora, 1000, 1, 1500);
+    bipes(agora, 1600, 1, 1500);
   } else if (alarmeDeEnergia) {
     digitalWrite(PINO_AMBAR, (agora / 150) % 2 == 0 ? HIGH : LOW);
-    bipes(agora, 1600, 3, 2200);
+    bipes(agora, 3200, 2, 2200);
   } else if (pedindoToque) {
     digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
-    bipes(agora, 2000, 2, 880);
+    bipes(agora, 3200, 2, 880);
   } else {
     silenciar();
     digitalWrite(PINO_AMBAR, diaCritico || calor ? HIGH : LOW);

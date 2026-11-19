@@ -137,7 +137,7 @@
     </div>
 
     <footer>
-      Broker público <code>broker.hivemq.com</code> por WebSocket seguro. Tópicos <code id="topicos"></code>.
+      Brokers públicos <code>test.mosquitto.org</code> e <code>broker.hivemq.com</code>, por WebSocket seguro. Tópicos <code id="topicos"></code>.
       Os eventos são os mesmos que o Motor da API consome; <code>QUEDA</code> e o tópico <code>estado</code> existem só
       para este painel. Use só a casa de teste: o broker é público.
     </footer>
@@ -145,14 +145,19 @@
 
   <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
   <script>
-    const BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+    // O painel escuta os dois brokers públicos ao mesmo tempo: o nó publica em um deles (MQTT_HOST em
+    // iot/no/config.h) e o painel não precisa saber qual. ?broker=mosquitto ou ?broker=hivemq limita a um.
+    const BROKERS = {
+      mosquitto: 'wss://test.mosquitto.org:8081',
+      hivemq: 'wss://broker.hivemq.com:8884/mqtt',
+    };
     const SEM_NOTICIAS_S = 30;
     const parametros = new URLSearchParams(location.search);
     const $ = id => document.getElementById(id);
     $('prefixo').value = parametros.get('prefixo') || 'corredor-aceso-40028922';
     $('token').value = parametros.get('token') || 'fa11fa11fa11fa11fa11fa11fa11fa11';
 
-    let cliente = null, base = '', estado = null, ultimoSinalEm = 0;
+    let clientes = [], base = '', estado = null, ultimoSinalEm = 0;
     const eventos = [];
 
     const NOMES = {
@@ -170,32 +175,46 @@
     const num = (v, casas = 1) => typeof v !== 'number' || Number.isNaN(v) ? '—' : v.toFixed(casas).replace('.', ',');
 
     function conectar() {
-      if (cliente) cliente.end(true);
+      clientes.forEach(c => c.end(true));
       base = `${$('prefixo').value.trim()}/corredor/v1/${$('token').value.trim()}`;
       $('topicos').textContent = `${base}/{evento,estado,comando}`;
-      estado = null; ultimoSinalEm = 0; eventos.length = 0;
+      estado = null; ultimoSinalEm = 0; eventos.length = 0; vistos.clear();
       desenharLinha();
-      cliente = mqtt.connect(BROKER, { clientId: 'painel-' + Math.random().toString(16).slice(2, 10), clean: true, reconnectPeriod: 3000, connectTimeout: 8000 });
-      cliente.on('connect', () => { cliente.subscribe([`${base}/evento`, `${base}/estado`]); marcarConexao(true); });
-      cliente.on('close', () => marcarConexao(false));
-      cliente.on('message', (topico, corpo) => {
-        let dado;
-        try { dado = JSON.parse(corpo.toString()); } catch { return; }
-        if (topico.endsWith('/estado')) {
-          estado = dado;
-          if (typeof dado.ultimoSinalHaS === 'number' && dado.ultimoSinalHaS >= 0) {
-            ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts) - dado.ultimoSinalHaS * 1000);
-          }
-          if ($('ver-tudo').checked) registrar({ tipo: 'ESTADO', ts: dado.ts, alerta: dado.alerta });
-        } else {
-          registrar(dado);
-          if (SINAL_DE_VIDA.includes(dado.tipo)) ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts));
-        }
-        desenhar();
+      const escolhido = parametros.get('broker');
+      const urls = escolhido && BROKERS[escolhido] ? [BROKERS[escolhido]] : Object.values(BROKERS);
+      clientes = urls.map(url => {
+        const c = mqtt.connect(url, { clientId: 'painel-' + Math.random().toString(16).slice(2, 10), clean: true, reconnectPeriod: 3000, connectTimeout: 8000 });
+        c.on('connect', () => { c.subscribe([`${base}/evento`, `${base}/estado`]); marcarConexao(); });
+        c.on('close', marcarConexao);
+        c.on('message', aoReceber);
+        return c;
       });
     }
 
-    function marcarConexao(ligado) {
+    // O mesmo evento pode chegar pelos dois brokers; a chave (seq, ts, tipo) descarta a repetição.
+    const vistos = new Set();
+    function aoReceber(topico, corpo) {
+      let dado;
+      try { dado = JSON.parse(corpo.toString()); } catch { return; }
+      if (topico.endsWith('/estado')) {
+        if (estado && Date.parse(dado.ts) <= Date.parse(estado.ts)) return;  // foto mais velha, do outro broker
+        estado = dado;
+        if (typeof dado.ultimoSinalHaS === 'number' && dado.ultimoSinalHaS >= 0) {
+          ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts) - dado.ultimoSinalHaS * 1000);
+        }
+        if ($('ver-tudo').checked) registrar({ tipo: 'ESTADO', ts: dado.ts, alerta: dado.alerta });
+      } else {
+        const chave = `${dado.seq}|${dado.ts}|${dado.tipo}`;
+        if (vistos.has(chave)) return;
+        vistos.add(chave);
+        registrar(dado);
+        if (SINAL_DE_VIDA.includes(dado.tipo)) ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts));
+      }
+      desenhar();
+    }
+
+    function marcarConexao() {
+      const ligado = clientes.some(c => c.connected);
       $('conexao').className = 'pilula ' + (ligado ? 'on' : 'off');
       $('conexao').textContent = ligado ? 'Conectado ao broker' : 'Desconectado';
       $('b-dia').disabled = $('b-toque').disabled = !ligado;
@@ -283,8 +302,9 @@
     }
 
     function comandar(tipo, texto) {
-      if (!cliente || !cliente.connected) return;
-      cliente.publish(`${base}/comando`, JSON.stringify({ tipo }), { qos: 1 });
+      const ligados = clientes.filter(c => c.connected);
+      if (!ligados.length) return;
+      ligados.forEach(c => c.publish(`${base}/comando`, JSON.stringify({ tipo }), { qos: 1 }));
       registrar({ painel: texto, recebido: new Date() });
     }
 

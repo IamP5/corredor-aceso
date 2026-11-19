@@ -8,7 +8,7 @@
 
 // Broker público. A ponte do Mosquitto da VM traz <prefixo>/corredor/v1/... para corredor/v1/...
 // MQTT_PUBLICO_HOST, MQTT_PUBLICO_PORTA e MQTT_PREFIXO_PUBLICO do corredor.conf.padrao.
-#define MQTT_HOST "broker.hivemq.com"
+#define MQTT_HOST "test.mosquitto.org"
 #define MQTT_PORTA 1883
 #define MQTT_PREFIXO "corredor-aceso-40028922"
 

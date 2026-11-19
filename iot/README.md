@@ -116,9 +116,12 @@ lwIP.
 ### O painel web
 
 [site/painel/index.html](../site/painel/index.html) é uma página estática, sem servidor. Ela usa a biblioteca
-mqtt.js e assina `wss://broker.hivemq.com:8884/mqtt`, o mesmo broker do nó, pelo WebSocket seguro. O GitHub Pages
-publica o painel em <https://iamp5.github.io/corredor-aceso/painel/>, e o `tools/montar-site.sh` copia a pasta
-para o site.
+mqtt.js e assina, pelo WebSocket seguro, dois brokers públicos ao mesmo tempo: `wss://test.mosquitto.org:8081`
+e `wss://broker.hivemq.com:8884/mqtt`. Assim o painel funciona com o nó em qualquer um deles (`MQTT_HOST` em
+`config.h`). O mesmo evento recebido pelos dois é contado uma vez, pela chave `(seq, ts, tipo)`, e os
+comandos saem pelos dois. `?broker=mosquitto` ou `?broker=hivemq` na URL limita o painel a um broker. O GitHub
+Pages publica o painel em <https://iamp5.github.io/corredor-aceso/painel/>, e o `tools/montar-site.sh` copia a
+pasta para o site.
 
 | Parte da tela | De onde vem |
 |---|---|
@@ -141,8 +144,9 @@ Depois, abra <http://localhost:8000/painel/>.
 
 ### Rede: do Wokwi até a VM
 
-O Wokwi do navegador não alcança a rede local da VM. O nó publica no broker público `broker.hivemq.com:1883`
-(QoS 0, o único da PubSubClient), em `<prefixo>/corredor/v1/{casaToken}/evento`. O Mosquitto da VM abre
+O Wokwi do navegador não alcança a rede local da VM. O nó publica no broker público `test.mosquitto.org:1883`
+(QoS 0, o único da PubSubClient), em `<prefixo>/corredor/v1/{casaToken}/evento`. Até 18/11 à noite era o
+`broker.hivemq.com`; a troca deixou a conexão mais rápida (1 s contra 6 s no teste do notebook). O Mosquitto da VM abre
 uma ponte de saída e traz o tópico para `corredor/v1/{casaToken}/evento`. Os comandos fazem o caminho
 inverso. A seção 1.11 de [05-infra-e-entrega.md](../docs/arquitetura/05-infra-e-entrega.md) mede essa ponte.
 
