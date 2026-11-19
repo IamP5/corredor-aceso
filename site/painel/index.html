@@ -184,7 +184,7 @@
       const escolhido = parametros.get('broker');
       const urls = escolhido && BROKERS[escolhido] ? [BROKERS[escolhido]] : Object.values(BROKERS);
       clientes = urls.map(url => {
-        const c = mqtt.connect(url, { clientId: 'painel-' + Math.random().toString(16).slice(2, 10), clean: true, reconnectPeriod: 3000, connectTimeout: 8000 });
+        const c = mqtt.connect(url, { clientId: 'painel-' + Math.random().toString(16).slice(2, 10), clean: true, reconnectPeriod: 3000, connectTimeout: 20000 });
         c.on('connect', () => { c.subscribe([`${base}/evento`, `${base}/estado`]); marcarConexao(); });
         c.on('close', marcarConexao);
         c.on('message', aoReceber);
