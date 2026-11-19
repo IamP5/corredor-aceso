@@ -164,6 +164,7 @@ const DISCIPLINAS = [
       { nome: 'Acessibilidade', pontos: '', onde: 'Rótulos, texto junto da cor e contraste de 4,5:1 medido por script.' },
       { nome: 'Aderência ao problema', pontos: '', onde: 'Radar de pendentes, caminho sem rede e casa cinza que não vira verde.' },
       { nome: 'Documentação', pontos: '', onde: `<a href="${arq('app/README.md')}">app/README.md</a> com a Ficha e prints.` },
+      { nome: 'Vídeo de até 3 minutos', pontos: '', onde: '<a href="https://youtu.be/Jtd0-UYokfE">youtu.be/Jtd0-UYokfE</a>' },
     ],
     passos: [
       { texto: 'O passo zero já sobe o app no navegador, ligado à API.', cmd: 'docker compose up --build' },
