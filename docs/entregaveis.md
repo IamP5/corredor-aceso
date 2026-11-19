@@ -127,4 +127,4 @@ Nota: Features 50%, Test Cases 50%. Entrega: PDF com o link do projeto no Azure 
 | Test Cases funcionais, positivos e negativos, com objetivo, preparação, entradas, saídas esperadas e passos | `docs/qa/casos-de-teste.md`, depois Azure Boards | repositório escreve, equipe cadastra | parcial: escrito; cadastro no Azure é da equipe |
 | Professor como Admin no projeto do Azure | | equipe | equipe |
 | PDF com o link e os prints | | equipe | equipe |
-| Vídeo de pitch de até 4 minutos no YouTube | | equipe | equipe |
+| Vídeo de pitch de até 4 minutos no YouTube | [youtu.be/8zQQs5pIhz8](https://youtu.be/8zQQs5pIhz8) | equipe | pronto |

@@ -281,7 +281,7 @@ const DISCIPLINAS = [
       { nome: 'Features com descrição e critérios de aceite', pontos: '50%', onde: `<a href="${arq('docs/qa/features.md')}">features.md</a>, critérios na forma dado, quando, então.` },
       { nome: 'Test Cases positivos e negativos', pontos: '50%', onde: `<a href="${arq('docs/qa/casos-de-teste.md')}">casos-de-teste.md</a>, com objetivo, preparação, entradas, saídas esperadas e passos.` },
       { nome: 'Professor como Admin no Azure Boards', pontos: '', onde: 'O link do projeto consta no PDF da disciplina.' },
-      { nome: 'Vídeo de pitch de até 4 minutos', pontos: '', onde: 'O link do vídeo consta no PDF da disciplina.' },
+      { nome: 'Vídeo de pitch de até 4 minutos', pontos: '', onde: '<a href="https://youtu.be/8zQQs5pIhz8">youtu.be/8zQQs5pIhz8</a>. O link também vai no PDF da disciplina.' },
     ],
     passos: [
       { texto: 'Confira a cobertura. O script sai com 1 se alguma regra, rota ou caso da arquitetura ficar sem Feature e Test Case.', cmd: 'python3 docs/qa/ferramentas/conferir.py' },

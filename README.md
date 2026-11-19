@@ -65,7 +65,7 @@ Cada linha diz o que olhar, onde estão as evidências e o que vai na entrega. O
 
 | Vídeo | Duração máxima | Link |
 |---|---|---|
-| Pitch | 4 min | a publicar |
+| Pitch | 4 min | [youtu.be/8zQQs5pIhz8](https://youtu.be/8zQQs5pIhz8) |
 | Mobile Development | 3 min | [youtu.be/Jtd0-UYokfE](https://youtu.be/Jtd0-UYokfE) |
 | Physical Computing | 4 min | [youtu.be/XH_M3QyMZsQ](https://youtu.be/XH_M3QyMZsQ) |
 | IA e Machine Learning | 5 min | a publicar |
