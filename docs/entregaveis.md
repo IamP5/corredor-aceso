@@ -87,7 +87,7 @@ Nota em 6 critérios: telas e navegação, consumo de dados, banco de dados, ace
 | Banco de dados local | `app/src/banco`, expo-sqlite | repositório | pronto |
 | Acessibilidade | rótulos, contraste e texto junto da cor | repositório | pronto |
 | README com a Ficha, instruções e prints das telas | `app/README.md`, `docs/evidencias/mobile/`, `docs/evidencias/integracao/` | repositório e prints da equipe | pronto |
-| Vídeo de até 3 minutos com o app rodando | roteiro em `docs/entrega/roteiro-mobile.md` | equipe | equipe |
+| Vídeo de até 3 minutos com o app rodando | [youtu.be/Jtd0-UYokfE](https://youtu.be/Jtd0-UYokfE), roteiro em `docs/entrega/roteiro-mobile.md` | equipe | pronto |
 
 ## Operating Systems
 

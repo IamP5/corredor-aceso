@@ -4,6 +4,8 @@ App Expo da agente comunitária de saúde (ACS). Em dia de calor extremo ou de a
 
 Os dados de pessoas são simulados. Nenhum nome, endereço ou telefone do app é de uma pessoa real.
 
+**Vídeo do app rodando (2min20s):** [youtu.be/Jtd0-UYokfE](https://youtu.be/Jtd0-UYokfE)
+
 ## Ficha da CitizenTech
 
 | Campo | Conteúdo |
@@ -96,6 +98,23 @@ As telas abaixo foram capturadas no alvo web, numa janela de 390 por 844 pontos,
 | Visita | Escolhe o desfecho entre quatro opções grandes e escreve uma observação, se quiser. | [07-visita.png](../docs/evidencias/mobile/07-visita.png), [08-casa-depois-da-visita.png](../docs/evidencias/mobile/08-casa-depois-da-visita.png) |
 | Mensagem para o grupo | Escreve a mensagem e confere antes de mandar. Se a mensagem expõe a pessoa, o app explica por quê em duas frases e oferece a versão segura. | [09-mensagem-bloqueada.png](../docs/evidencias/mobile/09-mensagem-bloqueada.png), [10-mensagem-liberada.png](../docs/evidencias/mobile/10-mensagem-liberada.png) |
 | Resumo do turno | A ACS encerra o turno na tela do dia, depois de confirmar num diálogo do sistema. Esta tela mostra o indicador: quantas casas deram sinal de vida até as 10h. | [17-encerrar.png](../docs/evidencias/mobile/17-encerrar.png), [18-turno-encerrado.png](../docs/evidencias/mobile/18-turno-encerrado.png), [19-depois-do-turno.png](../docs/evidencias/mobile/19-depois-do-turno.png) |
+
+Fluxo principal no iPhone (Expo Go): entrada, dia crítico, radar e casa.
+
+<p>
+  <img src="../docs/evidencias/mobile/ios/01-entrada.png" alt="Tela de entrada" width="200">
+  <img src="../docs/evidencias/mobile/ios/02-dia-critico.png" alt="Tela do dia crítico" width="200">
+  <img src="../docs/evidencias/mobile/ios/03-radar.png" alt="Radar com as casas" width="200">
+  <img src="../docs/evidencias/mobile/ios/04-casa.png" alt="Tela da casa" width="200">
+</p>
+
+Visita, mensagem bloqueada pela Guarda e resumo do turno, no alvo web:
+
+<p>
+  <img src="../docs/evidencias/mobile/07-visita.png" alt="Registro de visita" width="200">
+  <img src="../docs/evidencias/mobile/09-mensagem-bloqueada.png" alt="Mensagem bloqueada com versão segura" width="200">
+  <img src="../docs/evidencias/mobile/18-turno-encerrado.png" alt="Resumo do turno encerrado" width="200">
+</p>
 
 ## Como o app funciona
 
