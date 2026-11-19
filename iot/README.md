@@ -19,7 +19,7 @@ mas fica fora desta entrega.
 
 | Item | Onde |
 |---|---|
-| Circuito ESP32 com sensores | `no/diagram.json` e `no/no.ino`: sensor de presença, DHT22, potenciômetro no papel do sensor de tensão, pingente MPU6050, sensor de teto HC-SR04, tela OLED, botão, dois LEDs e buzzer. Ver "Peças e por que cada uma existe". |
+| Circuito ESP32 com sensores | `no/diagram.json` e `no/no.ino`: sensor de presença, DHT22, potenciômetro no papel do sensor de tensão, pingente MPU6050, tela OLED, botão, dois LEDs e buzzer. Ver "Peças e por que cada uma existe". |
 | Integrado à solução | O nó publica os eventos do contrato MQTT do Corredor Aceso. O [painel web](../site/painel/index.html) é a visão da agente de saúde sobre uma casa: mostra a situação, os sensores e a linha do tempo, e manda `DIA_CRITICO` e `PEDIR_TOQUE`. Ver "O painel web". |
 | Evidências | [docs/evidencias/iot/](../docs/evidencias/iot/README.md): monitor serial, captura do broker, linha do tempo do painel e prints das rodadas no wokwi.com. |
 | Link do projeto no Wokwi | <https://wokwi.com/projects/481069519743904769>, com a casa de teste e `SILENCIO_DEMO_S 90`. Para montar outro, siga "Abrir e rodar no wokwi.com". |
@@ -38,15 +38,14 @@ não depende de a pessoa lembrar de nada. Num dia crítico de calor, a ACS vê n
 | Peça no Wokwi | Pino do ESP32 | Para a pessoa | Para o sistema |
 |---|---|---|---|
 | Sensor de presença PIR | GPIO 27 | Acende a luz quando ela passa, sem tocar em nada. | `MOVIMENTO`, o sinal de vida da casa `Sozinho`. Um por passagem, no máximo um a cada 30 s. |
-| LED branco com resistor de 220 Ω | GPIO 26 | Luz de caminho por 30 s. Evita a queda no escuro, de madrugada. | Funciona sem rede. A luz nunca espera o Wi-Fi. |
+| LED branco com resistor de 220 Ω | GPIO 26 | Luz de caminho por 30 s. Evita a queda no escuro, de madrugada. Sem energia na tomada, vira luz de emergência e fica acesa até a energia voltar. | Funciona sem rede. A luz nunca espera o Wi-Fi. |
 | DHT22 | GPIO 15 | A 34 °C ou mais, o âmbar acende sozinho com três bipes e a tela mostra "CALOR". Apaga abaixo de 33,5 °C. | `tempC` na `TELEMETRIA`. Casa a 34 °C ou mais por muito tempo vira `CalorInterno` no radar. |
-| Potenciômetro | GPIO 34 (ADC) | Faz o papel do sensor de tensão da tomada. Abaixo de 100 V, o aparelho dispara o alarme (âmbar piscando rápido e buzzer) até a tensão voltar ou alguém apertar o botão. | `tensaoV` na `TELEMETRIA`. Escala de 0 a 250 V. Abaixo de 100 V numa casa eletrodependente, o concentrador de oxigênio parou: `EnergiaEletrodependente`. |
+| Potenciômetro | GPIO 34 (ADC) | Faz o papel do sensor de tensão da tomada. Abaixo de 100 V, a luz de emergência acende e a tela mostra "SEM LUZ", sem bipes. | `tensaoV` na `TELEMETRIA`. Escala de 0 a 250 V. Abaixo de 100 V numa casa eletrodependente, o concentrador de oxigênio parou: `EnergiaEletrodependente`. |
 | Botão grande verde | GPIO 25, pull-up interno | Cada toque é um "estou bem", confirmado por um bipe. Também silencia o buzzer. | `BOTAO_BEM`. O aparelho não registra se a pessoa saiu de casa. |
-| LED laranja (âmbar) com resistor de 220 Ω | GPIO 33 | Aceso: dia crítico ou casa a 34 °C. Piscando: pedido de toque. Piscando rápido: falta de energia ou queda. | Comandos `DIA_CRITICO` e `PEDIR_TOQUE`, e as reações locais. |
-| Buzzer | GPIO 32 | Às 14h30, se ela não deu sinal desde as 10h, o buzzer chama até ela apertar o botão. Também toca no alarme de energia. | Comando `PEDIR_TOQUE` ou a mesma regra decidida no aparelho. O toque no botão para o buzzer e manda `BOTAO_BEM`. |
+| LED laranja (âmbar) com resistor de 220 Ω | GPIO 33 | Aceso: dia crítico ou casa a 34 °C. Piscando: pedido de toque ou possível queda. Piscando rápido: queda avisada. | Comandos `DIA_CRITICO` e `PEDIR_TOQUE`, e as reações locais. |
+| Buzzer | GPIO 32 | Às 14h30, se ela não deu sinal desde as 10h, o buzzer chama até ela apertar o botão. Também bipa na queda. | Comando `PEDIR_TOQUE` ou a mesma regra decidida no aparelho. O toque no botão para o buzzer e manda `BOTAO_BEM`. |
 | Chave deslizante | GPIO 14, pull-up interno | Não existe no aparelho real. | Chave da demo: desligada, o firmware desliga o Wi-Fi de verdade (`WiFi.mode(WIFI_OFF)`). Permite demonstrar o buffer. |
 | Pingente MPU6050 | I2C: SDA 21, SCL 22 (0x68) | Ela usa no pescoço. Num tombo, o impacto passa de 2 g. | Começa a contagem de "possível queda". No aparelho real, o pingente seria sem fio. No Wokwi, ele vai ligado ao ESP32. |
-| Sensor de teto HC-SR04 | TRIG 5, ECHO 18 | Fica no teto do corredor, apontado para o chão, e mede a altura do que está embaixo: vazio, alguém em pé ou alguém deitado (de 10 a 50 cm). | Alguém deitado no chão por 30 s também começa a contagem de "possível queda", mesmo sem o pingente. No aparelho real, o ECHO precisa de divisor de tensão, porque sai em 5 V. |
 | Tela OLED SSD1306 | I2C: SDA 21, SCL 22 (0x3C) | Só o fato, em letras grandes, sem ordem para a pessoa: "TUDO BEM", "CALOR", "DIA QUENTE", "SEM LUZ", "UBS CHAMOU", "QUEDA?" e "QUEDA". A fonte da tela não tem acentos. | Mostra a conexão (`on` ou `--`), a temperatura e a tensão. |
 
 ### O que o firmware faz
@@ -66,19 +65,21 @@ não depende de a pessoa lembrar de nada. Num dia crítico de calor, a ACS vê n
 - O `seq` começa em 1 a cada religamento e sobe em todo pacote. Depois de um reinício, o `seq` repete com
   outro `ts`, e o Motor aceita.
 - Comandos chegam em `<prefixo>/corredor/v1/{token}/comando`. `DIA_CRITICO` acende o âmbar por 12 h.
-  `PEDIR_TOQUE` pisca o âmbar e toca o buzzer até o botão ou por 10 min.
-- A queda tem três passos. Primeiro, um impacto no pingente ou alguém deitado sob o sensor de teto por 30 s.
+  `PEDIR_TOQUE` pisca o âmbar e toca o buzzer até o botão ou por 10 min. `ENCERRAR_ALERTAS`, que só o painel
+  manda, apaga o dia crítico, o pedido de toque e a queda. O calor e a falta de energia seguem o sensor.
+- A queda tem três passos. Primeiro, um impacto de 2 g ou mais no pingente.
   Depois, a tela mostra "QUEDA?" com a contagem e o buzzer bipa a cada segundo por 15 s. Um toque no botão cancela e manda
   `BOTAO_BEM`. Sem toque, sai um evento `QUEDA`, que entra no buffer como os outros, e o alarme toca até o
   botão.
 - O tópico `<prefixo>/corredor/v1/{token}/estado` recebe uma foto dos sensores e das saídas a cada 2 s, retida
   no broker, para o painel web. A foto não entra no buffer: ela só vale no instante em que sai.
-- O buzzer só toca bipes curtos, nunca um som contínuo. São três bipes por segundo na queda avisada, três a
-  cada 1,6 s na falta de energia, um por segundo na possível queda e dois a cada 2 s no pedido de toque. O firmware
-  liga e desliga o PWM pelo LEDC (`ledcWriteTone`), e o buzzer do `diagram.json` usa `"mode": "accurate"`.
-  O modo padrão (`smooth`) e o `noTone()` emendavam os bipes num som contínuo.
+- O buzzer só toca bipes curtos, nunca um som contínuo. São três bipes a cada 3,2 s na queda avisada, um a
+  cada 1,6 s na possível queda e dois a cada 3,2 s no pedido de toque, cada bipe com 150 ms e 650 ms de
+  silêncio. A falta de energia não bipa. O firmware liga e desliga o PWM pelo LEDC (`ledcWriteTone`). O buzzer
+  do `diagram.json` fica no modo `smooth`, com volume 0,15: o modo `accurate` separava melhor os bipes, mas
+  fazia chiados.
 
-`QUEDA` e o tópico `estado` existem só para o painel. O Motor da API não conhece o tipo `QUEDA` e recusa o
+`QUEDA`, o tópico `estado` e o comando `ENCERRAR_ALERTAS` existem só para o painel. O Motor da API não conhece o tipo `QUEDA` e recusa o
 pacote pelo tradutor, sem quebrar. A ponte da VM só leva o tópico `evento`. Não houve mudança na API.
 
 ### O que o nó faz sem a VM
@@ -89,11 +90,11 @@ limites do Motor e não mudam o contrato MQTT: os pacotes continuam os mesmos.
 | Situação | Reação no aparelho | Constante |
 |---|---|---|
 | Pessoa passa no corredor | Luz de caminho por 30 s. | `LUZ_ACESA` |
-| Botão | Um bipe para "estou bem". Para o buzzer, o alarme de energia e a queda. | `DEBOUNCE` |
+| Botão | Um bipe para "estou bem". Para o buzzer e a queda. | `DEBOUNCE` |
 | DHT22 a 34 °C ou mais | Âmbar aceso e três bipes. Apaga abaixo de 33,5 °C. | `TEMPERATURA_DE_CALOR`, `FIM_DO_CALOR` |
-| Tensão abaixo de 100 V | Âmbar piscando rápido e buzzer a cada segundo, até a tensão voltar ou o botão. | `TENSAO_MINIMA` |
+| Tensão abaixo de 100 V | Luz de emergência (a luz branca) acesa e "SEM LUZ" na tela até a tensão voltar. Sem bipes. | `TENSAO_MINIMA` |
 | 14h30 sem `MOVIMENTO` nem botão desde as 10h | Âmbar piscando e buzzer até o botão ou por 10 min, uma vez por dia. | `HORA_DO_PEDIDO_MIN`, `INICIO_DA_JANELA_MIN` em `config.h` |
-| Impacto de 2 g ou mais no pingente, ou alguém deitado sob o sensor de teto por 30 s | "QUEDA?" na tela e bipe a cada segundo por 15 s. O botão cancela. Sem toque, `QUEDA` e alarme até o botão. | `IMPACTO_G`, `ALTURA_DEITADO_CM`, `TEMPO_NO_CHAO_S`, `CONTAGEM_DA_QUEDA_S` em `config.h` |
+| Impacto de 2 g ou mais no pingente | "QUEDA?" na tela e bipe a cada 1,6 s por 15 s. O botão cancela. Sem toque, `QUEDA` e alarme até o botão. | `IMPACTO_G`, `CONTAGEM_DA_QUEDA_S` em `config.h` |
 | Qualquer situação acima | A tela OLED mostra o recado do momento em letras grandes. | |
 
 O pedido de toque local usa o relógio do ESP32 (NTP, no fuso `FUSO_SEGUNDOS`), não o relógio de demo da
@@ -105,7 +106,7 @@ Para mostrar o pedido de toque sem esperar as 14h30, `SILENCIO_DEMO_S` em `confi
 relógio por N segundos sem sinal de vida. Com `90`, o buzzer chama 90 s depois do boot ou do último
 movimento ou toque. O repositório fica com `0`, o comportamento real.
 
-O alarme de energia pressupõe que o aparelho real tenha bateria própria, porque mede a tomada do
+A luz de emergência pressupõe que o aparelho real tenha bateria própria, porque mede a tomada do
 concentrador. No Wokwi, o ESP32 continua ligado com o potenciômetro em 0 V.
 
 Limites conhecidos: o buffer vive na RAM e some se o ESP32 reiniciar sem rede. Com 64 eventos cheios, o
@@ -129,9 +130,9 @@ pasta para o site.
 |---|---|
 | Situação da casa: tudo bem, dia crítico, casa quente, falta de energia, pedido de toque, possível queda, queda avisada ou sem notícias do aparelho | Campo `alerta` do tópico `estado`. Sem foto há mais de 30 s, aparece "Sem notícias do aparelho". |
 | Último sinal de vida | O `MOVIMENTO` ou `BOTAO_BEM` mais recente, ou o `ultimoSinalHaS` do estado. |
-| Sensores | Temperatura, tensão, altura sob o sensor de teto, aceleração do pingente, e o estado da luz, do âmbar e do buzzer, todos do tópico `estado`. |
+| Sensores | Temperatura, tensão, aceleração do pingente, e o estado da luz, do âmbar e do buzzer, todos do tópico `estado`. |
 | Linha do tempo | O tópico `evento`, com o rótulo em português e a marca "guardado sem rede" nos eventos bufferizados. |
-| Ações da UBS | "Declarar dia crítico" publica `DIA_CRITICO` e "Pedir um toque" publica `PEDIR_TOQUE` no tópico `comando`. |
+| Ações da UBS | "Declarar dia crítico" publica `DIA_CRITICO`, "Pedir um toque" publica `PEDIR_TOQUE` e "Encerrar alertas" publica `ENCERRAR_ALERTAS` no tópico `comando`. "Encerrar alertas" também começa a linha do tempo do zero. |
 
 O prefixo e o token vêm da URL (`?prefixo=...&token=...`) ou dos campos em "Casa e broker". O padrão é o
 prefixo da equipe com a casa de teste. Como o broker é público, o painel deve ser usado só com a casa de teste.
@@ -247,8 +248,6 @@ Para mexer no circuito durante a simulação:
   `[silêncio] demo: 90 s sem sinal de vida` e o buzzer chama até o botão.
 - Queda pelo pingente: clique no MPU6050 e leve a aceleração Z de 1 g para 2 g. A tela mostra "QUEDA?" e a
   contagem de 15 s. Volte Z para 1 g e aperte o botão para cancelar, ou espere para ver `QUEDA`.
-- Queda pelo sensor de teto: clique no HC-SR04 e ponha a distância em 220 cm (algo de 30 cm no chão). Depois
-  de 30 s, começa a mesma pergunta. Volte para 400 cm, que é o corredor vazio.
 - Wi-Fi: a chave começa na posição "Wi-Fi ligado". Ao mudar a chave de posição, o serial mostra
   `[wifi] chave desligada`, e cada evento
   seguinte mostra `sem rede: guardado (N no buffer)`. Ao voltar a chave, o serial mostra
