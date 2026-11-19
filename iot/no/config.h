@@ -32,11 +32,7 @@
 // Demo: acima de 0, troca a janela do relógio por N segundos sem sinal de vida. 0 é o real.
 #define SILENCIO_DEMO_S 0
 
-// Queda. O pingente (MPU6050) avisa um impacto. O sensor de teto (HC-SR04) mede a altura do que
-// está embaixo dele: alguém deitado no chão por TEMPO_NO_CHAO_S também é queda. Antes de avisar,
+// Queda. O pingente (MPU6050) avisa um impacto. Antes de avisar,
 // o aparelho mostra "QUEDA?" e bipa por CONTAGEM_DA_QUEDA_S. Um toque no botão cancela.
 #define IMPACTO_G 2.0
-#define ALTURA_DO_TETO_CM 250
-#define ALTURA_DEITADO_CM 50
-#define TEMPO_NO_CHAO_S 30
 #define CONTAGEM_DA_QUEDA_S 15

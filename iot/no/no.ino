@@ -12,8 +12,8 @@
 // - Botão: cada toque é um "estou bem" (BOTAO_BEM) e silencia o buzzer.
 // - Comandos: DIA_CRITICO acende o LED âmbar. PEDIR_TOQUE toca o buzzer até o botão.
 // - Reações locais, sem servidor: 34 °C ou mais acende o âmbar; tensão abaixo de 100 V dispara o
-//   alarme até a tensão voltar ou o botão; às 14h30, sem sinal de vida desde as 10h, o buzzer chama.
-// - Queda: impacto no pingente (MPU6050) ou alguém deitado no chão sob o sensor de teto (HC-SR04).
+//   a luz de caminho vira luz de emergência até a tensão voltar; às 14h30, sem sinal de vida desde as 10h, o buzzer chama.
+// - Queda: impacto no pingente (MPU6050).
 //   A tela mostra "QUEDA?" e o buzzer bipa. Sem toque no botão, sai um evento QUEDA. O Motor
 //   da API não conhece QUEDA e recusa o pacote; o painel web mostra.
 // - Tela OLED com o recado do momento, em letras grandes.
@@ -48,15 +48,6 @@
 #ifndef IMPACTO_G
 #define IMPACTO_G 2.0
 #endif
-#ifndef ALTURA_DO_TETO_CM
-#define ALTURA_DO_TETO_CM 250
-#endif
-#ifndef ALTURA_DEITADO_CM
-#define ALTURA_DEITADO_CM 50
-#endif
-#ifndef TEMPO_NO_CHAO_S
-#define TEMPO_NO_CHAO_S 30
-#endif
 #ifndef CONTAGEM_DA_QUEDA_S
 #define CONTAGEM_DA_QUEDA_S 15
 #endif
@@ -70,8 +61,6 @@ const int PINO_BOTAO = 25;     // botão grande, com pull-up interno
 const int PINO_AMBAR = 33;     // LED âmbar: dia crítico e pedido de toque
 const int PINO_BUZZER = 32;
 const int PINO_WIFI = 14;      // chave da demo: desligada corta o Wi-Fi de verdade
-const int PINO_TRIG = 5;       // HC-SR04 no teto
-const int PINO_ECHO = 18;      // no aparelho real, com divisor de tensão: o eco sai em 5 V
 // OLED (0x3C) e MPU6050 (0x68) no I2C padrão: SDA 21, SCL 22.
 const uint8_t ENDERECO_TELA = 0x3C;
 const uint8_t ENDERECO_MPU = 0x68;
@@ -89,7 +78,6 @@ const unsigned long DURACAO_DIA_CRITICO = 12UL * 60 * 60 * 1000;
 const unsigned long DURACAO_TOQUE = 10UL * 60 * 1000;
 const unsigned long INTERVALO_ESTADO = 2000;
 const unsigned long INTERVALO_TELA = 500;
-const unsigned long INTERVALO_DISTANCIA = 300;
 const unsigned long INTERVALO_MPU = 100;
 
 const float TEMPERATURA_DE_CALOR = 34.0;  // a mesma do Motor
@@ -151,7 +139,6 @@ unsigned long toquePedidoEm = 0;
 
 // Reações locais.
 bool calor = false;
-bool alarmeDeEnergia = false;   // tensão baixa e ninguém apertou o botão ainda
 bool houveSinal = false;        // MOVIMENTO ou BOTAO_BEM desde o boot
 unsigned long ultimoSinalEm = 0;
 int diaDoPedidoLocal = -1;      // tm_yday do último pedido local: um por dia
@@ -165,10 +152,6 @@ const char *origemDaQueda = "";
 float aceleracaoG = NAN;
 bool impactoAntes = false;
 unsigned long ultimaLeituraMpu = 0;
-int alturaCm = -1;              // altura do que está sob o sensor de teto; -1 sem leitura
-unsigned long ultimaDistancia = 0;
-bool noChao = false;
-unsigned long noChaoDesde = 0;
 
 unsigned long ultimoEstado = 0;
 unsigned long ultimaTela = 0;
@@ -306,6 +289,14 @@ void aoReceber(char *topico, byte *corpo, unsigned int tamanho) {
     pedindoToque = true;
     toquePedidoEm = millis();
     Serial.println("[comando] PEDIR_TOQUE: buzzer até alguém apertar o botão");
+  } else if (strstr(texto, "\"ENCERRAR_ALERTAS\"")) {
+    // Só o painel manda este comando. Apaga o que a UBS ou o aparelho ligaram; o calor e a falta de
+    // energia continuam enquanto o sensor disser que continuam.
+    diaCritico = false;
+    pedindoToque = false;
+    queda = SEM_QUEDA;
+    silenciar();
+    Serial.println("[comando] ENCERRAR_ALERTAS: dia crítico, pedido de toque e queda encerrados");
   }
 }
 
@@ -379,7 +370,8 @@ void cuidarDoCorredor() {
     registrarSinal();
   }
   pirAntes = pir;
-  digitalWrite(PINO_LUZ, (long)(luzAte - agora) > 0 ? HIGH : LOW);
+  // Sem energia na tomada, a luz de caminho fica acesa como luz de emergência (o aparelho tem bateria).
+  digitalWrite(PINO_LUZ, (long)(luzAte - agora) > 0 || tensaoBaixa ? HIGH : LOW);
 }
 
 void cuidarDoBotao() {
@@ -394,15 +386,9 @@ void cuidarDoBotao() {
         pedindoToque = false;
         silenciar();
       }
-      if (alarmeDeEnergia) {
-        alarmeDeEnergia = false;
-        silenciar();
-        Serial.println("[energia] alarme silenciado pelo botão");
-      }
       if (queda != SEM_QUEDA) {
         Serial.println(queda == PERGUNTANDO ? "[queda] cancelada pelo botão" : "[queda] encerrada pelo botão");
         queda = SEM_QUEDA;
-        noChaoDesde = agora;  // se continuar no chão, a contagem recomeça
         silenciar();
       }
       guardar("BOTAO_BEM");
@@ -437,9 +423,7 @@ void cuidarDaTelemetria() {
   if (primeira || cruzou || (telemetriaInicial && vencida)) {
     if (cruzou) {
       Serial.printf("[energia] tensão cruzou 100 V: %.1f V\n", tensaoV);
-      alarmeDeEnergia = baixa;
-      if (baixa) Serial.println("[energia] alarme local até a tensão voltar ou alguém apertar o botão");
-      else silenciar();
+      Serial.println(baixa ? "[energia] sem energia: luz de emergência acesa" : "[energia] energia voltou: luz de emergência apagada");
     }
     telemetriaInicial = true;
     ultimaTelemetria = agora;
@@ -481,9 +465,6 @@ void cuidarDosAvisos() {
   } else if (queda == PERGUNTANDO) {
     digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
     bipes(agora, 1600, 1, 1500);
-  } else if (alarmeDeEnergia) {
-    digitalWrite(PINO_AMBAR, (agora / 150) % 2 == 0 ? HIGH : LOW);
-    bipes(agora, 3200, 2, 2200);
   } else if (pedindoToque) {
     digitalWrite(PINO_AMBAR, piscar ? HIGH : LOW);
     bipes(agora, 3200, 2, 880);
@@ -558,19 +539,6 @@ float lerAceleracaoG() {
   return sqrt(soma);
 }
 
-// Altura do que está sob o sensor de teto: o teto menos a distância medida. -1 sem eco.
-int medirAlturaCm() {
-  digitalWrite(PINO_TRIG, LOW);
-  delayMicroseconds(2);
-  digitalWrite(PINO_TRIG, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(PINO_TRIG, LOW);
-  unsigned long eco = pulseIn(PINO_ECHO, HIGH, 30000);
-  if (eco == 0) return -1;
-  int distancia = eco / 58;
-  return distancia >= ALTURA_DO_TETO_CM ? 0 : ALTURA_DO_TETO_CM - distancia;
-}
-
 void perguntarSeCaiu(const char *origem) {
   if (queda != SEM_QUEDA) return;
   queda = PERGUNTANDO;
@@ -587,14 +555,6 @@ void cuidarDaQueda() {
     bool impacto = !isnan(aceleracaoG) && aceleracaoG >= IMPACTO_G;
     if (impacto && !impactoAntes) perguntarSeCaiu("impacto no pingente");
     impactoAntes = impacto;
-  }
-  if (agora - ultimaDistancia >= INTERVALO_DISTANCIA) {
-    ultimaDistancia = agora;
-    alturaCm = medirAlturaCm();
-    bool deitado = alturaCm >= 10 && alturaCm <= ALTURA_DEITADO_CM;
-    if (deitado && !noChao) noChaoDesde = agora;
-    noChao = deitado;
-    if (noChao && agora - noChaoDesde >= TEMPO_NO_CHAO_S * 1000UL) perguntarSeCaiu("alguém deitado no chão do corredor");
   }
   // millis() de novo: perguntaEm pode ter nascido depois do agora lido no começo da função.
   if (queda == PERGUNTANDO && millis() - perguntaEm >= CONTAGEM_DA_QUEDA_S * 1000UL) {
@@ -682,14 +642,14 @@ void publicarEstado() {
   numero(temp, sizeof temp, tempC);
   numero(tensao, sizeof tensao, tensaoV);
   numero(acel, sizeof acel, aceleracaoG);
-  bool buzzer = queda != SEM_QUEDA || alarmeDeEnergia || pedindoToque;
+  bool buzzer = queda != SEM_QUEDA || pedindoToque;
   bool ambar = buzzer || calor || diaCritico;
   bool luz = (long)(luzAte - agora) > 0;
   long sinalHa = houveSinal ? (long)((agora - ultimoSinalEm) / 1000) : -1;
   snprintf(corpo, sizeof corpo,
-           "{\"ts\":\"%s\",\"tempC\":%s,\"tensaoV\":%s,\"alturaCm\":%d,\"aceleracaoG\":%s,\"luz\":%s,"
+           "{\"ts\":\"%s\",\"tempC\":%s,\"tensaoV\":%s,\"aceleracaoG\":%s,\"luz\":%s,"
            "\"ambar\":%s,\"buzzer\":%s,\"alerta\":\"%s\",\"ultimoSinalHaS\":%ld,\"noBuffer\":%d}",
-           quando, temp, tensao, alturaCm, acel, luz ? "true" : "false", ambar ? "true" : "false",
+           quando, temp, tensao, acel, luz ? "true" : "false", ambar ? "true" : "false",
            buzzer ? "true" : "false", alertaAtual(), sinalHa, tamanhoBuffer);
   mqtt.publish(topicoEstado, corpo, true);
 }
@@ -703,8 +663,6 @@ void setup() {
   ledcAttach(PINO_BUZZER, 2000, 10);
   somDesligar();
   pinMode(PINO_WIFI, INPUT_PULLUP);
-  pinMode(PINO_TRIG, OUTPUT);
-  pinMode(PINO_ECHO, INPUT);
   dht.setup(PINO_DHT, DHTesp::DHT22);
   Wire.begin();
   Wire.setClock(400000);
