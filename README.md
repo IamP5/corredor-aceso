@@ -67,7 +67,7 @@ Cada linha diz o que olhar, onde estão as evidências e o que vai na entrega. O
 |---|---|---|
 | Pitch | 4 min | a publicar |
 | Mobile Development | 3 min | a publicar |
-| Physical Computing | 4 min | a publicar |
+| Physical Computing | 4 min | [youtu.be/XH_M3QyMZsQ](https://youtu.be/XH_M3QyMZsQ) |
 | IA e Machine Learning | 5 min | a publicar |
 | Operating Systems | 7 min | a publicar |
 | Painel de Cybersecurity | sem limite | vai dentro do PDF de Cyber |

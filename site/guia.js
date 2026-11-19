@@ -238,7 +238,7 @@ const DISCIPLINAS = [
       { nome: 'Integrado à solução', pontos: '', onde: 'O nó publica os eventos do contrato MQTT do Corredor Aceso. O <a href="painel/">painel web</a> assina o mesmo broker e é a visão da ACS sobre a casa: situação, sensores, linha do tempo e os comandos de dia crítico, pedido de toque e encerrar alertas.' },
       { nome: 'Link do projeto no Wokwi', pontos: '', onde: '<a href="https://wokwi.com/projects/481069519743904769">wokwi.com/projects/481069519743904769</a>' },
       { nome: 'Painel web via MQTT', pontos: '', onde: '<a href="painel/">iamp5.github.io/corredor-aceso/painel</a>' },
-      { nome: 'Vídeo de até 4 minutos', pontos: '', onde: 'O link entra no README, em Vídeos, depois da gravação.' },
+      { nome: 'Vídeo de até 4 minutos', pontos: '', onde: '<a href="https://youtu.be/XH_M3QyMZsQ">youtu.be/XH_M3QyMZsQ</a>' },
       { nome: 'Nomes dos integrantes', pontos: '', onde: `<a href="${arq('integrantes.txt')}">integrantes.txt</a>` },
     ],
     passos: [

@@ -148,7 +148,7 @@ Entrega: link do projeto no Wokwi, link do vídeo e um arquivo `.txt` com os nom
 
 - [ ] **P1, 18/11.** Salvar o projeto no Wokwi como público, com a casa de teste e `SILENCIO_DEMO_S 90`, e pôr o link em `iot/README.md`. Esta entrega não usa a VM nem o token da casa 1.
 - [ ] **P1, 18/11.** Conferir o painel publicado em <https://iamp5.github.io/corredor-aceso/painel/> depois do push.
-- [ ] **P1, 18/11.** Gravar o vídeo de **até 4 minutos** com a integração, pelo roteiro.
+- [x] **P1, 19/11.** Gravar o vídeo de **até 4 minutos** com a integração, pelo roteiro: [youtu.be/XH_M3QyMZsQ](https://youtu.be/XH_M3QyMZsQ).
 - [ ] **P1, 19/11.** Enviar no Teams o link do Wokwi, o link do vídeo e o arquivo `integrantes.txt`.
 
 | Envia | O quê |
