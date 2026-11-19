@@ -175,6 +175,43 @@ unsigned long ultimaTela = 0;
 
 bool horaValida() { return time(nullptr) > HORA_VALIDA; }
 
+// Redes que bloqueiam o NTP (UDP 123) deixam o nó sem hora, e sem hora nenhum pacote sai. Nesse caso a
+// hora vem do cabeçalho Date de uma resposta HTTP, com precisão de 1 s, o que basta para o contrato.
+unsigned long ultimaHoraHttp = 0;
+const unsigned long ESPERA_NTP = 8000;
+
+int mesDoNome(const char *m) {
+  const char *nomes = "JanFebMarAprMayJunJulAugSepOctNovDec";
+  for (int i = 0; i < 12; i++) if (strncmp(m, nomes + i * 3, 3) == 0) return i;
+  return -1;
+}
+
+void acertarHoraPorHttp() {
+  WiFiClient web;
+  web.setTimeout(3);
+  if (!web.connect("www.google.com", 80)) return;
+  web.print("HEAD / HTTP/1.1\r\nHost: www.google.com\r\nConnection: close\r\n\r\n");
+  unsigned long ate = millis() + 3000;
+  while (millis() < ate && (web.connected() || web.available())) {
+    String linha = web.readStringUntil('\n');
+    if (!linha.startsWith("Date: ")) continue;
+    // Date: Thu, 19 Nov 2026 00:48:04 GMT
+    char mes[4] = {0};
+    struct tm t = {};
+    if (sscanf(linha.c_str(), "Date: %*3s, %d %3s %d %d:%d:%d", &t.tm_mday, mes, &t.tm_year, &t.tm_hour, &t.tm_min, &t.tm_sec) != 6) break;
+    t.tm_mon = mesDoNome(mes);
+    if (t.tm_mon < 0) break;
+    t.tm_year -= 1900;
+    time_t agora = mktime(&t);  // o fuso do sistema é UTC (configTime com deslocamento 0)
+    struct timeval tv = {agora, 0};
+    settimeofday(&tv, nullptr);
+    Serial.printf("[hora] NTP sem resposta; hora acertada pelo HTTP: %s", linha.c_str() + 6);
+    Serial.println();
+    break;
+  }
+  web.stop();
+}
+
 void registrarSinal() {
   houveSinal = true;
   ultimoSinalEm = millis();
@@ -298,6 +335,10 @@ void cuidarDaRede() {
       Serial.println("[wifi] conectando");
     }
     return;
+  }
+  if (!horaValida() && agora > ESPERA_NTP && agora - ultimaHoraHttp >= 15000) {
+    ultimaHoraHttp = agora;
+    acertarHoraPorHttp();
   }
   if (!mqtt.connected()) {
     if (agora - ultimaTentativa < esperaMqtt && ultimaTentativa != 0) return;

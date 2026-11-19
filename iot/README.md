@@ -60,7 +60,9 @@ não depende de a pessoa lembrar de nada. Num dia crítico de calor, a ACS vê n
   naquele instante, e por isso um heartbeat atrasado não teria sentido.
 - A `TELEMETRIA` sai ao ligar, a cada 5 min e na hora em que a tensão cruza 100 V, para cima ou para baixo.
 - O `ts` vem do NTP, em UTC. Um evento que acontece antes do NTP responder guarda o `millis()` e ganha o
-  `ts` certo quando a hora chega. Nenhum pacote sai sem hora.
+  `ts` certo quando a hora chega. Nenhum pacote sai sem hora. Se o NTP não responder em 8 s (redes que
+  bloqueiam a porta UDP 123, como a do notebook usado com o Wokwi para VS Code), a hora vem do cabeçalho
+  `Date` de uma resposta HTTP de `www.google.com`, com precisão de 1 s.
 - O `seq` começa em 1 a cada religamento e sobe em todo pacote. Depois de um reinício, o `seq` repete com
   outro `ts`, e o Motor aceita.
 - Comandos chegam em `<prefixo>/corredor/v1/{token}/comando`. `DIA_CRITICO` acende o âmbar por 12 h.
