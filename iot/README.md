@@ -147,9 +147,11 @@ Depois, abra <http://localhost:8000/painel/>.
 
 ### Rede: do Wokwi até a VM
 
-O Wokwi do navegador não alcança a rede local da VM. O nó publica no broker público `test.mosquitto.org:1883`
-(QoS 0, o único da PubSubClient), em `<prefixo>/corredor/v1/{casaToken}/evento`. Até 18/11 à noite era o
-`broker.hivemq.com`; a troca deixou a conexão mais rápida (1 s contra 6 s no teste do notebook). O Mosquitto da VM abre
+O Wokwi do navegador não alcança a rede local da VM. O nó publica no broker público `broker.hivemq.com:1883`
+(QoS 0, o único da PubSubClient), em `<prefixo>/corredor/v1/{casaToken}/evento`. Na noite de 18/11 ele usou o
+`test.mosquitto.org`, que conectava mais rápido (1 s contra 6 s no teste do notebook). Na manhã de 19/11, o
+mosquitto parou de responder ao CONNECT, e o nó voltou ao HiveMQ. O painel escuta os dois, então basta trocar
+`MQTT_HOST`. O Mosquitto da VM abre
 uma ponte de saída e traz o tópico para `corredor/v1/{casaToken}/evento`. Os comandos fazem o caminho
 inverso. A seção 1.11 de [05-infra-e-entrega.md](../docs/arquitetura/05-infra-e-entrega.md) mede essa ponte.
 
