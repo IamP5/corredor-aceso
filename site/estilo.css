@@ -142,6 +142,8 @@ h3 { font-weight: 700; font-size: 14px; letter-spacing: 0.14em; text-transform: 
 .lista--links { columns: 2; column-gap: 40px; }
 .nota { font-size: 14px; color: var(--ardosia); }
 .nota code { word-break: break-all; }
+.video { position: relative; aspect-ratio: 16 / 9; max-width: 960px; margin-bottom: 16px; background: var(--preto-atomico); border: 1px solid var(--linha); border-radius: var(--raio); overflow: hidden; }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
 /* ---- Critérios com checkbox */
 .criterios { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--linha); }
