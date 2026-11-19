@@ -157,7 +157,8 @@
     $('prefixo').value = parametros.get('prefixo') || 'corredor-aceso-40028922';
     $('token').value = parametros.get('token') || 'fa11fa11fa11fa11fa11fa11fa11fa11';
 
-    let clientes = [], base = '', estado = null, ultimoSinalEm = 0;
+    // estadoChegouEm usa o relógio do navegador: o do aparelho atrasa quando o simulador roda abaixo de 100%.
+    let clientes = [], base = '', estado = null, estadoChegouEm = 0, ultimoSinalEm = 0;
     const eventos = [];
 
     const NOMES = {
@@ -178,7 +179,7 @@
       clientes.forEach(c => c.end(true));
       base = `${$('prefixo').value.trim()}/corredor/v1/${$('token').value.trim()}`;
       $('topicos').textContent = `${base}/{evento,estado,comando}`;
-      estado = null; ultimoSinalEm = 0; eventos.length = 0; vistos.clear();
+      estado = null; estadoChegouEm = 0; ultimoSinalEm = 0; eventos.length = 0; vistos.clear();
       desenharLinha();
       const escolhido = parametros.get('broker');
       const urls = escolhido && BROKERS[escolhido] ? [BROKERS[escolhido]] : Object.values(BROKERS);
@@ -193,14 +194,16 @@
 
     // O mesmo evento pode chegar pelos dois brokers; a chave (seq, ts, tipo) descarta a repetição.
     const vistos = new Set();
-    function aoReceber(topico, corpo) {
+    function aoReceber(topico, corpo, pacote) {
       let dado;
       try { dado = JSON.parse(corpo.toString()); } catch { return; }
       if (topico.endsWith('/estado')) {
-        if (estado && Date.parse(dado.ts) <= Date.parse(estado.ts)) return;  // foto mais velha, do outro broker
+        // Ao conectar, cada broker entrega a foto retida; fica a mais nova. Ao vivo, o aparelho só publica num broker.
+        if (pacote?.retain && estado && Date.parse(dado.ts) <= Date.parse(estado.ts)) return;
         estado = dado;
+        estadoChegouEm = Date.now();
         if (typeof dado.ultimoSinalHaS === 'number' && dado.ultimoSinalHaS >= 0) {
-          ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts) - dado.ultimoSinalHaS * 1000);
+          ultimoSinalEm = estadoChegouEm - dado.ultimoSinalHaS * 1000;
         }
         if ($('ver-tudo').checked) registrar({ tipo: 'ESTADO', ts: dado.ts, alerta: dado.alerta });
       } else {
@@ -208,7 +211,7 @@
         if (vistos.has(chave)) return;
         vistos.add(chave);
         registrar(dado);
-        if (SINAL_DE_VIDA.includes(dado.tipo)) ultimoSinalEm = Math.max(ultimoSinalEm, Date.parse(dado.ts));
+        if (SINAL_DE_VIDA.includes(dado.tipo) && !dado.bufferizado) ultimoSinalEm = Date.now();
       }
       desenhar();
     }
@@ -234,7 +237,8 @@
         if (lista.children.length >= 60) break;
         const li = document.createElement('li');
         const t = document.createElement('time');
-        const quando = e.ts ? new Date(e.ts) : e.recebido;
+        // Ao vivo, vale a hora de chegada; o guardado sem rede mostra a hora original do aparelho.
+        const quando = e.bufferizado && e.ts ? new Date(e.ts) : e.recebido;
         t.dateTime = quando.toISOString();
         t.textContent = hora(quando);
         const texto = document.createElement('span');
@@ -262,7 +266,7 @@
 
     function situacao() {
       if (!estado) return ['cinza', 'Aguardando o aparelho…', 'Nenhuma foto de estado recebida. Inicie a simulação no Wokwi.'];
-      const idade = (Date.now() - Date.parse(estado.ts)) / 1000;
+      const idade = (Date.now() - estadoChegouEm) / 1000;
       if (idade > SEM_NOTICIAS_S) return ['cinza', 'Sem notícias do aparelho', `Último contato ${ha(idade)}. Pode estar sem rede ou desligado; os eventos ficam guardados nele.`];
       switch (estado.alerta) {
         case 'QUEDA': return ['vermelho', 'Queda', 'O aparelho avisou uma queda. Ninguém apertou o botão em 15 s.'];

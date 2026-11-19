@@ -1,0 +1,81 @@
+22:34:12 [hora] NTP sem resposta; hora acertada pelo HTTP: Thu, 19 Nov 2026 01:34:12 GMT
+22:34:12 [mqtt] {"seq":1,"ts":"2026-11-19T01:34:04Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:34:51 ets Jul 29 2019 12:21:46
+22:34:51 
+22:34:51 rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+22:34:51 configsip: 0, SPIWP:0xee
+22:34:51 clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+22:34:51 mode:DIO, clock div:1
+22:34:51 load:0x3fff0030,len:5084
+22:34:51 ho 0 tail 12 room 4
+22:34:51 load:0x40078000,len:16716
+22:34:51 load:0x40080400,len:3452
+22:34:51 entry 0x4008059c
+22:34:53 Corredor Aceso: nó da casa fa11fa... publica em corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento
+22:34:53 [pecas] tela ok, pingente ok
+22:34:54 [wifi] conectando
+22:34:59 [mqtt] conectado em test.mosquitto.org, 0 evento(s) no buffer
+22:35:07 [hora] NTP sem resposta; hora acertada pelo HTTP: Thu, 19 Nov 2026 01:35:07 GMT
+22:35:07 [mqtt] {"seq":1,"ts":"2026-11-19T01:34:59Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:36:00 [mqtt] {"seq":5,"ts":"2026-11-19T01:36:00Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:36:33 [queda] impacto no pingente: possível queda, aviso em 15 s
+22:36:48 [queda] sem resposta: QUEDA avisada (impacto no pingente)
+22:36:48 [mqtt] {"seq":8,"ts":"2026-11-19T01:36:47Z","tipo":"QUEDA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:37:30 [queda] encerrada pelo botão
+22:37:30 [mqtt] {"seq":11,"ts":"2026-11-19T01:37:27Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:38:33 [queda] impacto no pingente: possível queda, aviso em 15 s
+22:38:48 [queda] sem resposta: QUEDA avisada (impacto no pingente)
+22:38:49 [mqtt] {"seq":16,"ts":"2026-11-19T01:38:44Z","tipo":"QUEDA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:40:04 [mqtt] {"seq":21,"ts":"2026-11-19T01:39:58Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:44:05 [queda] encerrada pelo botão
+22:44:05 [mqtt] {"seq":33,"ts":"2026-11-19T01:43:36Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:45:33 [mqtt] {"seq":38,"ts":"2026-11-19T01:44:58Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:47:08 [queda] impacto no pingente: possível queda, aviso em 15 s
+22:47:25 [queda] sem resposta: QUEDA avisada (impacto no pingente)
+22:47:25 [mqtt] {"seq":44,"ts":"2026-11-19T01:46:38Z","tipo":"QUEDA","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:47:41 [queda] encerrada pelo botão
+22:47:41 [mqtt] {"seq":46,"ts":"2026-11-19T01:46:53Z","tipo":"BOTAO_BEM","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:48:22 [mqtt] {"seq":49,"ts":"2026-11-19T01:47:32Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:49:02 [mqtt] {"seq":52,"ts":"2026-11-19T01:48:12Z","tipo":"MOVIMENTO","tempC":29.5,"tensaoV":127.1,"bufferizado":false}
+22:49:34 [energia] tensão cruzou 100 V: 88.0 V
+22:49:34 [energia] sem energia: luz de emergência acesa
+22:49:34 [mqtt] {"seq":54,"ts":"2026-11-19T01:48:44Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":88.0,"bufferizado":false}
+22:51:23 ets Jul 29 2019 12:21:46
+22:51:23 
+22:51:23 rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+22:51:23 configsip: 0, SPIWP:0xee
+22:51:23 clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+22:51:23 mode:DIO, clock div:1
+22:51:23 load:0x3fff0030,len:5084
+22:51:23 ho 0 tail 12 room 4
+22:51:23 load:0x40078000,len:16716
+22:51:23 load:0x40080400,len:3452
+22:51:23 entry 0x4008059c
+22:51:25 Corredor Aceso: nó da casa fa11fa... publica em corredor-aceso-40028922/corredor/v1/fa11fa11fa11fa11fa11fa11fa11fa11/evento
+22:51:25 [pecas] tela ok, pingente ok
+22:51:25 [energia] tensão cruzou 100 V: 12.0 V
+22:51:25 [energia] sem energia: luz de emergência acesa
+22:51:25 [evento] seq=1 TELEMETRIA sem rede: guardado (1 no buffer)
+22:51:26 [wifi] conectando
+22:51:31 [mqtt] conectado em test.mosquitto.org, 1 evento(s) no buffer
+22:51:39 [hora] NTP sem resposta; hora acertada pelo HTTP: Thu, 19 Nov 2026 01:51:39 GMT
+22:51:39 [mqtt] {"seq":1,"ts":"2026-11-19T01:51:26Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":12.0,"bufferizado":true}
+22:51:39 [buffer] 1 evento(s) reenviados com a hora original
+22:52:13 [energia] tensão cruzou 100 V: 250.0 V
+22:52:13 [energia] energia voltou: luz de emergência apagada
+22:52:13 [mqtt] {"seq":4,"ts":"2026-11-19T01:52:12Z","tipo":"TELEMETRIA","tempC":29.5,"tensaoV":250.0,"bufferizado":false}
+22:52:24 [comando] DIA_CRITICO: LED âmbar aceso
+22:53:14 [calor] 41.2 °C dentro de casa: muito quente, âmbar aceso
+22:53:42 [comando] ENCERRAR_ALERTAS: dia crítico, pedido de toque e queda encerrados
+22:54:08 [calor] 21.7 °C: âmbar do calor apagado
+22:54:14 [comando] PEDIR_TOQUE: buzzer até alguém apertar o botão
+22:54:30 [mqtt] {"seq":12,"ts":"2026-11-19T01:54:27Z","tipo":"BOTAO_BEM","tempC":21.7,"tensaoV":141.8,"bufferizado":false}
+22:55:03 [wifi] chave desligada: Wi-Fi cortado. Eventos vão para o buffer.
+22:55:16 [evento] seq=14 MOVIMENTO sem rede: guardado (1 no buffer)
+22:55:20 [evento] seq=15 BOTAO_BEM sem rede: guardado (2 no buffer)
+22:55:31 [wifi] chave ligada: reconectando
+22:55:31 [wifi] conectando
+22:55:37 [mqtt] conectado em test.mosquitto.org, 2 evento(s) no buffer
+22:55:37 [mqtt] {"seq":14,"ts":"2026-11-19T01:55:14Z","tipo":"MOVIMENTO","tempC":21.7,"tensaoV":141.8,"bufferizado":true}
+22:55:37 [mqtt] {"seq":15,"ts":"2026-11-19T01:55:17Z","tipo":"BOTAO_BEM","tempC":21.7,"tensaoV":141.8,"bufferizado":true}
+22:55:37 [buffer] 2 evento(s) reenviados com a hora original

@@ -4,6 +4,35 @@ Rodadas de 17 e 18/11/2026. Todos os tokens daqui são de teste: a casa de teste
 `corredor.conf.padrao` ou tokens sorteados na hora, que nenhum banco conhece. Nenhum arquivo tem nome,
 endereço ou telefone.
 
+## `final-2026-11-18/`: o estado atual, com o nó e o painel
+
+Rodada de 18/11/2026, das 22h32 às 22h56, com o firmware e o painel desta entrega: sem sensor de teto, com
+luz de emergência e o botão "Encerrar alertas". O nó rodou no Wokwi do VS Code (`iot/no/wokwi.toml`), porque
+o gateway público do wokwi.com estava fora do ar na hora. O painel foi o `site/painel/index.html`, servido
+localmente com o mesmo arquivo publicado no Pages. Os dois usaram `test.mosquitto.org`, o prefixo
+`corredor-aceso-40028922` e a casa de teste. Não teve API nem VM.
+
+O firmware foi recompilado às 22h51, no meio da rodada, para o tópico `estado` contar a luz de emergência
+em `luz`. O serial mostra o novo boot. As cenas de energia em diante já são do firmware corrigido.
+
+| Arquivo | O que é |
+|---|---|
+| `00-circuito-no-wokwi.png` | O circuito do projeto público no wokwi.com, rodando, com a tela em "TUDO BEM". |
+| `painel-01-tudo-bem.png` | O painel conectado, com os sensores do aparelho. |
+| `painel-02-passou-no-corredor.png` | O PIR acendeu a luz, e `MOVIMENTO` virou o último sinal de vida. |
+| `painel-03-possivel-queda.png` | Pingente em 2 g: "Possível queda", com o buzzer e o âmbar ligados. |
+| `painel-04-queda.png` | Sem toque no botão em 15 s: `QUEDA` na linha do tempo e a casa em vermelho. |
+| `painel-05-sem-energia.png` | Tomada em 12 V: "Sem energia", com a luz de emergência acesa e o buzzer quieto. |
+| `painel-06-dia-critico.png` | O botão "Declarar dia crítico" acendeu o âmbar no aparelho. |
+| `painel-07-calor.png` | DHT22 em 41,2 °C depois do "Encerrar alertas": o dia crítico apagou, e o calor seguiu o sensor. |
+| `painel-08-pedido-de-toque.png` | "Pedir um toque": o buzzer chama até o botão. |
+| `painel-09-reenvio-do-buffer.png` | Wi-Fi cortado pela chave, uma passagem e um toque guardados e reenviados com a hora original. |
+| `serial.txt` | Monitor serial da rodada, com a hora local da captura em cada linha. |
+| `broker.txt` | O que um assinante de `corredor-aceso-40028922/#` recebeu, sem o prefixo e sem heartbeats. Do tópico `estado`, só as fotos em que `alerta`, `luz`, `ambar` ou `buzzer` mudaram. |
+
+As pastas abaixo são de rodadas anteriores. Ficam como histórico: algumas têm o sensor de teto e o alarme de
+energia com bipes, que saíram do circuito.
+
 ## `wokwi/`: o firmware rodando no simulador do wokwi.com
 
 | Arquivo | O que é |

@@ -644,7 +644,7 @@ void publicarEstado() {
   numero(acel, sizeof acel, aceleracaoG);
   bool buzzer = queda != SEM_QUEDA || pedindoToque;
   bool ambar = buzzer || calor || diaCritico;
-  bool luz = (long)(luzAte - agora) > 0;
+  bool luz = (long)(luzAte - agora) > 0 || tensaoBaixa;
   long sinalHa = houveSinal ? (long)((agora - ultimoSinalEm) / 1000) : -1;
   snprintf(corpo, sizeof corpo,
            "{\"ts\":\"%s\",\"tempC\":%s,\"tensaoV\":%s,\"aceleracaoG\":%s,\"luz\":%s,"
