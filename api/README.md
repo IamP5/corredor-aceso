@@ -32,6 +32,24 @@ O mesmo código atende às duas disciplinas. Os critérios de SOA recaem princip
 
 Evidências das duas disciplinas: os prints do Swagger em [docs/evidencias/api/](../docs/evidencias/api/README.md) e o [relatório da integração](../docs/evidencias/integracao/RELATORIO.md), com a API rodando junto com o app, o simulador e o job de ML.
 
+## Evidências de funcionamento
+
+Prints do Swagger tirados em 17/11/2026 com a API rodando em `http://localhost:5080`, depois do `bash tools/demo.sh subir`. Como repetir está em [docs/evidencias/api/](../docs/evidencias/api/README.md).
+
+**Visão geral:** as 21 rotas, agrupadas por Motor, Cadastro e Guarda, e o botão **Authorize** do token da ACS.
+
+![Swagger com as rotas dos três módulos](../docs/evidencias/api/01-swagger-visao-geral.png)
+
+**Cadastro, `POST /api/idosos`:** a descrição da rota, o corpo do pedido e as respostas 201 e 422.
+
+![Rota POST /api/idosos aberta no Swagger](../docs/evidencias/api/02-swagger-cadastro.png)
+
+**Motor, `GET /api/radar`:** o parâmetro `microarea` e o formato da resposta 200.
+
+![Rota GET /api/radar aberta no Swagger](../docs/evidencias/api/03-swagger-motor.png)
+
+O [relatório da integração](../docs/evidencias/integracao/RELATORIO.md) mostra a mesma API atendendo o app, o simulador das casas e o job de ML, cena por cena.
+
 ## Projetos
 
 | Projeto | Papel | Pode referenciar |
