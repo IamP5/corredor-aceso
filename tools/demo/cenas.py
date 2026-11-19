@@ -392,6 +392,8 @@ CENAS = {
 
 def main() -> int:
 	escolhidas = sys.argv[1:] or list(CENAS)
+	# Os logs do simulador vão para ESTADO. Na VM, CORREDOR_DEMO_ESTADO aponta para uma pasta que ainda não existe.
+	ESTADO.mkdir(parents=True, exist_ok=True)
 	try:
 		for nome in escolhidas:
 			CENAS[nome]()

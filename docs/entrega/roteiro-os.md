@@ -134,10 +134,10 @@ corredor-ubs$ sudo ufw status
 Prepara os dados que o app vai mostrar. Na edição, só os primeiros e os últimos segundos aparecem.
 
 ```bash
-corredor-ubs$ sudo -u corredor bash -c 'cd /opt/corredor/repo && CORREDOR_API_URL=http://127.0.0.1 CORREDOR_DEMO_ESTADO=/tmp/demo /opt/corredor/venv/bin/python tools/demo/cenas.py dia-critico'
+corredor-ubs$ sudo -u corredor bash -c 'mkdir -p /tmp/demo && cd /opt/corredor/repo && CORREDOR_API_URL=http://127.0.0.1 CORREDOR_DEMO_ESTADO=/tmp/demo CORREDOR_DEMO_MANTER_SIMULADOR=1 /opt/corredor/venv/bin/python tools/demo/cenas.py dia-critico'
 ```
 
-O que precisa aparecer: a linha do job de ML com `"critico": true` e o fim, `== todas as conferências passaram`.
+O que precisa aparecer: a linha do job de ML com `"critico": true` e o fim, `== todas as conferências passaram`. A cena leva cerca de 2 minutos e meio. O simulador continua mandando sinais depois dela; **comece a T06 em até 20 minutos**, antes que o radar envelheça.
 
 ### T06 · App da ACS contra a API da VM
 
@@ -147,6 +147,8 @@ Prepare sem gravar: abra dois terminais no Mac.
 $ ssh -F "$HOME/.lima/corredor-ubs/ssh.config" -o ExitOnForwardFailure=yes -L 127.0.0.1:18080:127.0.0.1:80 -N lima-corredor-ubs
 $ cd app && EXPO_PUBLIC_API_URL=http://127.0.0.1:18080 npx expo start --web --port 8081
 ```
+
+O comando `ssh` volta para o prompt na hora: o Lima mantém o túnel pela conexão dele. Confira com `curl -s http://127.0.0.1:18080/api/versao`. Espere o Expo mostrar `Waiting on http://localhost:8081`.
 
 Na tela, deixe à direita o terminal da VM com o log do Nginx correndo:
 
@@ -222,7 +224,7 @@ $ limactl shell --workdir=/ corredor-ubs -- sudo corredor status
 $ limactl shell --workdir=/ corredor-ubs -- sudo journalctl -b -u corredor-monitor --no-pager -n 8
 ```
 
-O que precisa aparecer: os dois serviços `enabled`, o status em `[OK]` e o journal do novo boot, tudo sem nenhum `start` manual.
+O que precisa aparecer: os dois serviços `enabled`, o status em `[OK]` e o journal do novo boot, tudo sem nenhum `start` manual. A VM volta em cerca de 10 segundos. No journal, um `ALERTA API não está pronta` logo depois do boot é normal: o monitor sobe antes de a API terminar de iniciar e registra isso. Se aparecer, mostre e siga; é o monitor fazendo o trabalho dele.
 
 ### T12 · Fechamento
 
